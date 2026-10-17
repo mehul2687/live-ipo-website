@@ -1,0 +1,425 @@
+[
+  {
+    "id": "LINKINTIME_VAIBHAV_2",
+    "code": "VAIBHAV",
+    "name": "VAIBHAV VYAPAAR LIMITED (Server 2)",
+    "rawName": "VAIBHAV VYAPAAR LIMITED",
+    "registrarId": "LINKINTIME",
+    "registrarName": "Link-Intime India Private Ltd (Server 2)",
+    "allotmentUrl": "https://linkintime.co.in/Initial_Offer/public-issues.html"
+  },
+  {
+    "id": "LINKINTIME_VAIBHAV_1",
+    "code": "VAIBHAV",
+    "name": "VAIBHAV VYAPAAR LIMITED (Server 1)",
+    "rawName": "VAIBHAV VYAPAAR LIMITED",
+    "registrarId": "LINKINTIME",
+    "registrarName": "Link-Intime India Private Ltd (Server 1)",
+    "allotmentUrl": "https://linkintime.co.in/Initial_Offer/public-issues.html"
+  },
+  {
+    "id": "BIGSHARE_606",
+    "code": "606",
+    "name": "ACME INDIA INDUSTRIES LIMITED - IPO",
+    "rawName": "ACME INDIA INDUSTRIES LIMITED",
+    "registrarId": "BIGSHARE",
+    "registrarName": "Bigshare Services Private Limited",
+    "allotmentUrl": "https://ipo.bigshareonline.com/IPO_Status.html"
+  },
+  {
+    "id": "BIGSHARE_605",
+    "code": "605",
+    "name": "PARAMOUNT SYNTEX LIMITED - IPO",
+    "rawName": "PARAMOUNT SYNTEX LIMITED",
+    "registrarId": "BIGSHARE",
+    "registrarName": "Bigshare Services Private Limited",
+    "allotmentUrl": "https://ipo.bigshareonline.com/IPO_Status.html"
+  },
+  {
+    "id": "BIGSHARE_9053",
+    "code": "9053",
+    "name": "NITYAS GEMS AND JEWELLERY LIMITED - IPO",
+    "rawName": "NITYAS GEMS AND JEWELLERY LIMITED",
+    "registrarId": "BIGSHARE",
+    "registrarName": "Bigshare Services Private Limited",
+    "allotmentUrl": "https://ipo.bigshareonline.com/IPO_Status.html"
+  },
+  {
+    "id": "BIGSHARE_604",
+    "code": "604",
+    "name": "OMARA VENTURES INDIA LIMITED - IPO",
+    "rawName": "OMARA VENTURES INDIA LIMITED",
+    "registrarId": "BIGSHARE",
+    "registrarName": "Bigshare Services Private Limited",
+    "allotmentUrl": "https://ipo.bigshareonline.com/IPO_Status.html"
+  },
+  {
+    "id": "BIGSHARE_603",
+    "code": "603",
+    "name": "VANS ELECTROENGINEERINGS LIMITED - IPO",
+    "rawName": "VANS ELECTROENGINEERINGS LIMITED",
+    "registrarId": "BIGSHARE",
+    "registrarName": "Bigshare Services Private Limited",
+    "allotmentUrl": "https://ipo.bigshareonline.com/IPO_Status.html"
+  },
+  {
+    "id": "BIGSHARE_601",
+    "code": "601",
+    "name": "GREEN ASIA IMPEX LIMITED - IPO",
+    "rawName": "GREEN ASIA IMPEX LIMITED",
+    "registrarId": "BIGSHARE",
+    "registrarName": "Bigshare Services Private Limited",
+    "allotmentUrl": "https://ipo.bigshareonline.com/IPO_Status.html"
+  },
+  {
+    "id": "BIGSHARE_602",
+    "code": "602",
+    "name": "PIND HOSPITALITY LIMITED - IPO",
+    "rawName": "PIND HOSPITALITY LIMITED",
+    "registrarId": "BIGSHARE",
+    "registrarName": "Bigshare Services Private Limited",
+    "allotmentUrl": "https://ipo.bigshareonline.com/IPO_Status.html"
+  },
+  {
+    "id": "BIGSHARE_9052",
+    "code": "9052",
+    "name": "GERMAN GREEN STEEL AND POWER LIMITED - IPO",
+    "rawName": "GERMAN GREEN STEEL AND POWER LIMITED",
+    "registrarId": "BIGSHARE",
+    "registrarName": "Bigshare Services Private Limited",
+    "allotmentUrl": "https://ipo.bigshareonline.com/IPO_Status.html"
+  },
+  {
+    "id": "SKYLINE_3418",
+    "code": "3418",
+    "name": "ACETECH E-COMMERCE LIMITED - IPO",
+    "rawName": "ACETECH E-COMMERCE LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_4175",
+    "code": "4175",
+    "name": "AEGEUS TECHNOLOGIES LIMITED - IPO",
+    "rawName": "AEGEUS TECHNOLOGIES LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_2640",
+    "code": "2640",
+    "name": "ARMOUR SECURITY INDIA LIMITED - IPO",
+    "rawName": "ARMOUR SECURITY INDIA LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_2832",
+    "code": "2832",
+    "name": "ATEN PAPERS & FOAM LIMITED - IPO",
+    "rawName": "ATEN PAPERS & FOAM LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_3075",
+    "code": "3075",
+    "name": "AUTOFURNISH  LIMITED - IPO",
+    "rawName": "AUTOFURNISH  LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_2711",
+    "code": "2711",
+    "name": "AVIENCE BIOMEDICALS  LIMITED - IPO",
+    "rawName": "AVIENCE BIOMEDICALS  LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_2",
+    "code": "2",
+    "name": "BIO MEDICA LABORATORIES LIMITED - IPO",
+    "rawName": "BIO MEDICA LABORATORIES LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_4573",
+    "code": "4573",
+    "name": "BLACK OPAL CONSULTANTS LIMITED - IPO",
+    "rawName": "BLACK OPAL CONSULTANTS LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_450",
+    "code": "450",
+    "name": "CEDAAR TEXTILE LIMITED - IPO",
+    "rawName": "CEDAAR TEXTILE LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_3117",
+    "code": "3117",
+    "name": "EARKART LIMITED - IPO",
+    "rawName": "EARKART LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_3394",
+    "code": "3394",
+    "name": "ESSEX MARINE LIMITED - IPO",
+    "rawName": "ESSEX MARINE LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_2891",
+    "code": "2891",
+    "name": "FINBUD FINANCIAL SERVICES LIMITED - IPO",
+    "rawName": "FINBUD FINANCIAL SERVICES LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_3373",
+    "code": "3373",
+    "name": "GAME CHANGERS TEXFAB LIMITED - IPO",
+    "rawName": "GAME CHANGERS TEXFAB LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_2911",
+    "code": "2911",
+    "name": "GLOBTIER INFOTECH LIMITED - IPO",
+    "rawName": "GLOBTIER INFOTECH LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_3460",
+    "code": "3460",
+    "name": "HIGHNESS MICROELECTRONICS LIMITED - IPO",
+    "rawName": "HIGHNESS MICROELECTRONICS LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_3635",
+    "code": "3635",
+    "name": "IC ELECTRICALS COMPANY LIMITED - IPO",
+    "rawName": "IC ELECTRICALS COMPANY LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_2924",
+    "code": "2924",
+    "name": "KEN ENTERPRISES LIMITED - IPO",
+    "rawName": "KEN ENTERPRISES LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_3509",
+    "code": "3509",
+    "name": "KRM AYURVEDA LIMITED - IPO",
+    "rawName": "KRM AYURVEDA LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_2996",
+    "code": "2996",
+    "name": "KVS CASTINGS LIMITED - IPO",
+    "rawName": "KVS CASTINGS LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_3093",
+    "code": "3093",
+    "name": "LGT BUSINESS CONNEXTIONS LIMITED - IPO",
+    "rawName": "LGT BUSINESS CONNEXTIONS LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_3510",
+    "code": "3510",
+    "name": "MADHUR KNIT CRAFTS LIMITED - IPO",
+    "rawName": "MADHUR KNIT CRAFTS LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_4249",
+    "code": "4249",
+    "name": "MARUSHIKA TECHNOLOGY LIMITED - IPO",
+    "rawName": "MARUSHIKA TECHNOLOGY LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_3435",
+    "code": "3435",
+    "name": "MUNISH FORGE LIMITED - IPO",
+    "rawName": "MUNISH FORGE LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_150",
+    "code": "150",
+    "name": "NEETU YOSHI LIMITED - IPO",
+    "rawName": "NEETU YOSHI LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_194",
+    "code": "194",
+    "name": "Nikita Greentech Recycling Limited - IPO",
+    "rawName": "Nikita Greentech Recycling Limited",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_347",
+    "code": "347",
+    "name": "OM METALLOGIC LIMITED - IPO",
+    "rawName": "OM METALLOGIC LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_1691",
+    "code": "1691",
+    "name": "PRIME CABLE INDUSTRIES LIMITED - IPO",
+    "rawName": "PRIME CABLE INDUSTRIES LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_2917",
+    "code": "2917",
+    "name": "QT FOODS LIMITED - IPO",
+    "rawName": "QT FOODS LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_274",
+    "code": "274",
+    "name": "RENOL POLYCHEM LIMITED - IPO",
+    "rawName": "RENOL POLYCHEM LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_5646",
+    "code": "5646",
+    "name": "RIYAASAT LIFESTYLE LIMITED - IPO",
+    "rawName": "RIYAASAT LIFESTYLE LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_2858",
+    "code": "2858",
+    "name": "SAWALIYA FOOD PRODUCTS LIMITED - IPO",
+    "rawName": "SAWALIYA FOOD PRODUCTS LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_3267",
+    "code": "3267",
+    "name": "SHAKTI POLYTARP LIMITED - IPO",
+    "rawName": "SHAKTI POLYTARP LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_448",
+    "code": "448",
+    "name": "SHEEL BIOTECH LIMITED - IPO",
+    "rawName": "SHEEL BIOTECH LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_389",
+    "code": "389",
+    "name": "SILKY OVERSEAS LIMITED (Inactive) - IPO",
+    "rawName": "SILKY OVERSEAS LIMITED (Inactive)",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_3558",
+    "code": "3558",
+    "name": "SNEHAA ORGANICS LIMITED - IPO",
+    "rawName": "SNEHAA ORGANICS LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_2514",
+    "code": "2514",
+    "name": "SPECIALITY MEDICINES PRIVATE LIMITED - IPO",
+    "rawName": "SPECIALITY MEDICINES PRIVATE LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  },
+  {
+    "id": "SKYLINE_3505",
+    "code": "3505",
+    "name": "WESTERN OVERSEAS STUDY ABROAD LIMITED - IPO",
+    "rawName": "WESTERN OVERSEAS STUDY ABROAD LIMITED",
+    "registrarId": "SKYLINE",
+    "registrarName": "Skyline Financial Services Private Limited",
+    "allotmentUrl": "https://www.skylinerta.com/ipo.php"
+  }
+]

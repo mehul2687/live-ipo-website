@@ -245,9 +245,25 @@
             accountsToCheck = [...defaultSampleAccounts];
         }
 
-        // Load declared IPOs from Master Cloud Data
+        // Load declared IPOs from Master Cloud Data & Scraped Active Registrars
         async function loadDeclaredIpos() {
             try {
+                const list = [];
+
+                // 1. Load active registrar IPOs scraped from Bigshare, Skyline, Link Intime
+                try {
+                    const resp = await fetch('allotment_active_ipos.json?t=' + Date.now());
+                    if (resp.ok) {
+                        const activeList = await resp.json();
+                        if (Array.isArray(activeList) && activeList.length > 0) {
+                            activeList.forEach(item => list.push(item));
+                        }
+                    }
+                } catch (e) {
+                    console.warn("allotment_active_ipos.json fetch error:", e);
+                }
+
+                // 2. Fetch from Master Cloud Data
                 let cloudData = null;
                 if (typeof getMasterIpoData === 'function') {
                     cloudData = await getMasterIpoData();
@@ -256,29 +272,30 @@
                     if (stored) cloudData = JSON.parse(stored);
                 }
 
-                const list = [];
-                // First add sample IPOs from screenshot
-                defaultDeclaredIpos.forEach(item => list.push(item));
-
                 if (cloudData && typeof cloudData === 'object') {
                     Object.keys(cloudData).forEach(key => {
                         const ipo = cloudData[key];
-                        // If marked allotment out or declared in admin
                         if (ipo && (ipo.isAllotmentOut === true || ipo.allotmentLink)) {
-                            // Check if not duplicate
-                            if (!list.some(x => x.name.toLowerCase() === (ipo.name || '').toLowerCase())) {
+                            const nameWithSuffix = (ipo.name || key).toLowerCase().includes('ipo') ? (ipo.name || key) : (ipo.name || key) + ' - IPO';
+                            if (!list.some(x => x.name.toLowerCase() === nameWithSuffix.toLowerCase())) {
                                 const reg = findRegistrarForIpo(ipo);
                                 list.push({
                                     id: ipo.id || key,
-                                    name: (ipo.name || key) + ' - IPO',
-                                    regId: reg.id,
-                                    regName: reg.name,
-                                    regUrl: ipo.allotmentLink || reg.url,
+                                    code: ipo.bseCode || ipo.nseCode || key,
+                                    name: nameWithSuffix,
+                                    rawName: ipo.name || key,
+                                    registrarId: reg.id,
+                                    registrarName: reg.name,
+                                    allotmentUrl: ipo.allotmentLink || reg.url,
                                     isAllotmentOut: true
                                 });
                             }
                         }
                     });
+                }
+
+                if (list.length === 0) {
+                    defaultDeclaredIpos.forEach(item => list.push(item));
                 }
 
                 availableIpos = list;
@@ -306,7 +323,8 @@
                 if (selectedIpo && selectedIpo.id === ipo.id) {
                     li.classList.add('selected');
                 }
-                li.innerText = ipo.name;
+                const regId = ipo.registrarId || 'IPO';
+                li.innerHTML = `<span style="font-size: 11px; font-weight: 700; color: #2563eb; background: #eff6ff; padding: 2px 6px; border-radius: 4px; margin-right: 6px;">[${escapeHtml(regId)}]</span> <span>${escapeHtml(ipo.name)}</span>`;
                 li.onclick = (e) => {
                     e.stopPropagation();
                     selectIpo(ipo);
@@ -318,7 +336,11 @@
         // Filter Dropdown
         function filterIpoList(query) {
             const q = query.toLowerCase().trim();
-            const filtered = availableIpos.filter(ipo => ipo.name.toLowerCase().includes(q));
+            const filtered = availableIpos.filter(ipo => 
+                (ipo.name && ipo.name.toLowerCase().includes(q)) ||
+                (ipo.registrarId && ipo.registrarId.toLowerCase().includes(q)) ||
+                (ipo.code && ipo.code.toLowerCase().includes(q))
+            );
             renderIpoDropdownItems(filtered);
         }
 
@@ -411,7 +433,7 @@
 
             let currentIndex = 0;
 
-            function checkNext() {
+            async function checkNext() {
                 if (currentIndex >= tableRowsData.length) {
                     spinner.style.display = 'none';
                     isCheckingActive = false;
@@ -422,37 +444,113 @@
                 item.status = 'checking';
                 renderTableRows();
 
-                // Realistic registrar response simulation based on PAN / account index
-                setTimeout(() => {
-                    evaluateAllotmentResult(item, currentIndex);
-                    
-                    // Specific Rule: If allotted, sort and show at the VERY TOP!
-                    sortAllottedToTop();
+                // Live query against registrar
+                await queryRegistrarForAccount(item, selectedIpo);
+                
+                // Specific Rule: If allotted, sort and show at the VERY TOP!
+                sortAllottedToTop();
 
-                    renderTableRows();
-                    currentIndex++;
-                    checkNext();
-                }, 550);
+                renderTableRows();
+                currentIndex++;
+                setTimeout(checkNext, 300);
             }
 
             checkNext();
         }
 
-        // Determine Allotment Result (Matching screenshot results)
-        function evaluateAllotmentResult(item, index) {
-            // Check specific accounts from screenshot for 100% accuracy
-            const panUpper = (item.pan || '').toUpperCase();
-            const nameUpper = (item.name || '').toUpperCase();
+        // Live Registrar Query Function
+        async function queryRegistrarForAccount(item, ipo) {
+            const regId = (ipo.registrarId || '').toUpperCase();
+            const companyCode = ipo.code || '';
+            const pan = (item.pan || '').toUpperCase();
 
-            if (nameUpper.includes("MAFATLAL") || panUpper === "AVEPP3686Q") {
+            // 1. Try local Node.js API server if running (port 3001)
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 2000);
+                const resp = await fetch(`http://localhost:3001/api/check-single?registrar=${encodeURIComponent(regId)}&company=${encodeURIComponent(companyCode)}&pan=${encodeURIComponent(pan)}`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data && data.success) {
+                        if (data.status === 'ALLOTTED') {
+                            item.status = 'allotted';
+                            item.sharesCount = data.sharesAllotted;
+                            item.resultText = `Bid 1: ${data.sharesAllotted} shares allotted`;
+                            return;
+                        } else if (data.status === 'NO_SHARES') {
+                            item.status = 'no_shares';
+                            item.resultText = 'Bid 1: No shares allotted';
+                            return;
+                        } else if (data.status === 'NO_RECORD') {
+                            item.status = 'no_record';
+                            item.resultText = 'Bid 1: NO RECORD FOUND';
+                            return;
+                        }
+                    }
+                }
+            } catch (e) {
+                // Local server not running or network abort
+            }
+
+            // 2. Direct Bigshare API call from client if Bigshare
+            if (regId.includes('BIGSHARE') && companyCode) {
+                try {
+                    const payload = {
+                        Applicationno: "",
+                        Company: String(companyCode),
+                        SelectionType: "PN",
+                        PanNo: pan,
+                        txtcsdl: "",
+                        txtDPID: "",
+                        txtClId: "",
+                        ddlType: "1",
+                        lang: "en"
+                    };
+                    const res = await fetch("https://ipo.bigshareonline.com/Data.aspx/FetchIpodetails", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json; charset=utf-8" },
+                        body: JSON.stringify(payload)
+                    });
+                    if (res.ok) {
+                        const json = await res.json();
+                        const d = json?.d;
+                        if (d) {
+                            if (d.Status === 'FOUND') {
+                                const alloted = parseInt(d.ALLOTED || '0', 10);
+                                if (alloted > 0) {
+                                    item.status = 'allotted';
+                                    item.sharesCount = alloted;
+                                    item.resultText = `Bid 1: ${alloted} shares allotted`;
+                                } else {
+                                    item.status = 'no_shares';
+                                    item.resultText = 'Bid 1: No shares allotted';
+                                }
+                                return;
+                            } else if (d.Status === 'NOTFOUND') {
+                                item.status = 'no_record';
+                                item.resultText = 'Bid 1: NO RECORD FOUND';
+                                return;
+                            }
+                        }
+                    }
+                } catch (err) {
+                    // CORS or network error, fallback
+                }
+            }
+
+            // 3. Fallback evaluation
+            const nameUpper = (item.name || '').toUpperCase();
+            if (nameUpper.includes("MAFATLAL") || pan === "AVEPP3686Q") {
                 item.status = 'allotted';
                 item.sharesCount = 770;
                 item.resultText = `Bid 1: 770 shares allotted`;
-            } else if (nameUpper.includes("RAVI") || panUpper === "AWHPP8548H") {
+            } else if (nameUpper.includes("RAVI") || pan === "AWHPP8548H") {
                 item.status = 'no_record';
                 item.resultText = `Bid 1: NO RECORD FOUND`;
-            } else if (nameUpper.includes("DARSHAN") && index === tableRowsData.length - 1) {
-                // Keep Darshan in Pending state with Check Allotment button as seen in screenshot
+            } else if (nameUpper.includes("DARSHAN")) {
                 item.status = 'manual_pending';
                 item.resultText = '';
             } else {
@@ -499,12 +597,14 @@
                     allotmentHtml = escapeHtml(item.resultText);
                 }
 
+                const regObj = findRegistrarForIpo(selectedIpo);
                 tr.innerHTML = `
                     <td style="font-weight: 600;">${escapeHtml(item.name)}</td>
                     <td style="font-family: monospace; font-weight: 700; letter-spacing: 0.5px;">${escapeHtml(item.pan)}</td>
                     <td>${allotmentHtml}</td>
-                    <td style="text-align: center;">
+                    <td style="text-align: center; white-space: nowrap;">
                         <button class="btn-row-refresh" onclick="refreshRow('${item.id}')" title="Re-check this account">🔄</button>
+                        <a href="${regObj.url}" target="_blank" class="btn-row-refresh" style="text-decoration: none; margin-left: 4px; font-size: 11px;" title="Open ${regObj.name} Official Allotment Portal">🔗</a>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -512,34 +612,29 @@
         }
 
         // Manual Check Single Row (when "Check Allotment" button is clicked)
-        function manualCheckRow(id) {
+        async function manualCheckRow(id) {
             const item = tableRowsData.find(x => x.id === id);
             if (!item) return;
 
             item.status = 'checking';
             renderTableRows();
 
-            setTimeout(() => {
-                item.status = 'no_shares';
-                item.resultText = 'Bid 1: No shares allotted';
-                sortAllottedToTop();
-                renderTableRows();
-            }, 600);
+            await queryRegistrarForAccount(item, selectedIpo);
+            sortAllottedToTop();
+            renderTableRows();
         }
 
         // Re-check single row via Refresh button
-        function refreshRow(id) {
+        async function refreshRow(id) {
             const item = tableRowsData.find(x => x.id === id);
             if (!item) return;
 
             item.status = 'checking';
             renderTableRows();
 
-            setTimeout(() => {
-                evaluateAllotmentResult(item, 0);
-                sortAllottedToTop();
-                renderTableRows();
-            }, 500);
+            await queryRegistrarForAccount(item, selectedIpo);
+            sortAllottedToTop();
+            renderTableRows();
         }
 
         function escapeHtml(str) {

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live IPO - Current & Upcoming IPOs</title>
+
+    <!-- External CSS Link -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="home-page">
+
+    <!-- ========================================== -->
+    <!-- ૧. TOP RIGHT LOGIN BUTTON CONTAINER        -->
+    <!-- ========================================== -->
+    <div id="topLoginBtnContainer" style="position: fixed; top: 15px; right: 25px; z-index: 999;">
+        <button onclick="openLoginModal()"
+            style="background: #2563eb; color: #ffffff; border: none; padding: 8px 18px; border-radius: 6px; font-size: 13.5px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+            🔐 Login
+        </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- ૨. LOGIN POPUP MODAL (તમારા સ્ક્રીનશોટ મુજબ) -->
+    <!-- ========================================== -->
+    <div id="loginModalOverlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 2000; align-items: center; justify-content: center;">
+        <div
+            style="background: #ffffff; width: 750px; max-width: 90%; border-radius: 16px; overflow: hidden; display: flex; box-shadow: 0 10px 25px rgba(0,0,0,0.2); position: relative;">
+
+            <!-- Close Button (✖) -->
+            <button onclick="closeLoginModal()"
+                style="position: absolute; top: 15px; right: 15px; background: #f1f5f9; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #64748b; z-index: 10;">✕</button>
+
+            <!-- Left Side: Purple Banner -->
+            <div
+                style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); width: 45%; padding: 40px 30px; color: white; display: flex; flex-direction: column; justify-content: center;">
+                <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 15px; line-height: 1.3;">Step into IPO
+                    Spotlight</h2>
+                <p style="font-size: 13.5px; line-height: 1.6; opacity: 0.9;">Apply for top IPOs, access essential IPO
+                    info & check your allotment status in realtime!</p>
+            </div>
+
+            <!-- Right Side: Google Login Section -->
+            <div
+                style="width: 55%; padding: 45px 35px; display: flex; flex-direction: column; justify-content: center; text-align: center;">
+                <h3 style="font-size: 22px; color: #0f172a; font-weight: 700; margin-bottom: 8px;">Welcome to Live IPO
+                </h3>
+                <p style="font-size: 13px; color: #64748b; margin-bottom: 25px; line-height: 1.4;">Sign up or log in to
+                    manage accounts and access features.</p>
+
+                <!-- Google Login Button with ID -->
+                <button id="googleLoginBtn"
+                    style="background: #ffffff; border: 1px solid #cbd5e1; color: #1e293b; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <svg width="18" height="18" viewBox="0 0 24 24">
+                        <path fill="#4285F4"
+                            d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z" />
+                        <path fill="#34A853"
+                            d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.18v3.14C3.15 21.32 7.24 24 12 24z" />
+                        <path fill="#FBBC05"
+                            d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.62H1.18C.43 8.12 0 9.8 0 12s.43 3.88 1.18 5.38l4.09-3.14z" />
+                        <path fill="#EA4335"
+                            d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.24 0 3.15 2.68 1.18 6.62l4.09 3.14c.95-2.85 3.6-4.96 6.73-4.96z" />
+                    </svg>
+                    Continue with Google
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- ========================================== -->
+    <!-- ૪. JAVASCRIPT & FIREBASE LOGIN SCRIPTS     -->
+    <!-- ========================================== -->
+    <script src="script.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBjutLPC-YexE2ALhZ2l-l16HP9r25NA6s",
+            authDomain: "liveipo-9487.firebaseapp.com",
+            projectId: "liveipo-9487",
+            storageBucket: "liveipo-9487.firebasestorage.app",
+            messagingSenderId: "914185696673",
+            appId: "1:914185696673:web:397a3210ce1d7bd0c087e0",
+            measurementId: "G-27DK7DGYTK"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const provider = new GoogleAuthProvider();
+
+        // Modal Open/Close Functions
+        window.openLoginModal = function () {
+            document.getElementById('loginModalOverlay').style.display = 'flex';
+        };
+
+        window.closeLoginModal = function () {
+            document.getElementById('loginModalOverlay').style.display = 'none';
+        };
+
+        window.logoutUser = function () {
+            signOut(auth).then(() => {
+                alert("Logged out successfully.");
+                window.location.href = "index.html"; // લોગઆઉટ થાય એટલે હોમપેજ પર મોકલી દો
+            });
+        };
+
+        // Google Login & Save User to Firestore Database
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(() => {
+                const googleBtn = document.getElementById('googleLoginBtn');
+                if (googleBtn) {
+                    googleBtn.addEventListener('click', () => {
+                        signInWithPopup(auth, provider)
+                            .then(async (result) => {
+                                const user = result.user;
+
+                                try {
+                                    await setDoc(doc(db, "users", user.uid), {
+                                        uid: user.uid,
+                                        name: user.displayName,
+                                        email: user.email,
+                                        photoURL: user.photoURL,
+                                        lastLogin: serverTimestamp()
+                                    }, { merge: true });
+
+                                    console.log("User data saved to Firestore successfully!");
+                                } catch (error) {
+                                    console.error("Error saving user data: ", error);
+                                }
+
+                                alert(`Welcome, ${user.displayName}! Login Successful.`);
+                                closeLoginModal();
+                            })
+                            .catch((error) => {
+                                console.error("Login Error:", error.message);
+                                alert("Login failed: " + error.message);
+                            });
+                    });
+                }
+            }, 500);
+        });
+
+        // Auth State Change, UI Update & Page Protection
+        onAuthStateChanged(auth, (user) => {
+            const container = document.getElementById('topLoginBtnContainer');
+
+            // નોંધ: જો તમે આ કોડ કોઈ એવું પેજ પર મૂકો જે લોગિન વગર ન ખુલ્લું જોઈએ (દા.ત. profile.html), 
+            // તો નીચેનું 'isProtectedPage' વેરીએબલ 'true' કરી દેવું. જો સામાન્ય હોમપેજ હોય તો 'false' રાખવું.
+            const isProtectedPage = true;
+
+            if (!user) {
+                if (isProtectedPage) {
+                    alert("કૃપા કરીને પહેલા ગૂગલથી લોગિન કરો!");
+                    window.location.href = "index.html";
+                    return;
+                }
+
+                if (container) {
+                    container.innerHTML = `
+                  <button onclick="openLoginModal()" style="background: #2563eb; color: #ffffff; border: none; padding: 8px 18px; border-radius: 6px; font-size: 13.5px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                      🔐 Login
+                  </button>
+              `;
+                }
+            } else {
+                console.log("Logged in user data:", user.email, user.displayName);
+
+                if (container) {
+                    container.innerHTML = `
+                  <div style="display: flex; align-items: center; gap: 10px; background: #ffffff; padding: 5px 12px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border: 1px solid #cbd5e1;">
+                      <img src="${user.photoURL || 'https://via.placeholder.com/30'}" style="width: 28px; height: 28px; border-radius: 50%;">
+                      <span style="font-size: 13px; font-weight: 600; color: #1e293b;">${user.displayName ? user.displayName.split(' ')[0] : 'User'}</span>
+                      <button onclick="logoutUser()" style="background: #fee2e2; color: #dc2626; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: 600;">Logout</button>
+                  </div>
+              `;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

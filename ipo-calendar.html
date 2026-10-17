@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live IPO - IPO Calendar & Schedule</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body class="home-page">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            📊 <span>Live IPO</span>
+        </a>
+        <ul class="sidebar-menu">
+            <li class="menu-item"><a href="index.html">🏠 <span>Home</span></a></li>
+            <li class="menu-item"><a href="ipo-calendar.html" class="active">📅 <span>IPO Calendar</span></a></li>
+            <li class="menu-item"><a href="my-demat-accounts.html">👥 <span>My Demat Accounts</span></a></li>
+            <li class="menu-item"><a href="allotment-checker.html">🔍 <span>Allotment Checker</span></a></li>
+            <li class="menu-item"><a href="ipo-bid.html">📝 <span>IPO Bid</span></a></li>
+            <li class="menu-item"><a href="ipo-form-print.html">🖨️ <span>Form Print</span></a></li>
+            <li class="menu-item"><a href="profile.html">👤 <span>My Profile</span></a></li>
+            <li class="menu-item"><a href="help-support.html">💬 <span>Help / Support</span></a></li>
+            <li class="menu-item"><a href="privacy-policy.html">🔒 <span>Privacy Policy</span></a></li>
+            <li class="menu-item"><a href="disclaimer.html">⚠️ <span>Disclaimer</span></a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+        <div class="hero-card" style="margin-bottom: 20px;">
+            <div class="hero-company-info" style="flex-direction: column; align-items: flex-start;">
+                <h1 style="font-size: 24px; color: #0f172a; margin-bottom: 5px;">📅 IPO Calendar & Schedule</h1>
+                <p style="color: #64748b; font-size: 14px;">Complete track timetable of IPO opening, closing, allotment,
+                    and listing dates.</p>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="filter-buttons" style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                <button onclick="filterCalendar('all')" class="filter-btn active-btn"
+                    style="background: #1d4ed8; color: #fff; border-color: #1d4ed8;">All Schedules</button>
+                <button onclick="filterCalendar('live')" class="filter-btn"
+                    style="background: #ffffff; color: #334155;">🟢 Ongoing / Live</button>
+                <button onclick="filterCalendar('upcoming')" class="filter-btn"
+                    style="background: #ffffff; color: #334155;">🔵 Upcoming</button>
+                <button onclick="filterCalendar('closed')" class="filter-btn"
+                    style="background: #ffffff; color: #334155;">🔴 Closed / Allotment Phase</button>
+            </div>
+        </div>
+
+        <!-- Calendar Table Section -->
+        <div class="card-detail">
+            <div style="overflow-x: auto;">
+                <table class="structured-table" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left;">IPO Company</th>
+                            <th style="text-align: center;">Status</th>
+                            <th style="text-align: center;">🟢 IPO Open</th>
+                            <th style="text-align: center;">🔴 IPO Close</th>
+                            <th style="text-align: center;">🟣 Basis of Allotment</th>
+                            <th style="text-align: center;">🔵 Listing Date</th>
+                            <th style="text-align: center;">Price Band</th>
+                            <th style="text-align: center;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="calendarTableBody">
+                        <!-- JavaScript દ્વારા ડેટા અને એનિમેટેડ ડેટ્સ અહીં લોડ થશે -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- External JavaScript -->
+    <script src="script.js"></script>

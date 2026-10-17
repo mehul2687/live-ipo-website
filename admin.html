@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live IPO - Admin Central Control Center</title>
+
+    <!-- External CSS Links -->
+    <link rel="stylesheet" href="admin.css?v=2026.09.19">
+    <link rel="stylesheet" href="style.css">
+
+    <!-- JavaScript Links -->
+    <script src="script.js?v=2026.09.19"></script>
+    <script src="admin.js?v=2026.09.19"></script>
+    <script>
+        // જો લોગિન ના કરેલું હોય તો સીધું લોગિન પેજ પર મોકલી દો
+        if (localStorage.getItem('live_ipo_admin_logged') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-brand">
+            📊 Live IPO <span class="admin-badge">Admin</span>
+        </div>
+        <ul class="admin-menu">
+            <li><a href="#" class="active" onclick="switchAdminView('dashboard', event)">🏠 Dashboard</a></li>
+            <li><a href="#" onclick="switchAdminView('registrars', event)">🏢 Manage Registrars</a></li>
+            <li><a href="#" onclick="switchAdminView('gmp', event)">📈 Manage GMP</a></li>
+            <li><a href="index.html" target="_blank">🌐 View Live Website ↗</a></li>
+            <li><a href="#" onclick="adminLogout(event)" style="color: #fca5a5;">🚪 Logout</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Dashboard Area -->
+    <main class="admin-main">
+
+        <!-- Top Header Bar -->
+        <div class="top-header-bar">
+            <div>
+                <h1>Central Control Center</h1>
+                <p>Changes made here instantly sync with Live Website & Android Application.</p>
+            </div>
+            <div>
+                <span class="sync-badge">⚡ Sync Status: Web + Android Active</span>
+            </div>
+        </div>
+
+        <!-- Registrars Section -->
+        <div id="registrarsSection" class="content-card" style="display: none;">
+            <div class="content-card-header">
+                <h3>Manage Registrars List</h3>
+            </div>
+            <div
+                style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-bottom: 10px;">➕ Add New
+                    Registrar</div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr) auto; gap: 10px; margin-bottom: 10px;">
+                    <input type="text" id="manageNewRegName" placeholder="Registrar Name (e.g. Skyline Financial)"
+                        style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+                    <input type="text" id="manageNewRegWeb" placeholder="Registrar Website (e.g. linkintime.co.in)"
+                        style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px;">
+                    <input type="text" id="manageNewRegMobile" placeholder="Mobile / Contact Number"
+                        style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+                    <input type="email" id="manageNewRegEmail" placeholder="Email ID (e.g. ipo@linkintime.co.in)"
+                        style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+                    <input type="text" id="manageNewRegUrl" placeholder="Allotment URL (https://...)"
+                        style="padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px;">
+                    <button type="button" onclick="addNewRegistrarFromManager()"
+                        style="background: #166534; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px;">Save
+                        Registrar</button>
+                </div>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Registrar Name</th>
+                            <th>Website</th>
+                            <th>Mobile Number</th>
+                            <th>Email ID</th>
+                            <th>Allotment URL</th>
+                            <th style="text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="registrarsTableBody">
+                        <!-- Dynamic Registrar Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Registrar Edit Modal/Box -->
+        <div id="registrarEditModal"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+            <div
+                style="background: #ffffff; width: 100%; max-width: 500px; border-radius: 12px; padding: 25px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+                    <h3 style="margin: 0; font-size: 18px; color: #0f172a;">✏️ Edit Registrar Details</h3>
+                    <button type="button" onclick="closeRegistrarModal()"
+                        style="background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b;">×</button>
+                </div>
+                <input type="hidden" id="editRegIndex">
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div>
+                        <label
+                            style="font-size: 13px; font-weight: 700; color: #0f172a; display: block; margin-bottom: 4px;">Registrar
+                            Name</label>
+                        <input type="text" id="editRegName"
+                            style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label
+                            style="font-size: 13px; font-weight: 700; color: #0f172a; display: block; margin-bottom: 4px;">Registrar
+                            Website</label>
+                        <input type="text" id="editRegWeb"
+                            style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label
+                            style="font-size: 13px; font-weight: 700; color: #0f172a; display: block; margin-bottom: 4px;">Mobile
+                            / Contact Number</label>
+                        <input type="text" id="editRegMobile"
+                            style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label
+                            style="font-size: 13px; font-weight: 700; color: #0f172a; display: block; margin-bottom: 4px;">Email
+                            ID</label>
+                        <input type="email" id="editRegEmail"
+                            style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; box-sizing: border-box;">
+                    </div>
+                    <div>
+                        <label
+                            style="font-size: 13px; font-weight: 700; color: #0f172a; display: block; margin-bottom: 4px;">Allotment
+                            URL</label>
+                        <input type="text" id="editRegUrl"
+                            style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; box-sizing: border-box;">
+                    </div>
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button type="button" onclick="saveUpdatedRegistrar()"
+                            style="background: #166534; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer; flex: 1;">Save
+                            Changes</button>
+                        <button type="button" onclick="closeRegistrarModal()"
+                            style="background: #64748b; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick GMP & Pricing Manager -->
+        <div id="gmpManagerSection" class="content-card" style="display: none;">
+            <div class="content-card-header">
+                <h3>GMP & Pricing Manager</h3>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>IPO Name & ID</th>
+                            <th>Current Price Band</th>
+                            <th>Update GMP (₹)</th>
+                            <th>Est. Listing Price (₹)</th>
+                            <th>Mark Allotment Out</th>
+                            <th style="text-align: center;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="gmpTableBody">
+                        <!-- Dynamic GMP Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-title">Total IPOs</div>
+                <div class="stat-card-value" id="stat_total">0</div>
+                <div class="stat-card-icon" style="background: #e0f2fe; color: #0284c7;">📁</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-title">Ongoing / Live</div>
+                <div class="stat-card-value" id="stat_live" style="color: #166534;">0</div>
+                <div class="stat-card-icon" style="background: #dcfce7; color: #166534;">🟢</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-title">Upcoming</div>
+                <div class="stat-card-value" id="stat_upcoming" style="color: #1d4ed8;">0</div>
+                <div class="stat-card-icon" style="background: #e0e7ff; color: #1d4ed8;">🔵</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-title">Allotment Declared</div>
+                <div class="stat-card-value" id="stat_allotment" style="color: #7c3aed;">0</div>
+                <div class="stat-card-icon" style="background: #f3e8ff; color: #7c3aed;">🟣</div>
+            </div>
+        </div>
+
+        <!-- Add / Edit Form Drawer -->
+        <div class="form-drawer" id="ipoFormDrawer">
+            <div class="form-drawer-header">
+                <h3 id="drawerTitle">➕ Add New IPO Complete Profile</h3>
+                <button class="close-drawer-btn" onclick="toggleDrawer(false)">×</button>
+            </div>
+            <div class="form-drawer-body">
+                <form id="manageIpoForm">
+
+                    <!-- 1. Basic Info -->
+                    <div class="form-section-title">1. Basic Company Info</div>
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label>Company Full Name*</label>
+                            <input type="text" id="adm_name" required placeholder="e.g. Purple Style Labs IPO">
+                        </div>
+                        <div class="form-group">
+                            <label>Company Logo URL / Short Text</label>
+                            <input type="text" id="adm_logo" placeholder="https://... or PSL">
+                        </div>
+                        <div class="form-group">
+                            <label>Unique IPO Code / ID*</label>
+                            <input type="text" id="adm_id" required placeholder="e.g. PSL">
+                        </div>
+                    </div>
+                    <div class="form-grid-2" style="margin-top: 12px;">
+                        <div class="form-group">
+                            <label>IPO Type*</label>
+                            <select id="adm_type">
+                                <option value="Mainboard">Mainboard</option>
+                                <option value="SME">SME</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 12px;">
+                        <label>About Company (Overview)*</label>
+                        <textarea id="adm_about" rows="2" placeholder="Enter brief company description..."></textarea>
+                    </div>
+
+                    <!-- 2. Important Dates & Key Details -->
+                    <div class="form-section-title">2. IPO Important Dates & Key Details</div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span style="font-size: 12.5px; font-weight: 700; color: #0284c7;">Important Dates</span>
+                        <label style="font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; color: #1e293b; background: #e2e8f0; padding: 3px 8px; border-radius: 4px;">
+                            <input type="checkbox" id="lock_manual_dates"> 🔒 Lock Dates (મેન્યુઅલ ડેટા લોક કરો)
+                        </label>
+                    </div>
+
+                    <!-- સુધારેલ 3 કૉલમ ડેટ લેઆઉટ -->
+                    <div class="form-grid-4">
+                        <div class="form-group">
+                            <label>IPO Open Date*</label>
+                            <input type="date" id="adm_openDate" onclick="this.showPicker()" style="cursor: pointer;">
+                        </div>
+                        <div class="form-group">
+                            <label>IPO Close Date*</label>
+                            <input type="date" id="adm_closeDate" onclick="this.showPicker()" style="cursor: pointer;">
+                        </div>
+                        <div class="form-group">
+                            <label>Basis of Allotment Date*</label>
+                            <input type="date" id="adm_allotmentDate" onclick="this.showPicker()"
+                                style="cursor: pointer;">
+                        </div>
+                        <div class="form-group">
+                            <label>Listing Date*</label>
+                            <input type="date" id="adm_listingDate" onclick="this.showPicker()"
+                                style="cursor: pointer;">
+                        </div>
+                    </div>
+
+                    <!-- સુધારેલ 2 કૉલમ લેઆઉટ (Listing Date અને Exchanges માટે) -->
+                    <div class="form-grid-2" style="margin-bottom: 15px;">
+
+                        <div class="form-group">
+                            <label style="display: block; font-weight: 600; margin-bottom: 5px;">Listed on
+                                Exchanges*</label>
+                            <div style="display: flex; gap: 20px; align-items: center; padding: 8px 0;">
+                                <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                    <input type="checkbox" id="ex_bse" value="BSE" checked
+                                        style="width: 16px; height: 16px;"> BSE
+                                </label>
+                                <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                    <input type="checkbox" id="ex_nse" value="NSE" checked
+                                        style="width: 16px; height: 16px;"> NSE
+                                </label>
+                            </div>
+                            <input type="hidden" id="adm_listingAt">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+                        <span style="font-size: 12.5px; font-weight: 700; color: #0284c7;">Key Details & Price Band</span>
+                        <label style="font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; color: #1e293b; background: #e2e8f0; padding: 3px 8px; border-radius: 4px;">
+                            <input type="checkbox" id="lock_manual_issue"> 🔒 Lock Price & Details (મેન્યુઅલ ડેટા લોક કરો)
+                        </label>
+                    </div>
+
+                    <div class="form-grid-4">
+                        <div class="form-group">
+                            <label>Price Band Start (₹) [e.g. 546]*</label>
+                            <input type="number" id="adm_priceStart" placeholder="546">
+                        </div>
+                        <div class="form-group">
+                            <label>Price Band End (₹) [e.g. 575]*</label>
+                            <input type="number" id="adm_priceEnd" placeholder="575">
+                        </div>
+                        <div class="form-group">
+                            <label>Issue / Cut-off Price (₹)*</label>
+                            <input type="number" id="adm_cutOff" placeholder="575">
+                        </div>
+                        <div class="form-group">
+                            <label>Lot Size (Shares Count)*</label>
+                            <input type="number" id="adm_lotRaw" placeholder="26">
+                        </div>
+                        <div class="form-group">
+                            <label>Face Value*</label>
+                            <input type="text" id="adm_faceValue" value="₹10 per share" placeholder="₹10 per share">
+                        </div>
+                        <div class="form-group">
+                            <label>Employee Discount</label>
+                            <input type="text" id="adm_empDiscount" value="Nil" placeholder="Nil">
+                        </div>
+                    </div>
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label>Total Issue Size (e.g. ₹680.00 Cr)*</label>
+                            <input type="text" id="adm_totalSize" placeholder="₹680.00 Cr">
+                        </div>
+                        <div class="form-group">
+                            <label>Fresh Issue (e.g. ₹500.00 Cr)*</label>
+                            <input type="text" id="adm_freshissue" placeholder="₹500.00 Cr">
+                        </div>
+                        <div class="form-group">
+                            <label>Offer For Sale (OFS) (e.g. ₹180.00 Cr)*</label>
+                            <input type="text" id="adm_ofs" placeholder="₹180.00 Cr">
+                        </div>
+                    </div>
+
+                    <!-- 3. Live GMP -->
+                    <div class="form-section-title">3. Live GMP & Projections</div>
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label>Latest GMP (₹)</label>
+                            <input type="text" id="adm_gmp" placeholder="50">
+                        </div>
+                        <div class="form-group">
+                            <label>Estimated Listing Price</label>
+                            <input type="text" id="adm_estPrice" placeholder="₹625">
+                        </div>
+                        <div class="form-group">
+                            <label>Book Profit / Gain per lot</label>
+                            <input type="text" id="adm_bookProfit" placeholder="₹1,300">
+                        </div>
+                    </div>
+
+                    <!-- 4. Company Financials (₹ in Cr) -->
+                    <div class="form-section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>4. Company Financials (₹ in Cr)</span>
+                        <label style="font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; color: #1e293b; background: #e2e8f0; padding: 3px 8px; border-radius: 4px;">
+                            <input type="checkbox" id="lock_manual_fin"> 🔒 Lock Financials (મેન્યુઅલ ડેટા લોક કરો)
+                        </label>
+                    </div>
+                    <div style="overflow-x: auto; margin-bottom: 15px;">
+                        <table class="admin-table financial-matrix-table"
+                            style="width: 100%; background: #fff; border-radius: 8px; border: 1px solid #cbd5e1; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 28%; text-align: left; padding-left: 20px;">Financial Year</th>
+                                    <th style="width: 18%; text-align: center;">Total Asset</th>
+                                    <th style="width: 18%; text-align: center;">Total Revenue</th>
+                                    <th style="width: 18%; text-align: center;">Total Expenses</th>
+                                    <th style="width: 18%; text-align: center;">Profit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: left; padding-left: 12px;"><input type="text" id="fin_23_yr"
+                                            value="FY-2023" style="font-weight: 700; width: 100px; text-align: left;">
+                                    </td>
+                                    <td style="text-align: center;"><input type="text" id="fin_23_ast" placeholder="-">
+                                    </td>
+                                    <td style="text-align: center;"><input type="text" id="fin_23_rev" placeholder="-">
+                                    </td>
+                                    <td style="text-align: center;"><input type="text" id="fin_23_exp" placeholder="-">
+                                    </td>
+                                    <td style="text-align: center;"><input type="text" id="fin_23_prf" placeholder="-">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; padding-left: 12px;"><input type="text" id="fin_24_yr"
+                                            value="FY-2024" style="font-weight: 700; width: 100px; text-align: left;">
+                                    </td>
+                                    <td style="text-align: center;"><input type="text" id="fin_24_ast"
+                                            placeholder="31.76"></td>
+                                    <td style="text-align: center;"><input type="text" id="fin_24_rev"
+                                            placeholder="62.75"></td>
+                                    <td style="text-align: center;"><input type="text" id="fin_24_exp"
+                                            placeholder="53.54"></td>
+                                    <td style="text-align: center;"><input type="text" id="fin_24_prf"
+                                            placeholder="6.16"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; padding-left: 12px;"><input type="text" id="fin_25_yr"
+                                            value="FY-2025" style="font-weight: 700; width: 100px; text-align: left;">
+                                    </td>
+                                    <td style="text-align: center;"><input type="text" id="fin_25_ast"
+                                            placeholder="69.32"></td>
+                                    <td style="text-align: center;"><input type="text" id="fin_25_rev"
+                                            placeholder="79.98"></td>
+                                    <td style="text-align: center;"><input type="text" id="fin_25_exp"
+                                            placeholder="70.32"></td>
+                                    <td style="text-align: center;"><input type="text" id="fin_25_prf"
+                                            placeholder="6.66"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; padding-left: 12px;"><input type="text" id="fin_26_yr"
+                                            value="FY-2026" style="font-weight: 700; width: 100px; text-align: left;">
+                                    </td>
+                                    <td style="text-align: center;"><input type="text" id="fin_26_ast"
+                                            placeholder="99.84"></td>
+                                    <td style="text-align: center;"><input type="text" id="fin_26_rev"
+                                            placeholder="90.84"></td>
+                                    <td style="text-align: center;"><input type="text" id="fin_26_exp"
+                                            placeholder="79.99"></td>
+                                    <td style="text-align: center;"><input type="text" id="fin_26_prf"
+                                            placeholder="7.53"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 5. Company Valuation Inputs -->
+                    <div class="form-section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>5. Company Valuation Ratios</span>
+                        <label style="font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; color: #1e293b; background: #e2e8f0; padding: 3px 8px; border-radius: 4px;">
+                            <input type="checkbox" id="lock_manual_val"> 🔒 Lock Valuation (મેન્યુઅલ ડેટા લોક કરો)
+                        </label>
+                    </div>
+                    <div class="form-grid-3">
+                        <div class="form-group"><label>EPS (e.g. ₹15.24)</label><input type="text" id="val_eps"
+                                placeholder="₹15.24"></div>
+                        <div class="form-group"><label>P/E Ratio (e.g. 37.72x)</label><input type="text" id="val_pe"
+                                placeholder="37.72x"></div>
+                        <div class="form-group"><label>RoNW (e.g. 24.50%)</label><input type="text" id="val_ronw"
+                                placeholder="24.50%"></div>
+                    </div>
+                    <div class="form-grid-3">
+                        <div class="form-group"><label>NAV (e.g. ₹62.10)</label><input type="text" id="val_nav"
+                                placeholder="₹62.10"></div>
+                        <div class="form-group"><label>EBITDA Margin (e.g. 18.40%)</label><input type="text"
+                                id="val_ebitda" placeholder="18.40%"></div>
+                        <div class="form-group"><label>PAT Margin (e.g. 9.20%)</label><input type="text" id="val_pat"
+                                placeholder="9.20%"></div>
+                    </div>
+
+                    <!-- 6. Application Lot Size Matrix -->
+                    <div class="form-section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>6. Application Lot Size Details</span>
+                        <label style="font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; color: #1e293b; background: #e2e8f0; padding: 3px 8px; border-radius: 4px;">
+                            <input type="checkbox" id="lock_manual_lots"> 🔒 Lock Lot Sizes (મેન્યુઅલ ડેટા લોક કરો)
+                        </label>
+                    </div>
+                    <div style="overflow-x: auto; margin-bottom: 15px;">
+                        <table class="admin-table"
+                            style="background: #fff; border-radius: 8px; border: 1px solid #cbd5e1;">
+                            <thead>
+                                <tr>
+                                    <th>Application</th>
+                                    <th style="text-align: center;">Enter Lots*</th>
+                                    <th style="text-align: center;">Shares (Auto)</th>
+                                    <th style="text-align: center;">Total Amount (Auto)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="text" id="app_name_retail" value="Retail Min"
+                                            style="font-weight: 700; width: 130px; border: 1px solid #cbd5e1; padding: 4px; border-radius: 4px;">
+                                    </td>
+                                    <td style="text-align: center;"><input type="number" id="lot_retail" value="1"
+                                            style="width: 80px; text-align: center;" min="1"></td>
+                                    <td style="text-align: center; color: #64748b;" id="preview_shares_retail">26</td>
+                                    <td style="text-align: center; color: #166534; font-weight: 600;"
+                                        id="preview_amt_retail">₹14,950</td>
+                                </tr>
+                                <tr>
+                                    <td><input type="text" id="app_name_shni" value="Small HNI"
+                                            style="font-weight: 700; width: 130px; border: 1px solid #cbd5e1; padding: 4px; border-radius: 4px;">
+                                    </td>
+                                    <td style="text-align: center;"><input type="number" id="lot_shni" value="14"
+                                            style="width: 80px; text-align: center;" min="1"></td>
+                                    <td style="text-align: center; color: #64748b;" id="preview_shares_shni">364</td>
+                                    <td style="text-align: center; color: #166534; font-weight: 600;"
+                                        id="preview_amt_shni">₹2,09,300</td>
+                                </tr>
+                                <tr>
+                                    <td><input type="text" id="app_name_bhni" value="Big HNI"
+                                            style="font-weight: 700; width: 130px; border: 1px solid #cbd5e1; padding: 4px; border-radius: 4px;">
+                                    </td>
+                                    <td style="text-align: center;"><input type="number" id="lot_bhni" value="68"
+                                            style="width: 80px; text-align: center;" min="1"></td>
+                                    <td style="text-align: center; color: #64748b;" id="preview_shares_bhni">1,768</td>
+                                    <td style="text-align: center; color: #166534; font-weight: 600;"
+                                        id="preview_amt_bhni">₹10,16,600</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Allotment Status & Registrar Link Section -->
+                    <div class="form-section-title">Allotment Status & Link</div>
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label>Select Registrar</label>
+                            <div style="display: flex; gap: 5px;">
+                                <select id="adm_registrarSelect" onchange="setRegistrarLink(this.value)"
+                                    style="padding: 9px; border: 1px solid #cbd5e1; border-radius: 6px; width: 100%; background: #fff;">
+                                    <option value="">-- Select Registrar --</option>
+                                    <option value="https://linkintime.co.in/initial_offer/default.aspx">Link Intime
+                                        India Pvt Ltd</option>
+                                    <option value="https://kosmic.kfintech.com/ipostatus/">KFin Technologies Ltd
+                                    </option>
+                                    <option value="https://ipo.bigshareonline.com/ipo_status.html">Bigshare Services Pvt
+                                        Ltd</option>
+                                </select>
+                                <button type="button" onclick="toggleNewRegistrarBox()"
+                                    style="padding: 0 10px; background: #0284c7; color: #fff; border: none; border-radius: 6px; cursor: pointer;"
+                                    title="Add New Registrar">+</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Registrar Allotment URL / Link</label>
+                            <input type="text" id="adm_allotmentLink" placeholder="https://...">
+                        </div>
+                        <div class="form-group"
+                            style="display: flex; align-items: center; gap: 10px; margin-top: 25px;">
+                            <label
+                                style="cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 700; color: #7c3aed;">
+                                <input type="checkbox" id="adm_isAllotmentOut" style="width: 18px; height: 18px;">
+                                <span>Mark Allotment Out</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- નવો રજિસ્ટ્રાર ઉમેરવા માટેનું હિડન બોક્સ -->
+                    <div id="newRegistrarBox"
+                        style="display: none; background: #f8fafc; padding: 12px; border: 1px dashed #cbd5e1; border-radius: 6px; margin-bottom: 15px;">
+                        <div style="font-size: 13px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">➕ Add Custom
+                            Registrar to List</div>
+                        <div class="form-grid-2">
+                            <input type="text" id="newRegName" placeholder="Registrar Name (e.g. Skyline Financial)"
+                                style="padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                            <div style="display: flex; gap: 6px;">
+                                <input type="text" id="newRegUrl" placeholder="Registrar URL (https://...)"
+                                    style="padding: 7px; border: 1px solid #cbd5e1; border-radius: 4px; flex: 1;">
+                                <button type="button" onclick="addNewRegistrarOption()"
+                                    style="background: #166534; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600;">Save</button>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- ========================================== -->
+                    <!-- 3. IPO Subscription Details (Admin Inputs) -->
+                    <!-- ========================================== -->
+                    <div class="form-section-title" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>3. IPO Subscription Details (No. of Shares & Apps)</span>
+                        <label style="font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; color: #1e293b; background: #e2e8f0; padding: 3px 8px; border-radius: 4px;">
+                            <input type="checkbox" id="lock_manual_sub"> 🔒 Lock Subscription (મેન્યુઅલ ડેટા લોક કરો)
+                        </label>
+                    </div>
+
+                    <div style="font-size: 12.5px; font-weight: 700; color: #0284c7; margin-bottom: 6px;">Subscription
+                        Details (Shares)</div>
+                    <div style="overflow-x: auto; margin-bottom: 15px;">
+                        <table class="admin-table financial-matrix-table"
+                            style="width: 100%; background: #fff; border-radius: 8px; border: 1px solid #cbd5e1; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left; padding-left: 12px;">Category</th>
+                                    <th style="text-align: center;">Offered Shares</th>
+                                    <th style="text-align: center;">Applied Shares</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminSubSharesBody">
+                                <tr>
+                                    <td style="text-align: left; padding-left: 12px;"><strong>QIB</strong></td>
+                                    <td><input type="number" id="sub_qib_off" placeholder="Offered"></td>
+                                    <td><input type="number" id="sub_qib_app" placeholder="Applied"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; padding-left: 12px;"><strong>NII</strong></td>
+                                    <td><input type="number" id="sub_nii_off" placeholder="Offered"></td>
+                                    <td><input type="number" id="sub_nii_app" placeholder="Applied"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; padding-left: 12px;"><strong>B-NII (₹10L+)</strong>
+                                    </td>
+                                    <td><input type="number" id="sub_bnii_off" placeholder="Offered"></td>
+                                    <td><input type="number" id="sub_bnii_app" placeholder="Applied"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; padding-left: 12px;"><strong>S-NII (₹2-10L)</strong>
+                                    </td>
+                                    <td><input type="number" id="sub_snii_off" placeholder="Offered"></td>
+                                    <td><input type="number" id="sub_snii_app" placeholder="Applied"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; padding-left: 12px;"><strong>Retail</strong></td>
+                                    <td><input type="number" id="sub_retail_off" placeholder="Offered"></td>
+                                    <td><input type="number" id="sub_retail_app" placeholder="Applied"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; padding-left: 12px;"><strong>Employee</strong></td>
+                                    <td><input type="number" id="sub_emp_off" placeholder="Offered"></td>
+                                    <td><input type="number" id="sub_emp_app" placeholder="Applied"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; padding-left: 12px;"><strong>Shareholder</strong></td>
+                                    <td><input type="number" id="sub_sh_off" placeholder="Offered"></td>
+                                    <td><input type="number" id="sub_sh_app" placeholder="Applied"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="font-size: 12.5px; font-weight: 700; color: #0284c7; margin-bottom: 6px;">
+                        Application-Wise Breakup (Approx. no. of Apps)</div>
+                    <div style="overflow-x: auto; margin-bottom: 15px;">
+                        <table class="admin-table financial-matrix-table"
+                            style="width: 100%; background: #fff; border-radius: 8px; border: 1px solid #cbd5e1; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left; padding-left: 12px;">Category</th>
+                                    <th style="text-align: center;">Offered Apps</th>
+                                    <th style="text-align: center;">Applied Apps</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="text-align: left; padding-left: 12px;"><strong>B-NII (₹10L+)</strong>
+                                    </td>
+                                    <td><input type="number" id="app_bnii_off" placeholder="Offered"></td>
+                                    <td><input type="number" id="app_bnii_app" placeholder="Applied"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; padding-left: 12px;"><strong>S-NII (₹2-10L)</strong>
+                                    </td>
+                                    <td><input type="number" id="app_snii_off" placeholder="Offered"></td>
+                                    <td><input type="number" id="app_snii_app" placeholder="Applied"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: left; padding-left: 12px;"><strong>Retail</strong></td>
+                                    <td><input type="number" id="app_retail_off" placeholder="Offered"></td>
+                                    <td><input type="number" id="app_retail_app" placeholder="Applied"></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="margin-bottom: 15px; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                            <label style="font-size: 13px; font-weight: 600; color: #475569;">Chittorgarh IPO Key / URL Path</label>
+                            <label style="font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; color: #b91c1c; background: #fee2e2; padding: 2px 8px; border-radius: 4px;">
+                                <input type="checkbox" id="lock_manual_all"> 🚫 Stop All Auto-Sync (આખા IPO માટે ઓટો-સિંક બંધ કરો)
+                            </label>
+                        </div>
+                        <input type="text" id="adm_chittorgarhKey" placeholder="e.g. /ipo/purple-style-labs-ipo/1782/" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                        <span style="font-size: 11px; color: #64748b; display: block; margin-top: 4px;">આ કી નાખવાથી લાઈવ સબસ્ક્રિપ્શન, લોટ સાઇઝ અને ફાઇનાન્શિયલ ડેટા ઓટોમેટિક ફેચ થશે. જો તમે કોઈપણ ડેટા મેન્યુઅલી અપડેટ કરશો તો તે આપોઆપ લોક થઈ જશે જેથી ઓટો-સિંક તેને ઓવરરાઈટ નહીં કરે.</span>
+                    </div>
+
+                    <!-- IPO Reservation Quota Section -->
+                    <div
+                        style="background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px;">
+                        <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 12px;">🎯 IPO
+                            Reservation Quota (% of Total Issue)</div>
+
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                            <div>
+                                <label
+                                    style="font-size: 12px; font-weight: 600; color: #475569; display: block; margin-bottom: 4px;">QIB
+                                    (%)</label>
+                                <input type="number" id="res_qib" placeholder="e.g. 50"
+                                    style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label
+                                    style="font-size: 12px; font-weight: 600; color: #475569; display: block; margin-bottom: 4px;">NII
+                                    / HNI (%)</label>
+                                <input type="number" id="res_nii" placeholder="e.g. 15"
+                                    style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label
+                                    style="font-size: 12px; font-weight: 600; color: #475569; display: block; margin-bottom: 4px;">Retail
+                                    (%)</label>
+                                <input type="number" id="res_retail" placeholder="e.g. 35"
+                                    style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-add-ipo" id="saveBtn">💾 Save & Publish IPO</button>
+                        <button type="button" onclick="toggleDrawer(false)" class="btn-add-ipo"
+                            style="background: #64748b;">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Master Record Table Card -->
+        <div class="content-card" id="masterRecordSection">
+            <div class="content-card-header">
+                <h3>Manage IPO Records (Master Feed)</h3>
+                <button class="btn-add-ipo" onclick="openAddDrawer()">+ Add New IPO</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>IPO Name</th>
+                            <th>Type</th>
+                            <th>Open Date</th>
+                            <th>Close Date</th>
+                            <th>Allotment Date</th>
+                            <th>Listing Date</th>
+                            <th>Price Band</th>
+                            <th>Lot Size</th>
+                            <th>Live GMP (₹)</th>
+                            <th>Allotment Status</th>
+                            <th>Status</th>
+                            <th style="text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTableBody">
+                        <!-- Dynamic Records -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+</body>
+
+</html>

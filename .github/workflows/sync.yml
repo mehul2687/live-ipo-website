@@ -1,0 +1,25 @@
+name: Auto Sync IPO Subscription
+
+on:
+  schedule:
+    # દર ૧ કલાકે આ ઓટોમેટિક રન થશે (તમે સમય બદલી પણ શકો છો)
+    - cron: '0 * * * *'
+  workflow_dispatch: # મેન્યુઅલ રન કરવા માટેનું બટન પણ આપશે
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install axios cheerio
+
+      - name: Run sync script
+        run: node sync-cron.js --once

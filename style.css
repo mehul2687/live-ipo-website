@@ -1,0 +1,699 @@
+/* ==========================================================
+   1. GLOBAL STYLES & RESETS
+   ========================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f4f7f6;
+    color: #2d3748;
+}
+
+
+/* ==========================================================
+   2. COMMON SIDEBAR NAVIGATION (Dark Navy Blue)
+   ========================================================== */
+.sidebar {
+    width: 260px;
+    background-color: #0d1b2a;
+    color: #ffffff;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    height: 100vh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.sidebar-brand {
+    padding: 22px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-brand span {
+    color: #63b3ed;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 15px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+}
+
+.menu-item {
+    margin-bottom: 4px;
+}
+
+.menu-item a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 14px;
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.menu-item a:hover {
+    background-color: #2b6cb0;
+    color: #ffffff;
+}
+
+.menu-item a.active {
+    background-color: #2563eb;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+
+/* ==========================================================
+   3. DETAIL PAGE STYLES (style.css)
+   ========================================================== */
+.main-content {
+    margin-left: 260px;
+    flex: 1;
+    padding: 20px 25px;
+    overflow-x: hidden;
+    background-color: #f8fafc;
+}
+
+.hero-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 12px;
+}
+
+.hero-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+
+.hero-company-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    width: 100%;
+}
+
+.company-avatar-large {
+    width: 100px;
+    height: 100px;
+    background-color: #ffffff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 800;
+    color: #1a365d;
+    overflow: hidden;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
+    padding: 6px;
+}
+
+.company-avatar-large img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.company-title-wrap {
+    flex: 1;
+}
+
+.company-title-wrap h1 {
+    font-size: 22px;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+    font-weight: 800;
+}
+
+.tag-badge {
+    font-size: 11.5px;
+    background-color: #dcfce7;
+    color: #166534;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    border: 1px solid #bbf7d0;
+}
+
+.hero-about-text {
+    font-size: 13.5px;
+    color: #475569;
+    line-height: 1.6;
+    margin-top: 4px;
+    margin-bottom: 8px;
+}
+
+.hero-subtext {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 6px;
+    font-weight: 500;
+}
+
+.hero-subtext strong {
+    color: #1e293b;
+    font-weight: 700;
+}
+
+.btn-share {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.btn-share:hover {
+    background-color: #e2e8f0;
+    color: #0f172a;
+}
+
+/* Timeline Components */
+.timeline-container {
+    position: relative;
+    margin-top: 10px;
+    padding: 0 15px;
+}
+
+.timeline-track-line {
+    position: absolute;
+    top: 14px;
+    left: 30px;
+    right: 30px;
+    height: 3px;
+    background: #e2e8f0;
+    z-index: 1;
+}
+
+.timeline-track-progress {
+    position: absolute;
+    top: 14px;
+    left: 30px;
+    width: 0%;
+    height: 3px;
+    background: #0284c7;
+    z-index: 2;
+    transition: width 0.4s ease;
+}
+
+.timeline-steps {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    justify-content: space-between;
+}
+
+.step-node {
+    text-align: center;
+    width: 80px;
+}
+
+.node-circle {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #cbd5e1;
+    margin: 0 auto 6px auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: bold;
+    color: #64748b;
+}
+
+.step-node.completed .node-circle {
+    background: #0284c7;
+    border-color: #0284c7;
+    color: white;
+}
+
+.step-node.active .node-circle {
+    border-color: #0284c7;
+    background: white;
+    color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+}
+
+.node-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.node-date {
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 2px;
+    font-weight: 500;
+}
+
+/* Grids and Tables for Details */
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.card-detail {
+    background: white;
+    border-radius: 10px;
+    padding: 16px 18px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.card-detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    border-left: 4px solid #0284c7;
+    padding-left: 8px;
+}
+
+.card-detail-header h3 {
+    font-size: 15px;
+    color: #0f172a;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sub-section-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 8px;
+    margin-top: 10px;
+}
+
+/* ==========================================================
+   Table Data Right Alignment for Details Box
+   ========================================================== */
+.table-data {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-data td,
+.table-data th {
+    padding: 9px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13px;
+}
+
+.table-data th {
+    background-color: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    text-align: left;
+}
+
+/* ડાબી બાજુનું લેબલ */
+.table-data td:first-child {
+    color: #475569;
+    text-align: left;
+}
+
+/* જમણી બાજુની વેલ્યુ/ડેટ (આને આપણે રાઈટ સાઈડ સેટ કરી દીધી છે) */
+.table-data td:last-child {
+    color: #1e293b;
+    font-weight: 600;
+    text-align: right; 
+}
+
+.structured-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+}
+
+.structured-table th,
+.structured-table td {
+    padding: 8px 10px;
+    border: 1px solid #e2e8f0;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* Offer Documents Specific Styles (Added inside Detail Page Styles) */
+.doc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 4px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13px;
+}
+
+.doc-row:last-child {
+    border-bottom: none;
+}
+
+.doc-title {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.btn-download {
+    background-color: #e0f2fe;
+    color: #0284c7;
+    border: 1px solid #bae6fd;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-download:hover {
+    background-color: #0284c7;
+    color: #ffffff;
+}
+
+
+/* ==========================================================
+   4. HOME PAGE SPECIFIC STYLES (home-style.css)
+   ========================================================== */
+body.home-page {
+    background-color: #f4f6f9;
+}
+
+.home-page .hero-card {
+    padding: 24px 28px;
+}
+
+.home-page .hero-card h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.home-page .filter-buttons {
+    margin-top: 18px;
+    display: flex;
+    gap: 10px;
+}
+
+.home-page .filter-btn {
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    border: 1px solid #cbd5e1;
+    transition: all 0.2s;
+}
+
+.home-page .filter-btn.active-btn {
+    background-color: #1d4ed8;
+    color: #ffffff;
+    border-color: #1d4ed8;
+}
+
+.home-page .filter-btn:not(.active-btn) {
+    background-color: #ffffff;
+    color: #475569;
+}
+
+.home-page .structured-table th {
+    padding: 14px 16px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.home-page .structured-table td {
+    padding: 16px;
+}
+
+.home-page .structured-table td.ipo-name-cell,
+.home-page .structured-table td:nth-child(2) {
+    text-align: left !important;
+}
+
+.home-page .structured-table tr:hover {
+    background-color: #fafafa;
+}
+
+.home-page .ipo-tag {
+    background-color: #f1f5f9;
+    color: #475569;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.home-page .gmp-badge {
+    background-color: #dcfce7;
+    color: #166534;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    display: inline-block;
+}
+
+.home-page .view-details-btn {
+    background-color: #1d4ed8;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 500;
+    display: inline-block;
+    transition: background 0.2s;
+}
+
+.home-page .view-details-btn:hover {
+    background-color: #1e40af;
+}
+
+
+/* ==========================================================
+   5. DYNAMIC STATUS BADGES & ANIMATIONS
+   ========================================================== */
+@keyframes blinkRed {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.97); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.status-upcoming-green {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #bbf7d0;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.status-live-blinking {
+    background-color: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    font-weight: 800;
+    animation: blinkRed 1s infinite ease-in-out;
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.status-waiting-orange {
+    background-color: #ffedd5;
+    color: #c2410c;
+    border: 1px solid #fed7aa;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.status-allotment-parrot {
+    background-color: #bbf7d0;
+    color: #065f46;
+    border: 1px solid #86efac;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.status-listing-indigo {
+    background-color: #e0e7ff;
+    color: #3730a3;
+    border: 1px solid #c7d2fe;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.status-listed-slate {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+
+/* ==========================================================
+   6. RESPONSIVE MEDIA QUERIES
+   ========================================================== */
+@media (max-width: 900px) {
+    .details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        width: 70px;
+    }
+
+    .sidebar-brand span,
+    .menu-item span {
+        display: none;
+    }
+
+    .sidebar-brand {
+        justify-content: center;
+        padding: 20px 0;
+    }
+
+    .menu-item a {
+        justify-content: center;
+        padding: 12px;
+    }
+
+    .main-content {
+        margin-left: 70px;
+        padding: 15px;
+    }
+
+    .hero-company-info {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .quick-stats-bar {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 12px;
+    }
+    
+    .stat-divider {
+        display: none;
+    }
+    
+    .stat-item {
+        min-width: 46%;
+        background: white;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    }
+}
+
+/* ==========================================================
+   Export Brand Footer (Only visible during image sharing)
+   ========================================================== */
+.export-brand-footer {
+    display: none; /* નોર્મલ બ્રાઉઝિંગમાં કાયમ માટે હાઇડ રહેશે */
+    text-align: right;
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 8px;
+    padding-top: 6px;
+    border-top: 1px dashed #e2e8f0;
+    font-weight: 600;
+}
+/* ફ્રન્ટ-એન્ડ હોમપેજ અને ટેબલના ફોન્ટ સાઈઝ નાના કરવા માટે */
+.structured-table th {
+    font-size: 12px !important;
+    padding: 10px 8px !important;
+}
+
+.structured-table td {
+    font-size: 12.5px !important;
+    padding: 10px 8px !important;
+}
+
+/* હીરો સેક્શનના હેડિંગ અને સબટેક્સ્ટની સાઈઝ */
+.home-page .hero-card h1, 
+.hero-company-info h1 {
+    font-size: 20px !important;
+}
+
+.home-page .hero-card p,
+.hero-company-info p {
+    font-size: 13px !important;
+}
+
+/* ફિલ્ટર બટન્સ અને વ્યુ ડિટેલ્સ બટનની સાઈઝ */
+.home-page .filter-btn {
+    padding: 5px 12px !important;
+    font-size: 12px !important;
+}
+
+.home-page .view-details-btn {
+    padding: 5px 10px !important;
+    font-size: 11.5px !important;
+}
+
+/* સર્ચ ઇનપુટ બોક્સની સાઈઝ */
+#ipoSearchInput {
+    padding: 7px 12px !important;
+    font-size: 13px !important;
+}

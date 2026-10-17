@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live IPO - Current & Upcoming IPOs</title>
+
+    <!-- External CSS Link -->
+    <link rel="stylesheet" href="style.css?v=2026.10.16.2">
+
+    <!-- JavaScript Link -->
+    <script src="script.js?v=2026.10.16.2"></script>
+</head>
+
+<body class="home-page">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            📊 <span>Live IPO</span>
+        </a>
+
+        <ul class="sidebar-menu">
+            <li class="menu-item"><a href="index.html" class="active">🏠 <span>Home</span></a></li>
+            <li class="menu-item"><a href="ipo-calendar.html">📅 <span>IPO Calendar</span></a></li>
+            <li class="menu-item"><a href="my-demat-accounts.html">👥 <span>My Demat Accounts</span></a></li>
+            <li class="menu-item"><a href="allotment-checker.html">🔍 <span>Allotment Checker</span></a></li>
+            <li class="menu-item"><a href="ipo-bid.html">📝 <span>IPO Bid</span></a></li>
+            <li class="menu-item"><a href="ipo-form-print.html">🖨️ <span>Form Print</span></a></li>
+            <li class="menu-item"><a href="profile.html">👤 <span>My Profile</span></a></li>
+            <li class="menu-item"><a href="help-support.html">💬 <span>Help / Support</span></a></li>
+            <li class="menu-item"><a href="privacy-policy.html">🔒 <span>Privacy Policy</span></a></li>
+            <li class="menu-item"><a href="disclaimer.html">⚠️ <span>Disclaimer</span></a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+        <div class="hero-card" style="margin-bottom: 20px;">
+            <div class="hero-company-info" style="flex-direction: column; align-items: flex-start;">
+                <h1 style="font-size: 24px; color: #0f172a; margin-bottom: 5px;">Current & Upcoming IPOs</h1>
+                <p style="color: #64748b; font-size: 14px;">Live tracking of Mainboard & SME IPOs with live GMP and
+                    subscription details.</p>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="filter-buttons">
+                <a href="#" class="filter-btn active-btn" onclick="filterHomeIpos('all', event)">All IPOs</a>
+                <a href="#" class="filter-btn" onclick="filterHomeIpos('mainboard', event)">Mainboard IPOs</a>
+                <a href="#" class="filter-btn" onclick="filterHomeIpos('sme', event)">SME IPOs</a>
+            </div>
+
+            <!-- Search Box Section -->
+            <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+                <input type="text" id="ipoSearchInput" placeholder="🔍 Search IPO by name..." onkeyup="filterIpoTable()"
+                    style="width: 100%; max-width: 350px; padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; outline: none; transition: border 0.2s;">
+            </div>
+        </div>
+
+        <!-- IPO Table Section -->
+        <div class="card-detail">
+            <div style="overflow-x: auto;">
+                <table class="structured-table" style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left;">Logo</th>
+                            <th style="text-align: left;">IPO Name</th>
+                            <th style="text-align: center;">IPO Open</th>
+                            <th style="text-align: center;">IPO Close</th>
+                            <th style="text-align: center;">Allotment Date</th>
+                            <th style="text-align: center;">Listing Date</th>
+                            <th style="text-align: center;">IPO Price</th>
+                            <th style="text-align: center;">Lot Size</th>
+                            <th style="text-align: center;">Premium (GMP)</th>
+                            <th style="text-align: center;">Subscription</th>
+                            <th style="text-align: center;">Allotment Status</th>
+                            <th style="text-align: center;">Status</th>
+                            <th style="text-align: center;">Action</th>
+
+                        </tr>
+                    </thead>
+                    <tbody id="homeTableBody">
+                        <!-- જાવાસ્ક્રિપ્ટ દ્વારા ડેટા અહીં ઓટોમેટિક લોડ થશે -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <p style="font-size: 11.5px; color: #94a3b8; margin-top: 20px;">
+            By proceeding, I agree to <a href="privacy-policy.html"
+                style="color: #2563eb; text-decoration: none;">T&C</a> & <a href="privacy-policy.html"
+                style="color: #2563eb; text-decoration: none;">Privacy Policy</a>
+        </p>
+
+    </main>
+
+</body>
+
+</html>

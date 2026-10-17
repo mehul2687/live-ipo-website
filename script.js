@@ -792,10 +792,10 @@ async function loadDynamicIpoDetails() {
         finTbody.innerHTML = '';
         const finObj = ipo.fin || {};
         const fList = [
-            finObj.fy23 || { yr: "FY-2023", ast: "-", rev: "-", exp: "-", prf: "-" },
             finObj.fy24 || { yr: "FY-2024", ast: "-", rev: "-", exp: "-", prf: "-" },
             finObj.fy25 || { yr: "FY-2025", ast: "-", rev: "-", exp: "-", prf: "-" },
-            finObj.fy26 || { yr: "FY-2026", ast: "-", rev: "-", exp: "-", prf: "-" }
+            finObj.fy26 || { yr: "FY-2026", ast: "-", rev: "-", exp: "-", prf: "-" },
+            finObj.jun26 || finObj.latest || { yr: "30 Jun 2026", ast: "-", rev: "-", exp: "-", prf: "-" }
         ];
 
         fList.forEach(f => {

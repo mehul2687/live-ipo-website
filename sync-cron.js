@@ -317,42 +317,38 @@ async function get_Chittorgarh_details_data(key) {
             }
 
             fin = {
-                fy23: { yr: "FY-2023", ast: "-", rev: "-", exp: "-", prf: "-" },
                 fy24: { yr: "FY-2024", ast: "-", rev: "-", exp: "-", prf: "-" },
                 fy25: { yr: "FY-2025", ast: "-", rev: "-", exp: "-", prf: "-" },
-                fy26: { yr: "FY-2026", ast: "-", rev: "-", exp: "-", prf: "-" }
+                fy26: { yr: "FY-2026", ast: "-", rev: "-", exp: "-", prf: "-" },
+                jun26: { yr: "30 Jun 2026", ast: "-", rev: "-", exp: "-", prf: "-" }
             };
 
             periods.forEach(p => {
                 const text = p.rawPeriod;
-                let mappedKey = null;
-                if (text.includes('2023') || text.includes('Mar 2023') || text.includes('FY23')) mappedKey = 'fy23';
-                else if (text.includes('2024') || text.includes('Mar 2024') || text.includes('FY24')) mappedKey = 'fy24';
-                else if (text.includes('2025') || text.includes('Mar 2025') || text.includes('FY25')) mappedKey = 'fy25';
-                else if ((text.includes('2026') && text.includes('Mar')) || text.includes('FY26')) mappedKey = 'fy26';
-
-                if (mappedKey) {
-                    fin[mappedKey] = {
-                        yr: mappedKey.toUpperCase().replace('FY', 'FY-20'),
-                        ast: p.ast,
-                        rev: p.rev,
-                        exp: p.exp,
-                        prf: p.prf
-                    };
+                if ((text.includes('2024') && (text.includes('Mar') || text.includes('FY24'))) || text.includes('31 Mar 2024')) {
+                    fin.fy24 = { yr: "FY-2024", ast: p.ast, rev: p.rev, exp: p.exp, prf: p.prf };
+                } else if ((text.includes('2025') && (text.includes('Mar') || text.includes('FY25'))) || text.includes('31 Mar 2025')) {
+                    fin.fy25 = { yr: "FY-2025", ast: p.ast, rev: p.rev, exp: p.exp, prf: p.prf };
+                } else if ((text.includes('2026') && (text.includes('Mar') || text.includes('FY26'))) || text.includes('31 Mar 2026')) {
+                    fin.fy26 = { yr: "FY-2026", ast: p.ast, rev: p.rev, exp: p.exp, prf: p.prf };
+                } else if (text.toLowerCase().includes('jun') || text.toLowerCase().includes('sep') || text.toLowerCase().includes('dec') || text.toLowerCase().includes('q1') || text.toLowerCase().includes('q2')) {
+                    fin.jun26 = { yr: p.rawPeriod, ast: p.ast, rev: p.rev, exp: p.exp, prf: p.prf };
                 }
             });
 
-            // If fy26 wasn't filled by Mar 2026, fallback to any available 2026 period
+            // If fy26 wasn't filled by Mar 2026, fallback to any non-stub 2026 period
             if (fin.fy26.ast === '-') {
-                const p26 = periods.find(p => p.rawPeriod.includes('2026'));
+                const p26 = periods.find(p => p.rawPeriod.includes('2026') && !p.rawPeriod.toLowerCase().includes('jun') && !p.rawPeriod.toLowerCase().includes('sep'));
                 if (p26) {
-                    fin.fy26 = {
-                        yr: "FY-2026",
-                        ast: p26.ast,
-                        rev: p26.rev,
-                        exp: p26.exp,
-                        prf: p26.prf
-                    };
+                    fin.fy26 = { yr: "FY-2026", ast: p26.ast, rev: p26.rev, exp: p26.exp, prf: p26.prf };
+                }
+            }
+
+            // If jun26 wasn't filled, check if the first period in the table is a latest stub period
+            if (fin.jun26.ast === '-' && periods.length > 0) {
+                const pFirst = periods[0];
+                if (pFirst.rawPeriod.toLowerCase().includes('jun') || pFirst.rawPeriod.includes('30 Jun')) {
+                    fin.jun26 = { yr: pFirst.rawPeriod, ast: pFirst.ast, rev: pFirst.rev, exp: pFirst.exp, prf: pFirst.prf };
                 }
             }
         }
@@ -598,7 +594,7 @@ async function syncAllIposFromChittorgarh() {
                             console.log(`  ✓ Updated Financials (full) for ${ipo.name}`);
                         } else {
                             let filledAny = false;
-                            ['fy23', 'fy24', 'fy25', 'fy26'].forEach(fy => {
+                            ['fy24', 'fy25', 'fy26', 'jun26'].forEach(fy => {
                                 if (detailData.fin[fy] && detailData.fin[fy].ast !== '-') {
                                     if (!ipo.fin[fy] || ipo.fin[fy].ast === '-' || ipo.fin[fy].ast === '') {
                                         ipo.fin[fy] = detailData.fin[fy];
@@ -606,6 +602,11 @@ async function syncAllIposFromChittorgarh() {
                                     }
                                 }
                             });
+                            // Remove legacy fy23 if present so data is clean
+                            if (ipo.fin && ipo.fin.fy23) {
+                                delete ipo.fin.fy23;
+                                filledAny = true;
+                            }
                             if (filledAny) {
                                 updated = true;
                                 console.log(`  ✓ Merged missing Financials for ${ipo.name}`);

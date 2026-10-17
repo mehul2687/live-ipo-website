@@ -182,10 +182,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ],
 
                 fin: {
-                    fy23: { yr: "FY-2023", ast: document.getElementById('fin_23_ast').value || '-', rev: document.getElementById('fin_23_rev').value || '-', exp: document.getElementById('fin_23_exp').value || '-', prf: document.getElementById('fin_23_prf').value || '-' },
-                    fy24: { yr: "FY-2024", ast: document.getElementById('fin_24_ast').value || '-', rev: document.getElementById('fin_24_rev').value || '-', exp: document.getElementById('fin_24_exp').value || '-', prf: document.getElementById('fin_24_prf').value || '-' },
-                    fy25: { yr: "FY-2025", ast: document.getElementById('fin_25_ast').value || '-', rev: document.getElementById('fin_25_rev').value || '-', exp: document.getElementById('fin_25_exp').value || '-', prf: document.getElementById('fin_25_prf').value || '-' },
-                    fy26: { yr: "FY-2026", ast: document.getElementById('fin_26_ast').value || '-', rev: document.getElementById('fin_26_rev').value || '-', exp: document.getElementById('fin_26_exp').value || '-', prf: document.getElementById('fin_26_prf').value || '-' }
+                    fy24: { yr: document.getElementById('fin_24_yr')?.value || "FY-2024", ast: document.getElementById('fin_24_ast')?.value || '-', rev: document.getElementById('fin_24_rev')?.value || '-', exp: document.getElementById('fin_24_exp')?.value || '-', prf: document.getElementById('fin_24_prf')?.value || '-' },
+                    fy25: { yr: document.getElementById('fin_25_yr')?.value || "FY-2025", ast: document.getElementById('fin_25_ast')?.value || '-', rev: document.getElementById('fin_25_rev')?.value || '-', exp: document.getElementById('fin_25_exp')?.value || '-', prf: document.getElementById('fin_25_prf')?.value || '-' },
+                    fy26: { yr: document.getElementById('fin_26_yr')?.value || "FY-2026", ast: document.getElementById('fin_26_ast')?.value || '-', rev: document.getElementById('fin_26_rev')?.value || '-', exp: document.getElementById('fin_26_exp')?.value || '-', prf: document.getElementById('fin_26_prf')?.value || '-' },
+                    jun26: { yr: document.getElementById('fin_jun_yr')?.value || "30 Jun 2026", ast: document.getElementById('fin_jun_ast')?.value || '-', rev: document.getElementById('fin_jun_rev')?.value || '-', exp: document.getElementById('fin_jun_exp')?.value || '-', prf: document.getElementById('fin_jun_prf')?.value || '-' }
                 },
 
                 // મેન્યુઅલ લોક સેટિંગ્સ - ઓટો સિંક ક્રાઉલરથી ઓવરરાઈટ રોકવા માટે
@@ -575,13 +575,6 @@ async function editIpo(id) {
     }
 
     if (ipo.fin) {
-        if (ipo.fin.fy23) {
-            if (document.getElementById('fin_23_yr')) document.getElementById('fin_23_yr').value = ipo.fin.fy23.yr || 'FY-2023';
-            document.getElementById('fin_23_ast').value = (ipo.fin.fy23.ast !== '-' ? ipo.fin.fy23.ast : '') || ''; 
-            document.getElementById('fin_23_rev').value = (ipo.fin.fy23.rev !== '-' ? ipo.fin.fy23.rev : '') || ''; 
-            document.getElementById('fin_23_exp').value = (ipo.fin.fy23.exp !== '-' ? ipo.fin.fy23.exp : '') || ''; 
-            document.getElementById('fin_23_prf').value = (ipo.fin.fy23.prf !== '-' ? ipo.fin.fy23.prf : '') || ''; 
-        }
         if (ipo.fin.fy24) { 
             if (document.getElementById('fin_24_yr')) document.getElementById('fin_24_yr').value = ipo.fin.fy24.yr || 'FY-2024';
             document.getElementById('fin_24_ast').value = (ipo.fin.fy24.ast !== '-' ? ipo.fin.fy24.ast : '') || ''; 
@@ -602,6 +595,20 @@ async function editIpo(id) {
             document.getElementById('fin_26_rev').value = (ipo.fin.fy26.rev !== '-' ? ipo.fin.fy26.rev : '') || ''; 
             document.getElementById('fin_26_exp').value = (ipo.fin.fy26.exp !== '-' ? ipo.fin.fy26.exp : '') || ''; 
             document.getElementById('fin_26_prf').value = (ipo.fin.fy26.prf !== '-' ? ipo.fin.fy26.prf : '') || ''; 
+        }
+        const junData = ipo.fin.jun26 || ipo.fin.latest;
+        if (junData) {
+            if (document.getElementById('fin_jun_yr')) document.getElementById('fin_jun_yr').value = junData.yr || '30 Jun 2026';
+            document.getElementById('fin_jun_ast').value = (junData.ast !== '-' ? junData.ast : '') || ''; 
+            document.getElementById('fin_jun_rev').value = (junData.rev !== '-' ? junData.rev : '') || ''; 
+            document.getElementById('fin_jun_exp').value = (junData.exp !== '-' ? junData.exp : '') || ''; 
+            document.getElementById('fin_jun_prf').value = (junData.prf !== '-' ? junData.prf : '') || ''; 
+        } else {
+            if (document.getElementById('fin_jun_yr')) document.getElementById('fin_jun_yr').value = '30 Jun 2026';
+            document.getElementById('fin_jun_ast').value = ''; 
+            document.getElementById('fin_jun_rev').value = ''; 
+            document.getElementById('fin_jun_exp').value = ''; 
+            document.getElementById('fin_jun_prf').value = ''; 
         }
     }
 

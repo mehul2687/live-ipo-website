@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live IPO - My Demat Accounts</title>
+
+    <!-- External CSS Link -->
+    <link rel="stylesheet" href="style.css?v=2026.10.17.2">
+
+    <!-- Google Identity Services (Google Sign-In) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Shared JavaScript Link -->
+    <script src="script.js?v=2026.10.17.2"></script>
+</head>
+
+<body class="home-page">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            📊 <span>Live IPO</span>
+        </a>
+
+        <ul class="sidebar-menu">
+            <li class="menu-item"><a href="index.html">🏠 <span>Home</span></a></li>
+            <li class="menu-item"><a href="ipo-calendar.html">📅 <span>IPO Calendar</span></a></li>
+            <li class="menu-item"><a href="my-demat-accounts.html" class="active">👥 <span>My Demat Accounts</span></a></li>
+            <li class="menu-item"><a href="allotment-checker.html">🔍 <span>Allotment Checker</span></a></li>
+            <li class="menu-item"><a href="ipo-bid.html">📝 <span>IPO Bid</span></a></li>
+            <li class="menu-item"><a href="ipo-form-print.html">🖨️ <span>Form Print</span></a></li>
+            <li class="menu-item"><a href="profile.html">👤 <span>My Profile</span></a></li>
+            <li class="menu-item"><a href="help-support.html">💬 <span>Help / Support</span></a></li>
+            <li class="menu-item"><a href="privacy-policy.html">🔒 <span>Privacy Policy</span></a></li>
+            <li class="menu-item"><a href="disclaimer.html">⚠️ <span>Disclaimer</span></a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+        <!-- Top User Header Bar with Google Sign-In -->
+        <div class="user-header-bar">
+            <div class="header-welcome-text">
+                <span class="live-pulse"></span>
+                <span>Live IPO Portal</span>
+            </div>
+            <div class="user-auth-section">
+                <!-- Google Sign In Button container -->
+                <div id="googleSignInBtn"></div>
+                
+                <!-- Logged In User Profile Badge -->
+                <div id="userProfileBadge" class="user-profile-badge" style="display: none;">
+                    <img id="userAvatarImg" src="" alt="User" class="user-avatar-img">
+                    <span id="userNameText" class="user-name-text">User</span>
+                    <button type="button" class="btn-user-logout" onclick="handleUserLogout()" title="Logout">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breadcrumb Navigation -->
+        <div class="demat-breadcrumb" id="dematBreadcrumb">
+            <a href="index.html">🏠 Home</a>
+            <span class="separator">/</span>
+            <span class="current" id="breadcrumbCurrent">Demat Accounts</span>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- STATE 1: AUTH REQUIRED (NOT LOGGED IN)     -->
+        <!-- ========================================== -->
+        <div id="authRequiredSection" class="demat-auth-lock-card" style="display: none;">
+            <div class="auth-lock-circle">🔐</div>
+            <h2 class="auth-lock-title">Google Sign-In Required</h2>
+            <p class="auth-lock-desc">
+                તમારા ડિમેટ એકાઉન્ટ્સ (PAN, Client ID, UPI, Bank) ની વિગતો 100% સુરક્ષિત અને પ્રાઇવેટ રહે તે માટે કૃપા કરીને ઉપર આપેલા <strong>"Sign in with Google"</strong> બટન દ્વારા તમારા Gmail એકાઉન્ટથી લોગિન કરો.
+            </p>
+            <div style="display: inline-block;">
+                <p style="font-size: 13px; color: #64748b; margin-top: 5px;">
+                    👆 ઉપર જમણી બાજુએ આપેલા બટન પરથી ૧-ક્લિકમાં લોગિન કરી શકો છો.
+                </p>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- STATE 2: AUTHENTICATED CONTENT             -->
+        <!-- ========================================== -->
+        <div id="authenticatedSection" style="display: none;">
+
+            <!-- ====================================== -->
+            <!-- VIEW A: ACCOUNTS LIST VIEW             -->
+            <!-- ====================================== -->
+            <div id="accountsListView">
+                <!-- Page Heading -->
+                <div class="demat-page-header">
+                    <h1 class="demat-page-title">Demat Accounts</h1>
+                    <p class="demat-page-subtitle">The accounts you apply for IPOs with. Name, PAN and UPI must match each account holder.</p>
+                </div>
+
+                <!-- Account Quota Bar -->
+                <div class="demat-quota-card">
+                    <div class="quota-badges-row">
+                        <span class="quota-badge-used">
+                            💼 <span id="quotaUsedText">0</span> of 100 used
+                        </span>
+                        <span class="quota-badge-allowed" id="quotaAllowedText">
+                            100 more allowed
+                        </span>
+                    </div>
+                    <div class="quota-progress-track">
+                        <div class="quota-progress-fill" id="quotaProgressFill" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons Bar -->
+                <div class="demat-action-bar">
+                    <button class="btn-demat-primary" onclick="showAddForm()">
+                        ➕ Add Account
+                    </button>
+                    <button class="btn-demat-outline" onclick="triggerBulkImport()">
+                        📁 Bulk Import
+                    </button>
+                    <button class="btn-demat-outline" onclick="exportAllAccounts()">
+                        📤 Export All
+                    </button>
+                    <button class="btn-demat-outline" id="btnLoadDemo" onclick="loadSampleDemoAccounts()" style="margin-left: auto; font-size: 12.5px; color: #4338ca; border-color: #c7d2fe; background: #eef2ff;">
+                        ⚡ Load Sample Data
+                    </button>
+                </div>
+
+                <!-- Hidden file input for bulk import -->
+                <input type="file" id="bulkFileInput" accept=".csv,.json" style="display: none;" onchange="handleBulkFileSelected(event)">
+
+                <!-- Accounts Table Card -->
+                <div class="demat-card">
+                    <!-- Card Top Header -->
+                    <div class="demat-card-header">
+                        <div class="demat-card-title">
+                            🗂️ Your Accounts
+                        </div>
+                        <div class="demat-header-actions">
+                            <button class="btn-export-sel" onclick="exportSelectedAccounts()">
+                                📥 Export Selected
+                            </button>
+                            <button class="btn-del-sel" onclick="deleteSelectedAccounts()">
+                                🗑️ Delete Selected
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Card Controls Bar (Entries selector + Search) -->
+                    <div class="demat-controls-bar">
+                        <div class="demat-entries-selector">
+                            <span>Show</span>
+                            <select class="demat-select-entries" id="entriesSelect" onchange="changeEntriesPerPage()">
+                                <option value="All" selected>All</option>
+                                <option value="10">10</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <span>entries</span>
+                        </div>
+                        <div class="demat-search-box">
+                            <span>Search:</span>
+                            <input type="text" class="demat-search-input" id="tableSearchInput" placeholder="Search accounts..." oninput="handleSearch(this.value)">
+                        </div>
+                    </div>
+
+                    <!-- Responsive Table -->
+                    <div class="demat-table-container">
+                        <table class="demat-table" id="accountsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40px; text-align: center;">
+                                        <input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this.checked)">
+                                    </th>
+                                    <th class="sortable" onclick="sortTable('name')">NAME <span class="sort-icon" id="sort_name">⇅</span></th>
+                                    <th class="sortable" onclick="sortTable('pan')">PAN <span class="sort-icon" id="sort_pan">⇅</span></th>
+                                    <th class="sortable" onclick="sortTable('type')">TYPE <span class="sort-icon" id="sort_type">⇅</span></th>
+                                    <th class="sortable" onclick="sortTable('dpid')">DP ID (ONLY FOR NSDL) <span class="sort-icon" id="sort_dpid">⇅</span></th>
+                                    <th class="sortable" onclick="sortTable('clientId')">CLIENT ID/BENEFICIARY NUMBER <span class="sort-icon" id="sort_clientId">⇅</span></th>
+                                    <th class="sortable" onclick="sortTable('upi')">UPI ID <span class="sort-icon" id="sort_upi">⇅</span></th>
+                                    <th style="text-align: center;">ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accountsTableBody">
+                                <!-- Dynamic Rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====================================== -->
+            <!-- VIEW B: ADD / EDIT ACCOUNT FORM VIEW   -->
+            <!-- ====================================== -->
+            <div id="accountFormView" style="display: none;">
+                <!-- Form Card -->
+                <div class="demat-form-card">
+                    <div class="demat-form-header">
+                        <span id="formTitleIcon">➕</span>
+                        <span id="formTitleText">Add Demat Account</span>
+                    </div>
+
+                    <!-- Hidden ID field for edit mode -->
+                    <input type="hidden" id="formAccountId" value="">
+
+                    <!-- Field 1: Select Type -->
+                    <div class="demat-form-group">
+                        <label class="demat-form-label" for="accountType">Select Type</label>
+                        <div class="demat-form-field">
+                            <select id="accountType" class="demat-select-type" onchange="handleAccountTypeChange()">
+                                <option value="CDSL" selected>CDSL</option>
+                                <option value="NSDL">NSDL</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Field 2: Full Name (as per PAN) -->
+                    <div class="demat-form-group">
+                        <label class="demat-form-label" for="accountName">Full Name (as per PAN)</label>
+                        <div class="demat-form-field">
+                            <input type="text" id="accountName" class="demat-input" placeholder="Name" required>
+                        </div>
+                    </div>
+
+                    <!-- Field 3: PAN Number -->
+                    <div class="demat-form-group">
+                        <label class="demat-form-label" for="accountPan">PAN Number</label>
+                        <div class="demat-form-field">
+                            <input type="text" id="accountPan" class="demat-input" placeholder="ABCDE1234Z" maxlength="10" style="text-transform: uppercase;" oninput="this.value = this.value.toUpperCase();" required>
+                        </div>
+                    </div>
+
+                    <!-- Field 4: DPID (only for NSDL) - Hidden by default when CDSL -->
+                    <div class="demat-form-group" id="dpidGroup" style="display: none;">
+                        <label class="demat-form-label" for="accountDpid">DPID (only for NSDL)</label>
+                        <div class="demat-form-field">
+                            <input type="text" id="accountDpid" class="demat-input" placeholder="IN123456" maxlength="8">
+                        </div>
+                    </div>
+
+                    <!-- Field 5: Client ID/Beneficiary Number -->
+                    <div class="demat-form-group">
+                        <label class="demat-form-label" for="accountClientId">Client ID/Beneficiary Number</label>
+                        <div class="demat-form-field">
+                            <input type="text" id="accountClientId" class="demat-input" placeholder="120198000012345680" required>
+                        </div>
+                    </div>
+
+                    <!-- Field 6: UPI Id -->
+                    <div class="demat-form-group">
+                        <label class="demat-form-label" for="accountUpi">UPI Id</label>
+                        <div class="demat-form-field">
+                            <input type="text" id="accountUpi" class="demat-input" placeholder="somename@ybl" required>
+                        </div>
+                    </div>
+
+                    <!-- Field 7: Bank Account Number -->
+                    <div class="demat-form-group">
+                        <label class="demat-form-label" for="accountBankNo">Bank Account Number</label>
+                        <div class="demat-form-field">
+                            <input type="text" id="accountBankNo" class="demat-input" placeholder="01234567890">
+                        </div>
+                    </div>
+
+                    <!-- Field 8: Bank Name -->
+                    <div class="demat-form-group">
+                        <label class="demat-form-label" for="accountBankName">Bank Name</label>
+                        <div class="demat-form-field">
+                            <input type="text" id="accountBankName" class="demat-input" placeholder="HDFCBANK">
+                        </div>
+                    </div>
+
+                    <!-- Form Footer Buttons -->
+                    <div class="demat-form-footer">
+                        <button type="button" class="btn-save-account" onclick="saveDematAccount()">
+                            Save Account
+                        </button>
+                        <button type="button" class="btn-cancel-account" onclick="hideAddEditForm()">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- DEMAT ACCOUNTS LOGIC SCRIPT                -->
+    <!-- ========================================== -->
+    <script>
+        // State variables
+        let currentUser = null;
+        let userAccounts = [];
+        let filteredAccounts = [];
+        let selectedAccountIds = new Set();
+        let currentSort = { column: '', asc: true };
+        let entriesPerPage = 'All';
+
+        // Sample initial data matching user screenshot
+        const sampleScreenshotAccounts = [
+            { id: "acc_1", name: "BHAGVANBHAI HARIBHAI PATEL", pan: "ABNPP3122C", type: "CDSL", dpid: "", clientId: "1201090003058596", upi: "bhpatel1652@ybl", bankNo: "01234567890", bankName: "HDFCBANK" },
+            { id: "acc_2", name: "DARSHAN", pan: "BYBPJ7517B", type: "CDSL", dpid: "", clientId: "1203320096157128", upi: "liveipo@ybl", bankNo: "01234567891", bankName: "AXISBANK" },
+            { id: "acc_3", name: "DEEPEN", pan: "DVEPK4108K", type: "NSDL", dpid: "IN300513", clientId: "85882833", upi: "bhpatel1652@ybl", bankNo: "01234567892", bankName: "ICICIBANK" },
+            { id: "acc_4", name: "DEVAL", pan: "DDYPP0274B", type: "NSDL", dpid: "IN300513", clientId: "80364545", upi: "mehul2687@ybl", bankNo: "01234567893", bankName: "SBIN" },
+            { id: "acc_5", name: "FENAL", pan: "FSBPP2563K", type: "CDSL", dpid: "", clientId: "1203320340455392", upi: "mehul26587@ybl", bankNo: "01234567894", bankName: "HDFCBANK" },
+            { id: "acc_6", name: "HARSH", pan: "DACPP1813B", type: "NSDL", dpid: "IN300513", clientId: "81385621", upi: "liveipo@ybl", bankNo: "01234567895", bankName: "KOTAKBANK" },
+            { id: "acc_7", name: "HARSH SHRMA", pan: "HWZPS3969A", type: "CDSL", dpid: "", clientId: "1208180178429198", upi: "mehul26587@ybl", bankNo: "01234567896", bankName: "HDFCBANK" },
+            { id: "acc_8", name: "JIGO", pan: "CFVPR7958N", type: "CDSL", dpid: "", clientId: "1203320013441251", upi: "mehul26587@ybl", bankNo: "01234567897", bankName: "BOB" }
+        ];
+
+        // Storage Key helper tied to user email
+        function getStorageKey() {
+            if (!currentUser || !currentUser.email) return null;
+            return `live_ipo_demat_accounts_${encodeURIComponent(currentUser.email.toLowerCase())}`;
+        }
+
+        // Initialize Authentication & Load Accounts
+        function checkAndRenderAuth() {
+            const userStr = localStorage.getItem('live_ipo_user');
+            if (userStr) {
+                try {
+                    currentUser = JSON.parse(userStr);
+                } catch (e) {
+                    currentUser = null;
+                }
+            } else {
+                currentUser = null;
+            }
+
+            const authRequiredEl = document.getElementById('authRequiredSection');
+            const authSectionEl = document.getElementById('authenticatedSection');
+
+            if (currentUser && currentUser.email) {
+                authRequiredEl.style.display = 'none';
+                authSectionEl.style.display = 'block';
+                loadUserAccounts();
+            } else {
+                authRequiredEl.style.display = 'block';
+                authSectionEl.style.display = 'none';
+                userAccounts = [];
+                filteredAccounts = [];
+            }
+        }
+
+        // Listen for Google Auth changes from script.js
+        window.addEventListener('live_ipo_auth_changed', function(e) {
+            checkAndRenderAuth();
+        });
+
+        // Load Accounts from LocalStorage for current user
+        function loadUserAccounts() {
+            const key = getStorageKey();
+            if (!key) return;
+
+            const stored = localStorage.getItem(key);
+            if (stored) {
+                try {
+                    userAccounts = JSON.parse(stored);
+                } catch (e) {
+                    userAccounts = [];
+                }
+            } else {
+                userAccounts = [];
+            }
+
+            filteredAccounts = [...userAccounts];
+            selectedAccountIds.clear();
+            renderQuota();
+            renderTable();
+        }
+
+        // Save Accounts to LocalStorage for current user
+        function persistUserAccounts() {
+            const key = getStorageKey();
+            if (!key) {
+                alert("Please log in with Google first.");
+                return false;
+            }
+            localStorage.setItem(key, JSON.stringify(userAccounts));
+            return true;
+        }
+
+        // Update Quota Bar
+        function renderQuota() {
+            const count = userAccounts.length;
+            const maxLimit = 100;
+            const remaining = Math.max(0, maxLimit - count);
+            const percentage = Math.min(100, (count / maxLimit) * 100);
+
+            document.getElementById('quotaUsedText').innerText = count;
+            document.getElementById('quotaAllowedText').innerText = `${remaining} more allowed`;
+            document.getElementById('quotaProgressFill').style.width = `${percentage}%`;
+
+            // Hide/Show sample load button if already populated
+            const btnDemo = document.getElementById('btnLoadDemo');
+            if (btnDemo) {
+                btnDemo.style.display = (count === 0) ? 'inline-flex' : 'none';
+            }
+        }
+
+        // Render Table Rows
+        function renderTable() {
+            const tbody = document.getElementById('accountsTableBody');
+            tbody.innerHTML = '';
+
+            let displayList = [...filteredAccounts];
+
+            // Sorting
+            if (currentSort.column) {
+                const col = currentSort.column;
+                const dir = currentSort.asc ? 1 : -1;
+                displayList.sort((a, b) => {
+                    const valA = (a[col] || '').toString().toLowerCase();
+                    const valB = (b[col] || '').toString().toLowerCase();
+                    return valA.localeCompare(valB) * dir;
+                });
+            }
+
+            // Entries Pagination / Limit
+            if (entriesPerPage !== 'All') {
+                const limit = parseInt(entriesPerPage, 10);
+                if (!isNaN(limit)) {
+                    displayList = displayList.slice(0, limit);
+                }
+            }
+
+            if (displayList.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td colspan="8" style="text-align: center; padding: 40px 20px; color: #64748b;">
+                        <div style="font-size: 28px; margin-bottom: 8px;">📂</div>
+                        <div style="font-size: 15px; font-weight: 600; color: #334155; margin-bottom: 4px;">No Demat Accounts Found</div>
+                        <div style="font-size: 13px;">Click <strong>"+ Add Account"</strong> above or <strong>"Load Sample Data"</strong> to get started.</div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+                updateSelectAllState();
+                return;
+            }
+
+            displayList.forEach(acc => {
+                const isChecked = selectedAccountIds.has(acc.id);
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="text-align: center;">
+                        <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleAccountSelection('${acc.id}', this.checked)">
+                    </td>
+                    <td class="td-name">${escapeHtml(acc.name)}</td>
+                    <td class="td-pan">${escapeHtml(acc.pan)}</td>
+                    <td class="td-type">
+                        <span style="font-weight: 600; color: ${acc.type === 'NSDL' ? '#0891b2' : '#2563eb'};">${escapeHtml(acc.type)}</span>
+                    </td>
+                    <td>${acc.type === 'NSDL' ? escapeHtml(acc.dpid || '-') : ''}</td>
+                    <td class="td-clientid">${escapeHtml(acc.clientId || '-')}</td>
+                    <td>${escapeHtml(acc.upi || '-')}</td>
+                    <td class="td-actions" style="text-align: center;">
+                        <button class="btn-table-edit" onclick="editAccount('${acc.id}')" title="Edit Account">✏️ Edit</button>
+                        <button class="btn-table-del" onclick="deleteSingleAccount('${acc.id}')" title="Delete Account">🗑️ Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateSelectAllState();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Realtime Search
+        function handleSearch(query) {
+            const q = query.toLowerCase().trim();
+            if (!q) {
+                filteredAccounts = [...userAccounts];
+            } else {
+                filteredAccounts = userAccounts.filter(acc => 
+                    (acc.name && acc.name.toLowerCase().includes(q)) ||
+                    (acc.pan && acc.pan.toLowerCase().includes(q)) ||
+                    (acc.type && acc.type.toLowerCase().includes(q)) ||
+                    (acc.dpid && acc.dpid.toLowerCase().includes(q)) ||
+                    (acc.clientId && acc.clientId.toLowerCase().includes(q)) ||
+                    (acc.upi && acc.upi.toLowerCase().includes(q)) ||
+                    (acc.bankName && acc.bankName.toLowerCase().includes(q))
+                );
+            }
+            renderTable();
+        }
+
+        // Change Entries per page
+        function changeEntriesPerPage() {
+            entriesPerPage = document.getElementById('entriesSelect').value;
+            renderTable();
+        }
+
+        // Column Sorting
+        function sortTable(column) {
+            if (currentSort.column === column) {
+                currentSort.asc = !currentSort.asc;
+            } else {
+                currentSort.column = column;
+                currentSort.asc = true;
+            }
+
+            // Update icons
+            ['name', 'pan', 'type', 'dpid', 'clientId', 'upi'].forEach(col => {
+                const el = document.getElementById(`sort_${col}`);
+                if (el) {
+                    if (col === currentSort.column) {
+                        el.innerText = currentSort.asc ? '▲' : '▼';
+                        el.style.color = '#2563eb';
+                    } else {
+                        el.innerText = '⇅';
+                        el.style.color = '#94a3b8';
+                    }
+                }
+            });
+
+            renderTable();
+        }
+
+        // Checkbox Selection
+        function toggleSelectAll(checked) {
+            filteredAccounts.forEach(acc => {
+                if (checked) {
+                    selectedAccountIds.add(acc.id);
+                } else {
+                    selectedAccountIds.delete(acc.id);
+                }
+            });
+            renderTable();
+        }
+
+        function toggleAccountSelection(id, checked) {
+            if (checked) {
+                selectedAccountIds.add(id);
+            } else {
+                selectedAccountIds.delete(id);
+            }
+            updateSelectAllState();
+        }
+
+        function updateSelectAllState() {
+            const masterCheckbox = document.getElementById('selectAllCheckbox');
+            if (!masterCheckbox) return;
+            if (filteredAccounts.length === 0) {
+                masterCheckbox.checked = false;
+                masterCheckbox.indeterminate = false;
+                return;
+            }
+            const allSelected = filteredAccounts.every(acc => selectedAccountIds.has(acc.id));
+            const someSelected = filteredAccounts.some(acc => selectedAccountIds.has(acc.id));
+
+            masterCheckbox.checked = allSelected;
+            masterCheckbox.indeterminate = someSelected && !allSelected;
+        }
+
+        // Account Type Toggle (CDSL vs NSDL)
+        function handleAccountTypeChange() {
+            const type = document.getElementById('accountType').value;
+            const dpidGroup = document.getElementById('dpidGroup');
+            const clientIdInput = document.getElementById('accountClientId');
+
+            if (type === 'NSDL') {
+                dpidGroup.style.display = 'flex';
+                clientIdInput.placeholder = "12345678";
+            } else {
+                dpidGroup.style.display = 'none';
+                clientIdInput.placeholder = "120198000012345680";
+            }
+        }
+
+        // Show Add Form View
+        function showAddForm() {
+            if (!currentUser || !currentUser.email) {
+                alert("Please log in with Google to add a Demat Account.");
+                return;
+            }
+
+            if (userAccounts.length >= 100) {
+                alert("Quota limit reached: You can store up to 100 Demat accounts.");
+                return;
+            }
+
+            document.getElementById('accountsListView').style.display = 'none';
+            document.getElementById('accountFormView').style.display = 'block';
+
+            // Reset form fields
+            document.getElementById('formAccountId').value = '';
+            document.getElementById('formTitleIcon').innerText = '➕';
+            document.getElementById('formTitleText').innerText = 'Add Demat Account';
+            document.getElementById('accountType').value = 'CDSL';
+            document.getElementById('accountName').value = '';
+            document.getElementById('accountPan').value = '';
+            document.getElementById('accountDpid').value = '';
+            document.getElementById('accountClientId').value = '';
+            document.getElementById('accountUpi').value = '';
+            document.getElementById('accountBankNo').value = '';
+            document.getElementById('accountBankName').value = '';
+
+            handleAccountTypeChange();
+
+            // Breadcrumb
+            document.getElementById('breadcrumbCurrent').innerHTML = '<a href="javascript:hideAddEditForm()" style="color:#64748b; text-decoration:none;">Demat Accounts</a> <span class="separator">/</span> <span style="color:#0f172a; font-weight:600;">Add Account</span>';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Show Edit Form View
+        function editAccount(id) {
+            const acc = userAccounts.find(a => a.id === id);
+            if (!acc) return;
+
+            document.getElementById('accountsListView').style.display = 'none';
+            document.getElementById('accountFormView').style.display = 'block';
+
+            document.getElementById('formAccountId').value = acc.id;
+            document.getElementById('formTitleIcon').innerText = '✏️';
+            document.getElementById('formTitleText').innerText = 'Edit Demat Account';
+            document.getElementById('accountType').value = acc.type || 'CDSL';
+            document.getElementById('accountName').value = acc.name || '';
+            document.getElementById('accountPan').value = acc.pan || '';
+            document.getElementById('accountDpid').value = acc.dpid || '';
+            document.getElementById('accountClientId').value = acc.clientId || '';
+            document.getElementById('accountUpi').value = acc.upi || '';
+            document.getElementById('accountBankNo').value = acc.bankNo || '';
+            document.getElementById('accountBankName').value = acc.bankName || '';
+
+            handleAccountTypeChange();
+
+            // Breadcrumb
+            document.getElementById('breadcrumbCurrent').innerHTML = '<a href="javascript:hideAddEditForm()" style="color:#64748b; text-decoration:none;">Demat Accounts</a> <span class="separator">/</span> <span style="color:#0f172a; font-weight:600;">Edit Account</span>';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Hide Form View & Back to List
+        function hideAddEditForm() {
+            document.getElementById('accountFormView').style.display = 'none';
+            document.getElementById('accountsListView').style.display = 'block';
+            document.getElementById('breadcrumbCurrent').innerText = 'Demat Accounts';
+        }
+
+        // Save (Create or Update) Demat Account
+        function saveDematAccount() {
+            const id = document.getElementById('formAccountId').value;
+            const type = document.getElementById('accountType').value;
+            const name = document.getElementById('accountName').value.trim();
+            const pan = document.getElementById('accountPan').value.trim().toUpperCase();
+            const dpid = document.getElementById('accountDpid').value.trim();
+            const clientId = document.getElementById('accountClientId').value.trim();
+            const upi = document.getElementById('accountUpi').value.trim();
+            const bankNo = document.getElementById('accountBankNo').value.trim();
+            const bankName = document.getElementById('accountBankName').value.trim();
+
+            // Validation
+            if (!name) {
+                alert("Please enter Full Name (as per PAN).");
+                document.getElementById('accountName').focus();
+                return;
+            }
+            if (!pan || pan.length !== 10) {
+                alert("Please enter a valid 10-character PAN Number.");
+                document.getElementById('accountPan').focus();
+                return;
+            }
+            if (type === 'NSDL' && !dpid) {
+                alert("Please enter DPID for NSDL account (e.g. IN300513).");
+                document.getElementById('accountDpid').focus();
+                return;
+            }
+            if (!clientId) {
+                alert("Please enter Client ID / Beneficiary Number.");
+                document.getElementById('accountClientId').focus();
+                return;
+            }
+            if (!upi) {
+                alert("Please enter UPI ID (e.g. name@upi).");
+                document.getElementById('accountUpi').focus();
+                return;
+            }
+
+            if (id) {
+                // Update existing
+                const index = userAccounts.findIndex(a => a.id === id);
+                if (index !== -1) {
+                    userAccounts[index] = {
+                        ...userAccounts[index],
+                        type,
+                        name,
+                        pan,
+                        dpid: (type === 'NSDL' ? dpid : ''),
+                        clientId,
+                        upi,
+                        bankNo,
+                        bankName,
+                        updatedAt: new Date().toISOString()
+                    };
+                }
+            } else {
+                // Check limit
+                if (userAccounts.length >= 100) {
+                    alert("Maximum limit of 100 accounts reached.");
+                    return;
+                }
+                // Create new
+                const newAcc = {
+                    id: 'demat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                    type,
+                    name,
+                    pan,
+                    dpid: (type === 'NSDL' ? dpid : ''),
+                    clientId,
+                    upi,
+                    bankNo,
+                    bankName,
+                    createdAt: new Date().toISOString()
+                };
+                userAccounts.unshift(newAcc);
+            }
+
+            persistUserAccounts();
+            filteredAccounts = [...userAccounts];
+            renderQuota();
+            renderTable();
+            hideAddEditForm();
+            alert(id ? "✓ Account updated successfully!" : "✓ New Demat Account saved successfully!");
+        }
+
+        // Delete Single Account
+        function deleteSingleAccount(id) {
+            const acc = userAccounts.find(a => a.id === id);
+            const name = acc ? acc.name : "this account";
+            if (!confirm(`Are you sure you want to delete ${name}?`)) {
+                return;
+            }
+
+            userAccounts = userAccounts.filter(a => a.id !== id);
+            filteredAccounts = filteredAccounts.filter(a => a.id !== id);
+            selectedAccountIds.delete(id);
+
+            persistUserAccounts();
+            renderQuota();
+            renderTable();
+        }
+
+        // Delete Selected Accounts
+        function deleteSelectedAccounts() {
+            if (selectedAccountIds.size === 0) {
+                alert("Please select at least one account to delete.");
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to delete ${selectedAccountIds.size} selected account(s)?`)) {
+                return;
+            }
+
+            userAccounts = userAccounts.filter(a => !selectedAccountIds.has(a.id));
+            filteredAccounts = filteredAccounts.filter(a => !selectedAccountIds.has(a.id));
+            selectedAccountIds.clear();
+
+            persistUserAccounts();
+            renderQuota();
+            renderTable();
+            alert("✓ Selected account(s) deleted successfully.");
+        }
+
+        // Export Helpers
+        function downloadCsv(data, filename) {
+            const headers = ["NAME", "PAN", "TYPE", "DP ID", "CLIENT ID/BENEFICIARY NUMBER", "UPI ID", "BANK ACCOUNT NUMBER", "BANK NAME"];
+            const rows = data.map(acc => [
+                `"${(acc.name || '').replace(/"/g, '""')}"`,
+                `"${acc.pan || ''}"`,
+                `"${acc.type || ''}"`,
+                `"${acc.dpid || ''}"`,
+                `"${acc.clientId || ''}"`,
+                `"${acc.upi || ''}"`,
+                `"${acc.bankNo || ''}"`,
+                `"${acc.bankName || ''}"`
+            ]);
+
+            const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Export All
+        function exportAllAccounts() {
+            if (userAccounts.length === 0) {
+                alert("No Demat accounts to export.");
+                return;
+            }
+            const dateStr = new Date().toISOString().slice(0, 10);
+            downloadCsv(userAccounts, `demat_accounts_all_${dateStr}.csv`);
+        }
+
+        // Export Selected
+        function exportSelectedAccounts() {
+            if (selectedAccountIds.size === 0) {
+                alert("Please select at least one account to export.");
+                return;
+            }
+            const selectedList = userAccounts.filter(a => selectedAccountIds.has(a.id));
+            const dateStr = new Date().toISOString().slice(0, 10);
+            downloadCsv(selectedList, `demat_accounts_selected_${dateStr}.csv`);
+        }
+
+        // Bulk Import Trigger
+        function triggerBulkImport() {
+            if (!currentUser || !currentUser.email) {
+                alert("Please log in with Google to import Demat accounts.");
+                return;
+            }
+            document.getElementById('bulkFileInput').click();
+        }
+
+        // Handle Bulk File Upload (CSV or JSON)
+        function handleBulkFileSelected(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    let imported = [];
+
+                    if (file.name.endsWith('.json')) {
+                        imported = JSON.parse(content);
+                    } else {
+                        // Parse CSV
+                        const lines = content.split(/\r?\n/).filter(line => line.trim().length > 0);
+                        if (lines.length > 1) {
+                            for (let i = 1; i < lines.length; i++) {
+                                const cols = parseCsvLine(lines[i]);
+                                if (cols.length >= 2 && cols[0] && cols[1]) {
+                                    imported.push({
+                                        id: 'demat_' + Date.now() + '_' + i,
+                                        name: cols[0] || '',
+                                        pan: (cols[1] || '').toUpperCase(),
+                                        type: (cols[2] || 'CDSL').toUpperCase(),
+                                        dpid: cols[3] || '',
+                                        clientId: cols[4] || '',
+                                        upi: cols[5] || '',
+                                        bankNo: cols[6] || '',
+                                        bankName: cols[7] || '',
+                                        createdAt: new Date().toISOString()
+                                    });
+                                }
+                            }
+                        }
+                    }
+
+                    if (Array.isArray(imported) && imported.length > 0) {
+                        let addedCount = 0;
+                        imported.forEach(item => {
+                            if (userAccounts.length < 100) {
+                                if (!item.id) item.id = 'demat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+                                userAccounts.push(item);
+                                addedCount++;
+                            }
+                        });
+
+                        persistUserAccounts();
+                        filteredAccounts = [...userAccounts];
+                        renderQuota();
+                        renderTable();
+                        alert(`✓ Successfully imported ${addedCount} Demat accounts!`);
+                    } else {
+                        alert("No valid Demat account records found in the selected file.");
+                    }
+                } catch (err) {
+                    console.error("Bulk import error:", err);
+                    alert("Error parsing file. Please ensure it is a valid CSV or JSON file.");
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        // CSV line parser taking care of quotes
+        function parseCsvLine(text) {
+            let p = '', c = false, r = [];
+            for (let i = 0; i < text.length; i++) {
+                let char = text[i];
+                if (char === '"') {
+                    if (c && text[i+1] === '"') { p += '"'; i++; }
+                    else { c = !c; }
+                } else if (char === ',' && !c) {
+                    r.push(p.trim());
+                    p = '';
+                } else {
+                    p += char;
+                }
+            }
+            r.push(p.trim());
+            return r;
+        }
+
+        // Load Sample Demo Accounts (from user screenshot)
+        function loadSampleDemoAccounts() {
+            if (!currentUser || !currentUser.email) {
+                alert("Please log in with Google first.");
+                return;
+            }
+
+            if (userAccounts.length > 0) {
+                if (!confirm("This will load the sample Demat accounts. Do you want to continue?")) {
+                    return;
+                }
+            }
+
+            userAccounts = JSON.parse(JSON.stringify(sampleScreenshotAccounts));
+            persistUserAccounts();
+            filteredAccounts = [...userAccounts];
+            renderQuota();
+            renderTable();
+            alert("✓ Sample Demat accounts loaded successfully!");
+        }
+
+        // Initial setup on load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkAndRenderAuth();
+        });
+    </script>
+
+</body>
+
+</html>

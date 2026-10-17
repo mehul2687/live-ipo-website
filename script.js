@@ -1069,6 +1069,7 @@ window.handleGoogleSignIn = function(response) {
         localStorage.setItem('live_ipo_user', JSON.stringify(user));
         renderUserAuthState();
         console.log(`✓ Welcome, ${user.name}! Successfully signed in with Google.`);
+        window.dispatchEvent(new CustomEvent('live_ipo_auth_changed', { detail: { user } }));
     }
 };
 
@@ -1078,6 +1079,7 @@ window.handleUserLogout = function() {
         google.accounts.id.disableAutoSelect();
     }
     renderUserAuthState();
+    window.dispatchEvent(new CustomEvent('live_ipo_auth_changed', { detail: { user: null } }));
 };
 
 function renderUserAuthState() {

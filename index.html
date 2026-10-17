@@ -9,8 +9,11 @@
     <!-- External CSS Link -->
     <link rel="stylesheet" href="style.css?v=2026.10.16.2">
 
+    <!-- Google Identity Services (Google Sign-In) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
     <!-- JavaScript Link -->
-    <script src="script.js?v=2026.10.16.2"></script>
+    <script src="script.js?v=2026.10.17.1"></script>
 </head>
 
 <body class="home-page">
@@ -37,6 +40,25 @@
 
     <!-- Main Content Area -->
     <main class="main-content">
+
+        <!-- Top User Header Bar with Google Sign-In -->
+        <div class="user-header-bar">
+            <div class="header-welcome-text">
+                <span class="live-pulse"></span>
+                <span>Live IPO Portal</span>
+            </div>
+            <div class="user-auth-section">
+                <!-- Google Sign In Button container -->
+                <div id="googleSignInBtn"></div>
+                
+                <!-- Logged In User Profile Badge -->
+                <div id="userProfileBadge" class="user-profile-badge" style="display: none;">
+                    <img id="userAvatarImg" src="" alt="User" class="user-avatar-img">
+                    <span id="userNameText" class="user-name-text">User</span>
+                    <button type="button" class="btn-user-logout" onclick="handleUserLogout()" title="Logout">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
 
         <div class="hero-card" style="margin-bottom: 20px;">
             <div class="hero-company-info" style="flex-direction: column; align-items: flex-start;">

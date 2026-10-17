@@ -1036,3 +1036,122 @@ async function fetchChittorgarhData(chittorgarhKey) {
         return null;
     }
 }
+
+// ==========================================
+// GOOGLE SIGN-IN (GOOGLE IDENTITY SERVICES)
+// ==========================================
+const GOOGLE_CLIENT_ID = "207372613533-2lvj2glt01tn79f5tnd38kcc6d74h2ch.apps.googleusercontent.com";
+
+function parseJwt(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        console.error("Error parsing JWT:", e);
+        return null;
+    }
+}
+
+window.handleGoogleSignIn = function(response) {
+    if (!response || !response.credential) return;
+    const payload = parseJwt(response.credential);
+    if (payload) {
+        const user = {
+            id: payload.sub,
+            name: payload.name || payload.given_name || "User",
+            email: payload.email,
+            avatar: payload.picture || ""
+        };
+        localStorage.setItem('live_ipo_user', JSON.stringify(user));
+        renderUserAuthState();
+        console.log(`✓ Welcome, ${user.name}! Successfully signed in with Google.`);
+    }
+};
+
+window.handleUserLogout = function() {
+    localStorage.removeItem('live_ipo_user');
+    if (window.google && google.accounts && google.accounts.id) {
+        google.accounts.id.disableAutoSelect();
+    }
+    renderUserAuthState();
+};
+
+function renderUserAuthState() {
+    const userStr = localStorage.getItem('live_ipo_user');
+    const btnContainer = document.getElementById('googleSignInBtn');
+    const badge = document.getElementById('userProfileBadge');
+    const avatarImg = document.getElementById('userAvatarImg');
+    const nameText = document.getElementById('userNameText');
+
+    if (userStr) {
+        try {
+            const user = JSON.parse(userStr);
+            if (btnContainer) btnContainer.style.display = 'none';
+            if (badge) badge.style.display = 'inline-flex';
+            if (avatarImg) avatarImg.src = user.avatar || "https://www.gravatar.com/avatar/?d=mp";
+            if (nameText) nameText.innerText = user.name || "User";
+            return;
+        } catch (e) {
+            console.error("User state parse error:", e);
+        }
+    }
+
+    // Not logged in
+    if (badge) badge.style.display = 'none';
+    if (btnContainer) btnContainer.style.display = 'block';
+}
+
+function initGoogleSignIn() {
+    renderUserAuthState();
+
+    let attempts = 0;
+    const checkGis = setInterval(() => {
+        attempts++;
+        if (window.google && google.accounts && google.accounts.id) {
+            clearInterval(checkGis);
+            try {
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: window.handleGoogleSignIn,
+                    auto_select: false,
+                    cancel_on_tap_outside: true
+                });
+
+                const btnEl = document.getElementById("googleSignInBtn");
+                if (btnEl) {
+                    google.accounts.id.renderButton(
+                        btnEl,
+                        {
+                            type: "standard",
+                            theme: "outline",
+                            size: "medium",
+                            text: "signin_with",
+                            shape: "pill",
+                            logo_alignment: "left"
+                        }
+                    );
+                }
+
+                // If not logged in, prompt Google One Tap
+                if (!localStorage.getItem('live_ipo_user')) {
+                    google.accounts.id.prompt();
+                }
+            } catch (err) {
+                console.error("GIS initialization error:", err);
+            }
+        } else if (attempts > 30) {
+            clearInterval(checkGis);
+        }
+    }, 200);
+}
+
+// Auto init on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGoogleSignIn);
+} else {
+    initGoogleSignIn();
+}

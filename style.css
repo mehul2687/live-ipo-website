@@ -1293,3 +1293,259 @@ body.home-page {
         width: 100%;
     }
 }
+
+/* ==========================================================
+   5. AUTO ALLOTMENT CHECKER PAGE STYLES
+   ========================================================== */
+.allotment-hero-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+}
+.allotment-hero-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 5px;
+}
+.allotment-hero-subtitle {
+    font-size: 13.5px;
+    color: #64748b;
+}
+
+.allotment-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 22px 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    margin-bottom: 25px;
+}
+.allotment-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+.allotment-card-header {
+    font-size: 16px;
+    font-weight: 700;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.allotment-spinner-indicator {
+    width: 22px;
+    height: 22px;
+    border: 2.5px solid #e2e8f0;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: allotmentSpin 0.8s linear infinite;
+    display: none;
+}
+@keyframes allotmentSpin {
+    to { transform: rotate(360deg); }
+}
+
+.allotment-select-group {
+    margin-bottom: 22px;
+    position: relative;
+    max-width: 480px;
+}
+.allotment-select-label {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+.allotment-custom-select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    font-size: 13.5px;
+    color: #1e293b;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-sizing: border-box;
+    transition: all 0.2s;
+    user-select: none;
+}
+.allotment-custom-select:hover,
+.allotment-custom-select.active {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+.allotment-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    z-index: 1000;
+    display: none;
+    overflow: hidden;
+}
+.allotment-dropdown-search {
+    padding: 8px 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+.allotment-dropdown-search input {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+}
+.allotment-dropdown-search input:focus {
+    border-color: #2563eb;
+}
+.allotment-dropdown-list {
+    max-height: 240px;
+    overflow-y: auto;
+    list-style: none;
+    margin: 0;
+    padding: 4px 0;
+}
+.allotment-dropdown-item {
+    padding: 10px 14px;
+    font-size: 13.5px;
+    color: #1e293b;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.allotment-dropdown-item:hover {
+    background: #2563eb;
+    color: #ffffff;
+}
+.allotment-dropdown-item.selected {
+    background: #eff6ff;
+    color: #2563eb;
+    font-weight: 600;
+}
+
+/* Empty State */
+.allotment-empty-state {
+    text-align: center;
+    padding: 50px 20px 40px;
+}
+.allotment-empty-icon {
+    font-size: 40px;
+    color: #94a3b8;
+    margin-bottom: 12px;
+}
+.allotment-empty-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+.allotment-empty-subtitle {
+    font-size: 13px;
+    color: #64748b;
+}
+
+/* Allotment Results Table */
+.allotment-table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 15px;
+}
+.allotment-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+.allotment-table th {
+    background: #ffffff;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+}
+.allotment-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13.5px;
+    vertical-align: middle;
+}
+/* Rows color status */
+.allotment-row-success {
+    background-color: #dcfce7 !important;
+    color: #166534 !important;
+    font-weight: 600;
+}
+.allotment-row-success td {
+    border-bottom: 1px solid #bbf7d0 !important;
+}
+.allotment-row-fail {
+    background-color: #fee2e2 !important;
+    color: #991b1b !important;
+}
+.allotment-row-fail td {
+    border-bottom: 1px solid #fecaca !important;
+}
+.allotment-row-norecord {
+    background-color: #f8fafc !important;
+    color: #475569 !important;
+}
+.allotment-row-pending {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+}
+
+.btn-check-allotment {
+    background-color: #16a34a;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.btn-check-allotment:hover {
+    background-color: #15803d;
+}
+.btn-row-refresh {
+    background: #ffffff;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.2s;
+}
+.btn-row-refresh:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #2563eb;
+}
+.row-spinner {
+    display: inline-block;
+    animation: allotmentSpin 0.7s linear infinite;
+    font-size: 15px;
+}

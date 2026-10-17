@@ -31,7 +31,6 @@
         <ul class="admin-menu">
             <li><a href="#" class="active" onclick="switchAdminView('dashboard', event)">🏠 Dashboard</a></li>
             <li><a href="#" onclick="switchAdminView('registrars', event)">🏢 Manage Registrars</a></li>
-            <li><a href="#" onclick="switchAdminView('gmp', event)">📈 Manage GMP</a></li>
             <li><a href="index.html" target="_blank">🌐 View Live Website ↗</a></li>
             <li><a href="#" onclick="adminLogout(event)" style="color: #fca5a5;">🚪 Logout</a></li>
         </ul>
@@ -153,30 +152,6 @@
                             style="background: #64748b; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; cursor: pointer;">Cancel</button>
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Quick GMP & Pricing Manager -->
-        <div id="gmpManagerSection" class="content-card" style="display: none;">
-            <div class="content-card-header">
-                <h3>GMP & Pricing Manager</h3>
-            </div>
-            <div style="overflow-x: auto;">
-                <table class="admin-table">
-                    <thead>
-                        <tr>
-                            <th>IPO Name & ID</th>
-                            <th>Current Price Band</th>
-                            <th>Update GMP (₹)</th>
-                            <th>Est. Listing Price (₹)</th>
-                            <th>Mark Allotment Out</th>
-                            <th style="text-align: center;">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="gmpTableBody">
-                        <!-- Dynamic GMP Rows -->
-                    </tbody>
-                </table>
             </div>
         </div>
 

@@ -731,13 +731,12 @@ function addNewRegistrarOption() {
     alert(`✓ નવો રજિસ્ટ્રાર "${name}" સફળતાપૂર્વક ઉમેરાઈ ગયો છે!`);
 }
 
-// રજિસ્ટ્રાર મેનેજમેન્ટ વ્યુ સ્વિચ કરવા માટે
+// રજિસ્ટ્રાર અને ડેશબોર્ડ વ્યુ સ્વિચ કરવા માટે
 async function switchAdminView(viewName, event) {
     if (event) event.preventDefault();
     
     const masterRecordSec = document.getElementById('masterRecordSection');
     const registrarsSec = document.getElementById('registrarsSection');
-    const gmpSec = document.getElementById('gmpManagerSection');
     const statsGrid = document.querySelector('.stats-grid');
     const formDrawer = document.getElementById('ipoFormDrawer');
     
@@ -749,115 +748,17 @@ async function switchAdminView(viewName, event) {
     if (viewName === 'registrars') {
         if (masterRecordSec) masterRecordSec.style.display = 'none';
         if (statsGrid) statsGrid.style.display = 'none';
-        if (gmpSec) gmpSec.style.display = 'none';
         if (registrarsSec) {
             registrarsSec.style.display = 'block';
             loadRegistrarsTable();
         }
-    } else if (viewName === 'gmp') {
-        if (masterRecordSec) masterRecordSec.style.display = 'none';
-        if (statsGrid) statsGrid.style.display = 'none';
-        if (registrarsSec) registrarsSec.style.display = 'none';
-        if (gmpSec) {
-            gmpSec.style.display = 'block';
-            await loadGmpTable();
-        }
     } else {
         // Default: Dashboard
         if (registrarsSec) registrarsSec.style.display = 'none';
-        if (gmpSec) gmpSec.style.display = 'none';
         if (statsGrid) statsGrid.style.display = 'grid';
         if (masterRecordSec) masterRecordSec.style.display = 'block';
         await loadAdminDashboard();
     }
-}
-
-// ==========================================
-// GMP & PRICING MANAGER FUNCTIONS
-// ==========================================
-async function loadGmpTable() {
-    const tbody = document.getElementById('gmpTableBody');
-    if (!tbody) return;
-
-    let db = await fetchAdminDataFromCloud();
-    tbody.innerHTML = '';
-
-    const keys = Object.keys(db);
-    if (keys.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #64748b; padding: 20px;">કોઈ IPO ડેટા ઉપલબ્ધ નથી.</td></tr>`;
-        return;
-    }
-
-    const ipoList = keys.map(k => db[k]).filter(Boolean);
-    ipoList.sort((a, b) => {
-        const timeA = new Date(a.openDate || a.closeDate || 0).getTime();
-        const timeB = new Date(b.openDate || b.closeDate || 0).getTime();
-        if (timeB !== timeA) return timeB - timeA;
-        return new Date(b.closeDate || 0).getTime() - new Date(a.closeDate || 0).getTime();
-    });
-
-    ipoList.forEach(ipo => {
-
-        const isChecked = ipo.isAllotmentOut === true ? 'checked' : '';
-        const cutOffPrice = ipo.cutOff || 0;
-
-        tbody.innerHTML += `
-            <tr>
-                <td>
-                    <strong style="color: #0f172a; font-size: 13.5px;">${ipo.name}</strong><br>
-                    <span style="font-size: 11px; color: #64748b; font-weight: 600;">ID: ${ipo.id}</span>
-                </td>
-                <td style="font-weight: 600; color: #334155;">₹${ipo.priceBand || '-'}</td>
-                <td>
-                    <input type="text" id="gmp_mgr_${ipo.id}" value="${ipo.gmp || ''}" placeholder="0" 
-                        style="width: 80px; padding: 6px; text-align: center; font-weight: 700; color: #166534; border: 1px solid #cbd5e1; border-radius: 4px;"
-                        oninput="calcEstListingPrice('${ipo.id}', '${cutOffPrice}')">
-                </td>
-                <td>
-                    <input type="text" id="est_mgr_${ipo.id}" value="${ipo.estPrice || ''}" placeholder="₹0" 
-                        style="width: 100px; padding: 6px; text-align: center; font-weight: 600; color: #1e293b; border: 1px solid #cbd5e1; border-radius: 4px;">
-                </td>
-                <td style="text-align: center;">
-                    <label style="cursor: pointer; font-size: 12px; font-weight: 600; color: #7c3aed; display: inline-flex; align-items: center; gap: 5px;">
-                        <input type="checkbox" id="allot_mgr_${ipo.id}" ${isChecked} style="width: 16px; height: 16px;"> Out
-                    </label>
-                </td>
-                <td style="text-align: center;">
-                    <button type="button" onclick="quickSaveFromGmpManager('${ipo.id}')" class="btn-action-edit" style="background: #166534; color: #fff; padding: 6px 14px;" title="Save GMP, Est Price & Allotment">💾 Save</button>
-                </td>
-            </tr>
-        `;
-    });
-}
-
-function calcEstListingPrice(ipoId, cutOff) {
-    const gmpInput = document.getElementById(`gmp_mgr_${ipoId}`);
-    const estInput = document.getElementById(`est_mgr_${ipoId}`);
-    if (!gmpInput || !estInput) return;
-
-    const gmpVal = parseFloat(gmpInput.value) || 0;
-    const cutOffVal = parseFloat(cutOff) || 0;
-
-    if (cutOffVal > 0) {
-        estInput.value = `₹${cutOffVal + gmpVal}`;
-    }
-}
-
-async function quickSaveFromGmpManager(ipoId) {
-    let dbData = await fetchAdminDataFromCloud();
-    if (!dbData[ipoId]) return;
-
-    const gmpInput = document.getElementById(`gmp_mgr_${ipoId}`);
-    const estInput = document.getElementById(`est_mgr_${ipoId}`);
-    const allotCheckbox = document.getElementById(`allot_mgr_${ipoId}`);
-
-    if (gmpInput) dbData[ipoId].gmp = gmpInput.value.trim();
-    if (estInput) dbData[ipoId].estPrice = estInput.value.trim();
-    if (allotCheckbox) dbData[ipoId].isAllotmentOut = allotCheckbox.checked;
-
-    await saveAdminDataToCloud(dbData);
-    alert(`✓ IPO "${dbData[ipoId].name}" ની GMP વિગતો સફળતાપૂર્વક અપડેટ થઈ ગઈ છે!`);
-    await loadGmpTable();
 }
 
 // રજિસ્ટ્રાર ટેબલ લોડ કરવા માટે

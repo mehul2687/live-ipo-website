@@ -165,13 +165,53 @@
             { id: "acc_8", name: "DARSHAN", pan: "BYBPJ7517B" }
         ];
 
-        // Sample active IPOs matching screenshot 2
-        const defaultDeclaredIpos = [
-            { id: "IPO_HD_FIRE", name: "HD Fire Protect Limited - IPO", regName: "Bigshare Services", regUrl: "https://ipo.bigshareonline.com/ipo_status.html", isAllotmentOut: true },
-            { id: "IPO_VAIBHAV_2", name: "VAIBHAV VYAPAAR LIMITED (Server 2)", regName: "Link Intime", regUrl: "https://linkintime.co.in/initial_offer/default.aspx", isAllotmentOut: true },
-            { id: "IPO_VAIBHAV_1", name: "VAIBHAV VYAPAAR LIMITED (Server 1)", regName: "Link Intime", regUrl: "https://linkintime.co.in/initial_offer/default.aspx", isAllotmentOut: true },
-            { id: "IPO_PARAMOUNT", name: "PARAMOUNT SYNTEX LIMITED", regName: "Skyline Financial", regUrl: "https://www.skylinerta.com/ipo.php", isAllotmentOut: true }
+        // 16 Master IPO Registrars Directory
+        const masterRegistrarsList = [
+            { id: "Accurate", name: "Accurate Securities & Registry Private Limited", website: "accuratesecurities.com", url: "https://www.accuratesecurities.com/ipo-details.php" },
+            { id: "Alankit", name: "Alankit Assignments Ltd", website: "alankit.com", url: "http://ipo.alankit.com/" },
+            { id: "Ankit Consultancy", name: "Ankit Consultancy Pvt.Ltd", website: "ankitonline.com", url: "https://www.ankitonline.com/PublicIssue/FrmPublicIssue.aspx" },
+            { id: "BEETALFC", name: "Beetal Financial & Computer Services (P) Limited", website: "beetalmail.com", url: "http://www.beetalmail.com/smeipo" },
+            { id: "BIGSHARE", name: "Bigshare Services Private Limited", website: "bigshareonline.com", url: "https://ipo.bigshareonline.com/IPO_Status.html" },
+            { id: "CAMEO", name: "Cameo Corporate Services Limited", website: "cameoindia.com", url: "https://ipo.cameoindia.com/" },
+            { id: "INTEGRATED", name: "Integrated Registry Management Services (P) Limited", website: "integratedregistry.in", url: "https://www.integratedregistry.in/registrarstostatus.aspx" },
+            { id: "KFIN", name: "Kfin Technologies Private Limited", website: "kfintech.com", url: "https://ipostatus.kfintech.com/" },
+            { id: "LINKINTIME", name: "Link-Intime India Private Ltd", website: "linkintime.co.in", url: "https://linkintime.co.in/Initial_Offer/public-issues.html" },
+            { id: "MAASHITLA", name: "Maashitla Securities Private Limited", website: "maashitla.com", url: "https://maashitla.com/allotment-status/public-issues" },
+            { id: "MAS", name: "Mas Services Limited", website: "masserv.com", url: "https://www.masserv.com/opt.asp" },
+            { id: "Mudra RTA", name: "Mudra RTA Ventures Private Limited", website: "mudrarta.com", url: "https://mudrarta.com/ipo.php" },
+            { id: "MUFG", name: "MUFG Intime India Private Limited", website: "in.mpms.mufg.com", url: "https://in.mpms.mufg.com/Initial_Offer/public-issues.html" },
+            { id: "PURVA", name: "Purva Sharegistry (India) Private Limited", website: "purvashare.com", url: "https://www.purvashare.com/investor-service/ipo-query" },
+            { id: "SATELLITE", name: "Satellite Corporate Services Private Limited", website: "satellitecorporate.com", url: "https://www.satellitecorporate.com/ipo-query.php" },
+            { id: "SKYLINE", name: "Skyline Financial Services Private Limited", website: "skylinerta.com", url: "https://www.skylinerta.com/ipo.php" }
         ];
+
+        // Sample active IPOs matching screenshot
+        const defaultDeclaredIpos = [
+            { id: "IPO_HD_FIRE", name: "HD Fire Protect Limited - IPO", regId: "BIGSHARE", regName: "Bigshare Services Private Limited", regUrl: "https://ipo.bigshareonline.com/IPO_Status.html", isAllotmentOut: true },
+            { id: "IPO_VAIBHAV_2", name: "VAIBHAV VYAPAAR LIMITED (Server 2)", regId: "LINKINTIME", regName: "Link-Intime India Private Ltd (Server 2)", regUrl: "https://linkintime.co.in/Initial_Offer/public-issues.html", isAllotmentOut: true },
+            { id: "IPO_VAIBHAV_1", name: "VAIBHAV VYAPAAR LIMITED (Server 1)", regId: "LINKINTIME", regName: "Link-Intime India Private Ltd (Server 1)", regUrl: "https://linkintime.co.in/Initial_Offer/public-issues.html", isAllotmentOut: true },
+            { id: "IPO_PARAMOUNT", name: "PARAMOUNT SYNTEX LIMITED", regId: "SKYLINE", regName: "Skyline Financial Services Private Limited", regUrl: "https://www.skylinerta.com/ipo.php", isAllotmentOut: true }
+        ];
+
+        // Match IPO to its official Registrar
+        function findRegistrarForIpo(ipo) {
+            if (!ipo) return masterRegistrarsList[4]; // Default to Bigshare
+
+            const testStr = `${ipo.regId || ''} ${ipo.regName || ''} ${ipo.regUrl || ''} ${ipo.allotmentLink || ''}`.toUpperCase();
+
+            for (const reg of masterRegistrarsList) {
+                if (testStr.includes(reg.id.toUpperCase()) || testStr.includes(reg.name.toUpperCase()) || (reg.website && testStr.includes(reg.website.toUpperCase()))) {
+                    return reg;
+                }
+            }
+
+            return {
+                id: "CUSTOM",
+                name: ipo.regName || "Official Registrar",
+                website: ipo.regWeb || "",
+                url: ipo.regUrl || ipo.allotmentLink || "https://linkintime.co.in/Initial_Offer/public-issues.html"
+            };
+        }
 
         // Load Accounts (From logged in user Demat accounts or default sample)
         function loadCurrentAccounts() {
@@ -227,11 +267,13 @@
                         if (ipo && (ipo.isAllotmentOut === true || ipo.allotmentLink)) {
                             // Check if not duplicate
                             if (!list.some(x => x.name.toLowerCase() === (ipo.name || '').toLowerCase())) {
+                                const reg = findRegistrarForIpo(ipo);
                                 list.push({
                                     id: ipo.id || key,
                                     name: (ipo.name || key) + ' - IPO',
-                                    regName: ipo.regName || 'Registrar',
-                                    regUrl: ipo.allotmentLink || 'https://linkintime.co.in/initial_offer/default.aspx',
+                                    regId: reg.id,
+                                    regName: reg.name,
+                                    regUrl: ipo.allotmentLink || reg.url,
                                     isAllotmentOut: true
                                 });
                             }
@@ -319,12 +361,16 @@
             document.getElementById('ipoDropdownMenu').style.display = 'none';
             document.getElementById('ipoSelectTrigger').classList.remove('active');
 
+            // Match official registrar from directory
+            const reg = findRegistrarForIpo(ipo);
+
             // Show registrar info bar
             const infoBar = document.getElementById('selectedIpoInfoBar');
             infoBar.style.display = 'flex';
-            document.getElementById('selectedIpoRegName').innerText = ipo.regName || 'Registrar';
+            document.getElementById('selectedIpoRegName').innerHTML = `${escapeHtml(reg.name)} <span style="font-size: 11.5px; color: #64748b; font-weight: normal; margin-left: 6px;">[${reg.id}]</span>`;
             const regLink = document.getElementById('selectedIpoRegUrl');
-            regLink.href = ipo.regUrl || '#';
+            regLink.href = reg.url || '#';
+            regLink.title = `Open ${reg.name} Allotment Portal`;
 
             // Show table & hide empty state
             document.getElementById('allotmentEmptyState').style.display = 'none';

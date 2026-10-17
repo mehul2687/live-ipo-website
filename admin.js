@@ -864,15 +864,30 @@ function deleteRegistrar(index) {
     }
 }
 
-// ડિફોલ્ટ રજિસ્ટ્રાર ડેટા
+// ડિફોલ્ટ રજિસ્ટ્રાર ડેટા (૧૬ માન્યતા પ્રાપ્ત રજિસ્ટ્રાર કંપનીઓ)
+const defaultMasterRegistrars = [
+    { id: "Accurate", name: "Accurate Securities & Registry Private Limited", website: "accuratesecurities.com", url: "https://www.accuratesecurities.com/ipo-details.php" },
+    { id: "Alankit", name: "Alankit Assignments Ltd", website: "alankit.com", url: "http://ipo.alankit.com/" },
+    { id: "Ankit Consultancy", name: "Ankit Consultancy Pvt.Ltd", website: "ankitonline.com", url: "https://www.ankitonline.com/PublicIssue/FrmPublicIssue.aspx" },
+    { id: "BEETALFC", name: "Beetal Financial & Computer Services (P) Limited", website: "beetalmail.com", url: "http://www.beetalmail.com/smeipo" },
+    { id: "BIGSHARE", name: "Bigshare Services Private Limited", website: "bigshareonline.com", url: "https://ipo.bigshareonline.com/IPO_Status.html" },
+    { id: "CAMEO", name: "Cameo Corporate Services Limited", website: "cameoindia.com", url: "https://ipo.cameoindia.com/" },
+    { id: "INTEGRATED", name: "Integrated Registry Management Services (P) Limited", website: "integratedregistry.in", url: "https://www.integratedregistry.in/registrarstostatus.aspx" },
+    { id: "KFIN", name: "Kfin Technologies Private Limited", website: "kfintech.com", url: "https://ipostatus.kfintech.com/" },
+    { id: "LINKINTIME", name: "Link-Intime India Private Ltd", website: "linkintime.co.in", url: "https://linkintime.co.in/Initial_Offer/public-issues.html" },
+    { id: "MAASHITLA", name: "Maashitla Securities Private Limited", website: "maashitla.com", url: "https://maashitla.com/allotment-status/public-issues" },
+    { id: "MAS", name: "Mas Services Limited", website: "masserv.com", url: "https://www.masserv.com/opt.asp" },
+    { id: "Mudra RTA", name: "Mudra RTA Ventures Private Limited", website: "mudrarta.com", url: "https://mudrarta.com/ipo.php" },
+    { id: "MUFG", name: "MUFG Intime India Private Limited", website: "in.mpms.mufg.com", url: "https://in.mpms.mufg.com/Initial_Offer/public-issues.html" },
+    { id: "PURVA", name: "Purva Sharegistry (India) Private Limited", website: "purvashare.com", url: "https://www.purvashare.com/investor-service/ipo-query" },
+    { id: "SATELLITE", name: "Satellite Corporate Services Private Limited", website: "satellitecorporate.com", url: "https://www.satellitecorporate.com/ipo-query.php" },
+    { id: "SKYLINE", name: "Skyline Financial Services Private Limited", website: "skylinerta.com", url: "https://www.skylinerta.com/ipo.php" }
+];
+
 function getSavedRegistrars() {
     let regs = JSON.parse(localStorage.getItem('live_ipo_registrars'));
-    if (!regs || regs.length === 0) {
-        regs = [
-            { name: "Link Intime India Pvt Ltd", website: "linkintime.co.in", mobile: "022-49186200", email: "ipo@linkintime.co.in", url: "https://linkintime.co.in/initial_offer/default.aspx" },
-            { name: "KFin Technologies Ltd", website: "kfintech.com", mobile: "040-67162222", email: "einward.ris@kfintech.com", url: "https://kosmic.kfintech.com/ipostatus/" },
-            { name: "Bigshare Services Pvt Ltd", website: "bigshareonline.com", mobile: "022-62638200", email: "ipo@bigshareonline.com", url: "https://ipo.bigshareonline.com/ipo_status.html" }
-        ];
+    if (!regs || regs.length === 0 || regs.length < 5) {
+        regs = defaultMasterRegistrars;
         localStorage.setItem('live_ipo_registrars', JSON.stringify(regs));
     }
     return regs;

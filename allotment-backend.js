@@ -3,9 +3,13 @@ import * as cheerio from "cheerio";
 import http from "http";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const PORT = 3001;
-const ACTIVE_IPOS_FILE = "D:\\website\\allotment_active_ipos.json";
+const ACTIVE_IPOS_FILE = path.join(__dirname, "allotment_active_ipos.json");
 
 const httpHeaders = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",

@@ -1,14 +1,18 @@
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 
-const CONFIG_PATH = "D:\\website\\github-token.json";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const CONFIG_PATH = path.join(__dirname, "github-token.json");
 if (!fs.existsSync(CONFIG_PATH)) {
     console.error("Config file not found:", CONFIG_PATH);
     process.exit(1);
 }
 
 const config = JSON.parse(fs.readFileSync(CONFIG_PATH, "utf8"));
-const TARGET_DIR = "D:\\website";
+const TARGET_DIR = __dirname;
 
 const headers = {
     Accept: "application/vnd.github+json",

@@ -293,3 +293,32 @@ body {
 .content-card-header h3 {
     font-size: 15px !important;
 }
+
+/* Auto-Sync Button & Animations */
+.btn-sync-now {
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+.btn-sync-now:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(2, 132, 199, 0.35) !important;
+    filter: brightness(1.05);
+}
+.btn-sync-now:active:not(:disabled) {
+    transform: translateY(0);
+}
+.btn-sync-now:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+    filter: grayscale(0.2);
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.spin-anim {
+    display: inline-block;
+    animation: spin 0.9s linear infinite;
+}

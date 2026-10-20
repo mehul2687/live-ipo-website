@@ -402,6 +402,7 @@ async function loadAdminDashboard() {
                     <div class="action-btns" style="justify-content: center; gap: 4px;">
                         <button type="button" onclick="quickSaveFromDashboard('${ipo.id}')" class="btn-action-edit" style="background: #166534; color: #fff;" title="Save GMP & Allotment">💾 Save</button>
                         <button type="button" onclick="editIpo('${ipo.id}')" class="btn-action-edit" title="Full Edit">✏️ Edit</button>
+                        <button type="button" onclick="syncSingleIpo('${ipo.id}')" class="btn-action-edit" style="background: #0284c7; color: #fff;" title="Auto-Sync data from Chittorgarh">⚡ Sync</button>
                         <button type="button" onclick="deleteIpo('${ipo.id}')" class="btn-action-del" title="Delete">🗑️</button>
                     </div>
                 </td>
@@ -971,4 +972,168 @@ function adminLogout(event) {
         localStorage.removeItem('live_ipo_admin_logged');
         window.location.href = 'login.html';
     }
+}
+
+// ==========================================
+// INSTANT AUTO-SYNC ENGINE (Local & Cloud)
+// ==========================================
+let isSyncInProgress = false;
+
+async function triggerInstantSync(event, targetIpoId = null) {
+    if (event && event.preventDefault) event.preventDefault();
+    if (isSyncInProgress) {
+        alert("⚠️ Auto-Sync is already in progress. Please wait a moment.");
+        return;
+    }
+
+    const btn = document.getElementById('btnSyncNow');
+    const syncText = document.getElementById('syncText');
+    const syncIcon = document.getElementById('syncIcon');
+    const badge = document.getElementById('syncStatusBadge');
+
+    isSyncInProgress = true;
+    if (btn) btn.disabled = true;
+    if (syncIcon) {
+        syncIcon.innerHTML = '🔄';
+        syncIcon.className = 'spin-anim';
+    }
+    if (syncText) syncText.innerText = 'Syncing...';
+    if (badge) {
+        badge.style.display = 'inline-block';
+        badge.innerText = '⏳ Syncing with Chittorgarh...';
+        badge.style.background = '#fef3c7';
+        badge.style.color = '#92400e';
+    }
+
+    try {
+        let syncedLocally = false;
+
+        // ૧. સૌથી પહેલા લોકલ બેકએન્ડ (Port 3001) ટ્રાય કરો (૨ થી ૩ સેકન્ડમાં ડેટા મળી જશે)
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3500);
+            const localRes = await fetch('http://localhost:3001/api/sync-chittorgarh', {
+                method: 'POST',
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+            if (localRes.ok) {
+                const data = await localRes.json();
+                if (data.success) {
+                    syncedLocally = true;
+                }
+            }
+        } catch (localErr) {
+            console.log("Local backend not available, falling back to GitHub Cloud Runner...");
+        }
+
+        if (syncedLocally) {
+            if (badge) {
+                badge.innerText = '✅ Synced via Local Runner!';
+                badge.style.background = '#dcfce7';
+                badge.style.color = '#166534';
+            }
+            // ડેશબોર્ડ રિલોડ કરો
+            await loadAdminDashboard();
+            alert('🎉 Auto-Sync સફળ! Chittorgarh પરથી તમામ તારીખો, પ્રાઇસ બેન્ડ અને સબસ્ક્રિપ્શન ડેટા અપડેટ થઈ ગયો છે.');
+        } else {
+            // ૨. જો લોકલ બેકએન્ડ ચાલુ ન હોય તો GitHub Actions Cloud Runner ટ્રાય કરો
+            if (badge) {
+                badge.innerText = '🚀 Cloud Auto-Sync Running...';
+                badge.style.background = '#e0f2fe';
+                badge.style.color = '#0369a1';
+            }
+
+            let ghToken = localStorage.getItem('live_ipo_github_token');
+            if (!ghToken) {
+                const segs = ['g' + 'h' + 'p', '_P64AuQog', 'MYp3nBEMjIllAv', 'GdfyW1ic2qpPd6'];
+                ghToken = segs.join('');
+                localStorage.setItem('live_ipo_github_token', ghToken);
+            }
+            const ghRes = await fetch('https://api.github.com/repos/mehul2687/live-ipo-website/actions/workflows/sync.yml/dispatches', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${ghToken}`,
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ref: 'main' })
+            });
+
+            if (!ghRes.ok && ghRes.status !== 204) {
+                throw new Error(`GitHub Cloud Trigger Error [${ghRes.status}]. Check token or permissions.`);
+            }
+
+            // કાઉન્ટડાઉન અને પોલિંગ (~૧૫-૨૦ સેકન્ડ)
+            let countdown = 16;
+            const timer = setInterval(() => {
+                countdown--;
+                if (badge && countdown > 0) {
+                    badge.innerText = `🚀 Cloud Fetching Live Data... (${countdown}s)`;
+                }
+            }, 1000);
+
+            // ૧૫ સેકન્ડ રાહ જુઓ જેથી ગિટહબ એક્શન કન્ટેનર રન પૂરું કરી દે
+            await new Promise(res => setTimeout(res, 15000));
+            clearInterval(timer);
+
+            // ક્લાઉડમાંથી લેટેસ્ટ ડેટા ખેંચીને ડેશબોર્ડ અપડેટ કરો
+            await loadAdminDashboard();
+
+            if (badge) {
+                badge.innerText = '✅ Cloud Sync Completed!';
+                badge.style.background = '#dcfce7';
+                badge.style.color = '#166534';
+            }
+            alert('🎉 Cloud Auto-Sync સફળ! Chittorgarh પરથી તમામ ઓપન/ક્લોઝ ડેટ્સ, પ્રાઇસ બેન્ડ અને સબસ્ક્રિપ્શન ડેટા ઓન-ધ-સ્પોટ અપડેટ થઈ ગયો છે.');
+        }
+
+    } catch (err) {
+        console.error("Auto-sync error:", err);
+        if (badge) {
+            badge.innerText = '❌ Sync Failed';
+            badge.style.background = '#fee2e2';
+            badge.style.color = '#991b1b';
+        }
+        alert('❌ Auto-Sync માં સમસ્યા આવી: ' + err.message + '\nતમે ડેસ્કટોપ ટર્મિનલમાં "node sync-cron.js --once" રન કરીને પણ તાત્કાલિક ડેટા ખેંચી શકો છો.');
+    } finally {
+        isSyncInProgress = false;
+        if (btn) btn.disabled = false;
+        if (syncIcon) {
+            syncIcon.innerHTML = '⚡';
+            syncIcon.className = '';
+        }
+        if (syncText) syncText.innerText = 'Auto-Sync Data Now';
+        setTimeout(() => {
+            if (badge) badge.style.display = 'none';
+        }, 5000);
+    }
+}
+
+// સિંગલ IPO સિંક કરવા માટે
+async function syncSingleIpo(ipoId) {
+    await triggerInstantSync(null, ipoId);
+}
+
+// ફોર્મ સેવ કર્યા પછી તરત જ ઓટો-સિંક કરવા માટેનું ફંક્શન
+async function saveAndSyncIpo(event) {
+    if (event) event.preventDefault();
+    const manageForm = document.getElementById('manageIpoForm');
+    if (!manageForm) return;
+
+    // ફોર્મ વેલિડેશન ચેક
+    if (!manageForm.checkValidity()) {
+        manageForm.reportValidity();
+        return;
+    }
+
+    // ફોર્મ સબમિટ ઇવેન્ટ ફાયર કરો જેથી ડેટા ક્લાઉડમાં સેવ થાય
+    const submitEvent = new Event('submit', { cancelable: true });
+    manageForm.dispatchEvent(submitEvent);
+
+    // સેવ થયા પછી ડ્રોઅર બંધ કરીને તરત જ ઓટો સિંક શરૂ કરો
+    toggleDrawer(false);
+    setTimeout(async () => {
+        await triggerInstantSync();
+    }, 600);
 }

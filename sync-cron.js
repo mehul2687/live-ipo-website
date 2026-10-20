@@ -1,4 +1,4 @@
-import axios from "axios";
+﻿import axios from "axios";
 import * as cheerio from "cheerio";
 
 const ADMIN_BIN_ID = "6aaf80f9ac6210605ae1bce6";
@@ -713,4 +713,8 @@ async function main() {
     }
 }
 
-main();
+if (process.argv[1] && process.argv[1].endsWith("sync-cron.js")) {
+    main();
+}
+
+export { syncAllIposFromChittorgarh };

@@ -4,6 +4,7 @@ import http from "http";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { syncAllIposFromChittorgarh } from "./sync-cron.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -476,6 +477,21 @@ export function startServer() {
                 res.writeHead(200, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ success: true, ...answer }));
             } catch (err) {
+                res.writeHead(500, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ success: false, error: err.message }));
+            }
+            return;
+        }
+
+        // Route 5: POST/GET /api/sync-chittorgarh (Instant Manual Auto-Sync)
+        if (parsedUrl.pathname === "/api/sync-chittorgarh") {
+            try {
+                console.log("\n⚡ Instant Auto-Sync triggered via Admin Panel API...");
+                await syncAllIposFromChittorgarh();
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ success: true, message: "Sync completed successfully" }));
+            } catch (err) {
+                console.error("Local sync error:", err.message);
                 res.writeHead(500, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ success: false, error: err.message }));
             }

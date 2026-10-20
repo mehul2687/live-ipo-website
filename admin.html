@@ -681,8 +681,9 @@
                         </div>
                     </div>
 
-                    <div class="form-actions">
+                    <div class="form-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
                         <button type="submit" class="btn-add-ipo" id="saveBtn">💾 Save & Publish IPO</button>
+                        <button type="button" class="btn-add-ipo" id="saveAndSyncBtn" onclick="saveAndSyncIpo(event)" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff;">⚡ Save & Auto-Sync Now</button>
                         <button type="button" onclick="toggleDrawer(false)" class="btn-add-ipo"
                             style="background: #64748b;">Cancel</button>
                     </div>
@@ -692,9 +693,18 @@
 
         <!-- Master Record Table Card -->
         <div class="content-card" id="masterRecordSection">
-            <div class="content-card-header">
-                <h3>Manage IPO Records (Master Feed)</h3>
-                <button class="btn-add-ipo" onclick="openAddDrawer()">+ Add New IPO</button>
+            <div class="content-card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <h3 style="margin: 0;">Manage IPO Records (Master Feed)</h3>
+                    <span id="syncStatusBadge" style="display: none; font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 12px; background: #e0f2fe; color: #0369a1;">Ready</span>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button type="button" class="btn-sync-now" id="btnSyncNow" onclick="triggerInstantSync(event)" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; border: none; padding: 9px 16px; border-radius: 6px; font-size: 13.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 7px; box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25); transition: all 0.2s;">
+                        <span id="syncIcon" style="font-size: 14px;">⚡</span>
+                        <span id="syncText">Auto-Sync Data Now</span>
+                    </button>
+                    <button class="btn-add-ipo" onclick="openAddDrawer()">+ Add New IPO</button>
+                </div>
             </div>
             <div style="overflow-x: auto;">
                 <table class="admin-table">

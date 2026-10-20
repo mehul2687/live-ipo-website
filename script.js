@@ -199,56 +199,70 @@ function getIpoStatus(openStr, closeStr, allotStr, listStr, isAllotmentOut) {
     return { text: "Closed", class: "status-listed-slate" };
 }
 
-function calculateTimelineProgress(openStr, closeStr, allotStr, listStr) {
+function calculateTimelineProgress(openStr, closeStr, allotStr, listStr, isAllotmentOut = false) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const openDate = new Date(openStr);
-    openDate.setHours(0, 0, 0, 0);
+    const openDate = openStr ? new Date(openStr) : null;
+    const closeDate = closeStr ? new Date(closeStr) : null;
+    const allotDate = allotStr ? new Date(allotStr) : null;
+    const listDate = listStr ? new Date(listStr) : null;
 
-    const closeDate = new Date(closeStr);
-    closeDate.setHours(0, 0, 0, 0);
-
-    const allotDate = new Date(allotStr);
-    allotDate.setHours(0, 0, 0, 0);
-
-    const listDate = new Date(listStr);
-    listDate.setHours(0, 0, 0, 0);
+    if (openDate) openDate.setHours(0, 0, 0, 0);
+    if (closeDate) closeDate.setHours(0, 0, 0, 0);
+    if (allotDate) allotDate.setHours(0, 0, 0, 0);
+    if (listDate) listDate.setHours(0, 0, 0, 0);
 
     let openStatus = "upcoming", closeStatus = "upcoming", allotStatus = "upcoming", listStatus = "upcoming";
     let progressPercent = "0%";
 
-    if (today.getTime() === openDate.getTime() || (today >= openDate && today <= closeDate)) {
-        openStatus = today.getTime() === openDate.getTime() ? "active" : "completed";
-    } else if (today > openDate) {
-        openStatus = "completed";
-    }
-
-    if (today.getTime() === closeDate.getTime()) {
-        closeStatus = "active";
-        progressPercent = "50%";
-    } else if (today > closeDate) {
-        closeStatus = "completed";
-        progressPercent = "66%";
-    } else if (today >= openDate && today < closeDate) {
+    // ૧. Upcoming (આજે ઓપન ડેટ પહેલાંનો દિવસ છે)
+    if (openDate && today < openDate) {
+        openStatus = "active pulsing upcoming";
         closeStatus = "upcoming";
-        progressPercent = "33%";
+        allotStatus = "upcoming";
+        listStatus = "upcoming";
+        progressPercent = "0%";
     }
-
-    if (today.getTime() === allotDate.getTime()) {
-        allotStatus = "active";
-        progressPercent = "83%";
-    } else if (today > allotDate) {
+    // ૨. Live / Bidding ચાલુ છે (ઓપન ડેટથી ક્લોઝ ડેટ સુધી)
+    else if (openDate && closeDate && today >= openDate && today <= closeDate) {
+        openStatus = "completed";
+        closeStatus = "active pulsing";
+        allotStatus = "upcoming";
+        listStatus = "upcoming";
+        progressPercent = "33.33%";
+    }
+    // ૩. ક્લોઝ થઈ ગયું છે અને અલોટમેન્ટ ડેટ/સ્ટેટસ ની રાહ જોવાઈ રહી છે
+    else if (closeDate && today > closeDate && !isAllotmentOut && (!allotDate || today < allotDate)) {
+        openStatus = "completed";
+        closeStatus = "completed";
+        allotStatus = "active pulsing";
+        listStatus = "upcoming";
+        progressPercent = "66.66%";
+    }
+    // ૪. અલોટમેન્ટ જાહેર થઈ ગયું છે (અથવા તારીખ આવી ગઈ છે) અને લિસ્ટિંગની રાહ છે
+    else if ((isAllotmentOut || (allotDate && today >= allotDate)) && (!listDate || today < listDate)) {
+        openStatus = "completed";
+        closeStatus = "completed";
         allotStatus = "completed";
+        listStatus = "active pulsing";
         progressPercent = "100%";
     }
-
-    if (today.getTime() === listDate.getTime()) {
-        listStatus = "active";
-        progressPercent = "100%";
-    } else if (today > listDate) {
+    // ૫. લિસ્ટિંગ થઈ ગયું (Listed)
+    else if (listDate && today >= listDate) {
+        openStatus = "completed";
+        closeStatus = "completed";
+        allotStatus = "completed";
         listStatus = "completed";
         progressPercent = "100%";
+    }
+    // ૬. સામાન્ય ફોલબેક
+    else {
+        openStatus = "completed";
+        closeStatus = "completed";
+        allotStatus = "active pulsing";
+        listStatus = "upcoming";
+        progressPercent = "66.66%";
     }
 
     return { openStatus, closeStatus, allotStatus, listStatus, progressPercent };
@@ -523,17 +537,23 @@ async function loadDynamicIpoDetails() {
     if (document.getElementById('d_dates')) document.getElementById('d_dates').innerText = `${openStr} to ${closeStr}`;
     if (document.getElementById('d_priceband')) document.getElementById('d_priceband').innerText = ipo.priceBand ? `₹${ipo.priceBand}` : 'N/A';
 
-    const timeline = calculateTimelineProgress(ipo.openDate, ipo.closeDate, ipo.allotmentDate, ipo.listingDate);
+    const timeline = calculateTimelineProgress(ipo.openDate, ipo.closeDate, ipo.allotmentDate, ipo.listingDate, ipo.isAllotmentOut);
     const progressEl = document.getElementById('d_progress');
     if (progressEl) progressEl.style.width = timeline.progressPercent;
 
     const timelineStepsEl = document.getElementById('d_timeline_steps');
     if (timelineStepsEl) {
+        const renderCircle = (status) => {
+            if (status.includes('upcoming')) return '';
+            if (status.includes('completed') || status.includes('pulsing') || status.includes('active')) return '✓';
+            return '';
+        };
+
         timelineStepsEl.innerHTML = `
-            <div class="step-node ${timeline.openStatus}"><div class="node-circle">${timeline.openStatus === 'completed' ? '✓' : ''}</div><div class="node-label">Open</div><div class="node-date">${openStr.slice(0, 6)}</div></div>
-            <div class="step-node ${timeline.closeStatus}"><div class="node-circle">${timeline.closeStatus === 'completed' ? '✓' : ''}</div><div class="node-label">Close</div><div class="node-date">${closeStr.slice(0, 6)}</div></div>
-            <div class="step-node ${timeline.allotStatus}"><div class="node-circle">${timeline.allotStatus === 'completed' ? '✓' : ''}</div><div class="node-label">Allotment</div><div class="node-date">${allotStr.slice(0, 6)}</div></div>
-            <div class="step-node ${timeline.listStatus}"><div class="node-circle">${timeline.listStatus === 'completed' ? '✓' : ''}</div><div class="node-label">Listing</div><div class="node-date">${listStr.slice(0, 6)}</div></div>
+            <div class="step-node ${timeline.openStatus}"><div class="node-circle">${renderCircle(timeline.openStatus)}</div><div class="node-label">Open</div><div class="node-date">${openStr ? openStr.slice(0, 6) : '-'}</div></div>
+            <div class="step-node ${timeline.closeStatus}"><div class="node-circle">${renderCircle(timeline.closeStatus)}</div><div class="node-label">Close</div><div class="node-date">${closeStr ? closeStr.slice(0, 6) : '-'}</div></div>
+            <div class="step-node ${timeline.allotStatus}"><div class="node-circle">${renderCircle(timeline.allotStatus)}</div><div class="node-label">Allotment</div><div class="node-date">${allotStr ? allotStr.slice(0, 6) : '-'}</div></div>
+            <div class="step-node ${timeline.listStatus}"><div class="node-circle">${renderCircle(timeline.listStatus)}</div><div class="node-label">Listing</div><div class="node-date">${listStr ? listStr.slice(0, 6) : '-'}</div></div>
         `;
     }
 

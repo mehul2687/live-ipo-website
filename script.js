@@ -22,9 +22,9 @@ const initialDefaultData = {
         faceValue: "₹10 per share",
         minInvestment: "₹14,950",
         empDiscount: "Nil",
-        totalSize: "₹680.00 Cr",
-        freshIssue: "₹500.00 Cr",
-        ofs: "₹180.00 Cr",
+        totalSize: "1,18,26,087 shares (agg. up to ₹680.00 Cr)",
+        freshIssue: "86,95,652 shares (agg. up to ₹500.00 Cr)",
+        ofs: "31,30,435 shares (agg. up to ₹180.00 Cr)",
         listingAt: "BSE, NSE",
         openDate: "2026-08-31",
         closeDate: "2026-09-02",
@@ -143,19 +143,49 @@ function formatFaceValue(val) {
     return `₹${valStr} per share`;
 }
 
-function formatIssueSizeWithAmount(rawShares, price) {
-    if (!rawShares) return 'N/A';
-    let rawStr = rawShares.toString().trim();
-    if (!/^\d[\d,]*$/.test(rawStr.replace(/,/g, ''))) {
-        return rawStr;
+function formatIssueSizeWithAmount(rawVal, price) {
+    if (!rawVal || rawVal === 'N/A' || rawVal === '-') return 'N/A';
+    let str = rawVal.toString().trim();
+    if (str.toLowerCase() === 'nil') return 'Nil';
+
+    // 1. If it already has both shares and ₹ amount:
+    // e.g. "27,00,00,000 shares (agg. up to ₹30,213 Cr)" or "1,19,00,000 shares of ₹2 (agg. up to ₹113 Cr)"
+    if (/\d[\d,]*\s*shares/i.test(str) && /₹/i.test(str)) {
+        return str.replace(/\s+/g, ' ');
     }
-    let sharesNum = parseFloat(rawStr.replace(/,/g, '')) || 0;
-    let formattedSharesCount = sharesNum.toLocaleString('en-IN');
-    if (price > 0 && sharesNum > 0) {
-        let totalCr = (sharesNum * price) / 10000000;
-        return `${formattedSharesCount} shares (up to ₹${totalCr.toFixed(2)} Cr)`;
+
+    // 2. If it is purely numeric shares (e.g. "270000000" or "27,00,00,000" or "27,00,00,000 shares")
+    let cleanNumberStr = str.replace(/shares?/i, '').replace(/,/g, '').trim();
+    if (/^\d+(\.\d+)?$/.test(cleanNumberStr)) {
+        let sharesNum = Math.round(parseFloat(cleanNumberStr));
+        let formattedShares = sharesNum.toLocaleString('en-IN');
+        let cutOff = parseFloat(price) || 0;
+        if (cutOff > 0 && sharesNum > 0) {
+            let totalCr = (sharesNum * cutOff) / 10000000;
+            let crStr = (totalCr >= 100 && totalCr % 1 === 0) ? totalCr.toLocaleString('en-IN') : totalCr.toFixed(2);
+            return `${formattedShares} shares (agg. up to ₹${crStr} Cr)`;
+        }
+        return `${formattedShares} shares`;
     }
-    return formattedSharesCount + " shares";
+
+    // 3. If it only has amount, e.g. "₹30,213 Cr" or "₹680.00 Cr" or "[.] shares (agg. up to ₹30,213 Cr)"
+    // If cutOff price is available, calculate the shares count!
+    const crMatch = str.match(/₹?\s*([\d,]+(?:\.\d+)?)\s*(?:Cr|crore)?/i);
+    let cutOff = parseFloat(price) || 0;
+    if (crMatch && cutOff > 0) {
+        let crVal = parseFloat(crMatch[1].replace(/,/g, ''));
+        if (crVal > 0) {
+            let totalRupees = crVal * 10000000;
+            let calculatedShares = Math.round(totalRupees / cutOff);
+            if (calculatedShares > 0) {
+                let formattedShares = calculatedShares.toLocaleString('en-IN');
+                let crFormatted = (crVal >= 100 && crVal % 1 === 0) ? crVal.toLocaleString('en-IN') : crVal;
+                return `${formattedShares} shares (agg. up to ₹${crFormatted} Cr)`;
+            }
+        }
+    }
+
+    return str;
 }
 
 function getIpoStatus(openStr, closeStr, allotStr, listStr, isAllotmentOut) {
@@ -636,10 +666,16 @@ async function loadDynamicIpoDetails() {
             // અથવા જો તમે lotRaw કે બીજા કોઈ ફોર્મેટમાં રાખતા હોવ તો તેને અનુરૂપ
         }
         
-        // જો totalSize સીધી જ આંકડાકીય કે શેરમાં હોય તો તેને parse કરો (અથવા lotRaw અને customLots પરથી કુલ શેર ગણો)
-        let baseShares = parseFloat(ipo.lotRaw) * 100000 || 5152000; // અંદાજિત અથવા માસ્ટર ડેટામાંથી કુલ શેર્સ
-        if (ipo.totalSize && !isNaN(parseFloat(ipo.totalSize.replace(/,/g, '')))) {
-            baseShares = parseFloat(ipo.totalSize.replace(/,/g, ''));
+        // જો totalSize સીધી જ આંકડાકીય કે શેરમાં હોય તો તેને parse કરો
+        let baseShares = parseFloat(ipo.lotRaw) * 100000 || 5152000;
+        if (ipo.totalSize) {
+            const sharesMatch = ipo.totalSize.match(/([\d,]+)\s*shares/i);
+            if (sharesMatch) {
+                let parsed = parseFloat(sharesMatch[1].replace(/,/g, ''));
+                if (parsed > 0) baseShares = parsed;
+            } else if (!isNaN(parseFloat(ipo.totalSize.replace(/,/g, '')))) {
+                baseShares = parseFloat(ipo.totalSize.replace(/,/g, ''));
+            }
         }
 
         let reservationData = (ipo.reservation && ipo.reservation.length > 0) ? [...ipo.reservation] : [

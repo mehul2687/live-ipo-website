@@ -80,14 +80,33 @@ function parseIpoDateRange(str) {
     return { openDate: null, closeDate: null };
 }
 
-function parseCrAmount(val) {
+function parseIssueSize(val) {
     if (!val) return null;
-    const fullMatch = val.match(/₹[\d,.]+\s*(?:Cr|crore)/i);
-    if (fullMatch) return fullMatch[0];
-    const aggMatch = val.match(/up to\s*(₹[\d,.]+\s*(?:Cr|crore)?)/i);
-    if (aggMatch) return aggMatch[1];
-    const anyMatch = val.match(/₹[\d,.]+/);
-    return anyMatch ? anyMatch[0] + " Cr" : val;
+    let clean = val.replace(/\s+/g, ' ').trim();
+    if (!clean || clean === '-' || clean === '[.]' || clean.toLowerCase() === 'n/a') return null;
+    if (clean.toLowerCase() === 'nil') return 'Nil';
+
+    // If it has shares and ₹ amount (e.g. "27,00,00,000 shares (agg. up to ₹30,213 Cr)")
+    if (/\bshares\b/i.test(clean) && /₹/i.test(clean)) {
+        return clean;
+    }
+
+    // If it has shares (e.g. "27,00,00,000 shares")
+    if (/\bshares\b/i.test(clean)) {
+        return clean;
+    }
+
+    // If it has Cr amount (e.g. "₹30,213 Cr" or "up to ₹30,213 Cr")
+    const fullMatch = clean.match(/₹[\d,.]+\s*(?:Cr|crore)?/i);
+    if (fullMatch) return fullMatch[0].includes('Cr') ? fullMatch[0] : fullMatch[0] + ' Cr';
+    const aggMatch = clean.match(/up to\s*(₹[\d,.]+\s*(?:Cr|crore)?)/i);
+    if (aggMatch) return aggMatch[1].includes('Cr') ? aggMatch[1] : aggMatch[1] + ' Cr';
+
+    return clean;
+}
+
+function parseCrAmount(val) {
+    return parseIssueSize(val);
 }
 
 async function get_Chittorgarh_subscription_data(key) {
@@ -245,20 +264,20 @@ async function get_Chittorgarh_details_data(key) {
                     }
 
                     // Total Size
-                    if (k.includes('total issue size') && !issue.totalSize) {
-                        const amt = parseCrAmount(v);
+                    if ((k.includes('total issue size') || k === 'issue size') && !issue.totalSize) {
+                        const amt = parseIssueSize(v);
                         if (amt) issue.totalSize = amt;
                     }
 
                     // Fresh Issue
                     if (k.includes('fresh issue') && !issue.freshIssue) {
-                        const amt = parseCrAmount(v);
+                        const amt = parseIssueSize(v);
                         if (amt) issue.freshIssue = amt;
                     }
 
                     // OFS
                     if (k.includes('offer for sale') && !issue.ofs) {
-                        const amt = parseCrAmount(v);
+                        const amt = parseIssueSize(v);
                         if (amt) issue.ofs = amt;
                     }
 

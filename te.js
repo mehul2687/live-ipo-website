@@ -65,6 +65,10 @@ async function get_Chittorgarh_subscription_data(key) {
                     mappedKey = "B-NII";
                 } else if (catName.includes("retail")) {
                     mappedKey = "Retail";
+                } else if (catName.includes("employee") || catName === "emp") {
+                    mappedKey = "Employee";
+                } else if (catName.includes("shareholder")) {
+                    mappedKey = "Shareholder";
                 }
 
                 if (mappedKey) {
@@ -128,6 +132,14 @@ async function syncAllIposFromChittorgarh() {
                         if (row.cat === "Retail" && liveData['Retail']) {
                             row.off = liveData['Retail'].off;
                             row.app = liveData['Retail'].app;
+                        }
+                        if (row.cat === "Employee") {
+                            row.off = liveData['Employee'] ? liveData['Employee'].off : 0;
+                            row.app = liveData['Employee'] ? liveData['Employee'].app : 0;
+                        }
+                        if (row.cat === "Shareholder") {
+                            row.off = liveData['Shareholder'] ? liveData['Shareholder'].off : 0;
+                            row.app = liveData['Shareholder'] ? liveData['Shareholder'].app : 0;
                         }
                     });
                     updated = true;

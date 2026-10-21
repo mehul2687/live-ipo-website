@@ -1,5 +1,10 @@
-﻿import axios from "axios";
+import axios from "axios";
 import * as cheerio from "cheerio";
+import dns from "dns";
+
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
 
 const ADMIN_BIN_ID = "6aaf80f9ac6210605ae1bce6";
 const ADMIN_API_KEY = "$2a$10$Pl5b/ekYZXhRBmQVY6DwieMC10GztytHM9d7CnR0zqmje7BWYj6yC";
@@ -143,6 +148,10 @@ async function get_Chittorgarh_subscription_data(key) {
                     mappedKey = "NII";
                 } else if (catName.includes("retail")) {
                     mappedKey = "Retail";
+                } else if (catName.includes("employee") || catName === "emp") {
+                    mappedKey = "Employee";
+                } else if (catName.includes("shareholder")) {
+                    mappedKey = "Shareholder";
                 }
 
                 if (mappedKey) {
@@ -462,6 +471,15 @@ async function syncAllIposFromChittorgarh() {
                     let liveData = await get_Chittorgarh_subscription_data(ipo.chittorgarhKey);
                     if (liveData) {
                         if (!ipo.subShares) ipo.subShares = [];
+                        
+                        // Ensure all 7 standard categories exist
+                        const standardCats = ["QIB", "NII", "B-NII(₹10L+)", "S-NII(₹2-10L)", "Retail", "Employee", "Shareholder"];
+                        standardCats.forEach(catName => {
+                            if (!ipo.subShares.some(r => r.cat === catName)) {
+                                ipo.subShares.push({ cat: catName, off: 0, app: 0 });
+                            }
+                        });
+
                         ipo.subShares.forEach(row => {
                             if (row.cat === "QIB" && liveData['QIB']) {
                                 row.off = liveData['QIB'].off;
@@ -492,6 +510,24 @@ async function syncAllIposFromChittorgarh() {
                             if (row.cat === "Retail" && liveData['Retail']) {
                                 row.off = liveData['Retail'].off;
                                 row.app = liveData['Retail'].app;
+                            }
+                            if (row.cat === "Employee") {
+                                if (liveData['Employee']) {
+                                    row.off = liveData['Employee'].off;
+                                    row.app = liveData['Employee'].app;
+                                } else {
+                                    row.off = 0;
+                                    row.app = 0;
+                                }
+                            }
+                            if (row.cat === "Shareholder") {
+                                if (liveData['Shareholder']) {
+                                    row.off = liveData['Shareholder'].off;
+                                    row.app = liveData['Shareholder'].app;
+                                } else {
+                                    row.off = 0;
+                                    row.app = 0;
+                                }
                             }
                         });
                         updated = true;

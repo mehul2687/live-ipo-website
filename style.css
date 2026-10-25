@@ -565,8 +565,30 @@ body.home-page {
     text-align: left !important;
 }
 
-.home-page .structured-table tr:hover {
-    background-color: #fafafa;
+.home-page .structured-table tbody tr {
+    transition: background-color 0.2s ease, transform 0.15s ease;
+    cursor: pointer;
+}
+
+.home-page .structured-table tbody tr.row-live {
+    background-color: #f0fdf4 !important; /* Light Green */
+}
+.home-page .structured-table tbody tr.row-live:hover {
+    background-color: #dcfce7 !important; /* Darker Light Green on Hover */
+}
+
+.home-page .structured-table tbody tr.row-upcoming {
+    background-color: #fff7ed !important; /* Light Orange */
+}
+.home-page .structured-table tbody tr.row-upcoming:hover {
+    background-color: #ffedd5 !important; /* Darker Light Orange on Hover */
+}
+
+.home-page .structured-table tbody tr.row-neutral {
+    background-color: #ffffff !important;
+}
+.home-page .structured-table tbody tr.row-neutral:hover {
+    background-color: #f8fafc !important;
 }
 
 .home-page .ipo-tag {
@@ -625,55 +647,85 @@ body.home-page {
    ========================================================== */
 @keyframes blinkRed {
     0% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.97); }
+    50% { opacity: 0.45; transform: scale(0.97); }
     100% { opacity: 1; transform: scale(1); }
 }
 
+@keyframes blinkGreen {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.97); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.status-upcoming-orange,
 .status-upcoming-green {
-    background-color: #dcfce7;
-    color: #166534;
-    border: 1px solid #bbf7d0;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 4px;
-}
-
-.status-live-blinking {
-    background-color: #fee2e2;
-    color: #dc2626;
-    border: 1px solid #fecaca;
-    font-weight: 800;
-    animation: blinkRed 1s infinite ease-in-out;
-    display: inline-block;
-    padding: 3px 8px;
-    border-radius: 4px;
-}
-
-.status-waiting-orange {
     background-color: #ffedd5;
     color: #c2410c;
     border: 1px solid #fed7aa;
     font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    display: inline-block;
+}
+
+.status-live-green,
+.status-live-blinking {
+    background-color: #dcfce7;
+    color: #15803d;
+    border: 1px solid #86efac;
+    font-weight: 800;
+    animation: blinkGreen 1.5s infinite ease-in-out;
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+}
+
+.status-closing-today {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+    font-weight: 800;
+    animation: blinkRed 1.2s infinite ease-in-out;
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+}
+
+.status-waiting-amber,
+.status-waiting-orange {
+    background-color: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    display: inline-block;
 }
 
 .status-allotment-parrot {
-    background-color: #bbf7d0;
-    color: #065f46;
-    border: 1px solid #86efac;
+    background-color: #d1fae5;
+    color: #047857;
+    border: 1px solid #6ee7b7;
     font-weight: 800;
-    padding: 3px 8px;
-    border-radius: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    display: inline-block;
 }
 
 .status-listing-indigo {
     background-color: #e0e7ff;
-    color: #3730a3;
-    border: 1px solid #c7d2fe;
-    font-weight: 700;
-    padding: 3px 8px;
-    border-radius: 4px;
+    color: #4338ca;
+    border: 1px solid #a5b4fc;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    display: inline-block;
 }
 
 .status-listed-slate {
@@ -681,8 +733,10 @@ body.home-page {
     color: #475569;
     border: 1px solid #cbd5e1;
     font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    display: inline-block;
 }
 
 

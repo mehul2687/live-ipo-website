@@ -226,31 +226,42 @@ function getIpoStatus(openStr, closeStr, allotStr, listStr, isAllotmentOut) {
     if (allotDate) allotDate.setHours(0, 0, 0, 0);
     if (listDate) listDate.setHours(0, 0, 0, 0);
 
-    // ૧. લિસ્ટિંગ તારીખ વીતી ગઈ હોય તો હંમેશા 'Listed'
+    // ૧. લિસ્ટિંગ તારીખ વીતી ગઈ હોય તો 'Listed'
     if (listDate && today > listDate) {
-        return { text: "Listed", class: "status-listed-slate" };
+        return { text: "Listed", class: "status-listed-slate", rowClass: "row-neutral" };
     }
 
     // ૨. લિસ્ટિંગનો દિવસ હોય તો 'Listing Today'
     if (listDate && today.getTime() === listDate.getTime()) {
-        return { text: "Listing Today 🚀", class: "status-listing-indigo" };
+        return { text: "Listing Today 🚀", class: "status-listing-indigo", rowClass: "row-neutral" };
     }
 
-    // ૩. લિસ્ટિંગ પહેલાં જો અલોટમેન્ટ બહાર આવી ગયું હોય (Checkbox Tick હોય)
+    // ૩. લિસ્ટિંગ પહેલાં જો અલોટમેન્ટ જાહેર થઈ ગયું હોય (Checkbox Tick હોય)
     if (isAllotmentOut === true) {
-        return { text: "Allotment Out", class: "status-allotment-parrot" };
+        return { text: "Allotment Out 🎉", class: "status-allotment-parrot", rowClass: "row-neutral" };
     }
 
-    // ૪. બાકીના સામાન્ય દિવસો માટેનું ટાઈમલાઈન લોજિક
+    // ૪. ક્લોઝિંગનો દિવસ (ક્લોઝ ડેટના દિવસે રાત્રે 12:00 વાગ્યાથી આખો દિવસ 'Closing Today')
+    if (closeDate && today.getTime() === closeDate.getTime()) {
+        return { text: "Closing Today ⏳", class: "status-closing-today", rowClass: "row-live" };
+    }
+
+    // ૫. Bidding ચાલુ હોય (ઓપન ડેટથી ક્લોઝ ડેટ પહેલાં સુધી 'Live')
+    if (openDate && closeDate && today >= openDate && today < closeDate) {
+        return { text: "🔴 Live", class: "status-live-green", rowClass: "row-live" };
+    }
+
+    // ૬. ક્લોઝ થઈ ગયા પછી લિસ્ટિંગ સુધી 'Allotment Waiting'
+    if (closeDate && today > closeDate && (!listDate || today < listDate)) {
+        return { text: "Allotment Waiting", class: "status-waiting-amber", rowClass: "row-neutral" };
+    }
+
+    // ૭. ઓપન ડેટ પહેલાંનો સમય 'Upcoming'
     if (openDate && today < openDate) {
-        return { text: "Upcoming", class: "status-upcoming-green" };
-    } else if (openDate && closeDate && today >= openDate && today <= closeDate) {
-        return { text: "🔴 Live", class: "status-live-blinking" };
-    } else if (closeDate && today > closeDate && (!listDate || today < listDate)) {
-        return { text: "Allotment Waiting", class: "status-waiting-orange" };
+        return { text: "Upcoming", class: "status-upcoming-orange", rowClass: "row-upcoming" };
     }
 
-    return { text: "Closed", class: "status-listed-slate" };
+    return { text: "Upcoming", class: "status-upcoming-orange", rowClass: "row-upcoming" };
 }
 
 function calculateTimelineProgress(openStr, closeStr, allotStr, listStr, isAllotmentOut = false) {
@@ -374,7 +385,7 @@ async function loadHomeIpoTable(filterType = currentHomeFilter) {
         let homeAllotmentHtml = '';
         if (ipo.isAllotmentOut === true || (allotDate && today >= allotDate)) {
             const regLink = ipo.registrarUrl || (ipo.regWeb ? `https://${ipo.regWeb}` : '#');
-            homeAllotmentHtml = `<a href="${regLink}" target="_blank" style="background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 5px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 600; display: inline-block;">🔍 Check Allotment</a>`;
+            homeAllotmentHtml = `<a href="${regLink}" target="_blank" onclick="event.stopPropagation();" style="background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 5px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 600; display: inline-block;">🔍 Check Allotment</a>`;
         } else {
             homeAllotmentHtml = `<span style="color: #c2410c; background-color: #ffedd5; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">Waiting</span>`;
         }
@@ -391,10 +402,10 @@ async function loadHomeIpoTable(filterType = currentHomeFilter) {
         let overallSubTimes = totalOff > 0 ? (totalApp / totalOff).toFixed(2) + 'x' : '0.00x';
 
         tableBody.innerHTML += `
-            <tr>
+            <tr class="${statusObj.rowClass}" onclick="window.location.href='ipo-detail.html?id=${ipo.id}'">
                 <td style="padding: 12px; text-align: center;">${logoHtml}</td>
                 <td class="ipo-name-cell" style="text-align: left; padding: 12px 16px;">
-                    <a href="ipo-detail.html?id=${ipo.id}" style="text-decoration: none; text-align: left;">
+                    <a href="ipo-detail.html?id=${ipo.id}" onclick="event.stopPropagation();" style="text-decoration: none; text-align: left;">
                         <strong style="color: #1d4ed8; display: block; cursor: pointer; text-align: left; margin-bottom: 3px;">${ipo.name}</strong>
                     </a>
                     <span style="background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 11px; display: inline-block;">${ipo.type || 'Mainboard'}</span>
@@ -411,17 +422,14 @@ async function loadHomeIpoTable(filterType = currentHomeFilter) {
                 <td style="text-align: center; font-weight: 600; color: #1e293b;">${overallSubTimes}</td>
                 <td style="text-align: center;">${homeAllotmentHtml}</td>
                 <td style="text-align: center;">
-                    <span class="${statusObj.class}" style="padding: 4px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 700; display: inline-block;">${statusObj.text}</span>
-                </td>
-                <td style="text-align: center;">
-                    <a href="ipo-detail.html?id=${ipo.id}" class="view-details-btn" style="background-color: #1d4ed8; color: #ffffff; text-decoration: none; padding: 7px 14px; border-radius: 6px; font-size: 12.5px; display: inline-block;">View Details →</a>
+                    <span class="${statusObj.class}">${statusObj.text}</span>
                 </td>
             </tr>
         `;
     });
 
     if (renderedCount === 0) {
-        tableBody.innerHTML = `<tr><td colspan="13" style="text-align: center; color: #64748b; padding: 30px; font-size: 14px;">આ કેટેગરીમાં હાલ કોઈ IPO ઉપલબ્ધ નથી.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="12" style="text-align: center; color: #64748b; padding: 30px; font-size: 14px;">આ કેટેગરીમાં હાલ કોઈ IPO ઉપલબ્ધ નથી.</td></tr>`;
     }
 }
 

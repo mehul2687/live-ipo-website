@@ -287,31 +287,42 @@ function getIpoStatus(openStr, closeStr, allotStr, listStr, isAllotmentOut) {
     if (allotDate) allotDate.setHours(0, 0, 0, 0);
     if (listDate) listDate.setHours(0, 0, 0, 0);
 
-    // ૧. લિસ્ટિંગ તારીખ વીતી ગઈ હોય તો હંમેશા 'Listed'
+    // ૧. લિસ્ટિંગ તારીખ વીતી ગઈ હોય તો 'Listed'
     if (listDate && today > listDate) {
-        return { text: "Listed", class: "status-listed-slate" };
+        return { text: "Listed", class: "status-listed-slate", rowClass: "row-neutral" };
     }
 
     // ૨. લિસ્ટિંગનો દિવસ હોય તો 'Listing Today'
     if (listDate && today.getTime() === listDate.getTime()) {
-        return { text: "Listing Today 🚀", class: "status-listing-indigo" };
+        return { text: "Listing Today 🚀", class: "status-listing-indigo", rowClass: "row-neutral" };
     }
 
-    // ૩. લિસ્ટિંગ પહેલાં જો અલોટમેન્ટ બહાર આવી ગયું હોય (Checkbox Tick હોય)
+    // ૩. લિસ્ટિંગ પહેલાં જો અલોટમેન્ટ જાહેર થઈ ગયું હોય (Checkbox Tick હોય)
     if (isAllotmentOut === true) {
-        return { text: "Allotment Out", class: "status-allotment-parrot" };
+        return { text: "Allotment Out 🎉", class: "status-allotment-parrot", rowClass: "row-neutral" };
     }
 
-    // ૪. બાકીના સામાન્ય દિવસો માટેનું ટાઈમલાઈન લોજિક
+    // ૪. ક્લોઝિંગનો દિવસ (ક્લોઝ ડેટના દિવસે રાત્રે 12:00 વાગ્યાથી આખો દિવસ 'Closing Today')
+    if (closeDate && today.getTime() === closeDate.getTime()) {
+        return { text: "Closing Today ⏳", class: "status-closing-today", rowClass: "row-live" };
+    }
+
+    // ૫. Bidding ચાલુ હોય (ઓપન ડેટથી ક્લોઝ ડેટ પહેલાં સુધી 'Live')
+    if (openDate && closeDate && today >= openDate && today < closeDate) {
+        return { text: "🔴 Live", class: "status-live-green", rowClass: "row-live" };
+    }
+
+    // ૬. ક્લોઝ થઈ ગયા પછી લિસ્ટિંગ સુધી 'Allotment Waiting'
+    if (closeDate && today > closeDate && (!listDate || today < listDate)) {
+        return { text: "Allotment Waiting", class: "status-waiting-amber", rowClass: "row-neutral" };
+    }
+
+    // ૭. ઓપન ડેટ પહેલાંનો સમય 'Upcoming'
     if (openDate && today < openDate) {
-        return { text: "Upcoming", class: "status-upcoming-green" };
-    } else if (openDate && closeDate && today >= openDate && today <= closeDate) {
-        return { text: "🔴 Live", class: "status-live-blinking" };
-    } else if (closeDate && today > closeDate && (!listDate || today < listDate)) {
-        return { text: "Allotment Waiting", class: "status-waiting-orange" };
+        return { text: "Upcoming", class: "status-upcoming-orange", rowClass: "row-upcoming" };
     }
 
-    return { text: "Closed", class: "status-listed-slate" };
+    return { text: "Upcoming", class: "status-upcoming-orange", rowClass: "row-upcoming" };
 }
 
 // ==========================================
@@ -356,21 +367,27 @@ async function loadAdminDashboard() {
             upcoming++;
         }
 
-        let statusBg = "#dcfce7"; 
-        let statusColor = "#166534";
+        let statusBg = "#ffedd5"; 
+        let statusColor = "#c2410c";
 
         if (ipo.isAllotmentOut === true) {
-            statusBg = "#bbf7d0";
-            statusColor = "#065f46";
+            statusBg = "#d1fae5";
+            statusColor = "#047857";
         } else if (statusObj.text.includes("Live")) {
+            statusBg = "#dcfce7"; 
+            statusColor = "#15803d";
+        } else if (statusObj.text.includes("Closing")) {
             statusBg = "#fee2e2"; 
-            statusColor = "#dc2626";
+            statusColor = "#b91c1c";
         } else if (statusObj.text.includes("Waiting")) {
-            statusBg = "#ffedd5";
-            statusColor = "#c2410c";
+            statusBg = "#fef3c7";
+            statusColor = "#b45309";
         } else if (statusObj.text.includes("Listing Today")) {
             statusBg = "#e0e7ff";
-            statusColor = "#3730a3";
+            statusColor = "#4338ca";
+        } else if (statusObj.text.includes("Listed")) {
+            statusBg = "#f1f5f9";
+            statusColor = "#475569";
         }
 
         const isChecked = ipo.isAllotmentOut === true ? 'checked' : '';

@@ -390,7 +390,7 @@ async function loadAdminDashboard() {
                 <td style="text-align: center; font-weight: bold;">₹${ipo.priceBand || '-'}</td>
                 <td style="text-align: center;">${ipo.lotSize || (ipo.lotRaw + ' Shares')}</td>
                 <td style="text-align: center;">
-                    <input type="text" id="dash_gmp_${ipo.id}" value="${ipo.gmp || ''}" placeholder="0" style="width: 70px; padding: 4px; text-align: center; font-weight: 700; color: #166534; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    <input type="text" id="dash_gmp_${ipo.id}" value="${ipo.gmp || ''}" placeholder="0" style="width: 70px; padding: 4px; text-align: center; font-weight: 700; color: ${parseFloat(ipo.gmp) < 0 ? '#dc2626' : (parseFloat(ipo.gmp) > 0 ? '#16a34a' : '#64748b')}; border: 1px solid #cbd5e1; border-radius: 4px;">
                 </td>
                 <td style="text-align: center;">
                     <label style="cursor: pointer; font-size: 11.5px; font-weight: 600; color: #7c3aed; display: inline-flex; align-items: center; gap: 4px;">

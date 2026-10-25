@@ -579,13 +579,28 @@ body.home-page {
 }
 
 .home-page .gmp-badge {
-    background-color: #dcfce7;
-    color: #166534;
-    padding: 5px 10px;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 12px;
+    background: transparent;
+    font-weight: 700;
+    font-size: 13.5px;
     display: inline-block;
+}
+
+.gmp-positive {
+    color: #16a34a !important;
+    background: transparent !important;
+    font-weight: 700;
+}
+
+.gmp-negative {
+    color: #dc2626 !important;
+    background: transparent !important;
+    font-weight: 700;
+}
+
+.gmp-neutral {
+    color: #94a3b8 !important;
+    background: transparent !important;
+    font-weight: 600;
 }
 
 .home-page .view-details-btn {

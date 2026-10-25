@@ -188,6 +188,30 @@ function formatIssueSizeWithAmount(rawVal, price) {
     return str;
 }
 
+function formatGmpBadge(gmpVal) {
+    if (gmpVal === null || gmpVal === undefined) {
+        return `<span style="color: #94a3b8; font-weight: 600; font-size: 13px;">-</span>`;
+    }
+    const str = gmpVal.toString().trim();
+    if (str === '' || str === '-' || str === '--' || str.toLowerCase() === 'n/a' || str === '+') {
+        return `<span style="color: #94a3b8; font-weight: 600; font-size: 13px;">-</span>`;
+    }
+
+    const clean = str.replace(/₹/g, '').replace(/,/g, '').trim();
+    const num = parseFloat(clean);
+    if (isNaN(num)) {
+        return `<span style="color: #94a3b8; font-weight: 600; font-size: 13px;">${str}</span>`;
+    }
+
+    if (num > 0) {
+        return `<span style="color: #16a34a; font-weight: 700; font-size: 13.5px;">+${num}</span>`;
+    } else if (num < 0) {
+        return `<span style="color: #dc2626; font-weight: 700; font-size: 13.5px;">${num}</span>`;
+    } else {
+        return `<span style="color: #64748b; font-weight: 600; font-size: 13px;">0</span>`;
+    }
+}
+
 function getIpoStatus(openStr, closeStr, allotStr, listStr, isAllotmentOut) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -382,7 +406,7 @@ async function loadHomeIpoTable(filterType = currentHomeFilter) {
                 <td style="text-align: center; font-weight: bold;">₹${ipo.priceBand}</td>
                 <td style="text-align: center;">${ipo.lotSize}</td>
                 <td style="text-align: center;">
-                    <span style="background: #dcfce7; color: #166534; padding: 5px 10px; border-radius: 6px; font-weight: 600; font-size: 12px;">+${ipo.gmp}</span>
+                    ${formatGmpBadge(ipo.gmp)}
                 </td>
                 <td style="text-align: center; font-weight: 600; color: #1e293b;">${overallSubTimes}</td>
                 <td style="text-align: center;">${homeAllotmentHtml}</td>
@@ -626,7 +650,16 @@ async function loadDynamicIpoDetails() {
     if (document.getElementById('v_ebitda')) document.getElementById('v_ebitda').innerText = val.ebitdaMargin || 'N/A';
     if (document.getElementById('v_pat')) document.getElementById('v_pat').innerText = val.patMargin || 'N/A';
 
-    if (document.getElementById('g_gmp')) document.getElementById('g_gmp').innerText = ipo.gmp ? `₹${ipo.gmp}` : 'N/A';
+    if (document.getElementById('g_gmp')) {
+        const rawGmp = parseFloat((ipo.gmp || '').toString().replace(/₹/g, '').replace(/,/g, '').trim());
+        if (!isNaN(rawGmp) && rawGmp > 0) {
+            document.getElementById('g_gmp').innerHTML = `<strong style="color: #16a34a; font-size: 15px;">+₹${rawGmp}</strong>`;
+        } else if (!isNaN(rawGmp) && rawGmp < 0) {
+            document.getElementById('g_gmp').innerHTML = `<strong style="color: #dc2626; font-size: 15px;">-₹${Math.abs(rawGmp)}</strong>`;
+        } else {
+            document.getElementById('g_gmp').innerHTML = `<span style="color: #94a3b8; font-weight: 600;">-</span>`;
+        }
+    }
 
     const rawGmpVal = parseFloat(ipo.gmp) || 0;
     let issuePriceVal = cutOffPrice;
@@ -938,7 +971,13 @@ async function loadDynamicIpoDetails() {
 
         const upperPriceVal = ipo.priceBand ? parseFloat(ipo.priceBand.split('to')[1] || ipo.priceBand) : 0;
         const gmpPct = upperPriceVal > 0 ? ((rawGmpVal / upperPriceVal) * 100).toFixed(1) : '0.0';
-        document.getElementById('qs_gmp').innerHTML = `₹${rawGmpVal} <span style="font-size:11px; color:#166534;">(+${gmpPct}%)</span>`;
+        if (rawGmpVal > 0) {
+            document.getElementById('qs_gmp').innerHTML = `<span style="color: #16a34a; font-weight: 700;">+₹${rawGmpVal}</span> <span style="font-size:11px; color:#16a34a; font-weight: 600;">(+${gmpPct}%)</span>`;
+        } else if (rawGmpVal < 0) {
+            document.getElementById('qs_gmp').innerHTML = `<span style="color: #dc2626; font-weight: 700;">-₹${Math.abs(rawGmpVal)}</span> <span style="font-size:11px; color:#dc2626; font-weight: 600;">(${gmpPct}%)</span>`;
+        } else {
+            document.getElementById('qs_gmp').innerHTML = `<span style="color: #94a3b8; font-weight: 600;">-</span>`;
+        }
 
         document.getElementById('qs_profit').innerHTML = `Retail: <strong style="color: #166534;">₹${exactRetailProfit.toLocaleString('en-IN')}</strong><br>HNI: <strong style="color: #166534;">₹${hniProfitTotal.toLocaleString('en-IN')}</strong>`;
 

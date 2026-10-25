@@ -391,15 +391,19 @@ async function loadAdminDashboard() {
         }
 
         const isChecked = ipo.isAllotmentOut === true ? 'checked' : '';
+        const isSme = (ipo.type || '').toLowerCase().includes('sme');
+        const typeText = isSme ? 'SME' : 'Mainboard';
+        const typeColor = isSme ? '#7c3aed' : '#1d4ed8'; // Purple for SME, Blue for Mainboard
+        const typeHtml = `<span style="color: ${typeColor}; font-weight: 700; font-size: 12px; background: transparent;">${typeText}</span>`;
 
         tbody.innerHTML += `
-            <tr>
-                <td><strong>${ipo.id}</strong></td>
-                <td>
+            <tr class="${statusObj.rowClass}">
+                <td style="text-align: center;"><strong>${ipo.id}</strong></td>
+                <td style="text-align: left; padding-left: 14px;">
                     <span onclick="editIpo('${ipo.id}')" style="color: #1d4ed8; font-weight: 600; cursor: pointer; text-decoration: underline dotted;" title="Click for Full Edit">${ipo.name}</span><br>
                     <span style="font-size: 11px; color: #64748b;">Est: ₹${ipo.estPrice || '-'}</span>
                 </td>
-                <td><span style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-size: 11px;">${ipo.type || 'Mainboard'}</span></td>
+                <td style="text-align: center;">${typeHtml}</td>
                 <td style="text-align: center;">${formatDateReadable(ipo.openDate)}</td>
                 <td style="text-align: center;">${formatDateReadable(ipo.closeDate)}</td>
                 <td style="text-align: center;">${formatDateReadable(ipo.allotmentDate)}</td>
@@ -414,7 +418,9 @@ async function loadAdminDashboard() {
                         <input type="checkbox" id="dash_allot_${ipo.id}" ${isChecked} style="width: 15px; height: 15px;"> Out
                     </label>
                 </td>
-                <td><span style="background: ${statusBg}; color: ${statusColor}; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 11px;">${statusObj.text}</span></td>
+                <td style="text-align: center;">
+                    <span class="${statusObj.class}">${statusObj.text}</span>
+                </td>
                 <td style="text-align: center;">
                     <div class="action-btns" style="justify-content: center; gap: 4px;">
                         <button type="button" onclick="quickSaveFromDashboard('${ipo.id}')" class="btn-action-edit" style="background: #166534; color: #fff;" title="Save GMP & Allotment">💾 Save</button>

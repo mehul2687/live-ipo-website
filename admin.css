@@ -135,8 +135,34 @@ body {
 
 /* Table Design */
 .admin-table { width: 100%; border-collapse: collapse; }
-.admin-table th, .admin-table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 13.5px; }
-.admin-table th { background: #f8fafc; color: #475569; font-weight: 700; }
+.admin-table th, .admin-table td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; font-size: 13px; vertical-align: middle; }
+.admin-table th { background: #f8fafc; color: #475569; font-weight: 700; vertical-align: middle; }
+
+/* Table Rows Dynamic Background & Hover for Admin */
+.admin-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.admin-table tbody tr.row-live {
+    background-color: #f0fdf4 !important; /* Light Green */
+}
+.admin-table tbody tr.row-live:hover {
+    background-color: #dcfce7 !important; /* Darker Light Green on Hover */
+}
+
+.admin-table tbody tr.row-upcoming {
+    background-color: #fff7ed !important; /* Light Orange */
+}
+.admin-table tbody tr.row-upcoming:hover {
+    background-color: #ffedd5 !important; /* Darker Light Orange on Hover */
+}
+
+.admin-table tbody tr.row-neutral {
+    background-color: #ffffff !important;
+}
+.admin-table tbody tr.row-neutral:hover {
+    background-color: #f8fafc !important;
+}
 .action-btns { display: flex; gap: 8px; }
 .btn-action-edit { background: #e0f2fe; color: #0284c7; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; }
 .btn-action-del { background: #fee2e2; color: #dc2626; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 12px; }

@@ -3,7 +3,7 @@ name: Auto Sync IPO Subscription
 on:
   schedule:
     # દર ૩૦ મિનિટે આ ઓટોમેટિક રન થશે
-    - cron: '*/30 * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch: # મેન્યુઅલ રન કરવા માટેનું બટન પણ આપશે
 
 jobs:

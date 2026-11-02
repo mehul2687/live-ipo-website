@@ -1,3 +1,5 @@
+let currentEditingId = null;
+let isManualId = false;
 // ==========================================
 // ADMIN PANEL SCRIPT (JSONBin.io Cloud Synced)
 // ==========================================
@@ -15,20 +17,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     const nameInput = document.getElementById('adm_name');
     const idInput = document.getElementById('adm_id');
 
+    window.generateUniqueCodeFromName = function(name) {
+        if (!name) return '';
+        const words = name.replace(/ipo/gi, '').trim().split(/\s+/).filter(Boolean);
+        let initials = '';
+        for (let i = 0; i < Math.min(words.length, 3); i++) {
+            if (words[i].length > 0) {
+                initials += words[i][0].toUpperCase();
+            }
+        }
+        if (!initials) initials = 'IPO';
+        const randomNum = Math.floor(100 + Math.random() * 900);
+        return initials + randomNum;
+    };
+
+    window.autoGenerateIpoCode = function() {
+        const nInput = document.getElementById('adm_name');
+        const iInput = document.getElementById('adm_id');
+        if (iInput) {
+            const nameVal = nInput ? nInput.value.trim() : '';
+            iInput.value = window.generateUniqueCodeFromName(nameVal || 'IPO');
+            isManualId = false;
+        }
+    };
+
     if (nameInput && idInput) {
         nameInput.addEventListener('input', function() {
+            // જો યુઝરે જાતે કોડ એડિટ કર્યો હોય, તો નામ બદલવાથી તેને ઓવરરાઈટ ન કરવું
+            if (isManualId) return;
+
             const val = nameInput.value.trim();
             if (val.length > 0) {
-                const words = val.replace(/ipo/gi, '').trim().split(/\s+/);
-                let initials = '';
-                for (let i = 0; i < Math.min(words.length, 3); i++) {
-                    if (words[i].length > 0) {
-                        initials += words[i][0].toUpperCase();
-                    }
-                }
-                if (!initials) initials = 'IPO';
-                const randomNum = Math.floor(100 + Math.random() * 900);
-                idInput.value = initials + randomNum;
+                idInput.value = window.generateUniqueCodeFromName(val);
+            } else {
+                idInput.value = '';
+            }
+        });
+
+        // જો યુઝર જાતે કોડમાં કોઈ ટાઇપિંગ કે એડિટ કરે તો તે માન્ય રહેશે
+        idInput.addEventListener('input', function() {
+            if (idInput.value.trim().length > 0) {
+                isManualId = true; // યુઝરે પોતાનો કસ્ટમ કોડ દાખલ કર્યો
+            } else {
+                isManualId = false; // જો સંપૂર્ણ ખાલી કરી નાખે, તો ફરી કંપની નામ પરથી આવી શકે
             }
         });
     }
@@ -97,9 +128,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             const ipoIdInput = document.getElementById('adm_id');
             if (!ipoIdInput) return;
             const ipoId = ipoIdInput.value.trim().toUpperCase();
+            if (!ipoId) {
+                alert("કૃપા કરીને Unique IPO Code / ID દાખલ કરો.");
+                return;
+            }
 
             let dbData = await fetchAdminDataFromCloud();
-            let existingIpo = dbData[ipoId] || {};
+
+            // જો એડિટ કરતી વખતે યુઝરે આઈડી બદલ્યો હોય, તો જૂનો આઈડી ડીલીટ કરવો જેથી ડુપ્લિકેટ ન બને
+            if (currentEditingId && currentEditingId !== ipoId) {
+                if (dbData[currentEditingId]) {
+                    delete dbData[currentEditingId];
+                }
+            }
+            let existingIpo = dbData[ipoId] || (currentEditingId ? dbData[currentEditingId] || {} : {});
 
             const pStart = document.getElementById('adm_priceStart').value.trim();
             const pEnd = document.getElementById('adm_priceEnd').value.trim();
@@ -470,9 +512,11 @@ function openAddDrawer() {
     const form = document.getElementById('manageIpoForm');
     if (form) form.reset();
     
+    currentEditingId = null;
+    isManualId = false;
     const admId = document.getElementById('adm_id');
     if (admId) {
-        admId.value = 'IPO' + Math.floor(1000 + Math.random() * 9000);
+        admId.value = '';
         admId.readOnly = false;
     }
 
@@ -514,8 +558,13 @@ async function editIpo(id) {
     const ipo = db[id];
     if (!ipo) return;
 
-    document.getElementById('adm_id').value = ipo.id;
-    document.getElementById('adm_id').readOnly = true;
+    currentEditingId = id;
+    isManualId = true;
+    const admIdEl = document.getElementById('adm_id');
+    if (admIdEl) {
+        admIdEl.value = ipo.id;
+        admIdEl.readOnly = false; // હવે એડિટ કરી શકાય છે!
+    }
     document.getElementById('adm_name').value = ipo.name || '';
     document.getElementById('adm_logo').value = ipo.logo || '';
     document.getElementById('adm_type').value = ipo.type || 'Mainboard';

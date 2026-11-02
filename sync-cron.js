@@ -163,13 +163,13 @@ async function get_Chittorgarh_subscription_data(key) {
                     mappedKey = "B-NII";
                 } else if (catName.includes("snii") || catName.includes("s-nii") || catName.includes("<") || catName.includes("below") || catName.includes("2-10")) {
                     mappedKey = "S-NII";
-                } else if (catName.includes("nii") && !catName.includes("bnii") && !catName.includes("snii") && !catName.includes("b-nii") && !catName.includes("s-nii")) {
+                } else if ((catName.includes("nii") || catName.includes("non-institutional") || catName.includes("noninstitutional")) && !catName.includes("bnii") && !catName.includes("snii") && !catName.includes("b-nii") && !catName.includes("s-nii")) {
                     mappedKey = "NII";
-                } else if (catName.includes("retail")) {
+                } else if (catName.includes("retail") || catName.includes("individual") || catName.includes("rii")) {
                     mappedKey = "Retail";
                 } else if (catName.includes("employee") || catName === "emp") {
                     mappedKey = "Employee";
-                } else if (catName.includes("shareholder")) {
+                } else if (catName.includes("shareholder") || catName.includes("shareholders")) {
                     mappedKey = "Shareholder";
                 }
 

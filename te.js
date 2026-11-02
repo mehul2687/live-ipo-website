@@ -63,7 +63,7 @@ async function get_Chittorgarh_subscription_data(key) {
                 } else if (catName.includes("nii") || catName.includes("non-institutional") || catName.includes("above") || catName.includes("10") || catName.includes("2")) {
                     // અહી તમામ NII ડેટાને હાલ પૂરता B-NII કી માં લઈએ જેથી તેને S-NII માં મોકલી શકીએ
                     mappedKey = "B-NII";
-                } else if (catName.includes("retail")) {
+                } else if (catName.includes("retail") || catName.includes("individual") || catName.includes("rii")) {
                     mappedKey = "Retail";
                 } else if (catName.includes("employee") || catName === "emp") {
                     mappedKey = "Employee";

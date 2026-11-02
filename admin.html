@@ -188,6 +188,17 @@
             <div class="form-drawer-body">
                 <form id="manageIpoForm">
 
+                    <div style="margin-bottom: 20px; background: #f8fafc; padding: 14px; border-radius: 8px; border: 1px solid #cbd5e1;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 8px;">
+                            <label style="font-size: 13px; font-weight: 700; color: #1e293b;">🔗 Chittorgarh IPO Key / URL Path</label>
+                            <label style="font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; color: #b91c1c; background: #fee2e2; padding: 3px 8px; border-radius: 4px;">
+                                <input type="checkbox" id="lock_manual_all"> 🚫 Stop All Auto-Sync (આખા IPO માટે ઓટો-સિંક બંધ કરો)
+                            </label>
+                        </div>
+                        <input type="text" id="adm_chittorgarhKey" placeholder="e.g. /ipo/purple-style-labs-ipo/1782/" style="width: 100%; padding: 8px 10px; border: 1px solid #94a3b8; border-radius: 6px; font-size: 13px; box-sizing: border-box; background: #ffffff;">
+                        <span style="font-size: 11px; color: #64748b; display: block; margin-top: 4px;">આ કી નાખવાથી લાઈવ સબસ્ક્રિપ્શન, લોટ સાઇઝ અને ફાઇનાન્શિયલ ડેટા ઓટોમેટિક ફેચ થશે. જો તમે કોઈપણ ડેટા મેન્યુઅલી અપડેટ કરશો તો તે આપોઆપ લોક થઈ જશે જેથી ઓટો-સિંક તેને ઓવરરાઈટ નહીં કરે.</span>
+                    </div>
+
                     <!-- 1. Basic Info -->
                     <div class="form-section-title">1. Basic Company Info</div>
                     <div class="form-grid-3">
@@ -637,17 +648,6 @@
                                 </tr>
                             </tbody>
                         </table>
-                    </div>
-
-                    <div style="margin-bottom: 15px; background: #f8fafc; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                            <label style="font-size: 13px; font-weight: 600; color: #475569;">Chittorgarh IPO Key / URL Path</label>
-                            <label style="font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; cursor: pointer; text-transform: none; color: #b91c1c; background: #fee2e2; padding: 2px 8px; border-radius: 4px;">
-                                <input type="checkbox" id="lock_manual_all"> 🚫 Stop All Auto-Sync (આખા IPO માટે ઓટો-સિંક બંધ કરો)
-                            </label>
-                        </div>
-                        <input type="text" id="adm_chittorgarhKey" placeholder="e.g. /ipo/purple-style-labs-ipo/1782/" style="width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;">
-                        <span style="font-size: 11px; color: #64748b; display: block; margin-top: 4px;">આ કી નાખવાથી લાઈવ સબસ્ક્રિપ્શન, લોટ સાઇઝ અને ફાઇનાન્શિયલ ડેટા ઓટોમેટિક ફેચ થશે. જો તમે કોઈપણ ડેટા મેન્યુઅલી અપડેટ કરશો તો તે આપોઆપ લોક થઈ જશે જેથી ઓટો-સિંક તેને ઓવરરાઈટ નહીં કરે.</span>
                     </div>
 
                     <!-- IPO Reservation Quota Section -->

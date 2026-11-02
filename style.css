@@ -740,6 +740,10 @@ body.home-page {
 }
 
 
+.export-brand-footer {
+    display: none !important;
+}
+
 /* ==========================================================
    6. RESPONSIVE MEDIA QUERIES
    ========================================================== */

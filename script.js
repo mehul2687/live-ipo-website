@@ -1022,25 +1022,110 @@ async function shareSectionAsImage(sectionId, fileNamePrefix) {
     if (!sectionEl) return;
 
     const shareBtn = sectionEl.querySelector('.btn-share');
-    if (shareBtn) shareBtn.style.visibility = 'hidden';
+    if (shareBtn) shareBtn.style.display = 'none';
 
-    const brandFooter = sectionEl.querySelector('.export-brand-footer');
-    if (brandFooter) brandFooter.style.display = 'block';
+    // Hide any existing static footer
+    const existingFooters = sectionEl.querySelectorAll('.export-brand-footer');
+    existingFooters.forEach(f => f.style.display = 'none');
+
+    // Get IPO details from page
+    const ipoName = (document.getElementById('d_name') ? document.getElementById('d_name').innerText.trim() : '') || 'IPO Details';
+    const ipoType = (document.getElementById('d_type') ? document.getElementById('d_type').innerText.trim() : '') || 'Mainboard IPO';
+    const ipoDates = (document.getElementById('d_dates') ? document.getElementById('d_dates').innerText.trim() : '');
+    const ipoPrice = (document.getElementById('d_priceband') ? document.getElementById('d_priceband').innerText.trim() : '');
+    const isSme = ipoType.toLowerCase().includes('sme');
+
+    // Meta details line
+    let metaParts = [];
+    if (ipoPrice) metaParts.push(`Price: ${ipoPrice}`);
+    if (ipoDates) metaParts.push(`Dates: ${ipoDates}`);
+    const metaLine = metaParts.join('  •  ');
+
+    // 1. Create Branded Header at the TOP of the section (Centered IPO Name)
+    const exportHeader = document.createElement('div');
+    exportHeader.className = 'dynamic-export-header';
+    exportHeader.style.cssText = `
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: #ffffff;
+        padding: 16px 18px;
+        border-radius: 9px 9px 0 0;
+        margin: -16px -18px 14px -18px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        border-bottom: 2.5px solid #0284c7;
+        font-family: inherit;
+        box-sizing: border-box;
+    `;
+    exportHeader.innerHTML = `
+        <div style="text-align: center; width: 100%;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap;">
+                <span style="font-size: 18px; font-weight: 800; color: #ffffff; letter-spacing: -0.2px;">${ipoName}</span>
+                <span style="background: ${isSme ? '#9333ea' : '#0284c7'}; color: #ffffff; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">${ipoType}</span>
+            </div>
+            ${metaLine ? `<div style="font-size: 12px; color: #94a3b8; margin-top: 4px; font-weight: 500;">${metaLine}</div>` : ''}
+        </div>
+    `;
+
+    // 2. Create Branded Footer at the BOTTOM of the section
+    const exportFooter = document.createElement('div');
+    exportFooter.className = 'dynamic-export-footer';
+    exportFooter.style.cssText = `
+        background: #f8fafc;
+        border-top: 1.5px solid #e2e8f0;
+        padding: 10px 18px;
+        margin: 14px -18px -16px -18px;
+        border-radius: 0 0 9px 9px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-family: inherit;
+        box-sizing: border-box;
+    `;
+    exportFooter.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 6px; text-align: left;">
+            <span style="font-size: 13px; font-weight: 800; color: #1d4ed8;">📊 Live IPO Portal</span>
+            <span style="font-size: 11px; color: #64748b; font-weight: 500;">• Real-Time IPO Tracking, Live GMP & Subscriptions</span>
+        </div>
+        <div style="font-size: 11.5px; font-weight: 700; color: #0284c7; background: #e0f2fe; padding: 3px 10px; border-radius: 20px; border: 1px solid #bae6fd; white-space: nowrap;">
+            🌐 www.liveipo.in
+        </div>
+    `;
+
+    // Temporarily insert header & footer into DOM
+    sectionEl.insertBefore(exportHeader, sectionEl.firstChild);
+    sectionEl.appendChild(exportFooter);
 
     try {
-        const canvas = await html2canvas(sectionEl, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
-        
-        if (shareBtn) shareBtn.style.visibility = 'visible';
-        if (brandFooter) brandFooter.style.display = 'none';
+        const canvas = await html2canvas(sectionEl, {
+            scale: 2,
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            logging: false
+        });
+
+        // Clean up temporary DOM elements
+        exportHeader.remove();
+        exportFooter.remove();
+        if (shareBtn) shareBtn.style.display = '';
 
         canvas.toBlob(async (blob) => {
             if (!blob) return;
-            const fileName = `${fileNamePrefix}_${Date.now()}.png`;
+            const safeName = ipoName.replace(/[^a-zA-Z0-9]/g, '_');
+            const fileName = `${safeName}_${fileNamePrefix}.png`;
             const file = new File([blob], fileName, { type: 'image/png' });
+
+            const shareText = `📊 ${ipoName}\n${fileNamePrefix.replace(/[-_]/g, ' ')}\n👉 Track Live on Live IPO Portal: https://liveipo.in`;
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 try {
-                    await navigator.share({ files: [file], title: fileNamePrefix, text: `Live IPO Portal - ${fileNamePrefix}:` });
+                    await navigator.share({
+                        files: [file],
+                        title: ipoName,
+                        text: shareText
+                    });
                 } catch (err) {
                     if (err.name !== 'AbortError') downloadImageBlob(blob, fileName);
                 }
@@ -1051,8 +1136,9 @@ async function shareSectionAsImage(sectionId, fileNamePrefix) {
         }, 'image/png');
     } catch (error) {
         console.error('Error generating image:', error);
-        if (shareBtn) shareBtn.style.visibility = 'visible';
-        if (brandFooter) brandFooter.style.display = 'none';
+        exportHeader.remove();
+        exportFooter.remove();
+        if (shareBtn) shareBtn.style.display = '';
     }
 }
 

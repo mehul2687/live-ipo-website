@@ -717,7 +717,7 @@ async function syncAllIposFromChittorgarh() {
 const args = process.argv.slice(2);
 const runOnce = args.includes('--once') || args.includes('-1');
 
-let intervalMinutes = 30;
+let intervalMinutes = 1;
 const intervalArgIndex = args.findIndex(arg => arg === '--interval' || arg === '-i');
 if (intervalArgIndex !== -1 && args[intervalArgIndex + 1]) {
     const parsed = parseInt(args[intervalArgIndex + 1], 10);

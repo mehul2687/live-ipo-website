@@ -1,20 +1,20 @@
 @echo off
-title Setup Windows Task Scheduler for IPO Auto-Sync
+title Setup Windows Task Scheduler for IPO Auto-Sync (Every 1 Minute)
 cd /d "%~dp0"
 echo ========================================================
-echo   Windows Task Scheduler Setup for IPO Auto-Sync
+echo   Windows Task Scheduler Setup for IPO Auto-Sync (1 Min)
 echo ========================================================
 echo.
 echo This will create a Windows background task that runs
-echo every 30 minutes silently in the background, even when
+echo every 1 minute silently in the background, even when
 echo Visual Studio Code is closed.
 echo.
 echo Creating task 'IpoAutoSync'...
-schtasks /create /tn "IpoAutoSync" /tr "wscript.exe \"%~dp0run-sync-silent.vbs\"" /sc MINUTE /mo 30 /f
+schtasks /create /tn "IpoAutoSync" /tr "wscript.exe \"%~dp0run-sync-silent.vbs\"" /sc MINUTE /mo 1 /f
 echo.
 if %errorlevel% equ 0 (
     echo [SUCCESS] Windows Task 'IpoAutoSync' created successfully!
-    echo It will now run every 30 minutes in the background automatically.
+    echo It will now run every 1 minute in the background automatically.
 ) else (
     echo [NOTE] If you saw an access denied error, please right-click this file
     echo and select 'Run as administrator'.

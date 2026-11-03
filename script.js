@@ -1262,6 +1262,21 @@ window.handleGoogleSignIn = function(response) {
     }
 };
 
+window.handleCustomLogin = function(emailOrId, name) {
+    const clean = (emailOrId || '').trim();
+    if (!clean) return;
+    const user = {
+        id: 'user_' + encodeURIComponent(clean.toLowerCase()),
+        name: name || clean.split('@')[0],
+        email: clean.toLowerCase(),
+        avatar: "https://www.gravatar.com/avatar/?d=mp"
+    };
+    localStorage.setItem('live_ipo_user', JSON.stringify(user));
+    renderUserAuthState();
+    console.log(`✓ Welcome, ${user.name}! Successfully signed in.`);
+    window.dispatchEvent(new CustomEvent('live_ipo_auth_changed', { detail: { user } }));
+};
+
 window.handleUserLogout = function() {
     localStorage.removeItem('live_ipo_user');
     if (window.google && google.accounts && google.accounts.id) {

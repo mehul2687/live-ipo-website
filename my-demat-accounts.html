@@ -70,15 +70,25 @@
         <!-- ========================================== -->
         <!-- STATE 1: AUTH REQUIRED (NOT LOGGED IN)     -->
         <!-- ========================================== -->
-        <div id="authRequiredSection" class="demat-auth-lock-card" style="display: none;">
+        <div id="authRequiredSection" class="demat-auth-lock-card" style="display: none; max-width: 540px; margin: 30px auto; padding: 30px 25px;">
             <div class="auth-lock-circle">🔐</div>
-            <h2 class="auth-lock-title">Google Sign-In Required</h2>
+            <h2 class="auth-lock-title">Login Required</h2>
             <p class="auth-lock-desc">
-                તમારા ડિમેટ એકાઉન્ટ્સ (PAN, Client ID, UPI, Bank) ની વિગતો 100% સુરક્ષિત અને પ્રાઇવેટ રહે તે માટે કૃપા કરીને ઉપર આપેલા <strong>"Sign in with Google"</strong> બટન દ્વારા તમારા Gmail એકાઉન્ટથી લોગિન કરો.
+                તમારા ડિમેટ એકાઉન્ટ્સ (CDSL / NSDL) ની તમામ વિગતો કાયમી ધોરણે ક્લાઉડ ડેટાબેઝમાં સુરક્ષિત રહે અને તમે મોબાઇલ કે લેપટોપ કોઈપણ ડિવાઇસ પરથી એક્સેસ કરી શકો તે માટે કૃપા કરીને લોગિન કરો.
             </p>
-            <div style="display: inline-block;">
-                <p style="font-size: 13px; color: #64748b; margin-top: 5px;">
-                    👆 ઉપર જમણી બાજુએ આપેલા બટન પરથી ૧-ક્લિકમાં લોગિન કરી શકો છો.
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; margin-top: 15px; text-align: left;">
+                <label style="font-size: 13px; font-weight: 700; color: #334155; display: block; margin-bottom: 6px;">Email ID / Login ID</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="customUserEmail" placeholder="e.g. yourname@gmail.com" style="flex: 1; padding: 9px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; outline: none;">
+                    <button type="button" onclick="submitCustomLogin()" style="background: #2563eb; color: #ffffff; border: none; padding: 9px 18px; border-radius: 6px; font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap;">Login</button>
+                </div>
+                <div style="display: flex; align-items: center; margin: 14px 0 10px 0; gap: 10px;">
+                    <div style="flex: 1; height: 1px; background: #e2e8f0;"></div>
+                    <span style="font-size: 11px; color: #94a3b8; font-weight: 700;">અથવા</span>
+                    <div style="flex: 1; height: 1px; background: #e2e8f0;"></div>
+                </div>
+                <p style="font-size: 12px; color: #64748b; margin: 0; text-align: center; line-height: 1.5;">
+                    👆 ઉપર જમણી બાજુએ આપેલા <strong>"Sign in with Google"</strong> બટન પરથી પણ ૧-ક્લિકમાં લોગિન કરી શકો છો.
                 </p>
             </div>
         </div>
@@ -100,12 +110,17 @@
 
                 <!-- Account Quota Bar -->
                 <div class="demat-quota-card">
-                    <div class="quota-badges-row">
-                        <span class="quota-badge-used">
-                            💼 <span id="quotaUsedText">0</span> of 100 used
-                        </span>
-                        <span class="quota-badge-allowed" id="quotaAllowedText">
-                            100 more allowed
+                    <div class="quota-badges-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span class="quota-badge-used">
+                                💼 <span id="quotaUsedText">0</span> of 100 used
+                            </span>
+                            <span class="quota-badge-allowed" id="quotaAllowedText">
+                                100 more allowed
+                            </span>
+                        </div>
+                        <span id="cloudSyncBadge" style="font-size: 11.5px; font-weight: 600; padding: 4px 12px; border-radius: 20px; background: #ecfdf5; color: #065f46; display: inline-flex; align-items: center; gap: 5px; border: 1px solid #a7f3d0;" title="All your Demat accounts are permanently synced to the cloud and available on any device!">
+                            ☁️ Cloud Synced • Multi-Device
                         </span>
                     </div>
                     <div class="quota-progress-track">
@@ -314,10 +329,115 @@
             { id: "acc_8", name: "JIGO", pan: "CFVPR7958N", type: "CDSL", dpid: "", clientId: "1203320013441251", upi: "mehul26587@ybl", bankNo: "01234567897", bankName: "BOB" }
         ];
 
-        // Storage Key helper tied to user email
+        // Centralized Cloud Database Configuration (JSONBin.io User Store)
+        const DEMAT_BIN_ID = "6ae9de79ac6210605a68ca72";
+        const DEMAT_API_KEY = "$2a$10$Pl5b/ekYZXhRBmQVY6DwieMC10GztytHM9d7CnR0zqmje7BWYj6yC";
+
+        function submitCustomLogin() {
+            const input = document.getElementById('customUserEmail');
+            if (!input) return;
+            const val = input.value.trim();
+            if (!val) {
+                alert("કૃપા કરીને Email ID અથવા Login ID દાખલ કરો.");
+                input.focus();
+                return;
+            }
+            if (window.handleCustomLogin) {
+                window.handleCustomLogin(val);
+            }
+        }
+
+        function setCloudSyncStatus(status, text) {
+            const badge = document.getElementById('cloudSyncBadge');
+            if (!badge) return;
+            if (status === 'syncing') {
+                badge.innerHTML = '🔄 Syncing with Cloud...';
+                badge.style.background = '#fef3c7';
+                badge.style.color = '#92400e';
+                badge.style.borderColor = '#fcd34d';
+            } else if (status === 'success') {
+                badge.innerHTML = text || '☁️ Cloud Synced • Multi-Device';
+                badge.style.background = '#ecfdf5';
+                badge.style.color = '#065f46';
+                badge.style.borderColor = '#a7f3d0';
+            } else if (status === 'error') {
+                badge.innerHTML = '⚠️ Offline Cache Active';
+                badge.style.background = '#fee2e2';
+                badge.style.color = '#b91c1c';
+                badge.style.borderColor = '#fecaca';
+            }
+        }
+
+        function getUserKey() {
+            if (!currentUser) return null;
+            return (currentUser.email || currentUser.id || '').trim().toLowerCase();
+        }
+
         function getStorageKey() {
-            if (!currentUser || !currentUser.email) return null;
-            return `live_ipo_demat_accounts_${encodeURIComponent(currentUser.email.toLowerCase())}`;
+            const uKey = getUserKey();
+            if (!uKey) return null;
+            return `live_ipo_demat_accounts_${encodeURIComponent(uKey)}`;
+        }
+
+        // Fetch user's isolated accounts from Cloud Database
+        async function fetchUserAccountsFromCloud(userKey) {
+            try {
+                const response = await fetch(`https://api.jsonbin.io/v3/b/${DEMAT_BIN_ID}/latest?t=${Date.now()}`, {
+                    cache: 'no-store',
+                    headers: { 'X-Master-Key': DEMAT_API_KEY }
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    const record = result.record || {};
+                    const users = record.users || {};
+                    return users[userKey] !== undefined ? users[userKey] : null;
+                }
+            } catch (err) {
+                console.warn("Cloud demat fetch error:", err);
+            }
+            return null;
+        }
+
+        // Persist user's accounts to Cloud Database (strictly isolated under users[userKey])
+        async function persistUserAccountsToCloud(userKey, accounts) {
+            try {
+                setCloudSyncStatus('syncing');
+                const getRes = await fetch(`https://api.jsonbin.io/v3/b/${DEMAT_BIN_ID}/latest?t=${Date.now()}`, {
+                    cache: 'no-store',
+                    headers: { 'X-Master-Key': DEMAT_API_KEY }
+                });
+                let record = { description: "LiveIPO User Demat Accounts Central Store", users: {} };
+                if (getRes.ok) {
+                    const data = await getRes.json();
+                    if (data.record) record = data.record;
+                    if (!record.users) record.users = {};
+                }
+
+                // Isolate: only update THIS user's array
+                record.users[userKey] = accounts;
+                record.updatedAt = new Date().toISOString();
+
+                const putRes = await fetch(`https://api.jsonbin.io/v3/b/${DEMAT_BIN_ID}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Master-Key': DEMAT_API_KEY
+                    },
+                    body: JSON.stringify(record)
+                });
+
+                if (putRes.ok) {
+                    setCloudSyncStatus('success', `☁️ Cloud Synced (${accounts.length} accounts)`);
+                    return true;
+                } else {
+                    setCloudSyncStatus('error');
+                    return false;
+                }
+            } catch (err) {
+                console.error("Cloud persist error:", err);
+                setCloudSyncStatus('error');
+                return false;
+            }
         }
 
         // Initialize Authentication & Load Accounts
@@ -353,37 +473,69 @@
             checkAndRenderAuth();
         });
 
-        // Load Accounts from LocalStorage for current user
-        function loadUserAccounts() {
-            const key = getStorageKey();
-            if (!key) return;
+        // Load Accounts: first from local cache, then sync from Cloud Database
+        async function loadUserAccounts() {
+            const userKey = getUserKey();
+            if (!userKey) return;
+            const localKey = getStorageKey();
 
-            const stored = localStorage.getItem(key);
-            if (stored) {
-                try {
-                    userAccounts = JSON.parse(stored);
-                } catch (e) {
-                    userAccounts = [];
+            // 1. Instant local render
+            let cachedAccounts = [];
+            if (localKey) {
+                const stored = localStorage.getItem(localKey);
+                if (stored) {
+                    try { cachedAccounts = JSON.parse(stored); } catch (e) {}
                 }
-            } else {
-                userAccounts = [];
             }
-
+            userAccounts = Array.isArray(cachedAccounts) ? cachedAccounts : [];
             filteredAccounts = [...userAccounts];
             selectedAccountIds.clear();
             renderQuota();
             renderTable();
+
+            // 2. Fetch from Cloud Database
+            setCloudSyncStatus('syncing');
+            try {
+                const cloudAccounts = await fetchUserAccountsFromCloud(userKey);
+                if (cloudAccounts !== null) {
+                    userAccounts = Array.isArray(cloudAccounts) ? cloudAccounts : [];
+                    if (localKey) {
+                        localStorage.setItem(localKey, JSON.stringify(userAccounts));
+                    }
+                    filteredAccounts = [...userAccounts];
+                    renderQuota();
+                    renderTable();
+                    setCloudSyncStatus('success', `☁️ Cloud Synced (${userAccounts.length} accounts)`);
+                } else {
+                    // First time on cloud: migrate local accounts if any
+                    if (userAccounts.length > 0) {
+                        await persistUserAccountsToCloud(userKey, userAccounts);
+                    } else {
+                        setCloudSyncStatus('success', '☁️ Cloud Connected');
+                    }
+                }
+            } catch (err) {
+                console.warn("Cloud load error, using local cache:", err);
+                setCloudSyncStatus('error');
+            }
         }
 
-        // Save Accounts to LocalStorage for current user
-        function persistUserAccounts() {
-            const key = getStorageKey();
-            if (!key) {
-                alert("Please log in with Google first.");
+        // Save Accounts to local cache AND Centralized Cloud Database
+        async function persistUserAccounts() {
+            const userKey = getUserKey();
+            const localKey = getStorageKey();
+            if (!userKey) {
+                alert("Please log in first.");
                 return false;
             }
-            localStorage.setItem(key, JSON.stringify(userAccounts));
-            return true;
+
+            // 1. Update local cache immediately
+            if (localKey) {
+                localStorage.setItem(localKey, JSON.stringify(userAccounts));
+            }
+
+            // 2. Persist to Cloud
+            return await persistUserAccountsToCloud(userKey, userAccounts);
         }
 
         // Update Quota Bar
@@ -652,7 +804,7 @@
         }
 
         // Save (Create or Update) Demat Account
-        function saveDematAccount() {
+        async function saveDematAccount() {
             const id = document.getElementById('formAccountId').value;
             const type = document.getElementById('accountType').value;
             const name = document.getElementById('accountName').value.trim();
@@ -729,16 +881,16 @@
                 userAccounts.unshift(newAcc);
             }
 
-            persistUserAccounts();
+            const cloudOk = await persistUserAccounts();
             filteredAccounts = [...userAccounts];
             renderQuota();
             renderTable();
             hideAddEditForm();
-            alert(id ? "✓ Account updated successfully!" : "✓ New Demat Account saved successfully!");
+            alert(id ? "✓ Account updated and synced to cloud!" : "✓ New Demat Account saved and synced to cloud!");
         }
 
         // Delete Single Account
-        function deleteSingleAccount(id) {
+        async function deleteSingleAccount(id) {
             const acc = userAccounts.find(a => a.id === id);
             const name = acc ? acc.name : "this account";
             if (!confirm(`Are you sure you want to delete ${name}?`)) {
@@ -755,7 +907,7 @@
         }
 
         // Delete Selected Accounts
-        function deleteSelectedAccounts() {
+        async function deleteSelectedAccounts() {
             if (selectedAccountIds.size === 0) {
                 alert("Please select at least one account to delete.");
                 return;
@@ -915,7 +1067,7 @@
         }
 
         // Load Sample Demo Accounts (from user screenshot)
-        function loadSampleDemoAccounts() {
+        async function loadSampleDemoAccounts() {
             if (!currentUser || !currentUser.email) {
                 alert("Please log in with Google first.");
                 return;

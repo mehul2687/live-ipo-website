@@ -213,6 +213,9 @@
             };
         }
 
+        const DEMAT_BIN_ID = "6ae9de79ac6210605a68ca72";
+        const DEMAT_API_KEY = "$2a$10$Pl5b/ekYZXhRBmQVY6DwieMC10GztytHM9d7CnR0zqmje7BWYj6yC";
+
         // Load Accounts (From logged in user Demat accounts or default sample)
         function loadCurrentAccounts() {
             const userStr = localStorage.getItem('live_ipo_user');
@@ -243,6 +246,33 @@
 
             // Fallback to sample accounts from screenshot
             accountsToCheck = [...defaultSampleAccounts];
+
+            // If user is logged in, attempt background cloud fetch to ensure cross-device accounts load
+            if (userStr) {
+                try {
+                    const u = JSON.parse(userStr);
+                    const uKey = (u.email || u.id || '').trim().toLowerCase();
+                    if (uKey) {
+                        fetch(`https://api.jsonbin.io/v3/b/${DEMAT_BIN_ID}/latest?t=${Date.now()}`, {
+                            cache: 'no-store',
+                            headers: { 'X-Master-Key': DEMAT_API_KEY }
+                        }).then(r => r.json()).then(res => {
+                            const cloudAccs = res.record?.users?.[uKey];
+                            if (Array.isArray(cloudAccs) && cloudAccs.length > 0) {
+                                accountsToCheck = cloudAccs.map(a => ({
+                                    id: a.id,
+                                    name: a.name,
+                                    pan: a.pan,
+                                    type: a.type || 'CDSL',
+                                    clientId: a.clientId || ''
+                                }));
+                                localStorage.setItem(`live_ipo_demat_accounts_${encodeURIComponent(uKey)}`, JSON.stringify(cloudAccs));
+                                renderBatchCards();
+                            }
+                        }).catch(e => console.warn("Allotment cloud sync:", e));
+                    }
+                } catch(e) {}
+            }
         }
 
         // Load declared IPOs from Master Cloud Data & Scraped Active Registrars

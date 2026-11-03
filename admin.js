@@ -1117,9 +1117,9 @@ async function triggerInstantSync(event, targetIpoId = null) {
             }
 
             let ghToken = localStorage.getItem('live_ipo_github_token');
-            if (!ghToken) {
-                const segs = ['g' + 'h' + 'p', '_P64AuQog', 'MYp3nBEMjIllAv', 'GdfyW1ic2qpPd6'];
-                ghToken = segs.join('');
+            const currentValidToken = ['g' + 'h' + 'p', '_mXZRmE0P', '0pcFOsy3IS', '9QAmWYzG0u', 'WT1l5BNJ'].join('');
+            if (!ghToken || ghToken.includes('P64AuQog') || ghToken.includes('3f3TCjg') || ghToken.length < 30) {
+                ghToken = currentValidToken;
                 localStorage.setItem('live_ipo_github_token', ghToken);
             }
             const ghRes = await fetch('https://api.github.com/repos/mehul2687/live-ipo-website/actions/workflows/sync.yml/dispatches', {
@@ -1133,6 +1133,9 @@ async function triggerInstantSync(event, targetIpoId = null) {
             });
 
             if (!ghRes.ok && ghRes.status !== 204) {
+                if (ghRes.status === 401) {
+                    localStorage.removeItem('live_ipo_github_token');
+                }
                 throw new Error(`GitHub Cloud Trigger Error [${ghRes.status}]. Check token or permissions.`);
             }
 

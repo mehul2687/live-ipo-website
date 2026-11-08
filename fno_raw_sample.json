@@ -1,0 +1,35 @@
+{
+  "totalRecords": 30,
+  "firstRecord": {
+    "date": "2026-11-06",
+    "futPurchase": "10,832.49",
+    "futSales": "4,698.05",
+    "futNet": "6,134.44",
+    "optPurchase": "2,067,138.99",
+    "optSale": "2,060,396.28",
+    "optNet": "6,742.71",
+    "indexClose": "25,030.35",
+    "indexPrevClose": "24,536.60",
+    "indexChangePer": "2.01",
+    "fDate": "06 November",
+    "graphRecordDate": "06 Nov",
+    "graphToolTipRecordDate": "06 Nov, Friday"
+  },
+  "secondRecord": {
+    "date": "2026-11-05",
+    "futPurchase": "11,126.17",
+    "futSales": "3,242.40",
+    "futNet": "7,883.77",
+    "optPurchase": "1,142,655.19",
+    "optSale": "1,131,193.83",
+    "optNet": "11,461.36",
+    "indexClose": "24,536.60",
+    "indexPrevClose": "23,960.60",
+    "indexChangePer": "2.40",
+    "fDate": "05 November",
+    "graphRecordDate": "05 Nov",
+    "graphToolTipRecordDate": "05 Nov, Thursday"
+  },
+  "sectorName": "",
+  "tabs": []
+}

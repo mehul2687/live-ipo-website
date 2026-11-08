@@ -1,0 +1,23 @@
+{
+  "hasHtml": true,
+  "hasTableHeader": 1,
+  "hasNextData": true,
+  "keysInNextData": [],
+  "pagePropsKeys": [
+    "deviceTypeProp",
+    "isApp",
+    "appSource",
+    "darkMode",
+    "country",
+    "success",
+    "FiiDiiData",
+    "FiiDiiChartData"
+  ],
+  "pagePropsSample": "{\"deviceTypeProp\":\"web\",\"isApp\":false,\"appSource\":\"web\",\"darkMode\":false,\"country\":\"IN\",\"success\":1,\"FiiDiiData\":{\"sectorName\":\"\",\"sharedUrl\":\"\",\"tabs\":[],\"fiiDiiData\":[{\"date\":\"2026-11-06\",\"futPurchase\":\"10,832.49\",\"futSales\":\"4,698.05\",\"futNet\":\"6,134.44\",\"optPurchase\":\"2,067,138.99\",\"optSale\":\"2,060,396.28\",\"optNet\":\"6,742.71\",\"indexClose\":\"25,030.35\",\"indexPrevClose\":\"24,536.60\",\"indexChangePer\":\"2.01\",\"fDate\":\"06 November\",\"graphRecordDate\":\"06 Nov\",\"graphToolTipRecordDate\":\"06 Nov, Friday\"},{\"date\":\"2026-11-05\",\"futPurchase\":\"11,126.17\",\"futSales\":\"3,242.40\",\"futNet\":\"7,883.77\",\"optPurchase\":\"1,142,655.19\",\"optSale\":\"1,131,193.83\",\"optNet\":\"11,461.36\",\"indexClose\":\"24,536.60\",\"indexPrevClose\":\"23,960.60\",\"indexChangePer\":\"2.40\",\"fDate\":\"05 November\",\"graphRecordDate\":\"05 Nov\",\"graphToolTipRecordDate\":\"05 Nov, Thursday\"},{\"date\":\"2026-11-04\",\"futPurchase\":\"5,131.22\",\"futSales\":\"2,512.35\",\"futNet\":\"2,618.87\",\"optPurchase\":\"988,190.67\",\"optSale\":\"996,043.99\",\"optNet\":\"-7,853.32\",\"indexClose\":\"23,960.60\",\"indexPrevClose\":\"23,810.85\",\"indexChangePer\":\"0.63\",\"fDate\":\"04 November\",\"graphRecordDate\":\"04 Nov\",\"graphToolTipRecordDate\":\"04 Nov, Wednesday\"},{\"date\":\"2026-11-03\",\"futPurchase\":\"6,600.38\",\"futSales\":\"1,889.07\",\"futNet\":\"4,711.31\",\"optPurchase\":\"3,398,095.29\",\"optSale\":\"3,400,927.52\",\"optNet\":\"-2,832.23\",\"indexClose\":\"23,810.85\",\"indexPrevClose\":\"23,440.80\",\"indexChangePer\":\"1.58\",\"fDate\":\"03 November\",\"graphRecordDate\":\"03 Nov\",\"graphToolTipRecordDate\":\"03 Nov, Tuesday\"},{\"date\":\"2026-11-02\",\"futPurchase\":\"3,131.51\",\"futSales\":\"2,018.35\",\"futNet\":\"1,113.16\",\"optPurchase\":\"1,706,753.91\",\"optSale\":\"1,696,240.71\",\"optNet\":\"10,513.20\",\"indexClose\":\"23,440.80\",\"indexPrevClose\":\"23,053.10\",\"indexChangePer\":\"1.68\",\"fDate\":\"02 November\",\"graphRecordDate\":\"02 Nov\",\"graphToolTipRecordDate\":\"02 Nov, Monday\"},{\"date\":\"2026-10-30\",\"futPurchase\":\"1,677.97\",\"futSales\":\"2,126.39\",\"futNet\":\"-448.42\",\"optPurchase\":\"1,213,926.06\",\"optSale\":\"1,208,422.50\",\"optNet\":\"5,503.56\",\"indexClose\":\"23,053.10\",\"indexPrevClose\":\"22,936.75\",\"indexChangePer\":\"0.51\",\"fDate\":\"30 October\",\"graphRecordDate\":\"30 Oct\",\"graphToolTipRecordDate\":\"30 Oct, Friday\"},{\"date\":\"2026-10-29\",\"futPurchase\":\"1,625.77\",\"futSales\":\"2,049.19\",\"futNet\":\"-423.42\",\"optPurchase\":\"742,680.40\",\"optSale\":\"735,307.12\",\"optNet\":\"7,373.28\",\"indexClose\":\"22,936.75\",\"indexPrevClose\":\"22,698.85\",\"indexChangePer\":\"1.05\",\"fDate\":\"29 October\",\"graphRecordDate\":\"29 Oct\",\"graphToolTipRecordDate\":\"29 Oct, Thursday\"},{\"date\":\"2026-10-28\",\"futPurchase\":\"1,922\",\"futSales\":\"3,985.16\",\"futNet\":\"-2,063.16\",\"optPurchase\":\"742,845.72\",\"optSale\":\"756,690.87\",\"optNet\":\"-13,845.15\",\"indexClose\":\"22,698.85\",\"indexPrevClose\":\"22,749.75\",\"indexChangePer\":\"-0.22\",\"fDate\":\"28 October\",\"graphRecordDate\":\"28 Oct\",\"graphToolTipRecordDate\":\"28 Oct, Wednesday\"},{\"date\":\"2026-10-27\",\"futPurchase\":\"9,129.98\",\"futSales\":\"11,978.92\",\"futNet\":\"-2,848.94\",\"optPurchase\":\"3,788,825.37\",\"optSale\":\"3,768,566.43\",\"optNet\":\"20,258.94\",\"indexClo",
+  "tables": [
+    {
+      "index": 0,
+      "headers": []
+    }
+  ]
+}

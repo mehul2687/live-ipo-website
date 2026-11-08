@@ -3,6 +3,7 @@ import * as cheerio from "cheerio";
 import dns from "dns";
 import { fetchAndSaveFiiDiiData } from "./scrape_fii_dii.mjs";
 import { fetchAndSaveFnoData } from "./scrape_fii_fno.mjs";
+import { scrapeIndices } from "./scrape_indices.mjs";
 
 if (dns.setDefaultResultOrder) {
     dns.setDefaultResultOrder('ipv4first');
@@ -751,6 +752,11 @@ async function executeSync() {
             await fetchAndSaveFnoData();
         } catch (fnoErr) {
             console.error("⚠️ FII F&O sync error:", fnoErr.message);
+        }
+        try {
+            await scrapeIndices();
+        } catch (indErr) {
+            console.error("⚠️ Indices sync error:", indErr.message);
         }
     } catch (e) {
         console.error("❌ Sync execution error:", e.message);

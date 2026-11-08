@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Market Indices - Real Time NSE & BSE Indices Watch | Live IPO</title>
+    <meta name="description" content="Track live Indian stock market indices including NIFTY 50, SENSEX, NIFTY BANK, Sectoral & Thematic indices with real-time LTP, % change, open, high, low, 52-week range and volume.">
+
+    <!-- External CSS Link -->
+    <link rel="stylesheet" href="style.css?v=2026.11.08.6">
+
+    <!-- Google Identity Services (Google Sign-In) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Global JavaScript Link -->
+    <script src="script.js?v=2026.11.08.6"></script>
+
+    <style>
+        /* ==========================================================
+           INDICES PAGE MODERN THEME & SPACE MANAGEMENT
+           ========================================================== */
+        .demat-breadcrumb {
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .demat-breadcrumb a {
+            color: #64748b;
+            text-decoration: none;
+        }
+
+        .demat-breadcrumb a:hover {
+            color: #0284c7;
+        }
+
+        .demat-breadcrumb .separator {
+            margin: 0 5px;
+            color: #cbd5e1;
+        }
+
+        .demat-breadcrumb .current {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .indices-page-header {
+            margin-bottom: 16px;
+        }
+
+        .indices-header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .indices-page-title {
+            font-size: 21px;
+            font-weight: 900;
+            color: #0f172a;
+            letter-spacing: -0.4px;
+            text-transform: uppercase;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .indices-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+
+        .status-live {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #86efac;
+        }
+
+        .status-closed {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .pulse-dot.green {
+            background: #16a34a;
+            box-shadow: 0 0 0 rgba(22, 163, 74, 0.4);
+            animation: pulseGreen 1.5s infinite;
+        }
+
+        .pulse-dot.gray {
+            background: #94a3b8;
+        }
+
+        @keyframes pulseGreen {
+            0% {
+                box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 7px rgba(22, 163, 74, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(22, 163, 74, 0);
+            }
+        }
+
+        .header-action-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-live-toggle {
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #334155;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-live-toggle:hover {
+            border-color: #0284c7;
+            color: #0284c7;
+        }
+
+        .btn-live-toggle.active {
+            background: #f0fdf4;
+            border-color: #22c55e;
+            color: #15803d;
+        }
+
+        .btn-refresh-manual {
+            background: #0284c7;
+            color: #ffffff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+        }
+
+        .btn-refresh-manual:hover {
+            background: #0369a1;
+            transform: translateY(-1px);
+        }
+
+        /* ==========================================================
+           TOP 4 SUMMARY STAT CARDS (NIFTY 50, SENSEX, BANK, VIX)
+           ========================================================== */
+        .indices-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1080px) {
+            .indices-cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .indices-cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .index-stat-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 14px 16px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .index-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(0, 0, 0, 0.06);
+            border-color: #cbd5e1;
+        }
+
+        .stat-card-nifty {
+            border-top: 3.5px solid #2563eb;
+        }
+
+        .stat-card-sensex {
+            border-top: 3.5px solid #ea580c;
+        }
+
+        .stat-card-bank {
+            border-top: 3.5px solid #059669;
+        }
+
+        .stat-card-vix {
+            border-top: 3.5px solid #7c3aed;
+        }
+
+        .card-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .card-index-title {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-exchange-pill {
+            font-size: 9.5px;
+            font-weight: 800;
+            padding: 1.5px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .pill-nse {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        .pill-bse {
+            background: #fff7ed;
+            color: #c2410c;
+            border: 1px solid #fed7aa;
+        }
+
+        .card-ltp-val {
+            font-size: 21px;
+            font-weight: 900;
+            color: #0f172a;
+            letter-spacing: -0.4px;
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 4px;
+            transition: background-color 0.4s ease, color 0.4s ease;
+        }
+
+        .card-chg-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .card-range-wrap {
+            margin-top: 6px;
+            padding-top: 8px;
+            border-top: 1px dashed #e2e8f0;
+            font-size: 10px;
+            color: #64748b;
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+
+        .range-bar-bg {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .range-bar-fill {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            border-radius: 4px;
+        }
+
+        /* ==========================================================
+           CONTROLS BAR: CATEGORY TABS & INSTANT SEARCH
+           ========================================================== */
+        .indices-controls-panel {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .indices-tabs-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .btn-category-tab {
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            color: #475569;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-category-tab:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
+
+        .btn-category-tab.active {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #0284c7;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.28);
+        }
+
+        .tab-badge-count {
+            background: rgba(0, 0, 0, 0.08);
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .btn-category-tab.active .tab-badge-count {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+        }
+
+        .indices-search-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .indices-search-input {
+            padding: 7px 32px 7px 12px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 12px;
+            outline: none;
+            width: 250px;
+            background: #ffffff;
+            transition: all 0.2s;
+        }
+
+        .indices-search-input:focus {
+            border-color: #0284c7;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+        }
+
+        .search-clear-icon {
+            position: absolute;
+            right: 10px;
+            font-size: 12px;
+            color: #94a3b8;
+            cursor: pointer;
+            display: none;
+        }
+
+        .search-clear-icon:hover {
+            color: #dc2626;
+        }
+
+        /* ==========================================================
+           MAIN INDICES TABLE
+           ========================================================== */
+        .indices-table-container {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .indices-table-info-bar {
+            padding: 8px 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11.5px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .table-scroll-wrapper {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        .indices-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            font-size: 12px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .indices-table thead th {
+            background: #f1f5f9;
+            color: #1e293b;
+            font-weight: 800;
+            padding: 10px 12px;
+            border-bottom: 2px solid #cbd5e1;
+            border-right: 1px solid #e2e8f0;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+            transition: background 0.15s;
+        }
+
+        .indices-table thead th:hover {
+            background: #e2e8f0;
+        }
+
+        .indices-table thead th.th-index-name {
+            text-align: left;
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            background: #f1f5f9;
+            border-right: 2px solid #cbd5e1;
+            min-width: 210px;
+        }
+
+        .indices-table tbody td {
+            padding: 9px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            border-right: 1px solid #f8fafc;
+            white-space: nowrap;
+            color: #334155;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .indices-table tbody tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        .indices-table tbody td.td-name {
+            text-align: left;
+            font-weight: 800;
+            color: #0f172a;
+            position: sticky;
+            left: 0;
+            z-index: 1;
+            background: #ffffff;
+            border-right: 2px solid #cbd5e1;
+        }
+
+        .indices-table tbody tr:hover td.td-name {
+            background-color: #f1f5f9;
+        }
+
+        .index-name-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .index-title-text {
+            font-size: 12.5px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .index-badges-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge-cat-tag {
+            font-size: 9px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: #64748b;
+            font-weight: 700;
+        }
+
+        .td-ltp {
+            font-weight: 800 !important;
+            font-size: 13px !important;
+            color: #0f172a !important;
+        }
+
+        /* Color Coding */
+        .val-positive {
+            color: #16a34a !important;
+            font-weight: 700 !important;
+        }
+
+        .val-negative {
+            color: #dc2626 !important;
+            font-weight: 700 !important;
+        }
+
+        .val-neutral {
+            color: #64748b !important;
+            font-weight: 600 !important;
+        }
+
+        .badge-pill-val {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .badge-pill-pos {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-pill-neg {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .badge-pill-neu {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        /* Live Flash Animation on Ticker Change */
+        @keyframes flashGreen {
+            0% {
+                background-color: #86efac;
+            }
+            100% {
+                background-color: transparent;
+            }
+        }
+
+        @keyframes flashRed {
+            0% {
+                background-color: #fca5a5;
+            }
+            100% {
+                background-color: transparent;
+            }
+        }
+
+        .flash-up {
+            animation: flashGreen 1.2s ease;
+        }
+
+        .flash-down {
+            animation: flashRed 1.2s ease;
+        }
+
+        /* Sort Indicator */
+        .sort-icon {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-left: 4px;
+        }
+
+        .sort-active {
+            color: #0284c7;
+        }
+    </style>
+</head>
+
+<body class="home-page">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            📊 <span>Live IPO</span>
+        </a>
+
+        <ul class="sidebar-menu">
+            <li class="menu-item"><a href="index.html">🏠 <span>Home</span></a></li>
+            <li class="menu-item"><a href="ipo-calendar.html">📅 <span>IPO Calendar</span></a></li>
+            <li class="menu-item"><a href="indices.html" class="active">📈 <span>Indices</span></a></li>
+            <li class="menu-item"><a href="my-demat-accounts.html">👥 <span>My Demat Accounts</span></a></li>
+            <li class="menu-item"><a href="allotment-checker.html">🔍 <span>Allotment Checker</span></a></li>
+            <li class="menu-item"><a href="fii-dii-activity.html">📊 <span>FII/DII Activity</span></a></li>
+            <li class="menu-item"><a href="ipo-bid.html">📝 <span>IPO Bid</span></a></li>
+            <li class="menu-item"><a href="ipo-form-print.html">🖨️ <span>Form Print</span></a></li>
+            <li class="menu-item"><a href="profile.html">👤 <span>My Profile</span></a></li>
+            <li class="menu-item"><a href="help-support.html">💬 <span>Help / Support</span></a></li>
+            <li class="menu-item"><a href="privacy-policy.html">🔒 <span>Privacy Policy</span></a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+        <!-- Top User Header Bar with Google Sign-In -->
+        <div class="user-header-bar">
+            <div class="header-welcome-text">
+                <span class="live-pulse"></span>
+                <span>Live IPO Portal</span>
+            </div>
+            <div class="user-auth-section">
+                <!-- Google Sign In Button container -->
+                <div id="googleSignInBtn"></div>
+
+                <!-- Logged In User Profile Badge -->
+                <div id="userProfileBadge" class="user-profile-badge" style="display: none;">
+                    <img id="userAvatarImg" src="" alt="User" class="user-avatar-img">
+                    <span id="userNameText" class="user-name-text">User</span>
+                    <button type="button" class="btn-user-logout" onclick="handleUserLogout()" title="Logout">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breadcrumb Navigation -->
+        <div class="demat-breadcrumb">
+            <a href="index.html">🏠 Home</a>
+            <span class="separator">/</span>
+            <span class="current">Indices</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="indices-page-header">
+            <div class="indices-header-top">
+                <h1 class="indices-page-title">
+                    📈 INDIAN MARKET INDICES (LIVE)
+                </h1>
+
+                <div class="header-action-group">
+                    <span class="indices-status-pill status-closed" id="marketStatusPill">
+                        <span class="pulse-dot gray" id="marketStatusDot"></span>
+                        <span id="marketStatusText">Market Closed</span>
+                    </span>
+
+                    <button type="button" class="btn-live-toggle active" id="btnLiveToggle" onclick="toggleAutoRefresh()" title="Toggle live streaming updates">
+                        <span>⚡</span>
+                        <span id="liveToggleText">Auto-Refresh: ON</span>
+                    </button>
+
+                    <button type="button" class="btn-refresh-manual" onclick="manualRefreshData()" id="btnManualRefresh" title="Refresh all indices data">
+                        <span>🔄</span>
+                        <span>Refresh</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOP 4 SUMMARY STAT CARDS -->
+        <div class="indices-cards-grid">
+            <!-- Card 1: NIFTY 50 -->
+            <div class="index-stat-card stat-card-nifty">
+                <div>
+                    <div class="card-top-row">
+                        <span class="card-index-title">
+                            NIFTY 50
+                        </span>
+                        <span class="card-exchange-pill pill-nse">NSE</span>
+                    </div>
+                    <div class="card-ltp-val" id="cardNiftyLtp">25,030.35</div>
+                    <div class="card-chg-row" id="cardNiftyChgWrap">
+                        <span class="val-positive" id="cardNiftyChg">+493.75</span>
+                        <span class="badge-pill-val badge-pill-pos" id="cardNiftyPchg">+2.01%</span>
+                    </div>
+                </div>
+                <div class="card-range-wrap">
+                    <div class="range-labels">
+                        <span>L: <strong id="cardNiftyLow">24,388.05</strong></span>
+                        <span>H: <strong id="cardNiftyHigh">25,030.35</strong></span>
+                    </div>
+                    <div class="range-bar-bg">
+                        <div class="range-bar-fill" id="cardNiftyRangeBar" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: SENSEX -->
+            <div class="index-stat-card stat-card-sensex">
+                <div>
+                    <div class="card-top-row">
+                        <span class="card-index-title">
+                            SENSEX
+                        </span>
+                        <span class="card-exchange-pill pill-bse">BSE</span>
+                    </div>
+                    <div class="card-ltp-val" id="cardSensexLtp">81,028.02</div>
+                    <div class="card-chg-row" id="cardSensexChgWrap">
+                        <span class="val-positive" id="cardSensexChg">+1,718.01</span>
+                        <span class="badge-pill-val badge-pill-pos" id="cardSensexPchg">+2.17%</span>
+                    </div>
+                </div>
+                <div class="card-range-wrap">
+                    <div class="range-labels">
+                        <span>L: <strong id="cardSensexLow">79,016.05</strong></span>
+                        <span>H: <strong id="cardSensexHigh">81,028.02</strong></span>
+                    </div>
+                    <div class="range-bar-bg">
+                        <div class="range-bar-fill" id="cardSensexRangeBar" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: NIFTY BANK -->
+            <div class="index-stat-card stat-card-bank">
+                <div>
+                    <div class="card-top-row">
+                        <span class="card-index-title">
+                            NIFTY BANK
+                        </span>
+                        <span class="card-exchange-pill pill-nse">NSE</span>
+                    </div>
+                    <div class="card-ltp-val" id="cardBankLtp">59,086.00</div>
+                    <div class="card-chg-row" id="cardBankChgWrap">
+                        <span class="val-positive" id="cardBankChg">+1,173.80</span>
+                        <span class="badge-pill-val badge-pill-pos" id="cardBankPchg">+2.03%</span>
+                    </div>
+                </div>
+                <div class="card-range-wrap">
+                    <div class="range-labels">
+                        <span>L: <strong id="cardBankLow">58,210.45</strong></span>
+                        <span>H: <strong id="cardBankHigh">59,086.00</strong></span>
+                    </div>
+                    <div class="range-bar-bg">
+                        <div class="range-bar-fill" id="cardBankRangeBar" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4: INDIA VIX -->
+            <div class="index-stat-card stat-card-vix">
+                <div>
+                    <div class="card-top-row">
+                        <span class="card-index-title">
+                            INDIA VIX
+                        </span>
+                        <span class="card-exchange-pill pill-nse">Volatility</span>
+                    </div>
+                    <div class="card-ltp-val" id="cardVixLtp">12.85</div>
+                    <div class="card-chg-row" id="cardVixChgWrap">
+                        <span class="val-negative" id="cardVixChg">-0.42</span>
+                        <span class="badge-pill-val badge-pill-neg" id="cardVixPchg">-3.16%</span>
+                    </div>
+                </div>
+                <div class="card-range-wrap">
+                    <div class="range-labels">
+                        <span>Low Volatility Zone</span>
+                        <span>🟢 Stable Market</span>
+                    </div>
+                    <div class="range-bar-bg">
+                        <div class="range-bar-fill" style="width: 35%; background: #8b5cf6;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTROLS PANEL: CATEGORY TABS & SEARCH -->
+        <div class="indices-controls-panel">
+            <div class="indices-tabs-group">
+                <button type="button" class="btn-category-tab active" data-filter="all" onclick="setCategoryFilter('all')">
+                    🌟 All Indices <span class="tab-badge-count" id="badgeCountAll">0</span>
+                </button>
+                <button type="button" class="btn-category-tab" data-filter="key" onclick="setCategoryFilter('key')">
+                    🏛️ Key Indices <span class="tab-badge-count" id="badgeCountKey">0</span>
+                </button>
+                <button type="button" class="btn-category-tab" data-filter="nse" onclick="setCategoryFilter('nse')">
+                    🔵 NSE <span class="tab-badge-count" id="badgeCountNse">0</span>
+                </button>
+                <button type="button" class="btn-category-tab" data-filter="bse" onclick="setCategoryFilter('bse')">
+                    🟠 BSE <span class="tab-badge-count" id="badgeCountBse">0</span>
+                </button>
+                <button type="button" class="btn-category-tab" data-filter="sectoral" onclick="setCategoryFilter('sectoral')">
+                    🏭 Sectoral <span class="tab-badge-count" id="badgeCountSectoral">0</span>
+                </button>
+                <button type="button" class="btn-category-tab" data-filter="thematic" onclick="setCategoryFilter('thematic')">
+                    🚀 Thematic & Others <span class="tab-badge-count" id="badgeCountThematic">0</span>
+                </button>
+            </div>
+
+            <div class="indices-search-wrapper">
+                <input type="text" id="indicesSearchInput" class="indices-search-input" placeholder="🔍 Search any index..." oninput="handleSearch(this.value)">
+                <span class="search-clear-icon" id="searchClearIcon" onclick="clearSearch()">✖</span>
+            </div>
+        </div>
+
+        <!-- MAIN INDICES TABLE -->
+        <div class="indices-table-container">
+            <div class="indices-table-info-bar">
+                <span>
+                    Showing <strong id="visibleCountText">0</strong> indices
+                    <span id="activeFilterLabel" style="color: #0284c7; margin-left: 6px;">(All Indices)</span>
+                </span>
+                <span id="lastUpdatedLabel">Updated: Just now</span>
+            </div>
+
+            <div class="table-scroll-wrapper">
+                <table class="indices-table">
+                    <thead>
+                        <tr>
+                            <th class="th-index-name" onclick="sortTable('name')">
+                                Indices <span class="sort-icon" id="sortIcon_name">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('ltp')">
+                                LTP <span class="sort-icon" id="sortIcon_ltp">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('chg')">
+                                Chg <span class="sort-icon" id="sortIcon_chg">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('percentChange')">
+                                % Chg <span class="sort-icon" id="sortIcon_percentChange">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('open')">
+                                Open <span class="sort-icon" id="sortIcon_open">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('high')">
+                                High <span class="sort-icon" id="sortIcon_high">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('low')">
+                                Low <span class="sort-icon" id="sortIcon_low">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('yearHigh')">
+                                52 Week High <span class="sort-icon" id="sortIcon_yearHigh">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('yearLow')">
+                                52 Week Low <span class="sort-icon" id="sortIcon_yearLow">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('volume')">
+                                Volume <span class="sort-icon" id="sortIcon_volume">▲▼</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="indicesTableBody">
+                        <tr>
+                            <td colspan="10" style="text-align: center; padding: 32px; color: #64748b;">
+                                ⏳ Loading live Indian indices...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Page Logic Script -->
+    <script>
+        let allIndices = [];
+        let currentFilter = 'all'; // 'all' | 'key' | 'nse' | 'bse' | 'sectoral' | 'thematic'
+        let searchQuery = '';
+        let currentSort = { column: 'ltp', order: 'desc' };
+        let autoRefreshInterval = null;
+        let isAutoRefreshEnabled = true;
+
+        // Moneycontrol bridge symbols map for client live ticks
+        const SYMBOL_MAP = {
+            'NIFTY 50': 'in;NSX',
+            'NIFTY BANK': 'in;nbx',
+            'NIFTY NEXT 50': 'in;nnx',
+            'NIFTY MIDCAP 100': 'in;ccx',
+            'NIFTY Midcap 100': 'in;ccx',
+            'NIFTY 100': 'in;cjn',
+            'NIFTY 200': 'in;cnxt',
+            'NIFTY 500': 'in;ncx',
+            'NIFTY SMALLCAP 100': 'in;cnxs',
+            'NIFTY Smallcap 100': 'in;cnxs',
+            'NIFTY MIDCAP 50': 'in;mfy',
+            'NIFTY SMALLCAP 50': 'mc;nscapf',
+            'NIFTY IT': 'in;cnit',
+            'NIFTY AUTO': 'in;cnxa',
+            'NIFTY PHARMA': 'in;cpr',
+            'NIFTY FMCG': 'in;cfm',
+            'NIFTY METAL': 'in;CNXM',
+            'NIFTY REALTY': 'in;crl',
+            'NIFTY ENERGY': 'in;cgy',
+            'NIFTY MEDIA': 'in;cnmx',
+            'NIFTY PSU BANK': 'in;nxb',
+            'NIFTY FINANCIAL SERVICES': 'in;cnxf',
+            'NIFTY FIN SERVICE': 'in;cnxf',
+            'NIFTY OIL & GAS': 'mc;oilgas',
+            'NIFTY HEALTHCARE': 'mc;helcar',
+            'NIFTY CONSUMER DURABLES': 'mc;condur',
+            'INDIA VIX': 'in;IDXN',
+            'SENSEX': 'in;SEN',
+            'BSE SENSEX': 'in;SEN',
+            'BSE 100': 'in;tkx',
+            'BSE SENSEX NEXT 30': 'mc;snt'
+        };
+
+        // Number formatter with Indian format
+        function formatNumber(num) {
+            if (num === null || num === undefined || isNaN(num) || num === 0) return '-';
+            return parseFloat(num).toLocaleString('en-IN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function formatVolume(vol) {
+            if (!vol || isNaN(vol) || vol === 0) return '-';
+            if (vol >= 10000000) return (vol / 10000000).toFixed(2) + ' Cr';
+            if (vol >= 100000) return (vol / 100000).toFixed(2) + ' L';
+            if (vol >= 1000) return (vol / 1000).toFixed(2) + ' K';
+            return vol.toLocaleString('en-IN');
+        }
+
+        function checkMarketStatus() {
+            const now = new Date();
+            // Convert to IST
+            const istOffset = 5.5 * 60 * 60 * 1000;
+            const istDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60 * 1000) + istOffset);
+            const day = istDate.getDay(); // 0 is Sunday, 6 is Saturday
+            const hours = istDate.getHours();
+            const minutes = istDate.getMinutes();
+            const totalMinutes = hours * 60 + minutes;
+
+            // Market hours: Mon-Fri 9:15 AM (555 min) to 3:30 PM (930 min)
+            const isWeekday = (day >= 1 && day <= 5);
+            const isMarketTime = (totalMinutes >= 555 && totalMinutes <= 930);
+
+            const pill = document.getElementById('marketStatusPill');
+            const dot = document.getElementById('marketStatusDot');
+            const text = document.getElementById('marketStatusText');
+
+            if (isWeekday && isMarketTime) {
+                pill.className = 'indices-status-pill status-live';
+                dot.className = 'pulse-dot green';
+                text.innerText = 'Market Live';
+                return true;
+            } else {
+                pill.className = 'indices-status-pill status-closed';
+                dot.className = 'pulse-dot gray';
+                text.innerText = 'Market Closed';
+                return false;
+            }
+        }
+
+        async function loadIndicesData() {
+            try {
+                const res = await fetch(`indices-data.json?t=${Date.now()}`);
+                if (!res.ok) throw new Error('Data file not found');
+                const data = await res.json();
+                allIndices = data.indices || [];
+
+                updateSummaryCards(data.summary || {});
+                updateBadgeCounts();
+                renderTable();
+
+                if (data.lastUpdatedDisplay) {
+                    document.getElementById('lastUpdatedLabel').innerText = `Updated: ${data.lastUpdatedDisplay}`;
+                }
+            } catch (err) {
+                console.warn('Could not load indices-data.json, trying fallback...', err);
+                loadFallbackData();
+            }
+        }
+
+        function updateSummaryCards(summary) {
+            // 1. NIFTY 50
+            const n = summary.nifty50 || allIndices.find(i => i.name === 'NIFTY 50');
+            if (n) {
+                document.getElementById('cardNiftyLtp').innerText = formatNumber(n.ltp);
+                updateCardChg('cardNiftyChg', 'cardNiftyPchg', n.chg, n.percentChange);
+                if (n.low && n.high) {
+                    document.getElementById('cardNiftyLow').innerText = formatNumber(n.low);
+                    document.getElementById('cardNiftyHigh').innerText = formatNumber(n.high);
+                    const range = (n.high - n.low) || 1;
+                    const pct = Math.min(100, Math.max(5, ((n.ltp - n.low) / range) * 100));
+                    document.getElementById('cardNiftyRangeBar').style.width = pct + '%';
+                }
+            }
+
+            // 2. SENSEX
+            const s = summary.sensex || allIndices.find(i => i.name === 'SENSEX');
+            if (s) {
+                document.getElementById('cardSensexLtp').innerText = formatNumber(s.ltp);
+                updateCardChg('cardSensexChg', 'cardSensexPchg', s.chg, s.percentChange);
+                if (s.low && s.high) {
+                    document.getElementById('cardSensexLow').innerText = formatNumber(s.low);
+                    document.getElementById('cardSensexHigh').innerText = formatNumber(s.high);
+                    const range = (s.high - s.low) || 1;
+                    const pct = Math.min(100, Math.max(5, ((s.ltp - s.low) / range) * 100));
+                    document.getElementById('cardSensexRangeBar').style.width = pct + '%';
+                }
+            }
+
+            // 3. NIFTY BANK
+            const b = summary.niftyBank || allIndices.find(i => i.name === 'NIFTY BANK');
+            if (b) {
+                document.getElementById('cardBankLtp').innerText = formatNumber(b.ltp);
+                updateCardChg('cardBankChg', 'cardBankPchg', b.chg, b.percentChange);
+                if (b.low && b.high) {
+                    document.getElementById('cardBankLow').innerText = formatNumber(b.low);
+                    document.getElementById('cardBankHigh').innerText = formatNumber(b.high);
+                    const range = (b.high - b.low) || 1;
+                    const pct = Math.min(100, Math.max(5, ((b.ltp - b.low) / range) * 100));
+                    document.getElementById('cardBankRangeBar').style.width = pct + '%';
+                }
+            }
+
+            // 4. INDIA VIX
+            const v = summary.indiaVix || allIndices.find(i => i.name === 'INDIA VIX');
+            if (v) {
+                document.getElementById('cardVixLtp').innerText = formatNumber(v.ltp);
+                updateCardChg('cardVixChg', 'cardVixPchg', v.chg, v.percentChange);
+            }
+        }
+
+        function updateCardChg(chgId, pchgId, chg, pchg) {
+            const chgEl = document.getElementById(chgId);
+            const pchgEl = document.getElementById(pchgId);
+            if (!chgEl || !pchgEl) return;
+
+            const numChg = parseFloat(chg) || 0;
+            const numPchg = parseFloat(pchg) || 0;
+
+            const sign = numChg > 0 ? '+' : '';
+            chgEl.innerText = `${sign}${formatNumber(numChg)}`;
+            pchgEl.innerText = `${sign}${numPchg.toFixed(2)}%`;
+
+            if (numChg > 0) {
+                chgEl.className = 'val-positive';
+                pchgEl.className = 'badge-pill-val badge-pill-pos';
+            } else if (numChg < 0) {
+                chgEl.className = 'val-negative';
+                pchgEl.className = 'badge-pill-val badge-pill-neg';
+            } else {
+                chgEl.className = 'val-neutral';
+                pchgEl.className = 'badge-pill-val badge-pill-neu';
+            }
+        }
+
+        function updateBadgeCounts() {
+            document.getElementById('badgeCountAll').innerText = allIndices.length;
+            document.getElementById('badgeCountKey').innerText = allIndices.filter(i => isKeyIndex(i.name)).length;
+            document.getElementById('badgeCountNse').innerText = allIndices.filter(i => i.exchange === 'NSE').length;
+            document.getElementById('badgeCountBse').innerText = allIndices.filter(i => i.exchange === 'BSE').length;
+            document.getElementById('badgeCountSectoral').innerText = allIndices.filter(i => (i.category || '').toLowerCase().includes('sector')).length;
+            document.getElementById('badgeCountThematic').innerText = allIndices.filter(i => (i.category || '').toLowerCase().includes('thematic') || (i.category || '').toLowerCase().includes('broad')).length;
+        }
+
+        function isKeyIndex(name) {
+            const keyNames = [
+                'NIFTY 50', 'SENSEX', 'NIFTY BANK', 'NIFTY NEXT 50', 'NIFTY MIDCAP 100',
+                'NIFTY 100', 'NIFTY 200', 'NIFTY 500', 'NIFTY SMALLCAP 100', 'INDIA VIX',
+                'BSE 100', 'BSE 200', 'BSE 500', 'BSE SENSEX NEXT 30'
+            ];
+            return keyNames.includes(name);
+        }
+
+        function setCategoryFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.btn-category-tab').forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-filter') === filter);
+            });
+
+            const labels = {
+                all: '(All Indices)',
+                key: '(Key Market Indices)',
+                nse: '(NSE Indices)',
+                bse: '(BSE Indices)',
+                sectoral: '(Sectoral Indices)',
+                thematic: '(Thematic & Broad Market)'
+            };
+            document.getElementById('activeFilterLabel').innerText = labels[filter] || '';
+            renderTable();
+        }
+
+        function handleSearch(val) {
+            searchQuery = (val || '').trim().toLowerCase();
+            document.getElementById('searchClearIcon').style.display = searchQuery ? 'inline' : 'none';
+            renderTable();
+        }
+
+        function clearSearch() {
+            document.getElementById('indicesSearchInput').value = '';
+            handleSearch('');
+        }
+
+        function sortTable(column) {
+            if (currentSort.column === column) {
+                currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.order = (column === 'name') ? 'asc' : 'desc';
+            }
+
+            // Update UI Icons
+            document.querySelectorAll('.sort-icon').forEach(icon => {
+                icon.innerText = '▲▼';
+                icon.classList.remove('sort-active');
+            });
+            const activeIcon = document.getElementById(`sortIcon_${column}`);
+            if (activeIcon) {
+                activeIcon.innerText = currentSort.order === 'asc' ? '▲' : '▼';
+                activeIcon.classList.add('sort-active');
+            }
+
+            renderTable();
+        }
+
+        function renderTable() {
+            let list = [...allIndices];
+
+            // 1. Filter by category
+            if (currentFilter === 'key') {
+                list = list.filter(i => isKeyIndex(i.name));
+            } else if (currentFilter === 'nse') {
+                list = list.filter(i => i.exchange === 'NSE');
+            } else if (currentFilter === 'bse') {
+                list = list.filter(i => i.exchange === 'BSE');
+            } else if (currentFilter === 'sectoral') {
+                list = list.filter(i => (i.category || '').toLowerCase().includes('sector'));
+            } else if (currentFilter === 'thematic') {
+                list = list.filter(i => (i.category || '').toLowerCase().includes('thematic') || (i.category || '').toLowerCase().includes('broad'));
+            }
+
+            // 2. Filter by Search Query
+            if (searchQuery) {
+                list = list.filter(i =>
+                    (i.name || '').toLowerCase().includes(searchQuery) ||
+                    (i.exchange || '').toLowerCase().includes(searchQuery) ||
+                    (i.category || '').toLowerCase().includes(searchQuery)
+                );
+            }
+
+            // 3. Sort
+            const col = currentSort.column;
+            const asc = currentSort.order === 'asc';
+            list.sort((a, b) => {
+                let vA = a[col];
+                let vB = b[col];
+
+                if (col === 'name') {
+                    return asc ? (vA || '').localeCompare(vB || '') : (vB || '').localeCompare(vA || '');
+                }
+
+                vA = parseFloat(vA) || 0;
+                vB = parseFloat(vB) || 0;
+                return asc ? (vA - vB) : (vB - vA);
+            });
+
+            document.getElementById('visibleCountText').innerText = list.length;
+            const tbody = document.getElementById('indicesTableBody');
+
+            if (list.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" style="text-align: center; padding: 36px; color: #64748b;">
+                            🔍 No matching indices found for "${searchQuery}".
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            list.forEach(item => {
+                const numChg = parseFloat(item.chg) || 0;
+                const numPchg = parseFloat(item.percentChange) || 0;
+                const sign = numChg > 0 ? '+' : '';
+
+                let chgColorClass = 'val-neutral';
+                let pchgBadgeClass = 'badge-pill-neu';
+                if (numChg > 0) {
+                    chgColorClass = 'val-positive';
+                    pchgBadgeClass = 'badge-pill-pos';
+                } else if (numChg < 0) {
+                    chgColorClass = 'val-negative';
+                    pchgBadgeClass = 'badge-pill-neg';
+                }
+
+                const exPillClass = item.exchange === 'BSE' ? 'pill-bse' : 'pill-nse';
+                const rowId = 'row_' + item.name.replace(/[^a-zA-Z0-9]/g, '_');
+
+                html += `
+                    <tr id="${rowId}">
+                        <td class="td-name">
+                            <div class="index-name-flex">
+                                <span class="index-title-text">${item.name}</span>
+                                <div class="index-badges-wrap">
+                                    <span class="card-exchange-pill ${exPillClass}">${item.exchange || 'NSE'}</span>
+                                    <span class="badge-cat-tag">${item.category || 'Index'}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="td-ltp" id="ltp_${rowId}">${formatNumber(item.ltp)}</td>
+                        <td class="${chgColorClass}" id="chg_${rowId}">${sign}${formatNumber(numChg)}</td>
+                        <td>
+                            <span class="badge-pill-val ${pchgBadgeClass}" id="pchg_${rowId}">
+                                ${sign}${numPchg.toFixed(2)}%
+                            </span>
+                        </td>
+                        <td>${formatNumber(item.open)}</td>
+                        <td style="color: #15803d;">${formatNumber(item.high)}</td>
+                        <td style="color: #b91c1c;">${formatNumber(item.low)}</td>
+                        <td>${formatNumber(item.yearHigh)}</td>
+                        <td>${formatNumber(item.yearLow)}</td>
+                        <td>${formatVolume(item.volume)}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        // ==========================================================
+        // ⚡ REAL-TIME LIVE PRICE STREAMING (CLIENT-SIDE)
+        // ==========================================================
+        async function fetchLiveTickerUpdates() {
+            // Priority list of key symbols to live-stream
+            const liveSymbols = [
+                { name: 'NIFTY 50', symbol: 'in;NSX' },
+                { name: 'SENSEX', symbol: 'in;SEN' },
+                { name: 'NIFTY BANK', symbol: 'in;nbx' },
+                { name: 'NIFTY NEXT 50', symbol: 'in;nnx' },
+                { name: 'NIFTY Midcap 100', symbol: 'in;ccx' },
+                { name: 'NIFTY IT', symbol: 'in;cnit' },
+                { name: 'NIFTY AUTO', symbol: 'in;cnxa' },
+                { name: 'INDIA VIX', symbol: 'in;IDXN' }
+            ];
+
+            for (const item of liveSymbols) {
+                try {
+                    const res = await fetch(`https://priceapi.moneycontrol.com/pricefeed/notapplicable/inidicesindia/${encodeURIComponent(item.symbol)}`);
+                    if (!res.ok) continue;
+                    const json = await res.json();
+                    if (!json || !json.data) continue;
+
+                    const d = json.data;
+                    const newLtp = parseFloat(d.pricecurrent) || 0;
+                    const newChg = parseFloat(d.pricechange) || 0;
+                    const newPchg = parseFloat(d.pricepercentchange) || 0;
+
+                    // Find index in cached array
+                    const target = allIndices.find(i => i.name === item.name || (i.name && i.name.toUpperCase() === item.name.toUpperCase()));
+                    if (target) {
+                        const oldLtp = target.ltp;
+                        target.ltp = newLtp;
+                        target.chg = newChg;
+                        target.percentChange = newPchg;
+                        if (d.HIGH && parseFloat(d.HIGH) > 0) target.high = parseFloat(d.HIGH);
+                        if (d.LOW && parseFloat(d.LOW) > 0) target.low = parseFloat(d.LOW);
+                        if (d.OPEN && parseFloat(d.OPEN) > 0) target.open = parseFloat(d.OPEN);
+
+                        // If value changed, trigger table row live flash animation
+                        if (oldLtp !== newLtp) {
+                            const rowId = 'row_' + target.name.replace(/[^a-zA-Z0-9]/g, '_');
+                            const ltpEl = document.getElementById(`ltp_${rowId}`);
+                            if (ltpEl) {
+                                ltpEl.innerText = formatNumber(newLtp);
+                                ltpEl.classList.remove('flash-up', 'flash-down');
+                                void ltpEl.offsetWidth; // trigger reflow
+                                ltpEl.classList.add(newLtp > oldLtp ? 'flash-up' : 'flash-down');
+                            }
+                        }
+                    }
+                } catch (e) {
+                    // Fail silently for background ticks
+                }
+            }
+
+            // Also update top cards
+            const n50 = allIndices.find(i => i.name === 'NIFTY 50');
+            const sen = allIndices.find(i => i.name === 'SENSEX');
+            const bnk = allIndices.find(i => i.name === 'NIFTY BANK');
+            const vix = allIndices.find(i => i.name === 'INDIA VIX');
+            updateSummaryCards({ nifty50: n50, sensex: sen, niftyBank: bnk, indiaVix: vix });
+
+            const now = new Date();
+            document.getElementById('lastUpdatedLabel').innerText = `Live: ${now.toLocaleTimeString('en-IN')}`;
+        }
+
+        function toggleAutoRefresh() {
+            isAutoRefreshEnabled = !isAutoRefreshEnabled;
+            const btn = document.getElementById('btnLiveToggle');
+            const text = document.getElementById('liveToggleText');
+
+            if (isAutoRefreshEnabled) {
+                btn.className = 'btn-live-toggle active';
+                text.innerText = 'Auto-Refresh: ON';
+                startAutoRefresh();
+            } else {
+                btn.className = 'btn-live-toggle';
+                text.innerText = 'Auto-Refresh: OFF';
+                stopAutoRefresh();
+            }
+        }
+
+        function startAutoRefresh() {
+            stopAutoRefresh();
+            // Refresh every 5 seconds during active session
+            autoRefreshInterval = setInterval(() => {
+                fetchLiveTickerUpdates();
+            }, 5000);
+        }
+
+        function stopAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+            }
+        }
+
+        async function manualRefreshData() {
+            const btn = document.getElementById('btnManualRefresh');
+            btn.innerHTML = '<span>⏳</span><span>Refreshing...</span>';
+            btn.disabled = true;
+
+            await loadIndicesData();
+            await fetchLiveTickerUpdates();
+
+            setTimeout(() => {
+                btn.innerHTML = '<span>🔄</span><span>Refresh</span>';
+                btn.disabled = false;
+            }, 600);
+        }
+
+        function loadFallbackData() {
+            // Basic fallback in case file is loading
+            allIndices = [
+                { name: 'NIFTY 50', exchange: 'NSE', category: 'Key Indices', ltp: 25030.35, chg: 493.75, percentChange: 2.01, open: 24538.2, high: 25030.35, low: 24388.05, yearHigh: 26373.2, yearLow: 22179.9, volume: 45200000 },
+                { name: 'SENSEX', exchange: 'BSE', category: 'Key Indices', ltp: 81028.02, chg: 1718.01, percentChange: 2.17, open: 79413.66, high: 81028.02, low: 79016.05, yearHigh: 86159.02, yearLow: 71292.88, volume: 15400000 },
+                { name: 'NIFTY BANK', exchange: 'NSE', category: 'Key Indices', ltp: 59086.00, chg: 1173.80, percentChange: 2.03, open: 58210.45, high: 59086.00, low: 57950.10, yearHigh: 61764.85, yearLow: 49954.85, volume: 22100000 },
+                { name: 'INDIA VIX', exchange: 'NSE', category: 'Key Indices', ltp: 12.85, chg: -0.42, percentChange: -3.16, open: 13.27, high: 13.50, low: 12.60, yearHigh: 23.15, yearLow: 9.85, volume: 0 }
+            ];
+            updateBadgeCounts();
+            renderTable();
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            checkMarketStatus();
+            loadIndicesData();
+            startAutoRefresh();
+
+            // Check market status every 60 seconds
+            setInterval(checkMarketStatus, 60000);
+        });
+    </script>
+</body>
+
+</html>

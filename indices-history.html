@@ -491,6 +491,7 @@
             <li class="menu-item"><a href="ipo-calendar.html">📅 <span>IPO Calendar</span></a></li>
             <li class="menu-item"><a href="indices.html">📈 <span>Live Indices</span></a></li>
             <li class="menu-item"><a href="indices-history.html" class="active">📅 <span>Indices History</span></a></li>
+            <li class="menu-item"><a href="index-stocks.html">🏢 <span>Index Stocks</span></a></li>
             <li class="menu-item"><a href="my-demat-accounts.html">👥 <span>My Demat Accounts</span></a></li>
             <li class="menu-item"><a href="allotment-checker.html">🔍 <span>Allotment Checker</span></a></li>
             <li class="menu-item"><a href="fii-dii-activity.html">📊 <span>FII/DII Activity</span></a></li>
@@ -971,7 +972,10 @@
                     <tr>
                         <td class="td-sticky-first">
                             <div class="index-name-flex">
-                                <span style="font-size: 12.5px; font-weight: 800; color: #0f172a;">${item.name}</span>
+                                <a href="index-stocks.html?index=${encodeURIComponent(item.name)}" style="text-decoration: none; color: #0f172a; display: inline-flex; align-items: center; gap: 6px;" title="View ${item.name} constituent stocks">
+                                    <span style="font-size: 12.5px; font-weight: 800; color: #0f172a;">${item.name}</span>
+                                    <span style="font-size: 9.5px; font-weight: 700; color: #0284c7; background: #e0f2fe; padding: 1px 5px; border-radius: 4px;">Stocks ↗</span>
+                                </a>
                                 <div>
                                     <span class="card-exchange-pill ${exPill}">${item.exchange || 'NSE'}</span>
                                 </div>

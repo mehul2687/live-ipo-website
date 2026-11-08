@@ -4,6 +4,7 @@ import dns from "dns";
 import { fetchAndSaveFiiDiiData } from "./scrape_fii_dii.mjs";
 import { fetchAndSaveFnoData } from "./scrape_fii_fno.mjs";
 import { scrapeIndices } from "./scrape_indices.mjs";
+import { scrapeIndexStocks } from "./scrape_index_stocks.mjs";
 
 if (dns.setDefaultResultOrder) {
     dns.setDefaultResultOrder('ipv4first');
@@ -757,6 +758,11 @@ async function executeSync() {
             await scrapeIndices();
         } catch (indErr) {
             console.error("⚠️ Indices sync error:", indErr.message);
+        }
+        try {
+            await scrapeIndexStocks();
+        } catch (stkErr) {
+            console.error("⚠️ Index Stocks sync error:", stkErr.message);
         }
     } catch (e) {
         console.error("❌ Sync execution error:", e.message);

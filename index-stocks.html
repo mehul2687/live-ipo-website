@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index Constituent Stocks - Live Indian Indices Watch | Live IPO</title>
+    <meta name="description" content="Track constituent stocks of Indian market indices including NIFTY 50, NIFTY BANK, SENSEX, NIFTY NEXT 50, FINNIFTY with live LTP, % change, open, high, low, 52-week range and volume.">
+
+    <!-- External CSS Link -->
+    <link rel="stylesheet" href="style.css?v=2026.11.08.7">
+
+    <!-- Google Identity Services (Google Sign-In) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Global JavaScript Link -->
+    <script src="script.js?v=2026.11.08.7"></script>
+
+    <style>
+        /* ==========================================================
+           INDEX STOCKS PAGE MODERN STYLING
+           ========================================================== */
+        .demat-breadcrumb {
+            margin-bottom: 12px;
+            font-size: 12.5px;
+            color: #64748b;
+        }
+
+        .demat-breadcrumb a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .demat-breadcrumb a:hover {
+            color: #0284c7;
+        }
+
+        .demat-breadcrumb .separator {
+            margin: 0 6px;
+            color: #cbd5e1;
+        }
+
+        .demat-breadcrumb .current {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        /* Top Header */
+        .stocks-page-header {
+            margin-bottom: 16px;
+        }
+
+        .stocks-header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .stocks-page-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+        }
+
+        .header-action-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-live-toggle {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-live-toggle.active {
+            background: #f0fdf4;
+            border-color: #86efac;
+            color: #15803d;
+        }
+
+        .btn-refresh-manual {
+            background: #0284c7;
+            color: #ffffff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(2, 132, 199, 0.2);
+        }
+
+        .btn-refresh-manual:hover {
+            background: #0369a1;
+            transform: translateY(-1px);
+        }
+
+        /* ACTIVE INDEX HERO CARD */
+        .index-hero-card {
+            background: #ffffff;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            position: relative;
+            overflow: hidden;
+            border-left: 5px solid #2563eb;
+        }
+
+        .hero-left-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .hero-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .hero-index-name {
+            font-size: 22px;
+            font-weight: 900;
+            color: #0f172a;
+            letter-spacing: -0.4px;
+        }
+
+        .card-exchange-pill {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .pill-nse {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        .pill-bse {
+            background: #fff7ed;
+            color: #c2410c;
+            border: 1px solid #fed7aa;
+        }
+
+        .hero-price-row {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .hero-ltp-val {
+            font-size: 24px;
+            font-weight: 900;
+            color: #0f172a;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .hero-chg-text {
+            font-size: 13.5px;
+            font-weight: 700;
+        }
+
+        .hero-right-section {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 8px 14px;
+            text-align: center;
+        }
+
+        .hero-stat-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+        }
+
+        .hero-stat-val {
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        /* INDEX SELECTOR PILLS BAR */
+        .index-selector-container {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .index-pills-scroll {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-index-pill {
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            color: #334155;
+            padding: 6px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        .btn-index-pill:hover {
+            border-color: #0284c7;
+            color: #0284c7;
+            background: #f0f9ff;
+            transform: translateY(-1px);
+        }
+
+        .btn-index-pill.active {
+            background: #0284c7;
+            border-color: #0284c7;
+            color: #ffffff;
+            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.25);
+        }
+
+        .pill-count-tag {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 1px 6px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-index-pill.active .pill-count-tag {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+        }
+
+        .index-dropdown-select {
+            padding: 7px 12px;
+            border-radius: 8px;
+            border: 1.5px solid #cbd5e1;
+            font-size: 12px;
+            font-weight: 700;
+            color: #0f172a;
+            background: #ffffff;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .index-dropdown-select:focus {
+            border-color: #0284c7;
+        }
+
+        /* CONTROLS BAR: SUB-FILTERS & SEARCH */
+        .stocks-controls-panel {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .stocks-subfilters-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-subfilter {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-subfilter:hover {
+            border-color: #94a3b8;
+            color: #0f172a;
+        }
+
+        .btn-subfilter.active {
+            background: #0f172a;
+            border-color: #0f172a;
+            color: #ffffff;
+        }
+
+        .stocks-search-wrapper {
+            position: relative;
+            min-width: 260px;
+            flex-grow: 1;
+            max-width: 400px;
+        }
+
+        .stocks-search-input {
+            width: 100%;
+            padding: 8px 32px 8px 12px;
+            font-size: 12px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+
+        .stocks-search-input:focus {
+            border-color: #0284c7;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+        }
+
+        .search-clear-icon {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 11px;
+            color: #94a3b8;
+            cursor: pointer;
+            display: none;
+        }
+
+        /* TABLE CONTAINER */
+        .stocks-table-container {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            margin-bottom: 24px;
+        }
+
+        .stocks-table-info-bar {
+            padding: 10px 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .table-scroll-wrapper {
+            overflow-x: auto;
+            max-width: 100%;
+        }
+
+        .stocks-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12.5px;
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .stocks-table th {
+            background: #f1f5f9;
+            color: #334155;
+            font-weight: 700;
+            font-size: 11px;
+            padding: 11px 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            border-bottom: 1.5px solid #cbd5e1;
+            user-select: none;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .stocks-table th:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .stocks-table th.th-stock-name {
+            text-align: left;
+            min-width: 200px;
+            position: sticky;
+            left: 0;
+            background: #f1f5f9;
+            z-index: 2;
+        }
+
+        .stocks-table th.th-sector {
+            text-align: left;
+            min-width: 150px;
+        }
+
+        .stocks-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+            font-variant-numeric: tabular-nums;
+            font-weight: 600;
+        }
+
+        .stocks-table tbody tr {
+            transition: background-color 0.15s ease;
+        }
+
+        .stocks-table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .stocks-table td.td-name {
+            text-align: left;
+            position: sticky;
+            left: 0;
+            background: #ffffff;
+            z-index: 1;
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .stocks-table tbody tr:hover td.td-name {
+            background: #f8fafc;
+        }
+
+        .stocks-table td.td-sector {
+            text-align: left;
+            font-size: 11px;
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .stock-name-flex {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stock-symbol-text {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #0284c7;
+            letter-spacing: -0.2px;
+        }
+
+        .stock-full-name {
+            font-size: 10.5px;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        .td-ltp {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .val-positive {
+            color: #16a34a !important;
+            font-weight: 700;
+        }
+
+        .val-negative {
+            color: #dc2626 !important;
+            font-weight: 700;
+        }
+
+        .val-neutral {
+            color: #64748b !important;
+            font-weight: 600;
+        }
+
+        .badge-pill-val {
+            display: inline-block;
+            padding: 2.5px 7px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            min-width: 58px;
+            text-align: center;
+        }
+
+        .badge-pill-pos {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        .badge-pill-neg {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .badge-pill-neu {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .sort-icon {
+            font-size: 9px;
+            margin-left: 3px;
+            color: #94a3b8;
+        }
+
+        .sort-icon.sort-active {
+            color: #0284c7;
+            font-weight: 900;
+        }
+
+        /* PRICE FLASH ANIMATIONS */
+        @keyframes priceFlashUp {
+            0% { background-color: #dcfce7; }
+            100% { background-color: transparent; }
+        }
+
+        @keyframes priceFlashDown {
+            0% { background-color: #fee2e2; }
+            100% { background-color: transparent; }
+        }
+
+        .flash-up {
+            animation: priceFlashUp 1.2s ease-out;
+        }
+
+        .flash-down {
+            animation: priceFlashDown 1.2s ease-out;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            📊 <span>Live IPO</span>
+        </a>
+
+        <ul class="sidebar-menu">
+            <li class="menu-item"><a href="index.html">🏠 <span>Home</span></a></li>
+            <li class="menu-item"><a href="ipo-calendar.html">📅 <span>IPO Calendar</span></a></li>
+            <li class="menu-item"><a href="indices.html">📈 <span>Live Indices</span></a></li>
+            <li class="menu-item"><a href="indices-history.html">📅 <span>Indices History</span></a></li>
+            <li class="menu-item"><a href="index-stocks.html" class="active">🏢 <span>Index Stocks</span></a></li>
+            <li class="menu-item"><a href="my-demat-accounts.html">👥 <span>My Demat Accounts</span></a></li>
+            <li class="menu-item"><a href="allotment-checker.html">🔍 <span>Allotment Checker</span></a></li>
+            <li class="menu-item"><a href="fii-dii-activity.html">📊 <span>FII/DII Activity</span></a></li>
+            <li class="menu-item"><a href="ipo-bid.html">📝 <span>IPO Bid</span></a></li>
+            <li class="menu-item"><a href="ipo-form-print.html">🖨️ <span>Form Print</span></a></li>
+            <li class="menu-item"><a href="profile.html">👤 <span>My Profile</span></a></li>
+            <li class="menu-item"><a href="help-support.html">💬 <span>Help / Support</span></a></li>
+            <li class="menu-item"><a href="privacy-policy.html">🔒 <span>Privacy Policy</span></a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+        <!-- Top User Header Bar with Google Sign-In -->
+        <div class="user-header-bar">
+            <div class="header-welcome-text">
+                <span class="live-pulse"></span>
+                <span>Live IPO Portal</span>
+            </div>
+            <div class="user-auth-section">
+                <div id="googleSignInBtn"></div>
+                <div id="userProfileBadge" class="user-profile-badge" style="display: none;">
+                    <img id="userAvatarImg" src="" alt="User" class="user-avatar-img">
+                    <span id="userNameText" class="user-name-text">User</span>
+                    <button type="button" class="btn-user-logout" onclick="handleUserLogout()" title="Logout">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breadcrumb Navigation -->
+        <div class="demat-breadcrumb">
+            <a href="index.html">🏠 Home</a>
+            <span class="separator">/</span>
+            <a href="indices.html">📈 Live Indices</a>
+            <span class="separator">/</span>
+            <span class="current" id="breadcrumbIndexName">NIFTY 50 Stocks</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="stocks-page-header">
+            <div class="stocks-header-top">
+                <h1 class="stocks-page-title" id="pageTitleHeading">
+                    🏢 INDEX CONSTITUENT STOCKS
+                </h1>
+
+                <div class="header-action-group">
+                    <button type="button" class="btn-live-toggle active" id="btnLiveToggle" onclick="toggleAutoRefresh()" title="Toggle live auto updates">
+                        <span>⚡</span>
+                        <span id="liveToggleText">Auto-Refresh: ON</span>
+                    </button>
+
+                    <button type="button" class="btn-refresh-manual" onclick="manualRefreshData()" id="btnManualRefresh" title="Refresh stock quotes">
+                        <span>🔄</span>
+                        <span>Refresh</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTIVE INDEX HERO SUMMARY CARD -->
+        <div class="index-hero-card" id="indexHeroCard">
+            <div class="hero-left-section">
+                <div class="hero-title-row">
+                    <span class="hero-index-name" id="heroIndexName">NIFTY 50</span>
+                    <span class="card-exchange-pill pill-nse" id="heroExchangePill">NSE</span>
+                    <span class="card-exchange-pill pill-nse" id="heroCategoryPill">Key Index</span>
+                </div>
+                <div class="hero-price-row">
+                    <span class="hero-ltp-val" id="heroIndexLtp">25,030.35</span>
+                    <span class="hero-chg-text val-positive" id="heroIndexChgWrap">
+                        <span id="heroIndexChg">+493.75</span>
+                        <span class="badge-pill-val badge-pill-pos" id="heroIndexPchg">+2.01%</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="hero-right-section">
+                <div class="hero-stat-box">
+                    <div class="hero-stat-label">Total Stocks</div>
+                    <div class="hero-stat-val" id="heroTotalStocks">50</div>
+                </div>
+                <div class="hero-stat-box">
+                    <div class="hero-stat-label">Advances</div>
+                    <div class="hero-stat-val" style="color: #16a34a;" id="heroAdvances">46 🟢</div>
+                </div>
+                <div class="hero-stat-box">
+                    <div class="hero-stat-label">Declines</div>
+                    <div class="hero-stat-val" style="color: #dc2626;" id="heroDeclines">4 🔴</div>
+                </div>
+                <div class="hero-stat-box">
+                    <div class="hero-stat-label">52W Range</div>
+                    <div class="hero-stat-val" style="font-size: 12.5px;" id="hero52Range">21,285 - 26,277</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUICK INDEX SWITCHER PILLS & DROPDOWN -->
+        <div class="index-selector-container">
+            <div class="index-pills-scroll" id="indexPillsGroup">
+                <!-- Buttons injected dynamically -->
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <label for="allIndicesDropdown" style="font-size: 11px; font-weight: 700; color: #64748b;">More Indices:</label>
+                <select id="allIndicesDropdown" class="index-dropdown-select" onchange="switchIndex(this.value)">
+                    <option value="NIFTY 50">NIFTY 50 (50)</option>
+                    <option value="NIFTY BANK">NIFTY BANK (12)</option>
+                    <option value="SENSEX">SENSEX (30)</option>
+                    <option value="NIFTY NEXT 50">NIFTY NEXT 50 (50)</option>
+                    <option value="NIFTY FINANCIAL SERVICES">NIFTY FINANCIAL SERVICES (20)</option>
+                    <option value="NIFTY MIDCAP SELECT">NIFTY MIDCAP SELECT (25)</option>
+                    <option value="NIFTY INDIA FPI 150">NIFTY INDIA FPI 150 (25)</option>
+                    <option value="NIFTY IT">NIFTY IT (10)</option>
+                    <option value="NIFTY AUTO">NIFTY AUTO (15)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- CONTROLS PANEL: SUB-FILTERS & SEARCH -->
+        <div class="stocks-controls-panel">
+            <div class="stocks-subfilters-group">
+                <button type="button" class="btn-subfilter active" data-sub="all" onclick="setStockFilter('all')">
+                    All Stocks <span id="subCountAll">(50)</span>
+                </button>
+                <button type="button" class="btn-subfilter" data-sub="gainers" onclick="setStockFilter('gainers')">
+                    🟢 Gainers <span id="subCountGainers">(46)</span>
+                </button>
+                <button type="button" class="btn-subfilter" data-sub="losers" onclick="setStockFilter('losers')">
+                    🔴 Losers <span id="subCountLosers">(4)</span>
+                </button>
+            </div>
+
+            <div class="stocks-search-wrapper">
+                <input type="text" id="stocksSearchInput" class="stocks-search-input" placeholder="🔍 Search stock by name or symbol (e.g. RELIANCE)..." oninput="handleStockSearch(this.value)">
+                <span class="search-clear-icon" id="searchClearIcon" onclick="clearStockSearch()">✖</span>
+            </div>
+        </div>
+
+        <!-- MAIN CONSTITUENT STOCKS TABLE -->
+        <div class="stocks-table-container">
+            <div class="stocks-table-info-bar">
+                <span>
+                    Showing <strong id="visibleStockCount">0</strong> stocks in <span id="currentActiveIndexLabel" style="color: #0284c7; font-weight: 700;">NIFTY 50</span>
+                </span>
+                <span id="stocksUpdatedLabel">Live Stock Quotes</span>
+            </div>
+
+            <div class="table-scroll-wrapper">
+                <table class="stocks-table">
+                    <thead>
+                        <tr>
+                            <th class="th-stock-name" onclick="sortStocks('symbol')">
+                                Stock / Company <span class="sort-icon" id="sortIcon_symbol">▲▼</span>
+                            </th>
+                            <th class="th-sector" onclick="sortStocks('sector')">
+                                Sector / Industry <span class="sort-icon" id="sortIcon_sector">▲▼</span>
+                            </th>
+                            <th onclick="sortStocks('ltp')">
+                                LTP (₹) <span class="sort-icon" id="sortIcon_ltp">▲▼</span>
+                            </th>
+                            <th onclick="sortStocks('chg')">
+                                Chg <span class="sort-icon" id="sortIcon_chg">▲▼</span>
+                            </th>
+                            <th onclick="sortStocks('percentChange')">
+                                % Chg <span class="sort-icon" id="sortIcon_percentChange">▲▼</span>
+                            </th>
+                            <th onclick="sortStocks('open')">
+                                Open <span class="sort-icon" id="sortIcon_open">▲▼</span>
+                            </th>
+                            <th onclick="sortStocks('high')">
+                                High <span class="sort-icon" id="sortIcon_high">▲▼</span>
+                            </th>
+                            <th onclick="sortStocks('low')">
+                                Low <span class="sort-icon" id="sortIcon_low">▲▼</span>
+                            </th>
+                            <th onclick="sortStocks('yearHigh')">
+                                52 Week High <span class="sort-icon" id="sortIcon_yearHigh">▲▼</span>
+                            </th>
+                            <th onclick="sortStocks('yearLow')">
+                                52 Week Low <span class="sort-icon" id="sortIcon_yearLow">▲▼</span>
+                            </th>
+                            <th onclick="sortStocks('volume')">
+                                Volume <span class="sort-icon" id="sortIcon_volume">▲▼</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="stocksTableBody">
+                        <tr>
+                            <td colspan="11" style="text-align: center; padding: 36px; color: #64748b;">
+                                ⏳ Loading constituent stocks...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Page Logic Script -->
+    <script>
+        let fullStockDataset = {};
+        let activeIndexKey = 'NIFTY 50';
+        let stockFilter = 'all'; // 'all' | 'gainers' | 'losers'
+        let stockSearchQuery = '';
+        let stockSort = { column: 'ltp', order: 'desc' };
+        let autoRefreshTimer = null;
+        let isAutoRefreshActive = true;
+
+        const QUICK_INDICES = [
+            'NIFTY 50',
+            'NIFTY BANK',
+            'NIFTY FINANCIAL SERVICES',
+            'NIFTY NEXT 50',
+            'NIFTY MIDCAP SELECT',
+            'NIFTY INDIA FPI 150',
+            'SENSEX',
+            'NIFTY IT',
+            'NIFTY AUTO'
+        ];
+
+        function formatNumber(val, decimals = 2) {
+            if (val === null || val === undefined || isNaN(val)) return '-';
+            const num = parseFloat(val);
+            return num.toLocaleString('en-IN', {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals
+            });
+        }
+
+        function formatVolume(val) {
+            if (!val || isNaN(val) || val === 0) return '-';
+            const num = parseInt(val, 10);
+            if (num >= 10000000) return (num / 10000000).toFixed(2) + ' Cr';
+            if (num >= 100000) return (num / 100000).toFixed(2) + ' L';
+            if (num >= 1000) return (num / 1000).toFixed(1) + ' k';
+            return num.toLocaleString('en-IN');
+        }
+
+        function getQueryParam(name) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(name);
+        }
+
+        // Initialize Quick Switcher Pills
+        function renderIndexPills() {
+            const container = document.getElementById('indexPillsGroup');
+            let html = '';
+            QUICK_INDICES.forEach(idxName => {
+                const isActive = (idxName.toUpperCase() === activeIndexKey.toUpperCase());
+                const data = fullStockDataset.indices ? fullStockDataset.indices[idxName] : null;
+                const count = (data && data.stocks) ? data.stocks.length : '';
+                html += `
+                    <button type="button" class="btn-index-pill ${isActive ? 'active' : ''}" onclick="switchIndex('${idxName}')">
+                        <span>${idxName}</span>
+                        ${count ? `<span class="pill-count-tag">${count}</span>` : ''}
+                    </button>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        async function loadStocksData() {
+            try {
+                const res = await fetch('index-stocks-data.json?t=' + Date.now());
+                if (!res.ok) throw new Error('Data file not available');
+                fullStockDataset = await res.json();
+
+                renderIndexPills();
+                updateHeroCard();
+                renderStocksTable();
+            } catch (err) {
+                console.error('Error loading stocks data:', err);
+                document.getElementById('stocksTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="11" style="text-align: center; padding: 36px; color: #ef4444;">
+                            ⚠️ Unable to load constituent stocks. Please check connection and refresh.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function switchIndex(indexName) {
+            if (!indexName) return;
+            activeIndexKey = indexName;
+            
+            // Update URL without full reload
+            const url = new URL(window.location.href);
+            url.searchParams.set('index', indexName);
+            window.history.replaceState({}, '', url);
+
+            // Update Dropdown
+            const select = document.getElementById('allIndicesDropdown');
+            if (select) select.value = indexName;
+
+            renderIndexPills();
+            updateHeroCard();
+            renderStocksTable();
+        }
+
+        function updateHeroCard() {
+            const idxData = (fullStockDataset.indices && fullStockDataset.indices[activeIndexKey])
+                ? fullStockDataset.indices[activeIndexKey]
+                : (fullStockDataset.indices ? fullStockDataset.indices['NIFTY 50'] : null);
+
+            if (!idxData) return;
+
+            document.getElementById('heroIndexName').innerText = idxData.name || activeIndexKey;
+            document.getElementById('breadcrumbIndexName').innerText = (idxData.name || activeIndexKey) + ' Stocks';
+            document.getElementById('currentActiveIndexLabel').innerText = idxData.name || activeIndexKey;
+
+            const isBse = (idxData.exchange === 'BSE' || idxData.name === 'SENSEX');
+            const pillEx = document.getElementById('heroExchangePill');
+            pillEx.className = 'card-exchange-pill ' + (isBse ? 'pill-bse' : 'pill-nse');
+            pillEx.innerText = isBse ? 'BSE' : 'NSE';
+
+            document.getElementById('heroCategoryPill').innerText = idxData.category || 'Index';
+
+            document.getElementById('heroIndexLtp').innerText = formatNumber(idxData.ltp);
+
+            const numChg = parseFloat(idxData.chg) || 0;
+            const numPchg = parseFloat(idxData.percentChange) || 0;
+            const sign = numChg > 0 ? '+' : '';
+            const chgWrap = document.getElementById('heroIndexChgWrap');
+            const chgSpan = document.getElementById('heroIndexChg');
+            const pchgSpan = document.getElementById('heroIndexPchg');
+
+            if (numChg >= 0) {
+                chgWrap.className = 'hero-chg-text val-positive';
+                pchgSpan.className = 'badge-pill-val badge-pill-pos';
+            } else {
+                chgWrap.className = 'hero-chg-text val-negative';
+                pchgSpan.className = 'badge-pill-val badge-pill-neg';
+            }
+            chgSpan.innerText = `${sign}${formatNumber(numChg)}`;
+            pchgSpan.innerText = `${sign}${numPchg.toFixed(2)}%`;
+
+            const stocks = idxData.stocks || [];
+            document.getElementById('heroTotalStocks').innerText = stocks.length;
+            document.getElementById('subCountAll').innerText = `(${stocks.length})`;
+
+            let advances = 0, declines = 0;
+            stocks.forEach(s => {
+                if ((parseFloat(s.chg) || 0) >= 0) advances++;
+                else declines++;
+            });
+            document.getElementById('heroAdvances').innerText = `${advances} 🟢`;
+            document.getElementById('subCountGainers').innerText = `(${advances})`;
+
+            document.getElementById('heroDeclines').innerText = `${declines} 🔴`;
+            document.getElementById('subCountLosers').innerText = `(${declines})`;
+
+            if (idxData.yearLow && idxData.yearHigh) {
+                document.getElementById('hero52Range').innerText = `${formatNumber(idxData.yearLow, 0)} - ${formatNumber(idxData.yearHigh, 0)}`;
+            } else {
+                document.getElementById('hero52Range').innerText = '-';
+            }
+        }
+
+        function setStockFilter(filter) {
+            stockFilter = filter;
+            document.querySelectorAll('.btn-subfilter').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.sub === filter);
+            });
+            renderStocksTable();
+        }
+
+        function handleStockSearch(val) {
+            stockSearchQuery = (val || '').trim().toLowerCase();
+            document.getElementById('searchClearIcon').style.display = stockSearchQuery ? 'inline' : 'none';
+            renderStocksTable();
+        }
+
+        function clearStockSearch() {
+            document.getElementById('stocksSearchInput').value = '';
+            handleStockSearch('');
+        }
+
+        function sortStocks(column) {
+            if (stockSort.column === column) {
+                stockSort.order = stockSort.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                stockSort.column = column;
+                stockSort.order = (column === 'symbol' || column === 'sector') ? 'asc' : 'desc';
+            }
+
+            document.querySelectorAll('.sort-icon').forEach(icon => {
+                icon.innerText = '▲▼';
+                icon.classList.remove('sort-active');
+            });
+            const activeIcon = document.getElementById(`sortIcon_${column}`);
+            if (activeIcon) {
+                activeIcon.innerText = stockSort.order === 'asc' ? '▲' : '▼';
+                activeIcon.classList.add('sort-active');
+            }
+
+            renderStocksTable();
+        }
+
+        function renderStocksTable() {
+            const idxData = (fullStockDataset.indices && fullStockDataset.indices[activeIndexKey])
+                ? fullStockDataset.indices[activeIndexKey]
+                : (fullStockDataset.indices ? fullStockDataset.indices['NIFTY 50'] : null);
+
+            const tbody = document.getElementById('stocksTableBody');
+            if (!idxData || !idxData.stocks || idxData.stocks.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="11" style="text-align: center; padding: 36px; color: #64748b;">
+                            ℹ️ Constituent stocks for "${activeIndexKey}" will be updated shortly.
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('visibleStockCount').innerText = '0';
+                return;
+            }
+
+            let list = [...idxData.stocks];
+
+            // Filter gainers / losers
+            if (stockFilter === 'gainers') {
+                list = list.filter(s => (parseFloat(s.chg) || 0) >= 0);
+            } else if (stockFilter === 'losers') {
+                list = list.filter(s => (parseFloat(s.chg) || 0) < 0);
+            }
+
+            // Search Filter
+            if (stockSearchQuery) {
+                list = list.filter(s =>
+                    (s.symbol || '').toLowerCase().includes(stockSearchQuery) ||
+                    (s.name || '').toLowerCase().includes(stockSearchQuery) ||
+                    (s.sector || '').toLowerCase().includes(stockSearchQuery)
+                );
+            }
+
+            // Sorting
+            const col = stockSort.column;
+            const asc = stockSort.order === 'asc';
+            list.sort((a, b) => {
+                let vA = a[col];
+                let vB = b[col];
+                if (col === 'symbol' || col === 'sector' || col === 'name') {
+                    return asc ? (vA || '').localeCompare(vB || '') : (vB || '').localeCompare(vA || '');
+                }
+                vA = parseFloat(vA) || 0;
+                vB = parseFloat(vB) || 0;
+                return asc ? (vA - vB) : (vB - vA);
+            });
+
+            document.getElementById('visibleStockCount').innerText = list.length;
+
+            if (list.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="11" style="text-align: center; padding: 36px; color: #64748b;">
+                            🔍 No matching stocks found for "${stockSearchQuery}".
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            list.forEach(stock => {
+                const numChg = parseFloat(stock.chg) || 0;
+                const numPchg = parseFloat(stock.percentChange) || 0;
+                const sign = numChg > 0 ? '+' : '';
+
+                let chgColorClass = 'val-neutral';
+                let pchgBadgeClass = 'badge-pill-neu';
+                if (numChg > 0) {
+                    chgColorClass = 'val-positive';
+                    pchgBadgeClass = 'badge-pill-pos';
+                } else if (numChg < 0) {
+                    chgColorClass = 'val-negative';
+                    pchgBadgeClass = 'badge-pill-neg';
+                }
+
+                html += `
+                    <tr id="stockRow_${stock.symbol}">
+                        <td class="td-name">
+                            <div class="stock-name-flex">
+                                <span class="stock-symbol-text">${stock.symbol}</span>
+                                <span class="stock-full-name">${stock.name || stock.symbol}</span>
+                            </div>
+                        </td>
+                        <td class="td-sector">${stock.sector || '-'}</td>
+                        <td class="td-ltp" id="stockLtp_${stock.symbol}">${formatNumber(stock.ltp)}</td>
+                        <td class="${chgColorClass}" id="stockChg_${stock.symbol}">${sign}${formatNumber(numChg)}</td>
+                        <td>
+                            <span class="badge-pill-val ${pchgBadgeClass}" id="stockPchg_${stock.symbol}">
+                                ${sign}${numPchg.toFixed(2)}%
+                            </span>
+                        </td>
+                        <td>${formatNumber(stock.open)}</td>
+                        <td style="color: #15803d;">${formatNumber(stock.high)}</td>
+                        <td style="color: #b91c1c;">${formatNumber(stock.low)}</td>
+                        <td>${formatNumber(stock.yearHigh)}</td>
+                        <td>${formatNumber(stock.yearLow)}</td>
+                        <td>${formatVolume(stock.volume)}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function toggleAutoRefresh() {
+            isAutoRefreshActive = !isAutoRefreshActive;
+            const btn = document.getElementById('btnLiveToggle');
+            const txt = document.getElementById('liveToggleText');
+            if (isAutoRefreshActive) {
+                btn.classList.add('active');
+                txt.innerText = 'Auto-Refresh: ON';
+                startAutoRefresh();
+            } else {
+                btn.classList.remove('active');
+                txt.innerText = 'Auto-Refresh: OFF';
+                if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+            }
+        }
+
+        function startAutoRefresh() {
+            if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+            autoRefreshTimer = setInterval(() => {
+                if (isAutoRefreshActive) {
+                    loadStocksData();
+                }
+            }, 30000); // 30s auto reload
+        }
+
+        function manualRefreshData() {
+            const btn = document.getElementById('btnManualRefresh');
+            btn.innerHTML = '<span>⏳</span><span>Refreshing...</span>';
+            loadStocksData().finally(() => {
+                setTimeout(() => {
+                    btn.innerHTML = '<span>🔄</span><span>Refresh</span>';
+                }, 600);
+            });
+        }
+
+        // On Page Load
+        document.addEventListener('DOMContentLoaded', () => {
+            const requestedIndex = getQueryParam('index');
+            if (requestedIndex) {
+                activeIndexKey = decodeURIComponent(requestedIndex).trim();
+            }
+            loadStocksData();
+            startAutoRefresh();
+        });
+    </script>
+</body>
+
+</html>

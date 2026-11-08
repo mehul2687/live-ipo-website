@@ -525,6 +525,38 @@
             color: #0f172a;
         }
 
+        .index-title-link {
+            text-decoration: none;
+            color: inherit;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .index-title-link:hover .index-title-text {
+            color: #0284c7;
+            text-decoration: underline;
+        }
+
+        .stocks-view-chip {
+            font-size: 9.5px;
+            font-weight: 700;
+            color: #0284c7;
+            background: #e0f2fe;
+            border: 1px solid #bae6fd;
+            padding: 1px 5px;
+            border-radius: 4px;
+            display: inline-block;
+            transition: all 0.15s ease;
+        }
+
+        .index-title-link:hover .stocks-view-chip {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #0284c7;
+        }
+
         .index-badges-wrap {
             display: inline-flex;
             align-items: center;
@@ -639,6 +671,7 @@
             <li class="menu-item"><a href="ipo-calendar.html">📅 <span>IPO Calendar</span></a></li>
             <li class="menu-item"><a href="indices.html" class="active">📈 <span>Live Indices</span></a></li>
             <li class="menu-item"><a href="indices-history.html">📅 <span>Indices History</span></a></li>
+            <li class="menu-item"><a href="index-stocks.html">🏢 <span>Index Stocks</span></a></li>
             <li class="menu-item"><a href="my-demat-accounts.html">👥 <span>My Demat Accounts</span></a></li>
             <li class="menu-item"><a href="allotment-checker.html">🔍 <span>Allotment Checker</span></a></li>
             <li class="menu-item"><a href="fii-dii-activity.html">📊 <span>FII/DII Activity</span></a></li>
@@ -708,11 +741,11 @@
         <!-- TOP 4 SUMMARY STAT CARDS -->
         <div class="indices-cards-grid">
             <!-- Card 1: NIFTY 50 -->
-            <div class="index-stat-card stat-card-nifty">
+            <div class="index-stat-card stat-card-nifty" onclick="window.location.href='index-stocks.html?index=NIFTY%2050'" style="cursor: pointer;" title="Click to view all 50 constituent stocks of NIFTY 50">
                 <div>
                     <div class="card-top-row">
                         <span class="card-index-title">
-                            NIFTY 50
+                            NIFTY 50 <span style="font-size: 11px; color: #2563eb;">↗</span>
                         </span>
                         <span class="card-exchange-pill pill-nse">NSE</span>
                     </div>
@@ -734,11 +767,11 @@
             </div>
 
             <!-- Card 2: SENSEX -->
-            <div class="index-stat-card stat-card-sensex">
+            <div class="index-stat-card stat-card-sensex" onclick="window.location.href='index-stocks.html?index=SENSEX'" style="cursor: pointer;" title="Click to view all 30 constituent stocks of SENSEX">
                 <div>
                     <div class="card-top-row">
                         <span class="card-index-title">
-                            SENSEX
+                            SENSEX <span style="font-size: 11px; color: #ea580c;">↗</span>
                         </span>
                         <span class="card-exchange-pill pill-bse">BSE</span>
                     </div>
@@ -760,11 +793,11 @@
             </div>
 
             <!-- Card 3: NIFTY BANK -->
-            <div class="index-stat-card stat-card-bank">
+            <div class="index-stat-card stat-card-bank" onclick="window.location.href='index-stocks.html?index=NIFTY%20BANK'" style="cursor: pointer;" title="Click to view all 12 constituent stocks of NIFTY BANK">
                 <div>
                     <div class="card-top-row">
                         <span class="card-index-title">
-                            NIFTY BANK
+                            NIFTY BANK <span style="font-size: 11px; color: #059669;">↗</span>
                         </span>
                         <span class="card-exchange-pill pill-nse">NSE</span>
                     </div>
@@ -1268,7 +1301,10 @@
                     <tr id="${rowId}">
                         <td class="td-name">
                             <div class="index-name-flex">
-                                <span class="index-title-text">${item.name}</span>
+                                <a href="index-stocks.html?index=${encodeURIComponent(item.name)}" class="index-title-link" title="Click to view constituent stocks of ${item.name}">
+                                    <span class="index-title-text">${item.name}</span>
+                                    <span class="stocks-view-chip">Stocks ↗</span>
+                                </a>
                                 <div class="index-badges-wrap">
                                     <span class="card-exchange-pill ${exPillClass}">${item.exchange || 'NSE'}</span>
                                     <span class="badge-cat-tag">${item.category || 'Index'}</span>

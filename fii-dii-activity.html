@@ -7,213 +7,408 @@
     <title>Live IPO - FII / DII Activity Today</title>
 
     <!-- External CSS Link -->
-    <link rel="stylesheet" href="style.css?v=2026.11.07.1">
+    <link rel="stylesheet" href="style.css?v=2026.11.08.1">
 
     <!-- Google Identity Services (Google Sign-In) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <!-- JavaScript Link -->
-    <script src="script.js?v=2026.11.07.1"></script>
+    <script src="script.js?v=2026.11.08.1"></script>
 
     <style>
         .fii-page-header {
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
         .fii-page-title {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 800;
             color: #0f172a;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.6px;
             text-transform: uppercase;
-            margin: 0 0 14px 0;
+            margin: 0 0 16px 0;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
-        /* Pill Tabs */
+        /* Modern Pill Tabs */
         .fii-tabs-container {
             display: inline-flex;
             background: #ffffff;
-            padding: 4px;
-            border-radius: 8px;
+            padding: 5px;
+            border-radius: 10px;
             border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-            margin-bottom: 18px;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+            margin-bottom: 22px;
+            gap: 4px;
         }
 
         .fii-tab-btn {
             background: transparent;
             border: none;
-            padding: 7px 18px;
+            padding: 8px 22px;
             font-size: 13.5px;
             font-weight: 600;
             color: #64748b;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .fii-tab-btn:hover {
             color: #0f172a;
-            background: #f8fafc;
+            background: #f1f5f9;
         }
 
         .fii-tab-btn.active {
-            background: #ffffff;
-            color: #0f172a;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e2e8f0;
+            background: #0f172a;
+            color: #ffffff;
+            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.18);
             font-weight: 700;
         }
 
-        /* Summary Stat Cards */
+        /* ==========================================================
+           ENHANCED TOP SUMMARY STAT CARDS (FII Net Inflow / Outflow)
+           ========================================================== */
         .fii-summary-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 14px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 18px;
+            margin-bottom: 26px;
         }
 
         .fii-summary-card {
             background: #ffffff;
-            border-radius: 12px;
-            padding: 16px 20px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+            border-radius: 14px;
+            padding: 20px 22px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
         }
 
-        .fii-summary-label {
-            font-size: 12.5px;
-            font-weight: 600;
-            color: #64748b;
+        .fii-summary-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 22px -5px rgba(15, 23, 42, 0.08);
+        }
+
+        /* Distinct Institutional Card 1: FII */
+        .card-fii-theme {
+            border: 1px solid #bfdbfe;
+            border-top: 4px solid #2563eb;
+            background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+        }
+
+        /* Distinct Institutional Card 2: DII */
+        .card-dii-theme {
+            border: 1px solid #bbf7d0;
+            border-top: 4px solid #16a34a;
+            background: linear-gradient(180deg, #f8fdf9 0%, #ffffff 100%);
+        }
+
+        /* Distinct Institutional Card 3: Combined Total Net */
+        .card-total-theme {
+            background: linear-gradient(145deg, #0b1120 0%, #1e293b 100%);
+            border: 1px solid #334155;
+            border-top: 4px solid #38bdf8;
+            color: #ffffff;
+            box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.25);
+        }
+
+        .card-header-flex {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 10px;
+        }
+
+        .card-title-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .fii-pill-theme {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #dbeafe;
+        }
+
+        .dii-pill-theme {
+            background: #f0fdf4;
+            color: #15803d;
+            border: 1px solid #dcfce7;
+        }
+
+        .total-pill-theme {
+            background: rgba(56, 189, 248, 0.12);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.25);
+        }
+
+        .card-status-badge {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         .fii-summary-value {
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
+            font-size: 27px;
+            font-weight: 900;
+            letter-spacing: -0.8px;
+            line-height: 1.15;
+            margin: 4px 0 2px 0;
+            font-variant-numeric: tabular-nums;
         }
 
-        .fii-summary-sub {
-            font-size: 11.5px;
-            color: #94a3b8;
+        .card-sub-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid #f1f5f9;
+            font-size: 12px;
+            color: #64748b;
             font-weight: 500;
         }
 
-        /* Main Table Card */
+        .card-total-theme .card-sub-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+        }
+
+        .segment-tag {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .card-total-theme .segment-tag {
+            background: rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+        }
+
+        /* ==========================================================
+           MAIN TABLE CONTAINER & CONTROLS
+           ========================================================== */
         .fii-table-card {
             background: #ffffff;
-            border-radius: 12px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.03);
+            border-radius: 14px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
             overflow: hidden;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
         .fii-table-controls {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 14px 20px;
-            border-bottom: 1px solid #f1f5f9;
+            padding: 16px 22px;
+            border-bottom: 2px solid #e2e8f0;
             flex-wrap: wrap;
-            gap: 10px;
-            background: #fafafa;
+            gap: 12px;
+            background: #f8fafc;
         }
 
         .fii-unit-label {
-            font-size: 12.5px;
-            color: #64748b;
+            font-size: 13px;
+            color: #475569;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
         .fii-search-input {
-            padding: 7px 14px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 13px;
+            padding: 8px 16px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 13.5px;
             outline: none;
-            width: 220px;
+            width: 240px;
             background: #ffffff;
+            transition: all 0.2s ease;
         }
 
         .fii-search-input:focus {
             border-color: #0284c7;
-            box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.1);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
         }
 
-        /* Table Specific Styles */
         .fii-table-wrapper {
             overflow-x: auto;
             width: 100%;
         }
 
+        /* ==========================================================
+           ENHANCED TABLE HEADERS (FII, DII & TOTAL NET)
+           ========================================================== */
         .fii-table {
             width: 100%;
             border-collapse: collapse;
             text-align: center;
             font-size: 13.5px;
+            font-variant-numeric: tabular-nums;
         }
 
+        /* Header Row 1: Group Headers */
         .fii-table thead tr:first-child th {
-            background: #f8fafc;
-            color: #334155;
-            font-weight: 700;
-            font-size: 13px;
             padding: 12px 14px;
-            border-bottom: 1px solid #e2e8f0;
-            border-left: 1px solid #e2e8f0;
+            font-weight: 800;
+            border-bottom: 2px solid #cbd5e1;
         }
 
-        .fii-table thead tr:first-child th:first-child {
-            border-left: none;
-        }
-
-        .fii-table thead tr:nth-child(2) th {
+        /* Date Column Header */
+        .th-date-col {
             background: #f1f5f9;
-            color: #475569;
-            font-weight: 600;
+            color: #1e293b;
+            font-size: 13.5px;
+            font-weight: 800;
+            border-right: 2px solid #cbd5e1;
+            vertical-align: middle;
+        }
+
+        /* FII Group Header */
+        .th-fii-group {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            color: #1e40af;
+            font-size: 14px;
+            border-top: 3px solid #2563eb;
+            border-right: 2.5px solid #94a3b8 !important; /* Prominent divider between FII & DII */
+            letter-spacing: 0.3px;
+        }
+
+        /* DII Group Header */
+        .th-dii-group {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            color: #15803d;
+            font-size: 14px;
+            border-top: 3px solid #16a34a;
+            border-right: 2.5px solid #94a3b8 !important; /* Prominent divider between DII & NET */
+            letter-spacing: 0.3px;
+        }
+
+        /* Total Net Group Header */
+        .th-total-net-col {
+            background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 800;
+            border-top: 3px solid #f59e0b;
+            vertical-align: middle;
+            letter-spacing: 0.3px;
+        }
+
+        .header-badge-content {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+        }
+
+        /* Header Row 2: Sub-Headers (Buy, Sell, Net) */
+        .fii-table thead tr:nth-child(2) th {
             font-size: 12.5px;
-            padding: 8px 12px;
-            border-bottom: 1.5px solid #cbd5e1;
-            border-left: 1px solid #e2e8f0;
+            font-weight: 700;
+            padding: 9px 12px;
+            border-bottom: 2px solid #94a3b8;
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
         }
 
-        .fii-table thead tr:nth-child(2) th:first-child {
-            border-left: none;
+        /* FII Sub-Headers */
+        .th-fii-sub {
+            background: #f8fbff;
+            color: #1e40af;
+            border-right: 1px solid #dbeafe;
         }
 
+        .th-fii-sub-net {
+            background: #eff6ff;
+            color: #1e3a8a;
+            font-weight: 800;
+            border-right: 2.5px solid #94a3b8 !important; /* Divider to DII */
+        }
+
+        /* DII Sub-Headers */
+        .th-dii-sub {
+            background: #f8fdf9;
+            color: #166534;
+            border-right: 1px solid #dcfce7;
+        }
+
+        .th-dii-sub-net {
+            background: #f0fdf4;
+            color: #14532d;
+            font-weight: 800;
+            border-right: 2.5px solid #94a3b8 !important; /* Divider to Total Net */
+        }
+
+        /* Table Body Styling */
         .fii-table tbody td {
             padding: 12px 14px;
             border-bottom: 1px solid #f1f5f9;
-            border-left: 1px solid #f8fafc;
             color: #1e293b;
             font-weight: 500;
             white-space: nowrap;
-        }
-
-        .fii-table tbody td:first-child {
-            border-left: none;
-            font-weight: 600;
-            color: #0f172a;
         }
 
         .fii-table tbody tr:hover td {
             background: #f8fafc;
         }
 
-        /* Value Colors */
+        .td-date {
+            font-weight: 700;
+            color: #0f172a;
+            border-right: 2px solid #cbd5e1;
+            background: #fafafa;
+        }
+
+        .fii-table tbody tr:hover .td-date {
+            background: #f1f5f9;
+        }
+
+        .td-fii-net {
+            border-right: 2.5px solid #cbd5e1 !important; /* Crisp boundary after FII */
+            font-weight: 700;
+            background: rgba(239, 246, 255, 0.35);
+        }
+
+        .td-dii-net {
+            border-right: 2.5px solid #cbd5e1 !important; /* Crisp boundary after DII */
+            font-weight: 700;
+            background: rgba(240, 253, 244, 0.35);
+        }
+
+        .td-total-net {
+            font-weight: 900 !important;
+            font-size: 14px;
+            background: #f8fafc;
+        }
+
+        .fii-table tbody tr:hover .td-total-net {
+            background: #f1f5f9;
+        }
+
+        /* Value Highlight Colors */
         .val-positive {
             color: #16a34a !important;
             font-weight: 700 !important;
@@ -227,14 +422,6 @@
         .val-neutral {
             color: #64748b !important;
             font-weight: 600 !important;
-        }
-
-        .fii-table tfoot td {
-            background: #f8fafc;
-            font-weight: 800;
-            padding: 14px;
-            border-top: 2px solid #cbd5e1;
-            color: #0f172a;
         }
 
         .demat-breadcrumb {
@@ -319,7 +506,7 @@
         <!-- Page Header -->
         <div class="fii-page-header">
             <h1 class="fii-page-title">
-                FII DII ACTIVITY
+                📊 FII DII ACTIVITY
             </h1>
 
             <!-- Pill Tabs (Daily | Monthly | Yearly) -->
@@ -330,34 +517,48 @@
             </div>
         </div>
 
-        <!-- Top Stat Summary Cards -->
+        <!-- Top Stat Summary Cards (Enhanced FII Net Inflow / Outflow Section) -->
         <div class="fii-summary-grid">
-            <div class="fii-summary-card">
-                <div class="fii-summary-label">
-                    <span>FII Net Inflow / Outflow</span>
-                    <span id="fiiBadge" style="font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 700;">-</span>
+
+            <!-- Card 1: FII Net Inflow / Outflow -->
+            <div class="fii-summary-card card-fii-theme">
+                <div class="card-header-flex">
+                    <span class="card-title-pill fii-pill-theme">🌐 FII Net Inflow / Outflow</span>
+                    <span id="fiiBadge" class="card-status-badge">-</span>
                 </div>
                 <div class="fii-summary-value" id="cardFiiNet">-</div>
-                <div class="fii-summary-sub" id="cardFiiDate">Latest Market Session</div>
+                <div class="card-sub-footer">
+                    <span id="cardFiiDate">📅 Latest Session</span>
+                    <span class="segment-tag">Foreign Inst.</span>
+                </div>
             </div>
 
-            <div class="fii-summary-card">
-                <div class="fii-summary-label">
-                    <span>DII Net Inflow / Outflow</span>
-                    <span id="diiBadge" style="font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 700;">-</span>
+            <!-- Card 2: DII Net Inflow / Outflow -->
+            <div class="fii-summary-card card-dii-theme">
+                <div class="card-header-flex">
+                    <span class="card-title-pill dii-pill-theme">🏦 DII Net Inflow / Outflow</span>
+                    <span id="diiBadge" class="card-status-badge">-</span>
                 </div>
                 <div class="fii-summary-value" id="cardDiiNet">-</div>
-                <div class="fii-summary-sub" id="cardDiiDate">Latest Market Session</div>
+                <div class="card-sub-footer">
+                    <span id="cardDiiDate">📅 Latest Session</span>
+                    <span class="segment-tag">Domestic Inst.</span>
+                </div>
             </div>
 
-            <div class="fii-summary-card" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; border: none;">
-                <div class="fii-summary-label" style="color: #94a3b8;">
-                    <span>Combined Total Net Flow</span>
-                    <span id="totalBadge" style="font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 700; background: #334155; color: #fff;">-</span>
+            <!-- Card 3: Combined Total Net Flow -->
+            <div class="fii-summary-card card-total-theme">
+                <div class="card-header-flex">
+                    <span class="card-title-pill total-pill-theme">⚡ Combined Total Net Flow</span>
+                    <span id="totalBadge" class="card-status-badge">-</span>
                 </div>
-                <div class="fii-summary-value" id="cardTotalNet" style="color: #ffffff;">-</div>
-                <div class="fii-summary-sub" style="color: #94a3b8;" id="cardTotalStatus">Cash Market (NSE + BSE)</div>
+                <div class="fii-summary-value" id="cardTotalNet">-</div>
+                <div class="card-sub-footer">
+                    <span id="cardTotalStatus">Cash Market (NSE + BSE)</span>
+                    <span class="segment-tag">Total Net</span>
+                </div>
             </div>
+
         </div>
 
         <!-- Main FII / DII Table Card -->
@@ -366,7 +567,7 @@
                 <div class="fii-unit-label">
                     <span>📊 Values in <strong>₹ Crores</strong></span>
                     <span style="font-size: 11.5px; color: #94a3b8;">• Cash Segment</span>
-                    <span id="dataTimestampBadge" style="font-size: 11px; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Live Feed</span>
+                    <span id="dataTimestampBadge" style="font-size: 11.5px; background: #e0f2fe; color: #0284c7; padding: 3px 10px; border-radius: 12px; font-weight: 700;">Live Feed</span>
                 </div>
                 <div>
                     <input type="text" class="fii-search-input" id="tableSearchInput" placeholder="🔍 Search Date / Month..." oninput="handleTableSearch(this.value)">
@@ -376,19 +577,30 @@
             <div class="fii-table-wrapper">
                 <table class="fii-table" id="fiiDiiTable">
                     <thead>
+                        <!-- Row 1: Primary Group Headers -->
                         <tr>
-                            <th rowspan="2" style="width: 130px; text-align: center;">Date</th>
-                            <th colspan="3" style="text-align: center; border-bottom: none;">FII</th>
-                            <th colspan="3" style="text-align: center; border-bottom: none;">DII</th>
-                            <th rowspan="2" style="width: 140px; text-align: center;">Net</th>
+                            <th rowspan="2" class="th-date-col" style="width: 140px;">
+                                <div class="header-badge-content">📅 Date</div>
+                            </th>
+                            <th colspan="3" class="th-fii-group">
+                                <div class="header-badge-content">🌐 FII (Foreign Institutional Investors)</div>
+                            </th>
+                            <th colspan="3" class="th-dii-group">
+                                <div class="header-badge-content">🏦 DII (Domestic Institutional Investors)</div>
+                            </th>
+                            <th rowspan="2" class="th-total-net-col" style="width: 150px;">
+                                <div class="header-badge-content">⚡ Total Net</div>
+                                <div style="font-size: 10.5px; opacity: 0.8; font-weight: 600; margin-top: 2px;">(FII + DII)</div>
+                            </th>
                         </tr>
+                        <!-- Row 2: Secondary Metric Sub-Headers -->
                         <tr>
-                            <th style="width: 120px;">Buy</th>
-                            <th style="width: 120px;">Sell</th>
-                            <th style="width: 130px;">Net</th>
-                            <th style="width: 120px;">Buy</th>
-                            <th style="width: 120px;">Sell</th>
-                            <th style="width: 130px;">Net</th>
+                            <th class="th-fii-sub" style="width: 120px;">Buy</th>
+                            <th class="th-fii-sub" style="width: 120px;">Sell</th>
+                            <th class="th-fii-sub-net" style="width: 130px;">Net</th>
+                            <th class="th-dii-sub" style="width: 120px;">Buy</th>
+                            <th class="th-dii-sub" style="width: 120px;">Sell</th>
+                            <th class="th-dii-sub-net" style="width: 130px;">Net</th>
                         </tr>
                     </thead>
                     <tbody id="fiiTableBody">
@@ -442,7 +654,7 @@
                     console.warn("Local JSON fetch error:", e);
                 }
 
-                // 2. If not found or empty, fetch from live cloud bin
+                // 2. If not found or empty, fetch from live cloud bin fallback
                 if (!data || !data.daily || data.daily.length === 0) {
                     const cloudRes = await fetch(`https://api.jsonbin.io/v3/b/6aaf80f9ac6210605ae1bce6/latest?t=${Date.now()}`, {
                         headers: { 'X-Master-Key': '$2a$10$Pl5b/ekYZXhRBmQVY6DwieMC10GztytHM9d7CnR0zqmje7BWYj6yC' }
@@ -503,10 +715,12 @@
                 fiiBadge.innerText = 'BUYING 🟢';
                 fiiBadge.style.background = '#dcfce7';
                 fiiBadge.style.color = '#15803d';
+                fiiBadge.style.border = '1px solid #bbf7d0';
             } else {
                 fiiBadge.innerText = 'SELLING 🔴';
                 fiiBadge.style.background = '#fee2e2';
                 fiiBadge.style.color = '#b91c1c';
+                fiiBadge.style.border = '1px solid #fecaca';
             }
 
             const diiBadge = document.getElementById('diiBadge');
@@ -514,10 +728,12 @@
                 diiBadge.innerText = 'BUYING 🟢';
                 diiBadge.style.background = '#dcfce7';
                 diiBadge.style.color = '#15803d';
+                diiBadge.style.border = '1px solid #bbf7d0';
             } else {
                 diiBadge.innerText = 'SELLING 🔴';
                 diiBadge.style.background = '#fee2e2';
                 diiBadge.style.color = '#b91c1c';
+                diiBadge.style.border = '1px solid #fecaca';
             }
 
             const totalBadge = document.getElementById('totalBadge');
@@ -525,15 +741,17 @@
                 totalBadge.innerText = 'NET INFLOW 🚀';
                 totalBadge.style.background = '#15803d';
                 totalBadge.style.color = '#ffffff';
+                totalBadge.style.border = '1px solid #22c55e';
             } else {
                 totalBadge.innerText = 'NET OUTFLOW 🔻';
                 totalBadge.style.background = '#b91c1c';
                 totalBadge.style.color = '#ffffff';
+                totalBadge.style.border = '1px solid #ef4444';
             }
 
             if (row.date) {
-                document.getElementById('cardFiiDate').innerText = `Date: ${row.date}`;
-                document.getElementById('cardDiiDate').innerText = `Date: ${row.date}`;
+                document.getElementById('cardFiiDate').innerText = `📅 Date: ${row.date}`;
+                document.getElementById('cardDiiDate').innerText = `📅 Date: ${row.date}`;
             }
         }
 
@@ -566,14 +784,14 @@
             list.forEach(row => {
                 html += `
                     <tr>
-                        <td style="font-weight: 600;">${row.date}</td>
+                        <td class="td-date">${row.date}</td>
                         <td>${row.fiiBuy || '-'}</td>
                         <td>${row.fiiSell || '-'}</td>
-                        <td class="${formatCellColor(row.fiiNet)}">${row.fiiNet || '-'}</td>
+                        <td class="td-fii-net ${formatCellColor(row.fiiNet)}">${row.fiiNet || '-'}</td>
                         <td>${row.diiBuy || '-'}</td>
                         <td>${row.diiSell || '-'}</td>
-                        <td class="${formatCellColor(row.diiNet)}">${row.diiNet || '-'}</td>
-                        <td class="${formatCellColor(row.totalNet)}" style="font-weight: 800;">${row.totalNet || '-'}</td>
+                        <td class="td-dii-net ${formatCellColor(row.diiNet)}">${row.diiNet || '-'}</td>
+                        <td class="td-total-net ${formatCellColor(row.totalNet)}">${row.totalNet || '-'}</td>
                     </tr>
                 `;
             });
@@ -585,6 +803,7 @@
             loadFiiDiiData();
         });
     </script>
+
 </body>
 
 </html>

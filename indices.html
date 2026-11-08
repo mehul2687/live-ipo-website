@@ -817,6 +817,9 @@
                 <button type="button" class="btn-category-tab active" data-filter="all" onclick="setCategoryFilter('all')">
                     🌟 All Indices <span class="tab-badge-count" id="badgeCountAll">0</span>
                 </button>
+                <button type="button" class="btn-category-tab" data-filter="derivative" onclick="setCategoryFilter('derivative')">
+                    ⚡ Derivative Indices <span class="tab-badge-count" id="badgeCountDerivative">6</span>
+                </button>
                 <button type="button" class="btn-category-tab" data-filter="key" onclick="setCategoryFilter('key')">
                     🏛️ Key Indices <span class="tab-badge-count" id="badgeCountKey">0</span>
                 </button>
@@ -1086,8 +1089,25 @@
             }
         }
 
+        const DERIVATIVE_INDICES = [
+            'NIFTY 50',
+            'NIFTY NEXT 50',
+            'NIFTY BANK',
+            'NIFTY FINANCIAL SERVICES',
+            'NIFTY MIDCAP SELECT',
+            'NIFTY INDIA FPI 150'
+        ];
+
+        function isDerivativeIndex(name) {
+            if (!name) return false;
+            const clean = name.trim().toUpperCase();
+            return DERIVATIVE_INDICES.some(d => d.toUpperCase() === clean);
+        }
+
         function updateBadgeCounts() {
             document.getElementById('badgeCountAll').innerText = allIndices.length;
+            const derivBadge = document.getElementById('badgeCountDerivative');
+            if (derivBadge) derivBadge.innerText = allIndices.filter(i => isDerivativeIndex(i.name)).length;
             document.getElementById('badgeCountKey').innerText = allIndices.filter(i => isKeyIndex(i.name)).length;
             document.getElementById('badgeCountNse').innerText = allIndices.filter(i => i.exchange === 'NSE').length;
             document.getElementById('badgeCountBse').innerText = allIndices.filter(i => i.exchange === 'BSE').length;
@@ -1106,12 +1126,20 @@
 
         function setCategoryFilter(filter) {
             currentFilter = filter;
+            if (filter === 'derivative') {
+                currentSort.column = 'custom';
+                document.querySelectorAll('.sort-icon').forEach(icon => {
+                    icon.innerText = '▲▼';
+                    icon.classList.remove('sort-active');
+                });
+            }
             document.querySelectorAll('.btn-category-tab').forEach(b => {
                 b.classList.toggle('active', b.getAttribute('data-filter') === filter);
             });
 
             const labels = {
                 all: '(All Indices)',
+                derivative: '(Derivative Indices - F&O Eligible)',
                 key: '(Key Market Indices)',
                 nse: '(NSE Indices)',
                 bse: '(BSE Indices)',
@@ -1159,7 +1187,9 @@
             let list = [...allIndices];
 
             // 1. Filter by category
-            if (currentFilter === 'key') {
+            if (currentFilter === 'derivative') {
+                list = list.filter(i => isDerivativeIndex(i.name));
+            } else if (currentFilter === 'key') {
                 list = list.filter(i => isKeyIndex(i.name));
             } else if (currentFilter === 'nse') {
                 list = list.filter(i => i.exchange === 'NSE');
@@ -1181,20 +1211,24 @@
             }
 
             // 3. Sort
-            const col = currentSort.column;
-            const asc = currentSort.order === 'asc';
-            list.sort((a, b) => {
-                let vA = a[col];
-                let vB = b[col];
+            if (currentFilter === 'derivative' && currentSort.column === 'custom') {
+                list.sort((a, b) => DERIVATIVE_INDICES.indexOf(a.name) - DERIVATIVE_INDICES.indexOf(b.name));
+            } else {
+                const col = currentSort.column;
+                const asc = currentSort.order === 'asc';
+                list.sort((a, b) => {
+                    let vA = a[col];
+                    let vB = b[col];
 
-                if (col === 'name') {
-                    return asc ? (vA || '').localeCompare(vB || '') : (vB || '').localeCompare(vA || '');
-                }
+                    if (col === 'name') {
+                        return asc ? (vA || '').localeCompare(vB || '') : (vB || '').localeCompare(vA || '');
+                    }
 
-                vA = parseFloat(vA) || 0;
-                vB = parseFloat(vB) || 0;
-                return asc ? (vA - vB) : (vB - vA);
-            });
+                    vA = parseFloat(vA) || 0;
+                    vB = parseFloat(vB) || 0;
+                    return asc ? (vA - vB) : (vB - vA);
+                });
+            }
 
             document.getElementById('visibleCountText').innerText = list.length;
             const tbody = document.getElementById('indicesTableBody');

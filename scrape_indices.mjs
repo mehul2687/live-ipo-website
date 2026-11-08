@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 const DATA_FILE = path.resolve('indices-data.json');
+const HISTORY_FILE = path.resolve('indices-history-data.json');
 
 const BROWSER_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -267,7 +268,61 @@ export async function scrapeIndices() {
 
     fs.writeFileSync(DATA_FILE, JSON.stringify(result, null, 2), 'utf-8');
     console.log(`Successfully saved ${formattedList.length} indices to ${DATA_FILE}`);
+
+    // Cumulative Historical Snapshot Retention
+    saveDailyIndicesSnapshot(formattedList);
+
     return result;
+}
+
+export function saveDailyIndicesSnapshot(indices) {
+    if (!indices || indices.length === 0) return;
+    try {
+        let historyData = { dates: [], dailySnapshots: {} };
+        if (fs.existsSync(HISTORY_FILE)) {
+            historyData = JSON.parse(fs.readFileSync(HISTORY_FILE, 'utf8'));
+        }
+
+        const now = new Date();
+        const istOffset = 5.5 * 60 * 60 * 1000;
+        const istDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60 * 1000) + istOffset);
+        const day = String(istDate.getDate()).padStart(2, '0');
+        const month = String(istDate.getMonth() + 1).padStart(2, '0');
+        const year = istDate.getFullYear();
+        const dateKey = `${day}-${month}-${year}`;
+
+        const snapshot = indices.map(i => ({
+            name: i.name,
+            exchange: i.exchange,
+            category: i.category,
+            close: i.ltp,
+            chg: i.chg,
+            percentChange: i.percentChange,
+            open: i.open,
+            high: i.high,
+            low: i.low,
+            yearHigh: i.yearHigh,
+            yearLow: i.yearLow,
+            volume: i.volume
+        }));
+
+        historyData.dailySnapshots = historyData.dailySnapshots || {};
+        historyData.dates = historyData.dates || [];
+
+        historyData.dailySnapshots[dateKey] = snapshot;
+        if (!historyData.dates.includes(dateKey)) {
+            historyData.dates.unshift(dateKey);
+        }
+
+        historyData.lastUpdated = now.toISOString();
+        historyData.lastUpdatedDisplay = istDate.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+        historyData.totalDates = historyData.dates.length;
+
+        fs.writeFileSync(HISTORY_FILE, JSON.stringify(historyData, null, 2), 'utf8');
+        console.log(`Saved daily snapshot for ${dateKey} with ${snapshot.length} indices into ${HISTORY_FILE}`);
+    } catch (e) {
+        console.warn('Error saving daily indices snapshot:', e.message);
+    }
 }
 
 if (process.argv[1] && process.argv[1].endsWith('scrape_indices.mjs')) {

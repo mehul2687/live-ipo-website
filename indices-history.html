@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indices History - Date-wise Historical Closing Data of Indian Indices | Live IPO</title>
+    <meta name="description" content="Explore daily historical closing data, day range, and performance of all NSE and BSE indices including NIFTY 50, SENSEX, NIFTY BANK, Derivative & Sectoral indices by date.">
+
+    <!-- External CSS Link -->
+    <link rel="stylesheet" href="style.css?v=2026.11.08.7">
+
+    <!-- Google Identity Services (Google Sign-In) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Global JavaScript Link -->
+    <script src="script.js?v=2026.11.08.7"></script>
+
+    <style>
+        /* ==========================================================
+           INDICES HISTORY MODERN THEME & STYLES
+           ========================================================== */
+        .demat-breadcrumb {
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .demat-breadcrumb a {
+            color: #64748b;
+            text-decoration: none;
+        }
+
+        .demat-breadcrumb a:hover {
+            color: #0284c7;
+        }
+
+        .demat-breadcrumb .separator {
+            margin: 0 5px;
+            color: #cbd5e1;
+        }
+
+        .demat-breadcrumb .current {
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .history-page-header {
+            margin-bottom: 16px;
+        }
+
+        .history-header-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .history-page-title {
+            font-size: 21px;
+            font-weight: 900;
+            color: #0f172a;
+            letter-spacing: -0.4px;
+            text-transform: uppercase;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-controls-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .date-select-picker {
+            padding: 7px 14px;
+            border: 1.5px solid #0284c7;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+            background: #ffffff;
+            outline: none;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(2, 132, 199, 0.12);
+        }
+
+        .date-select-picker:focus {
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.2);
+        }
+
+        .view-mode-btn-group {
+            display: inline-flex;
+            background: #f1f5f9;
+            padding: 3px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-view-mode {
+            border: none;
+            background: transparent;
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #475569;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-view-mode.active {
+            background: #ffffff;
+            color: #0284c7;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Top 4 Summary Cards */
+        .indices-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1080px) {
+            .indices-cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .indices-cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .index-stat-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 14px 16px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.22s;
+        }
+
+        .stat-card-nifty {
+            border-top: 3.5px solid #2563eb;
+        }
+
+        .stat-card-sensex {
+            border-top: 3.5px solid #ea580c;
+        }
+
+        .stat-card-bank {
+            border-top: 3.5px solid #059669;
+        }
+
+        .stat-card-vix {
+            border-top: 3.5px solid #7c3aed;
+        }
+
+        .card-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .card-index-title {
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .card-exchange-pill {
+            font-size: 9.5px;
+            font-weight: 800;
+            padding: 1.5px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .pill-nse {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+        }
+
+        .pill-bse {
+            background: #fff7ed;
+            color: #c2410c;
+            border: 1px solid #fed7aa;
+        }
+
+        .card-ltp-val {
+            font-size: 21px;
+            font-weight: 900;
+            color: #0f172a;
+            letter-spacing: -0.4px;
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 4px;
+        }
+
+        .card-chg-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .card-range-wrap {
+            margin-top: 6px;
+            padding-top: 8px;
+            border-top: 1px dashed #e2e8f0;
+            font-size: 10px;
+            color: #64748b;
+        }
+
+        .range-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3px;
+            font-weight: 600;
+        }
+
+        .range-bar-bg {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .range-bar-fill {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            border-radius: 4px;
+        }
+
+        /* Category Filter Tabs & Search Bar */
+        .history-controls-panel {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .history-tabs-group {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .btn-category-tab {
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            color: #475569;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-category-tab:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
+
+        .btn-category-tab.active {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #0284c7;
+            box-shadow: 0 2px 8px rgba(2, 132, 199, 0.28);
+        }
+
+        .tab-badge-count {
+            background: rgba(0, 0, 0, 0.08);
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .btn-category-tab.active .tab-badge-count {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+        }
+
+        .history-search-input {
+            padding: 7px 14px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 12px;
+            outline: none;
+            width: 250px;
+            background: #ffffff;
+            transition: all 0.2s;
+        }
+
+        .history-search-input:focus {
+            border-color: #0284c7;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+        }
+
+        /* Main Historical Table */
+        .history-table-container {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .history-table-info-bar {
+            padding: 8px 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11.5px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .table-scroll-wrapper {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            font-size: 12px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .history-table thead th {
+            background: #f1f5f9;
+            color: #1e293b;
+            font-weight: 800;
+            padding: 10px 12px;
+            border-bottom: 2px solid #cbd5e1;
+            border-right: 1px solid #e2e8f0;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .history-table thead th.th-sticky-first {
+            text-align: left;
+            position: sticky;
+            left: 0;
+            z-index: 2;
+            background: #f1f5f9;
+            border-right: 2px solid #cbd5e1;
+            min-width: 210px;
+        }
+
+        .history-table tbody td {
+            padding: 9px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            border-right: 1px solid #f8fafc;
+            white-space: nowrap;
+            color: #334155;
+            font-weight: 600;
+        }
+
+        .history-table tbody tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        .history-table tbody td.td-sticky-first {
+            text-align: left;
+            font-weight: 800;
+            color: #0f172a;
+            position: sticky;
+            left: 0;
+            z-index: 1;
+            background: #ffffff;
+            border-right: 2px solid #cbd5e1;
+        }
+
+        .history-table tbody tr:hover td.td-sticky-first {
+            background-color: #f1f5f9;
+        }
+
+        .index-name-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .td-close-val {
+            font-weight: 800 !important;
+            font-size: 13px !important;
+            color: #0f172a !important;
+        }
+
+        /* Color Coding */
+        .val-positive {
+            color: #16a34a !important;
+            font-weight: 700 !important;
+        }
+
+        .val-negative {
+            color: #dc2626 !important;
+            font-weight: 700 !important;
+        }
+
+        .val-neutral {
+            color: #64748b !important;
+            font-weight: 600 !important;
+        }
+
+        .badge-pill-val {
+            display: inline-block;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .badge-pill-pos {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-pill-neg {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .badge-pill-neu {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .sort-icon {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-left: 4px;
+        }
+
+        .sort-active {
+            color: #0284c7;
+        }
+    </style>
+</head>
+
+<body class="home-page">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            📊 <span>Live IPO</span>
+        </a>
+
+        <ul class="sidebar-menu">
+            <li class="menu-item"><a href="index.html">🏠 <span>Home</span></a></li>
+            <li class="menu-item"><a href="ipo-calendar.html">📅 <span>IPO Calendar</span></a></li>
+            <li class="menu-item"><a href="indices.html">📈 <span>Live Indices</span></a></li>
+            <li class="menu-item"><a href="indices-history.html" class="active">📅 <span>Indices History</span></a></li>
+            <li class="menu-item"><a href="my-demat-accounts.html">👥 <span>My Demat Accounts</span></a></li>
+            <li class="menu-item"><a href="allotment-checker.html">🔍 <span>Allotment Checker</span></a></li>
+            <li class="menu-item"><a href="fii-dii-activity.html">📊 <span>FII/DII Activity</span></a></li>
+            <li class="menu-item"><a href="ipo-bid.html">📝 <span>IPO Bid</span></a></li>
+            <li class="menu-item"><a href="ipo-form-print.html">🖨️ <span>Form Print</span></a></li>
+            <li class="menu-item"><a href="profile.html">👤 <span>My Profile</span></a></li>
+            <li class="menu-item"><a href="help-support.html">💬 <span>Help / Support</span></a></li>
+            <li class="menu-item"><a href="privacy-policy.html">🔒 <span>Privacy Policy</span></a></li>
+            <li class="menu-item"><a href="disclaimer.html">⚠️ <span>Disclaimer</span></a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+        <!-- Top User Header Bar with Google Sign-In -->
+        <div class="user-header-bar">
+            <div class="header-welcome-text">
+                <span class="live-pulse"></span>
+                <span>Live IPO Portal</span>
+            </div>
+            <div class="user-auth-section">
+                <div id="googleSignInBtn"></div>
+                <div id="userProfileBadge" class="user-profile-badge" style="display: none;">
+                    <img id="userAvatarImg" src="" alt="User" class="user-avatar-img">
+                    <span id="userNameText" class="user-name-text">User</span>
+                    <button type="button" class="btn-user-logout" onclick="handleUserLogout()" title="Logout">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breadcrumb Navigation -->
+        <div class="demat-breadcrumb">
+            <a href="index.html">🏠 Home</a>
+            <span class="separator">/</span>
+            <span class="current">Indices History</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="history-page-header">
+            <div class="history-header-top">
+                <div>
+                    <h1 class="history-page-title">
+                        📅 INDIAN INDICES DAILY HISTORY
+                    </h1>
+                    <div style="font-size: 12px; color: #64748b; margin-top: 4px; font-weight: 600;">
+                        Daily Closing Snapshots of all NSE & BSE Indices by Date
+                    </div>
+                </div>
+
+                <div class="history-controls-row">
+                    <div class="view-mode-btn-group">
+                        <button type="button" class="btn-view-mode active" id="btnModeDate" onclick="switchViewMode('byDate')">
+                            📅 By Date
+                        </button>
+                        <button type="button" class="btn-view-mode" id="btnModeIndex" onclick="switchViewMode('byIndex')">
+                            📈 By Single Index
+                        </button>
+                    </div>
+
+                    <!-- Date Selector (Used in By Date Mode) -->
+                    <div id="dateSelectorWrapper">
+                        <select id="dateDropdown" class="date-select-picker" onchange="handleDateChange(this.value)">
+                            <option value="">Loading dates...</option>
+                        </select>
+                    </div>
+
+                    <!-- Index Selector (Used in By Index Mode) -->
+                    <div id="indexSelectorWrapper" style="display: none;">
+                        <select id="indexDropdown" class="date-select-picker" onchange="handleIndexChange(this.value)">
+                            <option value="NIFTY 50">NIFTY 50</option>
+                            <option value="SENSEX">SENSEX</option>
+                            <option value="NIFTY BANK">NIFTY BANK</option>
+                            <option value="NIFTY FINANCIAL SERVICES">NIFTY FINANCIAL SERVICES</option>
+                            <option value="NIFTY NEXT 50">NIFTY NEXT 50</option>
+                            <option value="NIFTY MIDCAP SELECT">NIFTY MIDCAP SELECT</option>
+                            <option value="NIFTY INDIA FPI 150">NIFTY INDIA FPI 150</option>
+                            <option value="INDIA VIX">INDIA VIX</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TOP 4 SUMMARY STAT CARDS (For Selected Date / Index) -->
+        <div class="indices-cards-grid">
+            <div class="index-stat-card stat-card-nifty">
+                <div>
+                    <div class="card-top-row">
+                        <span class="card-index-title">NIFTY 50</span>
+                        <span class="card-exchange-pill pill-nse">NSE</span>
+                    </div>
+                    <div class="card-ltp-val" id="cardNiftyLtp">-</div>
+                    <div class="card-chg-row" id="cardNiftyChgWrap">
+                        <span class="val-positive" id="cardNiftyChg">-</span>
+                        <span class="badge-pill-val badge-pill-pos" id="cardNiftyPchg">-</span>
+                    </div>
+                </div>
+                <div class="card-range-wrap">
+                    <div class="range-labels">
+                        <span>L: <strong id="cardNiftyLow">-</strong></span>
+                        <span>H: <strong id="cardNiftyHigh">-</strong></span>
+                    </div>
+                    <div class="range-bar-bg">
+                        <div class="range-bar-fill" id="cardNiftyRangeBar" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="index-stat-card stat-card-sensex">
+                <div>
+                    <div class="card-top-row">
+                        <span class="card-index-title">SENSEX</span>
+                        <span class="card-exchange-pill pill-bse">BSE</span>
+                    </div>
+                    <div class="card-ltp-val" id="cardSensexLtp">-</div>
+                    <div class="card-chg-row" id="cardSensexChgWrap">
+                        <span class="val-positive" id="cardSensexChg">-</span>
+                        <span class="badge-pill-val badge-pill-pos" id="cardSensexPchg">-</span>
+                    </div>
+                </div>
+                <div class="card-range-wrap">
+                    <div class="range-labels">
+                        <span>L: <strong id="cardSensexLow">-</strong></span>
+                        <span>H: <strong id="cardSensexHigh">-</strong></span>
+                    </div>
+                    <div class="range-bar-bg">
+                        <div class="range-bar-fill" id="cardSensexRangeBar" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="index-stat-card stat-card-bank">
+                <div>
+                    <div class="card-top-row">
+                        <span class="card-index-title">NIFTY BANK</span>
+                        <span class="card-exchange-pill pill-nse">NSE</span>
+                    </div>
+                    <div class="card-ltp-val" id="cardBankLtp">-</div>
+                    <div class="card-chg-row" id="cardBankChgWrap">
+                        <span class="val-positive" id="cardBankChg">-</span>
+                        <span class="badge-pill-val badge-pill-pos" id="cardBankPchg">-</span>
+                    </div>
+                </div>
+                <div class="card-range-wrap">
+                    <div class="range-labels">
+                        <span>L: <strong id="cardBankLow">-</strong></span>
+                        <span>H: <strong id="cardBankHigh">-</strong></span>
+                    </div>
+                    <div class="range-bar-bg">
+                        <div class="range-bar-fill" id="cardBankRangeBar" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="index-stat-card stat-card-vix">
+                <div>
+                    <div class="card-top-row">
+                        <span class="card-index-title">INDIA VIX</span>
+                        <span class="card-exchange-pill pill-nse">Volatility</span>
+                    </div>
+                    <div class="card-ltp-val" id="cardVixLtp">-</div>
+                    <div class="card-chg-row" id="cardVixChgWrap">
+                        <span class="val-negative" id="cardVixChg">-</span>
+                        <span class="badge-pill-val badge-pill-neg" id="cardVixPchg">-</span>
+                    </div>
+                </div>
+                <div class="card-range-wrap">
+                    <div class="range-labels">
+                        <span>Historical Market Status</span>
+                        <span id="cardVixStatus">Market Closed Session</span>
+                    </div>
+                    <div class="range-bar-bg">
+                        <div class="range-bar-fill" style="width: 40%; background: #8b5cf6;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTROLS PANEL: CATEGORY TABS & SEARCH (Used in By Date Mode) -->
+        <div class="history-controls-panel" id="categoryControlsPanel">
+            <div class="history-tabs-group">
+                <button type="button" class="btn-category-tab active" data-filter="all" onclick="setCategoryFilter('all')">
+                    🌟 All Indices <span class="tab-badge-count" id="badgeCountAll">0</span>
+                </button>
+                <button type="button" class="btn-category-tab" data-filter="derivative" onclick="setCategoryFilter('derivative')">
+                    ⚡ Derivative Indices <span class="tab-badge-count" id="badgeCountDerivative">6</span>
+                </button>
+                <button type="button" class="btn-category-tab" data-filter="key" onclick="setCategoryFilter('key')">
+                    🏛️ Key Indices <span class="tab-badge-count" id="badgeCountKey">0</span>
+                </button>
+                <button type="button" class="btn-category-tab" data-filter="nse" onclick="setCategoryFilter('nse')">
+                    🔵 NSE <span class="tab-badge-count" id="badgeCountNse">0</span>
+                </button>
+                <button type="button" class="btn-category-tab" data-filter="bse" onclick="setCategoryFilter('bse')">
+                    🟠 BSE <span class="tab-badge-count" id="badgeCountBse">0</span>
+                </button>
+                <button type="button" class="btn-category-tab" data-filter="sectoral" onclick="setCategoryFilter('sectoral')">
+                    🏭 Sectoral <span class="tab-badge-count" id="badgeCountSectoral">0</span>
+                </button>
+                <button type="button" class="btn-category-tab" data-filter="thematic" onclick="setCategoryFilter('thematic')">
+                    🚀 Thematic & Others <span class="tab-badge-count" id="badgeCountThematic">0</span>
+                </button>
+            </div>
+
+            <div>
+                <input type="text" id="historySearchInput" class="history-search-input" placeholder="🔍 Search index..." oninput="handleSearch(this.value)">
+            </div>
+        </div>
+
+        <!-- MAIN HISTORICAL TABLE -->
+        <div class="history-table-container">
+            <div class="history-table-info-bar">
+                <span>
+                    Showing <strong id="visibleCountText">0</strong> records
+                    <span id="activeFilterLabel" style="color: #0284c7; margin-left: 6px;">(06-11-2026)</span>
+                </span>
+                <span id="lastUpdatedLabel">Date-wise History</span>
+            </div>
+
+            <div class="table-scroll-wrapper">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th class="th-sticky-first" onclick="sortTable('name')" id="thFirstCol">
+                                Indices <span class="sort-icon" id="sortIcon_name">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('close')">
+                                Close (LTP) <span class="sort-icon" id="sortIcon_close">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('chg')">
+                                Chg <span class="sort-icon" id="sortIcon_chg">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('percentChange')">
+                                % Chg <span class="sort-icon" id="sortIcon_percentChange">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('open')">
+                                Open <span class="sort-icon" id="sortIcon_open">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('high')">
+                                High <span class="sort-icon" id="sortIcon_high">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('low')">
+                                Low <span class="sort-icon" id="sortIcon_low">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('yearHigh')">
+                                52 Week High <span class="sort-icon" id="sortIcon_yearHigh">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('yearLow')">
+                                52 Week Low <span class="sort-icon" id="sortIcon_yearLow">▲▼</span>
+                            </th>
+                            <th onclick="sortTable('volume')">
+                                Volume <span class="sort-icon" id="sortIcon_volume">▲▼</span>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr>
+                            <td colspan="10" style="text-align: center; padding: 32px; color: #64748b;">
+                                ⏳ Loading historical indices data...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Page Logic Script -->
+    <script>
+        let historyData = null;
+        let availableDates = [];
+        let selectedDate = '';
+        let selectedIndex = 'NIFTY 50';
+        let currentViewMode = 'byDate'; // 'byDate' | 'byIndex'
+        let currentFilter = 'all';
+        let searchQuery = '';
+        let currentSort = { column: 'close', order: 'desc' };
+
+        const DERIVATIVE_INDICES = [
+            'NIFTY 50',
+            'NIFTY NEXT 50',
+            'NIFTY BANK',
+            'NIFTY FINANCIAL SERVICES',
+            'NIFTY MIDCAP SELECT',
+            'NIFTY INDIA FPI 150'
+        ];
+
+        function isDerivativeIndex(name) {
+            if (!name) return false;
+            const clean = name.trim().toUpperCase();
+            return DERIVATIVE_INDICES.some(d => d.toUpperCase() === clean);
+        }
+
+        function formatNumber(num) {
+            if (num === null || num === undefined || isNaN(num) || num === 0) return '-';
+            return parseFloat(num).toLocaleString('en-IN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function formatVolume(vol) {
+            if (!vol || isNaN(vol) || vol === 0) return '-';
+            if (vol >= 10000000) return (vol / 10000000).toFixed(2) + ' Cr';
+            if (vol >= 100000) return (vol / 100000).toFixed(2) + ' L';
+            if (vol >= 1000) return (vol / 1000).toFixed(2) + ' K';
+            return vol.toLocaleString('en-IN');
+        }
+
+        async function loadHistoryData() {
+            try {
+                const res = await fetch(`indices-history-data.json?t=${Date.now()}`);
+                if (!res.ok) throw new Error('History data not found');
+                historyData = await res.json();
+                availableDates = historyData.dates || [];
+
+                populateDateDropdown();
+                if (availableDates.length > 0) {
+                    selectedDate = availableDates[0];
+                    renderView();
+                }
+            } catch (err) {
+                console.error('Error loading history data:', err);
+                document.getElementById('historyTableBody').innerHTML = `
+                    <tr><td colspan="10" style="text-align: center; padding: 32px; color: #dc2626;">
+                        ⚠️ Could not load historical indices data. Please try refreshing.
+                    </td></tr>
+                `;
+            }
+        }
+
+        function populateDateDropdown() {
+            const dropdown = document.getElementById('dateDropdown');
+            dropdown.innerHTML = '';
+            availableDates.forEach((dt, idx) => {
+                const opt = document.createElement('option');
+                opt.value = dt;
+                opt.innerText = `📅 ${dt} ${idx === 0 ? '(Latest Session)' : ''}`;
+                dropdown.appendChild(opt);
+            });
+        }
+
+        function switchViewMode(mode) {
+            currentViewMode = mode;
+            document.getElementById('btnModeDate').classList.toggle('active', mode === 'byDate');
+            document.getElementById('btnModeIndex').classList.toggle('active', mode === 'byIndex');
+
+            document.getElementById('dateSelectorWrapper').style.display = mode === 'byDate' ? 'block' : 'none';
+            document.getElementById('indexSelectorWrapper').style.display = mode === 'byIndex' ? 'block' : 'none';
+            document.getElementById('categoryControlsPanel').style.display = mode === 'byDate' ? 'flex' : 'none';
+
+            document.getElementById('thFirstCol').innerHTML = mode === 'byDate'
+                ? `Indices <span class="sort-icon" id="sortIcon_name">▲▼</span>`
+                : `Date <span class="sort-icon" id="sortIcon_date">▲▼</span>`;
+
+            renderView();
+        }
+
+        function handleDateChange(val) {
+            selectedDate = val;
+            renderView();
+        }
+
+        function handleIndexChange(val) {
+            selectedIndex = val;
+            renderView();
+        }
+
+        function setCategoryFilter(filter) {
+            currentFilter = filter;
+            if (filter === 'derivative') {
+                currentSort.column = 'custom';
+            }
+            document.querySelectorAll('.btn-category-tab').forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-filter') === filter);
+            });
+            renderView();
+        }
+
+        function handleSearch(val) {
+            searchQuery = (val || '').trim().toLowerCase();
+            renderView();
+        }
+
+        function sortTable(column) {
+            if (currentSort.column === column) {
+                currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.order = (column === 'name' || column === 'date') ? 'asc' : 'desc';
+            }
+            renderView();
+        }
+
+        function renderView() {
+            if (!historyData) return;
+
+            if (currentViewMode === 'byDate') {
+                renderByDate();
+            } else {
+                renderByIndex();
+            }
+        }
+
+        function renderByDate() {
+            const snapshot = historyData.dailySnapshots[selectedDate] || [];
+
+            // Update top cards for selected date
+            const n50 = snapshot.find(i => i.name === 'NIFTY 50');
+            const sen = snapshot.find(i => i.name === 'SENSEX');
+            const bnk = snapshot.find(i => i.name === 'NIFTY BANK');
+            const vix = snapshot.find(i => i.name === 'INDIA VIX');
+            updateTopCards(n50, sen, bnk, vix);
+
+            // Update Badge Counts
+            document.getElementById('badgeCountAll').innerText = snapshot.length;
+            document.getElementById('badgeCountDerivative').innerText = snapshot.filter(i => isDerivativeIndex(i.name)).length;
+            document.getElementById('badgeCountKey').innerText = snapshot.filter(i => isKeyIndex(i.name)).length;
+            document.getElementById('badgeCountNse').innerText = snapshot.filter(i => i.exchange === 'NSE').length;
+            document.getElementById('badgeCountBse').innerText = snapshot.filter(i => i.exchange === 'BSE').length;
+            document.getElementById('badgeCountSectoral').innerText = snapshot.filter(i => (i.category || '').toLowerCase().includes('sector')).length;
+            document.getElementById('badgeCountThematic').innerText = snapshot.filter(i => (i.category || '').toLowerCase().includes('thematic') || (i.category || '').toLowerCase().includes('broad')).length;
+
+            let list = [...snapshot];
+
+            // Filter by Category
+            if (currentFilter === 'derivative') {
+                list = list.filter(i => isDerivativeIndex(i.name));
+            } else if (currentFilter === 'key') {
+                list = list.filter(i => isKeyIndex(i.name));
+            } else if (currentFilter === 'nse') {
+                list = list.filter(i => i.exchange === 'NSE');
+            } else if (currentFilter === 'bse') {
+                list = list.filter(i => i.exchange === 'BSE');
+            } else if (currentFilter === 'sectoral') {
+                list = list.filter(i => (i.category || '').toLowerCase().includes('sector'));
+            } else if (currentFilter === 'thematic') {
+                list = list.filter(i => (i.category || '').toLowerCase().includes('thematic') || (i.category || '').toLowerCase().includes('broad'));
+            }
+
+            // Search Filter
+            if (searchQuery) {
+                list = list.filter(i => (i.name || '').toLowerCase().includes(searchQuery));
+            }
+
+            // Sort
+            if (currentFilter === 'derivative' && currentSort.column === 'custom') {
+                list.sort((a, b) => DERIVATIVE_INDICES.indexOf(a.name) - DERIVATIVE_INDICES.indexOf(b.name));
+            } else {
+                const col = currentSort.column;
+                const asc = currentSort.order === 'asc';
+                list.sort((a, b) => {
+                    let vA = a[col];
+                    let vB = b[col];
+                    if (col === 'name') return asc ? (vA || '').localeCompare(vB || '') : (vB || '').localeCompare(vA || '');
+                    vA = parseFloat(vA) || 0;
+                    vB = parseFloat(vB) || 0;
+                    return asc ? (vA - vB) : (vB - vA);
+                });
+            }
+
+            document.getElementById('visibleCountText').innerText = list.length;
+            document.getElementById('activeFilterLabel').innerText = `(${selectedDate})`;
+
+            let html = '';
+            list.forEach(item => {
+                const numChg = parseFloat(item.chg) || 0;
+                const numPchg = parseFloat(item.percentChange) || 0;
+                const sign = numChg > 0 ? '+' : '';
+
+                let chgColor = numChg > 0 ? 'val-positive' : numChg < 0 ? 'val-negative' : 'val-neutral';
+                let pillClass = numChg > 0 ? 'badge-pill-pos' : numChg < 0 ? 'badge-pill-neg' : 'badge-pill-neu';
+                const exPill = item.exchange === 'BSE' ? 'pill-bse' : 'pill-nse';
+
+                html += `
+                    <tr>
+                        <td class="td-sticky-first">
+                            <div class="index-name-flex">
+                                <span style="font-size: 12.5px; font-weight: 800; color: #0f172a;">${item.name}</span>
+                                <div>
+                                    <span class="card-exchange-pill ${exPill}">${item.exchange || 'NSE'}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="td-close-val">${formatNumber(item.close)}</td>
+                        <td class="${chgColor}">${sign}${formatNumber(numChg)}</td>
+                        <td><span class="badge-pill-val ${pillClass}">${sign}${numPchg.toFixed(2)}%</span></td>
+                        <td>${formatNumber(item.open)}</td>
+                        <td style="color: #15803d;">${formatNumber(item.high)}</td>
+                        <td style="color: #b91c1c;">${formatNumber(item.low)}</td>
+                        <td>${formatNumber(item.yearHigh)}</td>
+                        <td>${formatNumber(item.yearLow)}</td>
+                        <td>${formatVolume(item.volume)}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('historyTableBody').innerHTML = html;
+        }
+
+        function renderByIndex() {
+            // Find records for selectedIndex across all available dates
+            const records = [];
+            availableDates.forEach(dt => {
+                const snapshot = historyData.dailySnapshots[dt] || [];
+                const found = snapshot.find(i => i.name === selectedIndex);
+                if (found) {
+                    records.push({
+                        date: dt,
+                        ...found
+                    });
+                }
+            });
+
+            // Update top cards with latest record
+            if (records.length > 0) {
+                const latest = records[0];
+                updateSingleTopCard(latest);
+            }
+
+            // Sort by date (desc by default)
+            document.getElementById('visibleCountText').innerText = records.length;
+            document.getElementById('activeFilterLabel').innerText = `(${selectedIndex} Historical Sessions)`;
+
+            let html = '';
+            records.forEach(item => {
+                const numChg = parseFloat(item.chg) || 0;
+                const numPchg = parseFloat(item.percentChange) || 0;
+                const sign = numChg > 0 ? '+' : '';
+
+                let chgColor = numChg > 0 ? 'val-positive' : numChg < 0 ? 'val-negative' : 'val-neutral';
+                let pillClass = numChg > 0 ? 'badge-pill-pos' : numChg < 0 ? 'badge-pill-neg' : 'badge-pill-neu';
+
+                html += `
+                    <tr>
+                        <td class="td-sticky-first">
+                            <span style="font-size: 13px; font-weight: 800; color: #0284c7;">📅 ${item.date}</span>
+                        </td>
+                        <td class="td-close-val">${formatNumber(item.close)}</td>
+                        <td class="${chgColor}">${sign}${formatNumber(numChg)}</td>
+                        <td><span class="badge-pill-val ${pillClass}">${sign}${numPchg.toFixed(2)}%</span></td>
+                        <td>${formatNumber(item.open)}</td>
+                        <td style="color: #15803d;">${formatNumber(item.high)}</td>
+                        <td style="color: #b91c1c;">${formatNumber(item.low)}</td>
+                        <td>${formatNumber(item.yearHigh)}</td>
+                        <td>${formatNumber(item.yearLow)}</td>
+                        <td>${formatVolume(item.volume)}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('historyTableBody').innerHTML = html;
+        }
+
+        function updateTopCards(n, s, b, v) {
+            if (n) {
+                document.getElementById('cardNiftyLtp').innerText = formatNumber(n.close);
+                updateCardChg('cardNiftyChg', 'cardNiftyPchg', n.chg, n.percentChange);
+                document.getElementById('cardNiftyLow').innerText = formatNumber(n.low);
+                document.getElementById('cardNiftyHigh').innerText = formatNumber(n.high);
+            }
+            if (s) {
+                document.getElementById('cardSensexLtp').innerText = formatNumber(s.close);
+                updateCardChg('cardSensexChg', 'cardSensexPchg', s.chg, s.percentChange);
+                document.getElementById('cardSensexLow').innerText = formatNumber(s.low);
+                document.getElementById('cardSensexHigh').innerText = formatNumber(s.high);
+            }
+            if (b) {
+                document.getElementById('cardBankLtp').innerText = formatNumber(b.close);
+                updateCardChg('cardBankChg', 'cardBankPchg', b.chg, b.percentChange);
+                document.getElementById('cardBankLow').innerText = formatNumber(b.low);
+                document.getElementById('cardBankHigh').innerText = formatNumber(b.high);
+            }
+            if (v) {
+                document.getElementById('cardVixLtp').innerText = formatNumber(v.close);
+                updateCardChg('cardVixChg', 'cardVixPchg', v.chg, v.percentChange);
+            }
+        }
+
+        function updateSingleTopCard(item) {
+            document.getElementById('cardNiftyLtp').innerText = formatNumber(item.close);
+            updateCardChg('cardNiftyChg', 'cardNiftyPchg', item.chg, item.percentChange);
+            document.getElementById('cardNiftyLow').innerText = formatNumber(item.low);
+            document.getElementById('cardNiftyHigh').innerText = formatNumber(item.high);
+        }
+
+        function updateCardChg(chgId, pchgId, chg, pchg) {
+            const chgEl = document.getElementById(chgId);
+            const pchgEl = document.getElementById(pchgId);
+            if (!chgEl || !pchgEl) return;
+
+            const numChg = parseFloat(chg) || 0;
+            const numPchg = parseFloat(pchg) || 0;
+            const sign = numChg > 0 ? '+' : '';
+
+            chgEl.innerText = `${sign}${formatNumber(numChg)}`;
+            pchgEl.innerText = `${sign}${numPchg.toFixed(2)}%`;
+
+            if (numChg > 0) {
+                chgEl.className = 'val-positive';
+                pchgEl.className = 'badge-pill-val badge-pill-pos';
+            } else if (numChg < 0) {
+                chgEl.className = 'val-negative';
+                pchgEl.className = 'badge-pill-val badge-pill-neg';
+            } else {
+                chgEl.className = 'val-neutral';
+                pchgEl.className = 'badge-pill-val badge-pill-neu';
+            }
+        }
+
+        function isKeyIndex(name) {
+            const keyNames = [
+                'NIFTY 50', 'SENSEX', 'NIFTY BANK', 'NIFTY NEXT 50', 'NIFTY MIDCAP 100',
+                'NIFTY 100', 'NIFTY 200', 'NIFTY 500', 'NIFTY SMALLCAP 100', 'INDIA VIX',
+                'BSE 100', 'BSE 200', 'BSE 500', 'BSE SENSEX NEXT 30'
+            ];
+            return keyNames.includes(name);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadHistoryData();
+        });
+    </script>
+</body>
+
+</html>

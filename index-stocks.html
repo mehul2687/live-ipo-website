@@ -714,6 +714,7 @@
                     <option value="NIFTY NEXT 50">NIFTY NEXT 50 (50)</option>
                     <option value="NIFTY FINANCIAL SERVICES">NIFTY FINANCIAL SERVICES (20)</option>
                     <option value="NIFTY MIDCAP SELECT">NIFTY MIDCAP SELECT (25)</option>
+                    <option value="NIFTY SMLCAP 250">NIFTY SMLCAP 250</option>
                     <option value="NIFTY INDIA FPI 150">NIFTY INDIA FPI 150 (25)</option>
                     <option value="NIFTY IT">NIFTY IT (10)</option>
                     <option value="NIFTY AUTO">NIFTY AUTO (15)</option>
@@ -818,6 +819,7 @@
             'NIFTY FINANCIAL SERVICES',
             'NIFTY NEXT 50',
             'NIFTY MIDCAP SELECT',
+            'NIFTY SMLCAP 250',
             'NIFTY INDIA FPI 150',
             'SENSEX',
             'NIFTY IT',
@@ -904,10 +906,21 @@
             renderStocksTable();
         }
 
+        function getIndexData(key) {
+            if (!fullStockDataset.indices) return null;
+            if (fullStockDataset.indices[key]) return fullStockDataset.indices[key];
+            const clean = (key || '').toUpperCase().trim();
+            for (const [k, val] of Object.entries(fullStockDataset.indices)) {
+                if (k.toUpperCase() === clean) return val;
+                if ((clean.includes('SMLCAP') || clean.includes('SMALLCAP')) && (k.toUpperCase().includes('SMLCAP') || k.toUpperCase().includes('SMALLCAP'))) {
+                    return val;
+                }
+            }
+            return fullStockDataset.indices['NIFTY 50'] || null;
+        }
+
         function updateHeroCard() {
-            const idxData = (fullStockDataset.indices && fullStockDataset.indices[activeIndexKey])
-                ? fullStockDataset.indices[activeIndexKey]
-                : (fullStockDataset.indices ? fullStockDataset.indices['NIFTY 50'] : null);
+            const idxData = getIndexData(activeIndexKey);
 
             if (!idxData) return;
 
@@ -1004,9 +1017,7 @@
         }
 
         function renderStocksTable() {
-            const idxData = (fullStockDataset.indices && fullStockDataset.indices[activeIndexKey])
-                ? fullStockDataset.indices[activeIndexKey]
-                : (fullStockDataset.indices ? fullStockDataset.indices['NIFTY 50'] : null);
+            const idxData = getIndexData(activeIndexKey);
 
             const tbody = document.getElementById('stocksTableBody');
             if (!idxData || !idxData.stocks || idxData.stocks.length === 0) {

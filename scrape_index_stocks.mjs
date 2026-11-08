@@ -36,6 +36,10 @@ const INDEX_ENDPOINTS = [
         url: 'https://www.moneycontrol.com/markets/indian-indices/top-nifty-midcap-select-companies-list/127?classic=true&categoryId=1&ex=N'
     },
     {
+        name: 'NIFTY SMLCAP 250',
+        url: 'https://www.moneycontrol.com/markets/indian-indices/top-nsesmlcap-250-companies-list/114?classic=true&categoryId=6&ex=N'
+    },
+    {
         name: 'NIFTY IT',
         url: 'https://www.moneycontrol.com/markets/indian-indices/top-nse-it-companies-list/24?classic=true&categoryId=1&ex=N'
     },

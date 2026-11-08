@@ -1,6 +1,7 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 import dns from "dns";
+import { fetchAndSaveFiiDiiData } from "./scrape_fii_dii.mjs";
 
 if (dns.setDefaultResultOrder) {
     dns.setDefaultResultOrder('ipv4first');
@@ -740,6 +741,11 @@ async function executeSync() {
 
     try {
         await syncAllIposFromChittorgarh();
+        try {
+            await fetchAndSaveFiiDiiData();
+        } catch (fiiErr) {
+            console.error("⚠️ FII/DII sync error:", fiiErr.message);
+        }
     } catch (e) {
         console.error("❌ Sync execution error:", e.message);
     } finally {

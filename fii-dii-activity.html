@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live IPO - FII / DII Activity Today</title>
+
+    <!-- External CSS Link -->
+    <link rel="stylesheet" href="style.css?v=2026.11.07.1">
+
+    <!-- Google Identity Services (Google Sign-In) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- JavaScript Link -->
+    <script src="script.js?v=2026.11.07.1"></script>
+
+    <style>
+        .fii-page-header {
+            margin-bottom: 20px;
+        }
+
+        .fii-page-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            margin: 0 0 14px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Pill Tabs */
+        .fii-tabs-container {
+            display: inline-flex;
+            background: #ffffff;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            margin-bottom: 18px;
+        }
+
+        .fii-tab-btn {
+            background: transparent;
+            border: none;
+            padding: 7px 18px;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #64748b;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .fii-tab-btn:hover {
+            color: #0f172a;
+            background: #f8fafc;
+        }
+
+        .fii-tab-btn.active {
+            background: #ffffff;
+            color: #0f172a;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e2e8f0;
+            font-weight: 700;
+        }
+
+        /* Summary Stat Cards */
+        .fii-summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .fii-summary-card {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 16px 20px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .fii-summary-label {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .fii-summary-value {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .fii-summary-sub {
+            font-size: 11.5px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        /* Main Table Card */
+        .fii-table-card {
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+
+        .fii-table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: #fafafa;
+        }
+
+        .fii-unit-label {
+            font-size: 12.5px;
+            color: #64748b;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .fii-search-input {
+            padding: 7px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+            width: 220px;
+            background: #ffffff;
+        }
+
+        .fii-search-input:focus {
+            border-color: #0284c7;
+            box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.1);
+        }
+
+        /* Table Specific Styles */
+        .fii-table-wrapper {
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        .fii-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+            font-size: 13.5px;
+        }
+
+        .fii-table thead tr:first-child th {
+            background: #f8fafc;
+            color: #334155;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            border-left: 1px solid #e2e8f0;
+        }
+
+        .fii-table thead tr:first-child th:first-child {
+            border-left: none;
+        }
+
+        .fii-table thead tr:nth-child(2) th {
+            background: #f1f5f9;
+            color: #475569;
+            font-weight: 600;
+            font-size: 12.5px;
+            padding: 8px 12px;
+            border-bottom: 1.5px solid #cbd5e1;
+            border-left: 1px solid #e2e8f0;
+        }
+
+        .fii-table thead tr:nth-child(2) th:first-child {
+            border-left: none;
+        }
+
+        .fii-table tbody td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            border-left: 1px solid #f8fafc;
+            color: #1e293b;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .fii-table tbody td:first-child {
+            border-left: none;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .fii-table tbody tr:hover td {
+            background: #f8fafc;
+        }
+
+        /* Value Colors */
+        .val-positive {
+            color: #16a34a !important;
+            font-weight: 700 !important;
+        }
+
+        .val-negative {
+            color: #dc2626 !important;
+            font-weight: 700 !important;
+        }
+
+        .val-neutral {
+            color: #64748b !important;
+            font-weight: 600 !important;
+        }
+
+        .fii-table tfoot td {
+            background: #f8fafc;
+            font-weight: 800;
+            padding: 14px;
+            border-top: 2px solid #cbd5e1;
+            color: #0f172a;
+        }
+
+        .demat-breadcrumb {
+            margin-bottom: 16px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .demat-breadcrumb a {
+            color: #64748b;
+            text-decoration: none;
+        }
+
+        .demat-breadcrumb a:hover {
+            color: #0284c7;
+        }
+
+        .demat-breadcrumb .separator {
+            margin: 0 6px;
+            color: #cbd5e1;
+        }
+
+        .demat-breadcrumb .current {
+            color: #0f172a;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body class="home-page">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            📊 <span>Live IPO</span>
+        </a>
+
+        <ul class="sidebar-menu">
+            <li class="menu-item"><a href="index.html">🏠 <span>Home</span></a></li>
+            <li class="menu-item"><a href="ipo-calendar.html">📅 <span>IPO Calendar</span></a></li>
+            <li class="menu-item"><a href="my-demat-accounts.html">👥 <span>My Demat Accounts</span></a></li>
+            <li class="menu-item"><a href="allotment-checker.html">🔍 <span>Allotment Checker</span></a></li>
+            <li class="menu-item"><a href="fii-dii-activity.html" class="active">📊 <span>FII/DII Activity</span></a></li>
+            <li class="menu-item"><a href="ipo-bid.html">📝 <span>IPO Bid</span></a></li>
+            <li class="menu-item"><a href="ipo-form-print.html">🖨️ <span>Form Print</span></a></li>
+            <li class="menu-item"><a href="profile.html">👤 <span>My Profile</span></a></li>
+            <li class="menu-item"><a href="help-support.html">💬 <span>Help / Support</span></a></li>
+            <li class="menu-item"><a href="privacy-policy.html">🔒 <span>Privacy Policy</span></a></li>
+            <li class="menu-item"><a href="disclaimer.html">⚠️ <span>Disclaimer</span></a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+        <!-- Top User Header Bar with Google Sign-In -->
+        <div class="user-header-bar">
+            <div class="header-welcome-text">
+                <span class="live-pulse"></span>
+                <span>Live IPO Portal</span>
+            </div>
+            <div class="user-auth-section">
+                <!-- Google Sign In Button container -->
+                <div id="googleSignInBtn"></div>
+
+                <!-- Logged In User Profile Badge -->
+                <div id="userProfileBadge" class="user-profile-badge" style="display: none;">
+                    <img id="userAvatarImg" src="" alt="User" class="user-avatar-img">
+                    <span id="userNameText" class="user-name-text">User</span>
+                    <button type="button" class="btn-user-logout" onclick="handleUserLogout()" title="Logout">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breadcrumb Navigation -->
+        <div class="demat-breadcrumb">
+            <a href="index.html">🏠 Home</a>
+            <span class="separator">/</span>
+            <span class="current">FII DII Activity</span>
+        </div>
+
+        <!-- Page Header -->
+        <div class="fii-page-header">
+            <h1 class="fii-page-title">
+                FII DII ACTIVITY
+            </h1>
+
+            <!-- Pill Tabs (Daily | Monthly | Yearly) -->
+            <div class="fii-tabs-container">
+                <button class="fii-tab-btn active" id="tabDaily" onclick="switchTab('daily')">Daily</button>
+                <button class="fii-tab-btn" id="tabMonthly" onclick="switchTab('monthly')">Monthly</button>
+                <button class="fii-tab-btn" id="tabYearly" onclick="switchTab('yearly')">Yearly</button>
+            </div>
+        </div>
+
+        <!-- Top Stat Summary Cards -->
+        <div class="fii-summary-grid">
+            <div class="fii-summary-card">
+                <div class="fii-summary-label">
+                    <span>FII Net Inflow / Outflow</span>
+                    <span id="fiiBadge" style="font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 700;">-</span>
+                </div>
+                <div class="fii-summary-value" id="cardFiiNet">-</div>
+                <div class="fii-summary-sub" id="cardFiiDate">Latest Market Session</div>
+            </div>
+
+            <div class="fii-summary-card">
+                <div class="fii-summary-label">
+                    <span>DII Net Inflow / Outflow</span>
+                    <span id="diiBadge" style="font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 700;">-</span>
+                </div>
+                <div class="fii-summary-value" id="cardDiiNet">-</div>
+                <div class="fii-summary-sub" id="cardDiiDate">Latest Market Session</div>
+            </div>
+
+            <div class="fii-summary-card" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; border: none;">
+                <div class="fii-summary-label" style="color: #94a3b8;">
+                    <span>Combined Total Net Flow</span>
+                    <span id="totalBadge" style="font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 700; background: #334155; color: #fff;">-</span>
+                </div>
+                <div class="fii-summary-value" id="cardTotalNet" style="color: #ffffff;">-</div>
+                <div class="fii-summary-sub" style="color: #94a3b8;" id="cardTotalStatus">Cash Market (NSE + BSE)</div>
+            </div>
+        </div>
+
+        <!-- Main FII / DII Table Card -->
+        <div class="fii-table-card">
+            <div class="fii-table-controls">
+                <div class="fii-unit-label">
+                    <span>📊 Values in <strong>₹ Crores</strong></span>
+                    <span style="font-size: 11.5px; color: #94a3b8;">• Cash Segment</span>
+                    <span id="dataTimestampBadge" style="font-size: 11px; background: #e0f2fe; color: #0284c7; padding: 2px 8px; border-radius: 12px; font-weight: 600;">Live Feed</span>
+                </div>
+                <div>
+                    <input type="text" class="fii-search-input" id="tableSearchInput" placeholder="🔍 Search Date / Month..." oninput="handleTableSearch(this.value)">
+                </div>
+            </div>
+
+            <div class="fii-table-wrapper">
+                <table class="fii-table" id="fiiDiiTable">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="width: 130px; text-align: center;">Date</th>
+                            <th colspan="3" style="text-align: center; border-bottom: none;">FII</th>
+                            <th colspan="3" style="text-align: center; border-bottom: none;">DII</th>
+                            <th rowspan="2" style="width: 140px; text-align: center;">Net</th>
+                        </tr>
+                        <tr>
+                            <th style="width: 120px;">Buy</th>
+                            <th style="width: 120px;">Sell</th>
+                            <th style="width: 130px;">Net</th>
+                            <th style="width: 120px;">Buy</th>
+                            <th style="width: 120px;">Sell</th>
+                            <th style="width: 130px;">Net</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fiiTableBody">
+                        <tr>
+                            <td colspan="8" style="padding: 40px; color: #64748b;">
+                                ⏳ Loading latest FII / DII Activity Data...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Page Logic Script -->
+    <script>
+        let fullFiiDiiData = null;
+        let currentTab = 'daily';
+        let searchQuery = '';
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.fii-tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (tab === 'daily') document.getElementById('tabDaily').classList.add('active');
+            if (tab === 'monthly') document.getElementById('tabMonthly').classList.add('active');
+            if (tab === 'yearly') document.getElementById('tabYearly').classList.add('active');
+            renderTable();
+        }
+
+        function formatCellColor(valStr) {
+            if (!valStr || valStr === '-') return 'val-neutral';
+            const clean = valStr.toString().replace(/,/g, '').trim();
+            const num = parseFloat(clean);
+            if (isNaN(num)) return 'val-neutral';
+            if (num > 0) return 'val-positive';
+            if (num < 0) return 'val-negative';
+            return 'val-neutral';
+        }
+
+        async function loadFiiDiiData() {
+            try {
+                // 1. Try local JSON first (updated by auto-sync)
+                let data = null;
+                try {
+                    const localRes = await fetch(`fii-dii-data.json?t=${Date.now()}`);
+                    if (localRes.ok) {
+                        data = await localRes.json();
+                    }
+                } catch (e) {
+                    console.warn("Local JSON fetch error:", e);
+                }
+
+                // 2. If not found or empty, fetch from live cloud bin
+                if (!data || !data.daily || data.daily.length === 0) {
+                    const cloudRes = await fetch(`https://api.jsonbin.io/v3/b/6aaf80f9ac6210605ae1bce6/latest?t=${Date.now()}`, {
+                        headers: { 'X-Master-Key': '$2a$10$Pl5b/ekYZXhRBmQVY6DwieMC10GztytHM9d7CnR0zqmje7BWYj6yC' }
+                    });
+                    if (cloudRes.ok) {
+                        const cloudJson = await cloudRes.json();
+                        data = cloudJson.record?.fiiDiiData;
+                    }
+                }
+
+                if (data && data.daily) {
+                    fullFiiDiiData = data;
+                    renderSummaryCards(data.summary, data.daily[0]);
+                    renderTable();
+                    if (data.updatedAt) {
+                        const d = new Date(data.updatedAt);
+                        const timeStr = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+                        document.getElementById('dataTimestampBadge').innerText = `Updated: ${timeStr}`;
+                    }
+                } else {
+                    document.getElementById('fiiTableBody').innerHTML = `
+                        <tr>
+                            <td colspan="8" style="padding: 30px; color: #dc2626;">
+                                ⚠️ Unable to load FII / DII data. Please try refreshing the page.
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch (err) {
+                console.error("FII DII Load Error:", err);
+            }
+        }
+
+        function renderSummaryCards(summary, latestDaily) {
+            const row = latestDaily || {};
+            const fiiNetVal = row.fiiNet || '0';
+            const diiNetVal = row.diiNet || '0';
+            const totalNetVal = row.totalNet || '0';
+
+            const cardFii = document.getElementById('cardFiiNet');
+            const cardDii = document.getElementById('cardDiiNet');
+            const cardTotal = document.getElementById('cardTotalNet');
+
+            cardFii.innerText = (parseFloat(fiiNetVal.replace(/,/g, '')) > 0 ? '+' : '') + `₹${fiiNetVal} Cr`;
+            cardFii.className = `fii-summary-value ${formatCellColor(fiiNetVal)}`;
+
+            cardDii.innerText = (parseFloat(diiNetVal.replace(/,/g, '')) > 0 ? '+' : '') + `₹${diiNetVal} Cr`;
+            cardDii.className = `fii-summary-value ${formatCellColor(diiNetVal)}`;
+
+            cardTotal.innerText = (parseFloat(totalNetVal.replace(/,/g, '')) > 0 ? '+' : '') + `₹${totalNetVal} Cr`;
+
+            const fiiNum = parseFloat(fiiNetVal.replace(/,/g, '')) || 0;
+            const diiNum = parseFloat(diiNetVal.replace(/,/g, '')) || 0;
+            const totalNum = parseFloat(totalNetVal.replace(/,/g, '')) || 0;
+
+            const fiiBadge = document.getElementById('fiiBadge');
+            if (fiiNum >= 0) {
+                fiiBadge.innerText = 'BUYING 🟢';
+                fiiBadge.style.background = '#dcfce7';
+                fiiBadge.style.color = '#15803d';
+            } else {
+                fiiBadge.innerText = 'SELLING 🔴';
+                fiiBadge.style.background = '#fee2e2';
+                fiiBadge.style.color = '#b91c1c';
+            }
+
+            const diiBadge = document.getElementById('diiBadge');
+            if (diiNum >= 0) {
+                diiBadge.innerText = 'BUYING 🟢';
+                diiBadge.style.background = '#dcfce7';
+                diiBadge.style.color = '#15803d';
+            } else {
+                diiBadge.innerText = 'SELLING 🔴';
+                diiBadge.style.background = '#fee2e2';
+                diiBadge.style.color = '#b91c1c';
+            }
+
+            const totalBadge = document.getElementById('totalBadge');
+            if (totalNum >= 0) {
+                totalBadge.innerText = 'NET INFLOW 🚀';
+                totalBadge.style.background = '#15803d';
+                totalBadge.style.color = '#ffffff';
+            } else {
+                totalBadge.innerText = 'NET OUTFLOW 🔻';
+                totalBadge.style.background = '#b91c1c';
+                totalBadge.style.color = '#ffffff';
+            }
+
+            if (row.date) {
+                document.getElementById('cardFiiDate').innerText = `Date: ${row.date}`;
+                document.getElementById('cardDiiDate').innerText = `Date: ${row.date}`;
+            }
+        }
+
+        function handleTableSearch(val) {
+            searchQuery = (val || '').toLowerCase().trim();
+            renderTable();
+        }
+
+        function renderTable() {
+            if (!fullFiiDiiData) return;
+            const tbody = document.getElementById('fiiTableBody');
+            let list = fullFiiDiiData[currentTab] || [];
+
+            if (searchQuery) {
+                list = list.filter(item => (item.date || '').toLowerCase().includes(searchQuery));
+            }
+
+            if (list.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="padding: 30px; color: #64748b;">
+                            No matching records found.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            list.forEach(row => {
+                html += `
+                    <tr>
+                        <td style="font-weight: 600;">${row.date}</td>
+                        <td>${row.fiiBuy || '-'}</td>
+                        <td>${row.fiiSell || '-'}</td>
+                        <td class="${formatCellColor(row.fiiNet)}">${row.fiiNet || '-'}</td>
+                        <td>${row.diiBuy || '-'}</td>
+                        <td>${row.diiSell || '-'}</td>
+                        <td class="${formatCellColor(row.diiNet)}">${row.diiNet || '-'}</td>
+                        <td class="${formatCellColor(row.totalNet)}" style="font-weight: 800;">${row.totalNet || '-'}</td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFiiDiiData();
+        });
+    </script>
+</body>
+
+</html>

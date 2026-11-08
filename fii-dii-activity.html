@@ -831,11 +831,35 @@
         }
 
         .poster-mini-sub {
-            font-size: 9px;
-            color: #64748b;
-            font-weight: 500;
-            line-height: 1.2;
-            margin-top: 1px;
+            font-size: 8.8px;
+            color: #475569;
+            font-weight: 600;
+            line-height: 1.35;
+            margin-top: 3px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5px;
+        }
+
+        .poster-sub-row {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .poster-dot-buy {
+            color: #16a34a;
+            font-size: 7.5px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .poster-dot-sell {
+            color: #dc2626;
+            font-size: 7.5px;
+            line-height: 1;
+            flex-shrink: 0;
         }
 
         .poster-total-dark-card {
@@ -1092,7 +1116,10 @@
                                         <span class="poster-mini-badge" id="pCashFiiBadge">BUYING</span>
                                     </div>
                                     <div class="poster-mini-val" id="pCashFiiVal">+₹13,749 Cr</div>
-                                    <div class="poster-mini-sub" id="pCashFiiSub">Buy: 30.45k | Sell: 16.70k</div>
+                                    <div class="poster-mini-sub" id="pCashFiiSub">
+                                        <div class="poster-sub-row"><span class="poster-dot-buy">●</span> <span>Buy: ₹30,455.63 Cr</span></div>
+                                        <div class="poster-sub-row"><span class="poster-dot-sell">●</span> <span>Sell: ₹16,705.81 Cr</span></div>
+                                    </div>
                                 </div>
 
                                 <!-- Cash Box 2: DII -->
@@ -1102,7 +1129,10 @@
                                         <span class="poster-mini-badge" id="pCashDiiBadge">SELLING</span>
                                     </div>
                                     <div class="poster-mini-val" id="pCashDiiVal">-₹5,968 Cr</div>
-                                    <div class="poster-mini-sub" id="pCashDiiSub">Buy: 18.08k | Sell: 24.05k</div>
+                                    <div class="poster-mini-sub" id="pCashDiiSub">
+                                        <div class="poster-sub-row"><span class="poster-dot-buy">●</span> <span>Buy: ₹18,084.32 Cr</span></div>
+                                        <div class="poster-sub-row"><span class="poster-dot-sell">●</span> <span>Sell: ₹24,053.02 Cr</span></div>
+                                    </div>
                                 </div>
 
                                 <!-- Cash Box 3: Total Net -->
@@ -1134,7 +1164,10 @@
                                         <span class="poster-mini-badge" id="pFnoFutBadge">BULLISH</span>
                                     </div>
                                     <div class="poster-mini-val" id="pFnoFutVal">+₹6,134 Cr</div>
-                                    <div class="poster-mini-sub" id="pFnoFutSub">Index + Stock Fut</div>
+                                    <div class="poster-mini-sub" id="pFnoFutSub">
+                                        <div class="poster-sub-row"><span class="poster-dot-buy">●</span> <span>Buy: ₹10,832.49 Cr</span></div>
+                                        <div class="poster-sub-row"><span class="poster-dot-sell">●</span> <span>Sell: ₹4,698.05 Cr</span></div>
+                                    </div>
                                 </div>
 
                                 <!-- F&O Box 2: Options -->
@@ -1144,7 +1177,10 @@
                                         <span class="poster-mini-badge" id="pFnoOptBadge">BULLISH</span>
                                     </div>
                                     <div class="poster-mini-val" id="pFnoOptVal">+₹6,742 Cr</div>
-                                    <div class="poster-mini-sub" id="pFnoOptSub">Index + Stock Opt</div>
+                                    <div class="poster-mini-sub" id="pFnoOptSub">
+                                        <div class="poster-sub-row"><span class="poster-dot-buy">●</span> <span>Buy: ₹20,67,138.99 Cr</span></div>
+                                        <div class="poster-sub-row"><span class="poster-dot-sell">●</span> <span>Sell: ₹20,60,396.28 Cr</span></div>
+                                    </div>
                                 </div>
 
                                 <!-- F&O Box 3: Total F&O Net -->
@@ -1550,13 +1586,19 @@
             pCashFiiVal.innerText = (parseFloat(cFiiNet.replace(/,/g, '')) > 0 ? '+' : '') + `₹${cFiiNet} Cr`;
             pCashFiiVal.className = `poster-mini-val ${formatCellColor(cFiiNet)}`;
             applyMiniBadge(document.getElementById('pCashFiiBadge'), cFiiNet, 'BUYING 🟢', 'SELLING 🔴');
-            document.getElementById('pCashFiiSub').innerText = `Buy: ₹${cashDaily.fiiBuy || '-'} Cr • Sell: ₹${cashDaily.fiiSell || '-'} Cr`;
+            document.getElementById('pCashFiiSub').innerHTML = `
+                <div class="poster-sub-row"><span class="poster-dot-buy">●</span> <span>Buy: ₹${cashDaily.fiiBuy || '-'} Cr</span></div>
+                <div class="poster-sub-row"><span class="poster-dot-sell">●</span> <span>Sell: ₹${cashDaily.fiiSell || '-'} Cr</span></div>
+            `;
 
             const pCashDiiVal = document.getElementById('pCashDiiVal');
             pCashDiiVal.innerText = (parseFloat(cDiiNet.replace(/,/g, '')) > 0 ? '+' : '') + `₹${cDiiNet} Cr`;
             pCashDiiVal.className = `poster-mini-val ${formatCellColor(cDiiNet)}`;
             applyMiniBadge(document.getElementById('pCashDiiBadge'), cDiiNet, 'BUYING 🟢', 'SELLING 🔴');
-            document.getElementById('pCashDiiSub').innerText = `Buy: ₹${cashDaily.diiBuy || '-'} Cr • Sell: ₹${cashDaily.diiSell || '-'} Cr`;
+            document.getElementById('pCashDiiSub').innerHTML = `
+                <div class="poster-sub-row"><span class="poster-dot-buy">●</span> <span>Buy: ₹${cashDaily.diiBuy || '-'} Cr</span></div>
+                <div class="poster-sub-row"><span class="poster-dot-sell">●</span> <span>Sell: ₹${cashDaily.diiSell || '-'} Cr</span></div>
+            `;
 
             const pCashTotalVal = document.getElementById('pCashTotalVal');
             pCashTotalVal.innerText = (parseFloat(cTotalNet.replace(/,/g, '')) > 0 ? '+' : '') + `₹${cTotalNet} Cr`;
@@ -1571,13 +1613,19 @@
             pFnoFutVal.innerText = (parseFloat(fFutNet.replace(/,/g, '')) > 0 ? '+' : '') + `₹${fFutNet} Cr`;
             pFnoFutVal.className = `poster-mini-val ${formatCellColor(fFutNet)}`;
             applyMiniBadge(document.getElementById('pFnoFutBadge'), fFutNet, 'BULLISH 🟢', 'BEARISH 🔴');
-            document.getElementById('pFnoFutSub').innerText = `Buy: ₹${fnoDaily.futBuy || '-'} Cr • Sell: ₹${fnoDaily.futSell || '-'} Cr`;
+            document.getElementById('pFnoFutSub').innerHTML = `
+                <div class="poster-sub-row"><span class="poster-dot-buy">●</span> <span>Buy: ₹${fnoDaily.futBuy || '-'} Cr</span></div>
+                <div class="poster-sub-row"><span class="poster-dot-sell">●</span> <span>Sell: ₹${fnoDaily.futSell || '-'} Cr</span></div>
+            `;
 
             const pFnoOptVal = document.getElementById('pFnoOptVal');
             pFnoOptVal.innerText = (parseFloat(fOptNet.replace(/,/g, '')) > 0 ? '+' : '') + `₹${fOptNet} Cr`;
             pFnoOptVal.className = `poster-mini-val ${formatCellColor(fOptNet)}`;
             applyMiniBadge(document.getElementById('pFnoOptBadge'), fOptNet, 'BULLISH 🟢', 'BEARISH 🔴');
-            document.getElementById('pFnoOptSub').innerText = `Buy: ₹${fnoDaily.optBuy || '-'} Cr • Sell: ₹${fnoDaily.optSell || '-'} Cr`;
+            document.getElementById('pFnoOptSub').innerHTML = `
+                <div class="poster-sub-row"><span class="poster-dot-buy">●</span> <span>Buy: ₹${fnoDaily.optBuy || '-'} Cr</span></div>
+                <div class="poster-sub-row"><span class="poster-dot-sell">●</span> <span>Sell: ₹${fnoDaily.optSell || '-'} Cr</span></div>
+            `;
 
             const pFnoTotalVal = document.getElementById('pFnoTotalVal');
             pFnoTotalVal.innerText = (parseFloat(fTotalNet.replace(/,/g, '')) > 0 ? '+' : '') + `₹${fTotalNet} Cr`;

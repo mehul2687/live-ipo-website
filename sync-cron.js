@@ -2,6 +2,7 @@ import axios from "axios";
 import * as cheerio from "cheerio";
 import dns from "dns";
 import { fetchAndSaveFiiDiiData } from "./scrape_fii_dii.mjs";
+import { fetchAndSaveFnoData } from "./scrape_fii_fno.mjs";
 
 if (dns.setDefaultResultOrder) {
     dns.setDefaultResultOrder('ipv4first');
@@ -745,6 +746,11 @@ async function executeSync() {
             await fetchAndSaveFiiDiiData();
         } catch (fiiErr) {
             console.error("⚠️ FII/DII sync error:", fiiErr.message);
+        }
+        try {
+            await fetchAndSaveFnoData();
+        } catch (fnoErr) {
+            console.error("⚠️ FII F&O sync error:", fnoErr.message);
         }
     } catch (e) {
         console.error("❌ Sync execution error:", e.message);

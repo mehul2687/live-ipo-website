@@ -807,6 +807,7 @@
     <script>
         let fullStockDataset = {};
         let liveIndicesDataset = {};
+        let stockMasterLookup = {};
         let activeIndexKey = 'NIFTY 50';
         let stockFilter = 'all'; // 'all' | 'gainers' | 'losers'
         let stockSearchQuery = '';
@@ -1015,11 +1016,45 @@
             select.value = activeIndexKey;
         }
 
+        function resolveStockIdentity(rawName, master = stockMasterLookup) {
+            if (!rawName) return { symbol: 'STOCK', name: 'Unknown', sector: 'Equity' };
+
+            const cleanRaw = rawName.toUpperCase().replace(/[^A-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+
+            if (master && Object.keys(master).length > 0) {
+                if (master[cleanRaw]) return master[cleanRaw];
+                const words = cleanRaw.split(' ');
+                if (words.length >= 2) {
+                    const first2 = words.slice(0, 2).join(' ');
+                    if (master[first2]) return master[first2];
+                }
+                for (const [k, v] of Object.entries(master)) {
+                    if (k.length >= 6 && (cleanRaw.startsWith(k) || k.startsWith(cleanRaw))) {
+                        return v;
+                    }
+                }
+            }
+
+            // Clean uppercase title for SME IPO / newly listed companies (NEVER internal codes!)
+            let displayTitle = rawName.toUpperCase().trim();
+            let displaySubtitle = rawName.trim();
+            if (!displaySubtitle.toLowerCase().includes('ltd') && !displaySubtitle.toLowerCase().includes('limited')) {
+                displaySubtitle += ' Ltd.';
+            }
+
+            return {
+                symbol: displayTitle,
+                name: displaySubtitle,
+                sector: 'Equity'
+            };
+        }
+
         async function loadStocksData() {
             try {
-                const [stocksRes, indicesRes] = await Promise.allSettled([
+                const [stocksRes, indicesRes, masterRes] = await Promise.allSettled([
                     fetch('index-stocks-data.json?t=' + Date.now()).then(r => r.json()),
-                    fetch('indices-data.json?t=' + Date.now()).then(r => r.json())
+                    fetch('indices-data.json?t=' + Date.now()).then(r => r.json()),
+                    fetch('stock_master.json?t=' + Date.now()).then(r => r.json())
                 ]);
 
                 if (stocksRes.status === 'fulfilled' && stocksRes.value) {
@@ -1032,6 +1067,9 @@
                             liveIndicesDataset[idx.name.toUpperCase().trim()] = idx;
                         });
                     }
+                }
+                if (masterRes.status === 'fulfilled' && masterRes.value) {
+                    stockMasterLookup = masterRes.value;
                 }
 
                 populateIndicesDropdown();
@@ -1160,8 +1198,11 @@
                             sector = secMatch[1].replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
                         }
 
-                        const codeMatch = href.match(/\/([^\/]+)$/);
-                        let symbol = codeMatch && codeMatch[1] ? codeMatch[1].toUpperCase() : rawName.split(' ')[0].toUpperCase();
+                        // Resolve clean company identity and real ticker (NEVER codes like MTL11, PPE01, AE13)
+                        const identity = resolveStockIdentity(rawName, stockMasterLookup);
+                        let symbol = identity.symbol;
+                        let fullName = identity.name;
+                        if (identity.sector && identity.sector !== 'Equity') sector = identity.sector;
 
                         const ltp = cleanNumber(tds[1].textContent);
                         const pchg = cleanNumber(tds[2].textContent);
@@ -1171,15 +1212,17 @@
                         // Match with existing cache to keep standard symbol & 52w high/low if available
                         let open = 0, high = 0, low = 0, yearHigh = 0, yearLow = 0;
                         const existing = existingStocks.find(s =>
+                            s.symbol.toUpperCase() === symbol.toUpperCase() ||
                             s.name.toLowerCase() === rawName.toLowerCase() ||
-                            s.symbol.toLowerCase() === symbol.toLowerCase() ||
-                            rawName.toLowerCase().includes(s.name.toLowerCase()) ||
-                            s.name.toLowerCase().includes(rawName.toLowerCase())
+                            s.name.toLowerCase() === fullName.toLowerCase()
                         );
 
                         if (existing) {
-                            symbol = existing.symbol;
-                            sector = existing.sector || sector;
+                            if (existing.symbol && !existing.symbol.match(/[0-9]{2}$/)) {
+                                symbol = existing.symbol;
+                            }
+                            if (existing.name) fullName = existing.name;
+                            if (existing.sector && existing.sector !== 'Equity') sector = existing.sector;
                             open = existing.open || 0;
                             high = existing.high || 0;
                             low = existing.low || 0;
@@ -1189,8 +1232,8 @@
 
                         if (ltp > 0) {
                             liveStocks.push({
-                                symbol: symbol.length <= 15 ? symbol : rawName.split(' ')[0].toUpperCase(),
-                                name: rawName,
+                                symbol: symbol,
+                                name: fullName,
                                 sector,
                                 ltp,
                                 chg,

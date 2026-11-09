@@ -4,6 +4,7 @@ import * as cheerio from 'cheerio';
 
 const STOCKS_DATA_FILE = path.resolve('index-stocks-data.json');
 const INDICES_DATA_FILE = path.resolve('indices-data.json');
+const STOCK_MASTER_FILE = path.resolve('stock_master.json');
 
 const BROWSER_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -35,12 +36,55 @@ const TARGET_INDICES = [
     { name: 'NIFTY 500', id: '7', ex: 'N', category: 'Broad Market' },
     { name: 'BSE 100', id: '1', ex: 'B', category: 'Key Indices' },
     { name: 'BSE 200', id: '2', ex: 'B', category: 'Broad Market' },
-    { name: 'BSE 500', id: '12', ex: 'B', category: 'Broad Market' }
+    { name: 'BSE 500', id: '12', ex: 'B', category: 'Broad Market' },
+    { name: 'BSE SME IPO', id: '58', ex: 'B', category: 'Thematic' }
 ];
+
+let stockMaster = {};
+if (fs.existsSync(STOCK_MASTER_FILE)) {
+    try {
+        stockMaster = JSON.parse(fs.readFileSync(STOCK_MASTER_FILE, 'utf8'));
+    } catch (e) {
+        stockMaster = {};
+    }
+}
 
 function cleanNumber(str) {
     if (!str) return 0;
     return parseFloat(str.replace(/,/g, '').replace(/%/g, '').trim()) || 0;
+}
+
+export function resolveStockIdentity(rawName, master = stockMaster) {
+    if (!rawName) return { symbol: 'STOCK', name: 'Unknown', sector: 'Equity' };
+
+    const cleanRaw = rawName.toUpperCase().replace(/[^A-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+
+    if (master) {
+        if (master[cleanRaw]) return master[cleanRaw];
+        const words = cleanRaw.split(' ');
+        if (words.length >= 2) {
+            const first2 = words.slice(0, 2).join(' ');
+            if (master[first2]) return master[first2];
+        }
+        for (const [k, v] of Object.entries(master)) {
+            if (k.length >= 6 && (cleanRaw.startsWith(k) || k.startsWith(cleanRaw))) {
+                return v;
+            }
+        }
+    }
+
+    // Clean uppercase name for SME IPO / newly listed companies (NEVER internal codes!)
+    let displayTitle = rawName.toUpperCase().trim();
+    let displaySubtitle = rawName.trim();
+    if (!displaySubtitle.toLowerCase().includes('ltd') && !displaySubtitle.toLowerCase().includes('limited')) {
+        displaySubtitle += ' Ltd.';
+    }
+
+    return {
+        symbol: displayTitle,
+        name: displaySubtitle,
+        sector: 'Equity'
+    };
 }
 
 function parseConstituentStocks(html) {
@@ -59,18 +103,16 @@ function parseConstituentStocks(html) {
         if (!rawName || rawName === 'No Data Available') return;
 
         const href = aTag.attr('href') || '';
-        // Extract sector from href: /india/stockpricequote/<sector>/<name>/<code>
-        let sector = 'Equity';
+        let parsedSector = 'Equity';
         const secMatch = href.match(/\/stockpricequote\/([^\/]+)\//);
         if (secMatch && secMatch[1]) {
-            sector = secMatch[1]
+            parsedSector = secMatch[1]
                 .replace(/-/g, ' ')
                 .replace(/\b\w/g, l => l.toUpperCase());
         }
 
-        // Symbol guess or fallback
-        const codeMatch = href.match(/\/([^\/]+)$/);
-        const symbol = codeMatch && codeMatch[1] ? codeMatch[1].toUpperCase() : rawName.split(' ')[0].toUpperCase();
+        // Resolve clean company identity and real ticker (NEVER codes like MTL11, PPE01, AE13)
+        const identity = resolveStockIdentity(rawName, stockMaster);
 
         const ltp = cleanNumber($(tds[1]).text());
         const pchg = cleanNumber($(tds[2]).text());
@@ -79,9 +121,9 @@ function parseConstituentStocks(html) {
 
         if (ltp > 0) {
             stocks.push({
-                symbol: symbol.length <= 15 ? symbol : rawName.split(' ')[0].toUpperCase(),
-                name: rawName,
-                sector,
+                symbol: identity.symbol,
+                name: identity.name,
+                sector: identity.sector && identity.sector !== 'Equity' ? identity.sector : parsedSector,
                 ltp,
                 chg,
                 percentChange: pchg,
@@ -99,7 +141,7 @@ function parseConstituentStocks(html) {
 }
 
 export async function scrapeIndexStocks() {
-    console.log('🔄 Starting Index Constituent Stocks scrape from Moneycontrol...');
+    console.log('🔄 Starting Index Constituent Stocks scrape from Moneycontrol with proper names...');
 
     let existingData = { lastUpdated: '', indices: {} };
     if (fs.existsSync(STOCKS_DATA_FILE)) {
@@ -184,7 +226,7 @@ export async function scrapeIndexStocks() {
     existingData.marketStatus = 'CLOSED';
 
     fs.writeFileSync(STOCKS_DATA_FILE, JSON.stringify(existingData, null, 2), 'utf8');
-    console.log('🎉 Index constituent stocks data updated successfully!');
+    console.log('🎉 Index constituent stocks data updated successfully with proper names!');
 }
 
 if (process.argv[1] && process.argv[1].endsWith('scrape_index_stocks.mjs')) {

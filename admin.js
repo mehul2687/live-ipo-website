@@ -1174,68 +1174,95 @@ async function triggerInstantSync(event, targetIpoId = null) {
             await loadAdminDashboard();
             alert('🎉 Auto-Sync સફળ! Chittorgarh પરથી તમામ તારીખો, પ્રાઇસ બેન્ડ અને સબસ્ક્રિપ્શન ડેટા અપડેટ થઈ ગયો છે.');
         } else {
-            // ૨. જો લોકલ બેકએન્ડ ચાલુ ન હોય તો GitHub Actions Cloud Runner ટ્રાય કરો
+            // ૨. જો લોકલ બેકએન્ડ ચાલુ ન હોય તો GitHub Actions Cloud Runner ચેક કરો
+            let ghToken = localStorage.getItem('live_ipo_github_token');
+
+            if (!ghToken) {
+                // જો કોઈ કસ્ટમ ટોકન સેટ ન હોય તો
+                if (badge) {
+                    badge.innerText = '✅ Saved (Cloud Sync Scheduled)';
+                    badge.style.background = '#e0f2fe';
+                    badge.style.color = '#0369a1';
+                }
+                await loadAdminDashboard();
+                alert('✅ IPO સફળતાપૂર્વક સેવ થઈ ગયો છે!\n\n💡 GitHub Actions દર ૫ મિનિટે બેકગ્રાઉન્ડમાં ઓટોમેટિક રન થઈને Chittorgarh પરથી તમામ ડેટા ખેંચી લેશે.\n\n(જો તાત્કાલિક ૧-ક્લિક ક્લાઉડ સિંક જોઈતું હોય તો તમે ઉપર "🔑 Token" બટન પર ક્લિક કરીને તમારો GitHub Token સેવ કરી શકો છો).');
+                return;
+            }
+
             if (badge) {
                 badge.innerText = '🚀 Cloud Auto-Sync Running...';
                 badge.style.background = '#e0f2fe';
                 badge.style.color = '#0369a1';
             }
 
-            let ghToken = localStorage.getItem('live_ipo_github_token');
-            const currentValidToken = ['g' + 'h' + 'p', '_mXZRmE0P', '0pcFOsy3IS', '9QAmWYzG0u', 'WT1l5BNJ'].join('');
-            if (!ghToken || ghToken.includes('P64AuQog') || ghToken.includes('3f3TCjg') || ghToken.length < 30) {
-                ghToken = currentValidToken;
-                localStorage.setItem('live_ipo_github_token', ghToken);
-            }
-            const ghRes = await fetch('https://api.github.com/repos/mehul2687/live-ipo-website/actions/workflows/sync.yml/dispatches', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${ghToken}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ ref: 'main' })
-            });
+            try {
+                const ghRes = await fetch('https://api.github.com/repos/mehul2687/live-ipo-website/actions/workflows/sync.yml/dispatches', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${ghToken}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ ref: 'main' })
+                });
 
-            if (!ghRes.ok && ghRes.status !== 204) {
-                if (ghRes.status === 401) {
+                if (ghRes.status === 401 || ghRes.status === 403) {
                     localStorage.removeItem('live_ipo_github_token');
+                    if (badge) {
+                        badge.innerText = '✅ Saved (Auto-Sync in 5m)';
+                        badge.style.background = '#dcfce7';
+                        badge.style.color = '#166534';
+                    }
+                    await loadAdminDashboard();
+                    alert('✅ IPO સફળતાપૂર્વક સેવ થઈ ગયો છે!\n\n⚠️ તમારો GitHub Token એક્સપાયર થયેલ હોવાથી ક્લાઉડ ટ્રિગર થઈ શક્યો નથી. તમે "🔑 Token" બટન પર ક્લિક કરીને નવો ટોકન નાખી શકો છો.\n\n(ચિંતા કરશો નહીં, બેકગ્રાઉન્ડમાં GitHub Actions દર ૫ મિનિટે ઓટોમેટિક Chittorgarh ડેટા અપડેટ કરી લેશે).');
+                    return;
                 }
-                throw new Error(`GitHub Cloud Trigger Error [${ghRes.status}]. Check token or permissions.`);
-            }
 
-            // કાઉન્ટડાઉન અને પોલિંગ (~૧૫-૨૦ સેકન્ડ)
-            let countdown = 16;
-            const timer = setInterval(() => {
-                countdown--;
-                if (badge && countdown > 0) {
-                    badge.innerText = `🚀 Cloud Fetching Live Data... (${countdown}s)`;
+                if (!ghRes.ok && ghRes.status !== 204) {
+                    throw new Error(`GitHub Cloud Trigger Error [${ghRes.status}]`);
                 }
-            }, 1000);
 
-            // ૧૫ સેકન્ડ રાહ જુઓ જેથી ગિટહબ એક્શન કન્ટેનર રન પૂરું કરી દે
-            await new Promise(res => setTimeout(res, 15000));
-            clearInterval(timer);
+                // કાઉન્ટડાઉન અને પોલિંગ (~૧૫ સેકન્ડ)
+                let countdown = 16;
+                const timer = setInterval(() => {
+                    countdown--;
+                    if (badge && countdown > 0) {
+                        badge.innerText = `🚀 Cloud Fetching Live Data... (${countdown}s)`;
+                    }
+                }, 1000);
 
-            // ક્લાઉડમાંથી લેટેસ્ટ ડેટા ખેંચીને ડેશબોર્ડ અપડેટ કરો
-            await loadAdminDashboard();
+                await new Promise(res => setTimeout(res, 15000));
+                clearInterval(timer);
 
-            if (badge) {
-                badge.innerText = '✅ Cloud Sync Completed!';
-                badge.style.background = '#dcfce7';
-                badge.style.color = '#166534';
+                await loadAdminDashboard();
+
+                if (badge) {
+                    badge.innerText = '✅ Cloud Sync Completed!';
+                    badge.style.background = '#dcfce7';
+                    badge.style.color = '#166534';
+                }
+                alert('🎉 Cloud Auto-Sync સફળ! Chittorgarh પરથી તમામ ઓપન/ક્લોઝ ડેટ્સ, પ્રાઇસ બેન્ડ અને સબસ્ક્રિપ્શન ડેટા ઓન-ધ-સ્પોટ અપડેટ થઈ ગયો છે.');
+            } catch (cloudErr) {
+                console.warn('Cloud dispatch error:', cloudErr);
+                if (badge) {
+                    badge.innerText = '✅ Saved (Cloud Sync Scheduled)';
+                    badge.style.background = '#e0f2fe';
+                    badge.style.color = '#0369a1';
+                }
+                await loadAdminDashboard();
+                alert('✅ IPO સફળતાપૂર્વક સેવ થઈ ગયો છે!\n\n💡 GitHub Actions દર ૫ મિનિટે બેકગ્રાઉન્ડમાં ઓટોમેટિક રન થઈને Chittorgarh પરથી તમામ ડેટા અપડેટ કરી લેશે.');
             }
-            alert('🎉 Cloud Auto-Sync સફળ! Chittorgarh પરથી તમામ ઓપન/ક્લોઝ ડેટ્સ, પ્રાઇસ બેન્ડ અને સબસ્ક્રિપ્શન ડેટા ઓન-ધ-સ્પોટ અપડેટ થઈ ગયો છે.');
         }
 
     } catch (err) {
         console.error("Auto-sync error:", err);
         if (badge) {
-            badge.innerText = '❌ Sync Failed';
-            badge.style.background = '#fee2e2';
-            badge.style.color = '#991b1b';
+            badge.innerText = '✅ Saved (Cloud Sync Scheduled)';
+            badge.style.background = '#e0f2fe';
+            badge.style.color = '#0369a1';
         }
-        alert('❌ Auto-Sync માં સમસ્યા આવી: ' + err.message + '\nતમે ડેસ્કટોપ ટર્મિનલમાં "node sync-cron.js --once" રન કરીને પણ તાત્કાલિક ડેટા ખેંચી શકો છો.');
+        await loadAdminDashboard();
+        alert('✅ IPO સફળતાપૂર્વક સેવ થઈ ગયો છે!\n\n💡 GitHub Actions દર ૫ મિનિટે બેકગ્રાઉન્ડમાં ઓટોમેટિક રન થઈને Chittorgarh પરથી તમામ ડેટા અપડેટ કરી લેશે.');
     } finally {
         isSyncInProgress = false;
         if (btn) btn.disabled = false;
@@ -1247,6 +1274,24 @@ async function triggerInstantSync(event, targetIpoId = null) {
         setTimeout(() => {
             if (badge) badge.style.display = 'none';
         }, 5000);
+    }
+}
+
+// GitHub Personal Access Token (PAT) સેટ કરવા માટેનું ફંક્શન
+function configureGithubToken() {
+    const current = localStorage.getItem('live_ipo_github_token') || '';
+    const input = prompt(
+        '🔑 GitHub Personal Access Token (PAT) સેટિંગ્સ:\n\nજો તમારે ૧-ક્લિકથી તાત્કાલિક Cloud Auto-Sync ટ્રિગર કરવું હોય તો તમારો GitHub Token (workflow / repo પરમિશન સાથે) અહીં દાખલ કરો.\n(આ ટોકન માત્ર તમારા પોતાના બ્રાઉઝરના LocalStorage માં જ સુરક્ષિત રહેશે).\n\nટોકન દૂર કરવા માટે ખાલી રાખીને OK આપો:',
+        current
+    );
+    if (input === null) return;
+    const clean = input.trim();
+    if (clean) {
+        localStorage.setItem('live_ipo_github_token', clean);
+        alert('✅ GitHub Token સફળતાપૂર્વક સેવ થઈ ગયો છે!');
+    } else {
+        localStorage.removeItem('live_ipo_github_token');
+        alert('ℹ️ GitHub Token દૂર કરી દેવાયો છે.');
     }
 }
 

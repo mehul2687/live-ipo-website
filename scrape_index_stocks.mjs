@@ -1,140 +1,173 @@
 import fs from 'fs';
 import path from 'path';
+import * as cheerio from 'cheerio';
 
 const STOCKS_DATA_FILE = path.resolve('index-stocks-data.json');
+const INDICES_DATA_FILE = path.resolve('indices-data.json');
 
 const BROWSER_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.9'
+    'Accept-Language': 'en-US,en;q=0.9',
+    'X-Requested-With': 'XMLHttpRequest'
 };
 
-// Moneycontrol index constituents endpoint mapping
-const INDEX_ENDPOINTS = [
-    {
-        name: 'NIFTY 50',
-        url: 'https://www.moneycontrol.com/markets/indian-indices/top-nse-50-companies-list/9?classic=true&categoryId=1&ex=N'
-    },
-    {
-        name: 'NIFTY BANK',
-        url: 'https://www.moneycontrol.com/markets/indian-indices/top-nsebank-companies-list/23?classic=true&categoryId=1&ex=N'
-    },
-    {
-        name: 'SENSEX',
-        url: 'https://www.moneycontrol.com/markets/indian-indices/top-bse-sensex-companies-list/4?classic=true&categoryId=1&ex=B'
-    },
-    {
-        name: 'NIFTY NEXT 50',
-        url: 'https://www.moneycontrol.com/markets/indian-indices/top-nsenext-50-companies-list/6?classic=true&categoryId=1&ex=N'
-    },
-    {
-        name: 'NIFTY FINANCIAL SERVICES',
-        url: 'https://www.moneycontrol.com/markets/indian-indices/top-nifty-financial-services-companies-list/35?classic=true&categoryId=1&ex=N'
-    },
-    {
-        name: 'NIFTY MIDCAP SELECT',
-        url: 'https://www.moneycontrol.com/markets/indian-indices/top-nifty-midcap-select-companies-list/127?classic=true&categoryId=1&ex=N'
-    },
-    {
-        name: 'NIFTY SMLCAP 250',
-        url: 'https://www.moneycontrol.com/markets/indian-indices/top-nsesmlcap-250-companies-list/114?classic=true&categoryId=6&ex=N'
-    },
-    {
-        name: 'NIFTY IT',
-        url: 'https://www.moneycontrol.com/markets/indian-indices/top-nse-it-companies-list/24?classic=true&categoryId=1&ex=N'
-    },
-    {
-        name: 'NIFTY AUTO',
-        url: 'https://www.moneycontrol.com/markets/indian-indices/top-nseauto-companies-list/14?classic=true&categoryId=1&ex=N'
-    }
+// Key Indices to pre-scrape into index-stocks-data.json
+const TARGET_INDICES = [
+    { name: 'NIFTY 50', id: '9', ex: 'N', category: 'Key Indices' },
+    { name: 'NIFTY BANK', id: '23', ex: 'N', category: 'Key Indices' },
+    { name: 'SENSEX', id: '4', ex: 'B', category: 'Key Indices' },
+    { name: 'NIFTY NEXT 50', id: '6', ex: 'N', category: 'Key Indices' },
+    { name: 'NIFTY FINANCIAL SERVICES', id: '47', ex: 'N', category: 'Key Indices' },
+    { name: 'NIFTY MIDCAP SELECT', id: '128', ex: 'N', category: 'Key Indices' },
+    { name: 'NIFTY SMLCAP 250', id: '114', ex: 'N', category: 'Broad Market' },
+    { name: 'NIFTY IT', id: '19', ex: 'N', category: 'Sectoral' },
+    { name: 'NIFTY AUTO', id: '52', ex: 'N', category: 'Sectoral' },
+    { name: 'NIFTY PHARMA', id: '41', ex: 'N', category: 'Sectoral' },
+    { name: 'NIFTY FMCG', id: '39', ex: 'N', category: 'Sectoral' },
+    { name: 'NIFTY METAL', id: '51', ex: 'N', category: 'Sectoral' },
+    { name: 'NIFTY REALTY', id: '34', ex: 'N', category: 'Sectoral' },
+    { name: 'NIFTY ENERGY', id: '40', ex: 'N', category: 'Sectoral' },
+    { name: 'NIFTY PSU BANK', id: '43', ex: 'N', category: 'Sectoral' },
+    { name: 'NIFTY MIDCAP 100', id: '27', ex: 'N', category: 'Broad Market' },
+    { name: 'NIFTY 100', id: '28', ex: 'N', category: 'Broad Market' },
+    { name: 'NIFTY 200', id: '49', ex: 'N', category: 'Broad Market' },
+    { name: 'NIFTY 500', id: '7', ex: 'N', category: 'Broad Market' },
+    { name: 'BSE 100', id: '1', ex: 'B', category: 'Key Indices' },
+    { name: 'BSE 200', id: '2', ex: 'B', category: 'Broad Market' },
+    { name: 'BSE 500', id: '12', ex: 'B', category: 'Broad Market' }
 ];
 
-function parseMoneycontrolTable(html) {
+function cleanNumber(str) {
+    if (!str) return 0;
+    return parseFloat(str.replace(/,/g, '').replace(/%/g, '').trim()) || 0;
+}
+
+function parseConstituentStocks(html) {
+    if (!html) return [];
+    const $ = cheerio.load(html);
     const stocks = [];
-    try {
-        const rows = html.match(/<tr[\s\S]*?<\/tr>/gi) || [];
-        for (const row of rows) {
-            if (row.includes('<th') || !row.includes('<td')) continue;
 
-            const cells = [];
-            const tdMatches = row.match(/<td[\s\S]*?<\/td>/gi) || [];
-            for (const td of tdMatches) {
-                const text = td.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-                cells.push(text);
-            }
+    $('tr').each((idx, el) => {
+        if ($(el).find('th').length > 0) return;
+        const tds = $(el).find('td');
+        if (tds.length < 5) return;
 
-            if (cells.length >= 6) {
-                // Typical table: [Company Name, Industry, Last Price, Change, % Change, Open, High, Low, ...]
-                const rawName = cells[0];
-                const symbolMatch = rawName.match(/\(([^)]+)\)/) || rawName.match(/^([A-Z0-9&-]+)/);
-                const symbol = symbolMatch ? symbolMatch[1] : rawName.split(' ')[0];
+        const firstTd = $(tds[0]);
+        const aTag = firstTd.find('a');
+        const rawName = (aTag.length ? aTag.text() : firstTd.text()).trim();
+        if (!rawName || rawName === 'No Data Available') return;
 
-                const ltp = parseFloat(cells[2].replace(/,/g, '')) || 0;
-                const chg = parseFloat(cells[3].replace(/,/g, '')) || 0;
-                const pchg = parseFloat(cells[4].replace(/,/g, '').replace(/%/g, '')) || 0;
-                const open = parseFloat((cells[5] || '').replace(/,/g, '')) || 0;
-                const high = parseFloat((cells[6] || '').replace(/,/g, '')) || 0;
-                const low = parseFloat((cells[7] || '').replace(/,/g, '')) || 0;
-                const yearHigh = parseFloat((cells[8] || '').replace(/,/g, '')) || 0;
-                const yearLow = parseFloat((cells[9] || '').replace(/,/g, '')) || 0;
-                const volume = parseInt((cells[10] || '').replace(/,/g, ''), 10) || 0;
-
-                if (ltp > 0) {
-                    stocks.push({
-                        symbol,
-                        name: rawName,
-                        sector: cells[1] || 'Equity',
-                        ltp,
-                        chg,
-                        percentChange: pchg,
-                        open,
-                        high,
-                        low,
-                        yearHigh,
-                        yearLow,
-                        volume
-                    });
-                }
-            }
+        const href = aTag.attr('href') || '';
+        // Extract sector from href: /india/stockpricequote/<sector>/<name>/<code>
+        let sector = 'Equity';
+        const secMatch = href.match(/\/stockpricequote\/([^\/]+)\//);
+        if (secMatch && secMatch[1]) {
+            sector = secMatch[1]
+                .replace(/-/g, ' ')
+                .replace(/\b\w/g, l => l.toUpperCase());
         }
-    } catch (err) {
-        console.warn('Error parsing MC table:', err.message);
-    }
+
+        // Symbol guess or fallback
+        const codeMatch = href.match(/\/([^\/]+)$/);
+        const symbol = codeMatch && codeMatch[1] ? codeMatch[1].toUpperCase() : rawName.split(' ')[0].toUpperCase();
+
+        const ltp = cleanNumber($(tds[1]).text());
+        const pchg = cleanNumber($(tds[2]).text());
+        const chg = cleanNumber($(tds[3]).text());
+        const vol = parseInt(($(tds[4]).text() || '0').replace(/,/g, ''), 10) || 0;
+
+        if (ltp > 0) {
+            stocks.push({
+                symbol: symbol.length <= 15 ? symbol : rawName.split(' ')[0].toUpperCase(),
+                name: rawName,
+                sector,
+                ltp,
+                chg,
+                percentChange: pchg,
+                open: 0,
+                high: 0,
+                low: 0,
+                yearHigh: 0,
+                yearLow: 0,
+                volume: vol
+            });
+        }
+    });
+
     return stocks;
 }
 
 export async function scrapeIndexStocks() {
-    console.log('🔄 Starting Index Constituent Stocks scrape...');
-    let existingData = {};
+    console.log('🔄 Starting Index Constituent Stocks scrape from Moneycontrol...');
+
+    let existingData = { lastUpdated: '', indices: {} };
     if (fs.existsSync(STOCKS_DATA_FILE)) {
         try {
             existingData = JSON.parse(fs.readFileSync(STOCKS_DATA_FILE, 'utf8'));
         } catch (e) {
-            existingData = {};
+            existingData = { indices: {} };
+        }
+    }
+    if (!existingData.indices) existingData.indices = {};
+
+    // Read latest index prices from indices-data.json
+    let indicesDataMap = {};
+    if (fs.existsSync(INDICES_DATA_FILE)) {
+        try {
+            const rawIdx = JSON.parse(fs.readFileSync(INDICES_DATA_FILE, 'utf8'));
+            if (rawIdx.indices && Array.isArray(rawIdx.indices)) {
+                rawIdx.indices.forEach(idx => {
+                    indicesDataMap[idx.name.toUpperCase().trim()] = idx;
+                });
+            }
+        } catch (e) {
+            console.warn('Could not read indices-data.json:', e.message);
         }
     }
 
-    if (!existingData.indices) {
-        existingData.indices = {};
-    }
-
-    for (const item of INDEX_ENDPOINTS) {
+    for (const item of TARGET_INDICES) {
         try {
-            console.log(`Fetching constituents for ${item.name}...`);
-            const res = await fetch(item.url, { headers: BROWSER_HEADERS });
+            const endpoint = `https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=${item.ex}&indicesID=${item.id}&selTab=o&selPage=marketTerminal&classic=true`;
+            console.log(`Fetching constituents for ${item.name} (ID: ${item.id})...`);
+            
+            const res = await fetch(endpoint, { headers: BROWSER_HEADERS });
             if (res.ok) {
                 const html = await res.text();
-                const stocks = parseMoneycontrolTable(html);
+                const stocks = parseConstituentStocks(html);
                 if (stocks.length > 0) {
-                    if (!existingData.indices[item.name]) {
-                        existingData.indices[item.name] = { name: item.name };
-                    }
-                    existingData.indices[item.name].stocks = stocks;
+                    const normName = item.name.toUpperCase().trim();
+                    const liveIdx = indicesDataMap[normName] || {};
+
+                    let advances = 0;
+                    let declines = 0;
+                    stocks.forEach(s => {
+                        if (s.chg >= 0) advances++;
+                        else declines++;
+                    });
+
+                    existingData.indices[item.name] = {
+                        name: item.name,
+                        exchange: item.ex === 'B' ? 'BSE' : 'NSE',
+                        category: item.category || 'Index',
+                        ltp: liveIdx.ltp || (existingData.indices[item.name] ? existingData.indices[item.name].ltp : 0),
+                        chg: liveIdx.chg !== undefined ? liveIdx.chg : 0,
+                        percentChange: liveIdx.percentChange !== undefined ? liveIdx.percentChange : 0,
+                        open: liveIdx.open || 0,
+                        high: liveIdx.high || 0,
+                        low: liveIdx.low || 0,
+                        yearHigh: liveIdx.yearHigh || 0,
+                        yearLow: liveIdx.yearLow || 0,
+                        advances,
+                        declines,
+                        totalStocks: stocks.length,
+                        stocks
+                    };
                     console.log(`✅ Updated ${stocks.length} stocks for ${item.name}`);
                 }
             }
         } catch (err) {
-            console.warn(`Could not fetch ${item.name}: ${err.message}`);
+            console.warn(`Could not fetch constituents for ${item.name}: ${err.message}`);
         }
     }
 
@@ -148,12 +181,12 @@ export async function scrapeIndexStocks() {
         minute: '2-digit',
         hour12: true
     });
+    existingData.marketStatus = 'CLOSED';
 
     fs.writeFileSync(STOCKS_DATA_FILE, JSON.stringify(existingData, null, 2), 'utf8');
     console.log('🎉 Index constituent stocks data updated successfully!');
 }
 
-// If run directly: node scrape_index_stocks.mjs
 if (process.argv[1] && process.argv[1].endsWith('scrape_index_stocks.mjs')) {
     scrapeIndexStocks();
 }

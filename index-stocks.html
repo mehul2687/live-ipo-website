@@ -806,12 +806,14 @@
     <!-- Page Logic Script -->
     <script>
         let fullStockDataset = {};
+        let liveIndicesDataset = {};
         let activeIndexKey = 'NIFTY 50';
         let stockFilter = 'all'; // 'all' | 'gainers' | 'losers'
         let stockSearchQuery = '';
         let stockSort = { column: 'ltp', order: 'desc' };
         let autoRefreshTimer = null;
         let isAutoRefreshActive = true;
+        let isSyncingLive = false;
 
         const QUICK_INDICES = [
             'NIFTY 50',
@@ -825,6 +827,109 @@
             'NIFTY IT',
             'NIFTY AUTO'
         ];
+
+        // Moneycontrol Complete Indices Mapping (97 indices)
+        const MC_INDICES_MAP = {
+            "NIFTY 50": { "id": "9", "ex": "N", "name": "NIFTY 50" },
+            "NIFTY BANK": { "id": "23", "ex": "N", "name": "NIFTY BANK" },
+            "NIFTY MIDCAP 100": { "id": "27", "ex": "N", "name": "NIFTY MIDCAP 100" },
+            "NIFTY NEXT 50": { "id": "6", "ex": "N", "name": "NIFTY NEXT 50" },
+            "NIFTY 100": { "id": "28", "ex": "N", "name": "NIFTY 100" },
+            "NIFTY 200": { "id": "49", "ex": "N", "name": "NIFTY 200" },
+            "NIFTY 500": { "id": "7", "ex": "N", "name": "NIFTY 500" },
+            "NIFTY SMALLCAP 100": { "id": "53", "ex": "N", "name": "NIFTY SMALLCAP 100" },
+            "NIFTY MIDCAP 50": { "id": "31", "ex": "N", "name": "NIFTY MIDCAP 50" },
+            "NIFTY SMLCAP 50": { "id": "113", "ex": "N", "name": "NIFTY SMLCAP 50" },
+            "INDIA VIX": { "id": "36", "ex": "N", "name": "INDIA VIX" },
+            "NIFTY 750 TOTAL MKT": { "id": "136", "ex": "N", "name": "NIFTY 750 TOTAL MKT" },
+            "NIFTY AUTO": { "id": "52", "ex": "N", "name": "NIFTY AUTO" },
+            "NIFTY IT": { "id": "19", "ex": "N", "name": "NIFTY IT" },
+            "NIFTY PSU BANK": { "id": "43", "ex": "N", "name": "NIFTY PSU BANK" },
+            "NIFTY FIN SERVICE": { "id": "47", "ex": "N", "name": "NIFTY FINANCIAL SERVICES" },
+            "NIFTY FINANCIAL SERVICES": { "id": "47", "ex": "N", "name": "NIFTY FINANCIAL SERVICES" },
+            "FINNIFTY": { "id": "47", "ex": "N", "name": "NIFTY FINANCIAL SERVICES" },
+            "NIFTY PHARMA": { "id": "41", "ex": "N", "name": "NIFTY PHARMA" },
+            "NIFTY FMCG": { "id": "39", "ex": "N", "name": "NIFTY FMCG" },
+            "NIFTY METAL": { "id": "51", "ex": "N", "name": "NIFTY METAL" },
+            "NIFTY REALTY": { "id": "34", "ex": "N", "name": "NIFTY REALTY" },
+            "NIFTY MEDIA": { "id": "50", "ex": "N", "name": "NIFTY MEDIA" },
+            "NIFTY ENERGY": { "id": "38", "ex": "N", "name": "NIFTY ENERGY" },
+            "NIFTY PVT BANK": { "id": "79", "ex": "N", "name": "NIFTY PVT BANK" },
+            "NIFTY INFRA": { "id": "35", "ex": "N", "name": "NIFTY INFRA" },
+            "NIFTY COMMODITIES": { "id": "48", "ex": "N", "name": "NIFTY COMMODITIES" },
+            "NIFTY CONSUMPTION": { "id": "56", "ex": "N", "name": "NIFTY CONSUMPTION" },
+            "NIFTY PSE": { "id": "42", "ex": "N", "name": "NIFTY PSE" },
+            "NIFTY SERVICES": { "id": "44", "ex": "N", "name": "NIFTY SERVICES" },
+            "NIFTY FINSRV25/50": { "id": "118", "ex": "N", "name": "NIFTY FINSRV25/50" },
+            "NIFTY CONS DURBL": { "id": "122", "ex": "N", "name": "NIFTY CONS DURBL" },
+            "NIFTY HEALTHCARE": { "id": "123", "ex": "N", "name": "NIFTY HEALTHCARE" },
+            "NIFTY OIL & GAS": { "id": "126", "ex": "N", "name": "NIFTY OIL & GAS" },
+            "NIFTY INDIA MFG": { "id": "133", "ex": "N", "name": "NIFTY INDIA MFG" },
+            "NIFTY INDIA DEFENCE": { "id": "139", "ex": "N", "name": "NIFTY INDIA DEFENCE" },
+            "NIFTY MIDCAP 150": { "id": "111", "ex": "N", "name": "NIFTY MIDCAP 150" },
+            "NIFTY MIDSML 400": { "id": "112", "ex": "N", "name": "NIFTY MIDSML 400" },
+            "NIFTY SMLCAP 250": { "id": "114", "ex": "N", "name": "NIFTY SMLCAP 250" },
+            "NIFTY SMALLCAP 250": { "id": "114", "ex": "N", "name": "NIFTY SMLCAP 250" },
+            "NIFTY MNC": { "id": "40", "ex": "N", "name": "NIFTY MNC" },
+            "NIFTY ALPHALOWVOL 30": { "id": "119", "ex": "N", "name": "NIFTY ALPHALOWVOL 30" },
+            "NIFTY200 MOMENTUM 30": { "id": "120", "ex": "N", "name": "NIFTY200 MOMENTUM 30" },
+            "NIFTY LARGEMID250": { "id": "124", "ex": "N", "name": "NIFTY LARGEMID250" },
+            "NIFTY500 MUL50:25:25": { "id": "125", "ex": "N", "name": "NIFTY500 MUL50:25:25" },
+            "NIFTY CPSE": { "id": "61", "ex": "N", "name": "NIFTY CPSE" },
+            "NIFTY MID SELECT": { "id": "128", "ex": "N", "name": "NIFTY MIDCAP SELECT" },
+            "NIFTY MIDCAP SELECT": { "id": "128", "ex": "N", "name": "NIFTY MIDCAP SELECT" },
+            "NIFTY IND DIGITAL": { "id": "130", "ex": "N", "name": "NIFTY IND DIGITAL" },
+            "NIFTY M150 QLTY50": { "id": "132", "ex": "N", "name": "NIFTY M150 QLTY50" },
+            "NIFTY MICROCAP 250": { "id": "135", "ex": "N", "name": "NIFTY MICROCAP 250" },
+            "NIFTY CAPITAL MARKET": { "id": "140", "ex": "N", "name": "NIFTY CAPITAL MARKET" },
+            "NIFTY INDIA FPI 150": { "id": "143", "ex": "N", "name": "NIFTY INDIA FPI 150" },
+            "SENSEX": { "id": "4", "ex": "B", "name": "SENSEX" },
+            "BSE SENSEX": { "id": "4", "ex": "B", "name": "SENSEX" },
+            "BSE 100": { "id": "1", "ex": "B", "name": "BSE 100" },
+            "BSE 200": { "id": "2", "ex": "B", "name": "BSE 200" },
+            "BSE 500": { "id": "12", "ex": "B", "name": "BSE 500" },
+            "BSE BANKEX": { "id": "18", "ex": "B", "name": "BSE BANKEX" },
+            "BSE SENSEX NEXT 30": { "id": "137", "ex": "B", "name": "BSE SENSEX NEXT 30" },
+            "BSE COMMODITIES": { "id": "68", "ex": "B", "name": "BSE COMMODITIES" },
+            "BSE INDUSTRIALS": { "id": "72", "ex": "B", "name": "BSE INDUSTRIALS" },
+            "BSE CONS DISCRET": { "id": "69", "ex": "B", "name": "BSE CONS DISCRET" },
+            "BSE ENERGY": { "id": "70", "ex": "B", "name": "BSE ENERGY" },
+            "BSE IT": { "id": "17", "ex": "B", "name": "BSE IT" },
+            "BSE TELECOM": { "id": "76", "ex": "B", "name": "BSE TELECOM" },
+            "BSE UTILITIES": { "id": "77", "ex": "B", "name": "BSE UTILITIES" },
+            "BSE AUTO": { "id": "20", "ex": "B", "name": "BSE AUTO" },
+            "BSE CONS DURABLES": { "id": "16", "ex": "B", "name": "BSE CONS DURABLES" },
+            "BSE CAP GOODS": { "id": "13", "ex": "B", "name": "BSE CAP GOODS" },
+            "BSE FMCG": { "id": "14", "ex": "B", "name": "BSE FMCG" },
+            "BSE METAL": { "id": "21", "ex": "B", "name": "BSE METAL" },
+            "BSE OIL & GAS": { "id": "22", "ex": "B", "name": "BSE OIL & GAS" },
+            "BSE REALTY": { "id": "29", "ex": "B", "name": "BSE REALTY" },
+            "BSE POWER": { "id": "30", "ex": "B", "name": "BSE POWER" },
+            "BSE FIN SERVICES": { "id": "71", "ex": "B", "name": "BSE FIN SERVICES" },
+            "BSE HEALTHCARE": { "id": "15", "ex": "B", "name": "BSE HEALTHCARE" },
+            "BSE TECK": { "id": "10", "ex": "B", "name": "BSE TECK" },
+            "BSE PSU": { "id": "11", "ex": "B", "name": "BSE PSU" },
+            "BSE PVT BANK": { "id": "110", "ex": "B", "name": "BSE PVT BANK" },
+            "BSE SERVICES": { "id": "134", "ex": "B", "name": "BSE SERVICES" },
+            "BSE PSUBNK": { "id": "138", "ex": "B", "name": "BSE PSUBNK" },
+            "BSE INDIA DEFENCE": { "id": "142", "ex": "B", "name": "BSE INDIA DEFENCE" },
+            "BSE BHARAT 22": { "id": "102", "ex": "B", "name": "BSE BHARAT 22" },
+            "BSE IPO": { "id": "33", "ex": "B", "name": "BSE IPO" },
+            "BSE SME IPO": { "id": "58", "ex": "B", "name": "BSE SME IPO" },
+            "BSE ALLCAP": { "id": "67", "ex": "B", "name": "BSE ALLCAP" },
+            "BSE MIDCAP SELECT": { "id": "74", "ex": "B", "name": "BSE MIDCAP SELECT" },
+            "BSE SMALLCAP SELECT": { "id": "75", "ex": "B", "name": "BSE SMALLCAP SELECT" },
+            "BSE SENSEX 50": { "id": "100", "ex": "B", "name": "BSE SENSEX 50" },
+            "BSE SENSEX NEXT 50": { "id": "101", "ex": "B", "name": "BSE SENSEX NEXT 50" },
+            "BSE 150 MIDCAP": { "id": "103", "ex": "B", "name": "BSE 150 MIDCAP" },
+            "BSE 250 SMALLCAP": { "id": "104", "ex": "B", "name": "BSE 250 SMALLCAP" },
+            "BSE 250 LARGEMIDCAP": { "id": "105", "ex": "B", "name": "BSE 250 LARGEMIDCAP" },
+            "BSE 400 MIDSMALLCAP": { "id": "106", "ex": "B", "name": "BSE 400 MIDSMALLCAP" },
+            "BSE 100 LARGECAP TMC": { "id": "108", "ex": "B", "name": "BSE 100 LARGECAP TMC" },
+            "BSE INDIA MANUFACTUR": { "id": "66", "ex": "B", "name": "BSE INDIA MANUFACTUR" },
+            "BSE INDIA INFRA": { "id": "62", "ex": "B", "name": "BSE INDIA INFRA" },
+            "BSE CPSE": { "id": "63", "ex": "B", "name": "BSE CPSE" }
+        };
 
         function formatNumber(val, decimals = 2) {
             if (val === null || val === undefined || isNaN(val)) return '-';
@@ -844,9 +949,24 @@
             return num.toLocaleString('en-IN');
         }
 
+        function cleanNumber(str) {
+            if (!str) return 0;
+            return parseFloat(String(str).replace(/,/g, '').replace(/%/g, '').trim()) || 0;
+        }
+
         function getQueryParam(name) {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get(name);
+        }
+
+        function findIndexMapping(key) {
+            if (!key) return null;
+            const clean = key.toUpperCase().trim();
+            if (MC_INDICES_MAP[clean]) return MC_INDICES_MAP[clean];
+            for (const [k, v] of Object.entries(MC_INDICES_MAP)) {
+                if (clean.includes(k) || k.includes(clean)) return v;
+            }
+            return null;
         }
 
         // Initialize Quick Switcher Pills
@@ -867,15 +987,60 @@
             container.innerHTML = html;
         }
 
+        function populateIndicesDropdown() {
+            const select = document.getElementById('allIndicesDropdown');
+            if (!select) return;
+
+            const existingKeys = new Set();
+            let optionsHtml = '';
+
+            // 1. Add Quick Indices first
+            QUICK_INDICES.forEach(name => {
+                existingKeys.add(name.toUpperCase());
+                const count = (fullStockDataset.indices && fullStockDataset.indices[name] && fullStockDataset.indices[name].stocks) ? fullStockDataset.indices[name].stocks.length : '';
+                optionsHtml += `<option value="${name}">${name}${count ? ` (${count})` : ''}</option>`;
+            });
+
+            // 2. Add other indices from MC_INDICES_MAP
+            const otherIndices = Object.keys(MC_INDICES_MAP).sort();
+            otherIndices.forEach(name => {
+                if (!existingKeys.has(name.toUpperCase())) {
+                    existingKeys.add(name.toUpperCase());
+                    const count = (fullStockDataset.indices && fullStockDataset.indices[name] && fullStockDataset.indices[name].stocks) ? fullStockDataset.indices[name].stocks.length : '';
+                    optionsHtml += `<option value="${name}">${name}${count ? ` (${count})` : ''}</option>`;
+                }
+            });
+
+            select.innerHTML = optionsHtml;
+            select.value = activeIndexKey;
+        }
+
         async function loadStocksData() {
             try {
-                const res = await fetch('index-stocks-data.json?t=' + Date.now());
-                if (!res.ok) throw new Error('Data file not available');
-                fullStockDataset = await res.json();
+                const [stocksRes, indicesRes] = await Promise.allSettled([
+                    fetch('index-stocks-data.json?t=' + Date.now()).then(r => r.json()),
+                    fetch('indices-data.json?t=' + Date.now()).then(r => r.json())
+                ]);
 
+                if (stocksRes.status === 'fulfilled' && stocksRes.value) {
+                    fullStockDataset = stocksRes.value;
+                }
+                if (indicesRes.status === 'fulfilled' && indicesRes.value) {
+                    const raw = indicesRes.value;
+                    if (raw.indices && Array.isArray(raw.indices)) {
+                        raw.indices.forEach(idx => {
+                            liveIndicesDataset[idx.name.toUpperCase().trim()] = idx;
+                        });
+                    }
+                }
+
+                populateIndicesDropdown();
                 renderIndexPills();
                 updateHeroCard();
                 renderStocksTable();
+
+                // Immediately trigger Moneycontrol live sync for the active index
+                syncConstituentsLive(activeIndexKey);
             } catch (err) {
                 console.error('Error loading stocks data:', err);
                 document.getElementById('stocksTableBody').innerHTML = `
@@ -904,19 +1069,180 @@
             renderIndexPills();
             updateHeroCard();
             renderStocksTable();
+
+            // Immediately fetch live constituents for this index from Moneycontrol
+            syncConstituentsLive(indexName);
         }
 
         function getIndexData(key) {
-            if (!fullStockDataset.indices) return null;
-            if (fullStockDataset.indices[key]) return fullStockDataset.indices[key];
             const clean = (key || '').toUpperCase().trim();
-            for (const [k, val] of Object.entries(fullStockDataset.indices)) {
-                if (k.toUpperCase() === clean) return val;
-                if ((clean.includes('SMLCAP') || clean.includes('SMALLCAP')) && (k.toUpperCase().includes('SMLCAP') || k.toUpperCase().includes('SMALLCAP'))) {
-                    return val;
+            let baseData = null;
+
+            if (fullStockDataset.indices) {
+                if (fullStockDataset.indices[key]) baseData = fullStockDataset.indices[key];
+                else {
+                    for (const [k, val] of Object.entries(fullStockDataset.indices)) {
+                        if (k.toUpperCase() === clean) {
+                            baseData = val;
+                            break;
+                        }
+                    }
                 }
             }
-            return fullStockDataset.indices['NIFTY 50'] || null;
+
+            if (!baseData) {
+                baseData = {
+                    name: key,
+                    exchange: clean.includes('BSE') || clean === 'SENSEX' ? 'BSE' : 'NSE',
+                    category: 'Index',
+                    stocks: []
+                };
+            }
+
+            // Overlay live index price from liveIndicesDataset if available
+            const liveIdx = liveIndicesDataset[clean] || (clean === 'SENSEX' ? liveIndicesDataset['BSE SENSEX'] : null);
+            if (liveIdx) {
+                baseData.ltp = liveIdx.ltp;
+                baseData.chg = liveIdx.chg;
+                baseData.percentChange = liveIdx.percentChange;
+                baseData.open = liveIdx.open;
+                baseData.high = liveIdx.high;
+                baseData.low = liveIdx.low;
+                baseData.yearHigh = liveIdx.yearHigh;
+                baseData.yearLow = liveIdx.yearLow;
+                baseData.exchange = liveIdx.exchange || baseData.exchange;
+            }
+
+            return baseData;
+        }
+
+        // Live Real-Time Constituent Stocks Sync directly from Moneycontrol
+        async function syncConstituentsLive(indexName) {
+            const mapping = findIndexMapping(indexName);
+            if (!mapping || !mapping.id) {
+                console.log('No Moneycontrol mapping for', indexName);
+                return;
+            }
+
+            if (isSyncingLive) return;
+            isSyncingLive = true;
+
+            const endpoint = `https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=${mapping.ex}&indicesID=${mapping.id}&selTab=o&selPage=marketTerminal&classic=true`;
+
+            try {
+                const res = await fetch(endpoint, {
+                    headers: { 'Accept': 'text/html,application/xhtml+xml' }
+                });
+
+                if (res.ok) {
+                    const html = await res.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const rows = doc.querySelectorAll('tr');
+
+                    const liveStocks = [];
+                    const existingStocks = (fullStockDataset.indices && fullStockDataset.indices[indexName] && fullStockDataset.indices[indexName].stocks) || [];
+
+                    rows.forEach(tr => {
+                        if (tr.querySelector('th')) return;
+                        const tds = tr.querySelectorAll('td');
+                        if (tds.length < 5) return;
+
+                        const firstTd = tds[0];
+                        const aTag = firstTd.querySelector('a');
+                        const rawName = (aTag ? aTag.textContent : firstTd.textContent).trim();
+                        if (!rawName || rawName === 'No Data Available') return;
+
+                        const href = aTag ? (aTag.getAttribute('href') || '') : '';
+                        let sector = 'Equity';
+                        const secMatch = href.match(/\/stockpricequote\/([^\/]+)\//);
+                        if (secMatch && secMatch[1]) {
+                            sector = secMatch[1].replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                        }
+
+                        const codeMatch = href.match(/\/([^\/]+)$/);
+                        let symbol = codeMatch && codeMatch[1] ? codeMatch[1].toUpperCase() : rawName.split(' ')[0].toUpperCase();
+
+                        const ltp = cleanNumber(tds[1].textContent);
+                        const pchg = cleanNumber(tds[2].textContent);
+                        const chg = cleanNumber(tds[3].textContent);
+                        const vol = parseInt((tds[4].textContent || '0').replace(/,/g, ''), 10) || 0;
+
+                        // Match with existing cache to keep standard symbol & 52w high/low if available
+                        let open = 0, high = 0, low = 0, yearHigh = 0, yearLow = 0;
+                        const existing = existingStocks.find(s =>
+                            s.name.toLowerCase() === rawName.toLowerCase() ||
+                            s.symbol.toLowerCase() === symbol.toLowerCase() ||
+                            rawName.toLowerCase().includes(s.name.toLowerCase()) ||
+                            s.name.toLowerCase().includes(rawName.toLowerCase())
+                        );
+
+                        if (existing) {
+                            symbol = existing.symbol;
+                            sector = existing.sector || sector;
+                            open = existing.open || 0;
+                            high = existing.high || 0;
+                            low = existing.low || 0;
+                            yearHigh = existing.yearHigh || 0;
+                            yearLow = existing.yearLow || 0;
+                        }
+
+                        if (ltp > 0) {
+                            liveStocks.push({
+                                symbol: symbol.length <= 15 ? symbol : rawName.split(' ')[0].toUpperCase(),
+                                name: rawName,
+                                sector,
+                                ltp,
+                                chg,
+                                percentChange: pchg,
+                                open,
+                                high,
+                                low,
+                                yearHigh,
+                                yearLow,
+                                volume: vol
+                            });
+                        }
+                    });
+
+                    if (liveStocks.length > 0) {
+                        if (!fullStockDataset.indices) fullStockDataset.indices = {};
+                        if (!fullStockDataset.indices[indexName]) {
+                            fullStockDataset.indices[indexName] = {
+                                name: indexName,
+                                exchange: mapping.ex === 'B' ? 'BSE' : 'NSE',
+                                category: 'Index',
+                                stocks: []
+                            };
+                        }
+
+                        let adv = 0, dec = 0;
+                        liveStocks.forEach(s => {
+                            if (s.chg >= 0) adv++;
+                            else dec++;
+                        });
+
+                        fullStockDataset.indices[indexName].stocks = liveStocks;
+                        fullStockDataset.indices[indexName].advances = adv;
+                        fullStockDataset.indices[indexName].declines = dec;
+                        fullStockDataset.indices[indexName].totalStocks = liveStocks.length;
+
+                        renderIndexPills();
+                        updateHeroCard();
+                        renderStocksTable();
+
+                        const nowStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+                        const updatedBadge = document.getElementById('stocksUpdatedLabel');
+                        if (updatedBadge) {
+                            updatedBadge.innerHTML = `⚡ Live Synced with Moneycontrol (${nowStr})`;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn('Live constituent sync error:', err.message);
+            } finally {
+                isSyncingLive = false;
+            }
         }
 
         function updateHeroCard() {
@@ -1024,7 +1350,7 @@
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="11" style="text-align: center; padding: 36px; color: #64748b;">
-                            ℹ️ Constituent stocks for "${activeIndexKey}" will be updated shortly.
+                            ⏳ Loading constituent stocks from Moneycontrol for "${activeIndexKey}"...
                         </td>
                     </tr>
                 `;
@@ -1141,15 +1467,15 @@
             if (autoRefreshTimer) clearInterval(autoRefreshTimer);
             autoRefreshTimer = setInterval(() => {
                 if (isAutoRefreshActive) {
-                    loadStocksData();
+                    syncConstituentsLive(activeIndexKey);
                 }
-            }, 30000); // 30s auto reload
+            }, 30000); // 30s live reload
         }
 
         function manualRefreshData() {
             const btn = document.getElementById('btnManualRefresh');
             btn.innerHTML = '<span>⏳</span><span>Refreshing...</span>';
-            loadStocksData().finally(() => {
+            syncConstituentsLive(activeIndexKey).finally(() => {
                 setTimeout(() => {
                     btn.innerHTML = '<span>🔄</span><span>Refresh</span>';
                 }, 600);

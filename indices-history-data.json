@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-11-09T11:16:08.910Z",
-  "lastUpdatedDisplay": "9 Nov 2026, 4:46 pm",
+  "lastUpdated": "2026-11-09T11:41:43.314Z",
+  "lastUpdatedDisplay": "9 Nov 2026, 5:11 pm",
   "totalDates": 7,
   "dates": [
     "09-11-2026",
@@ -112,7 +112,7 @@
         "volume": 0
       },
       {
-        "name": "BSE 100 LargeCap TMC",
+        "name": "BSE 100 LARGECAP TMC",
         "exchange": "BSE",
         "category": "Other",
         "close": 9355.3,
@@ -224,7 +224,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Auto",
+        "name": "BSE AUTO",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 61118.24,
@@ -266,7 +266,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Cap Goods",
+        "name": "BSE CAP GOODS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 70461.06,
@@ -280,7 +280,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Commodities",
+        "name": "BSE COMMODITIES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 8221.48,
@@ -294,7 +294,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Cons Discret",
+        "name": "BSE CONS DISCRET",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 10019,
@@ -308,7 +308,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Cons Durables",
+        "name": "BSE CONS DURABLES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 61766.31,
@@ -336,7 +336,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Energy",
+        "name": "BSE ENERGY",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 11327.95,
@@ -350,7 +350,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Fin Services",
+        "name": "BSE FIN SERVICES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 12785.01,
@@ -378,7 +378,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Healthcare",
+        "name": "BSE HEALTHCARE",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 51664.58,
@@ -392,7 +392,7 @@
         "volume": 0
       },
       {
-        "name": "BSE India Defence",
+        "name": "BSE INDIA DEFENCE",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 7631.31,
@@ -434,7 +434,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Industrials",
+        "name": "BSE INDUSTRIALS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 15463.74,
@@ -476,7 +476,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Metal",
+        "name": "BSE METAL",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 40545.33,
@@ -504,7 +504,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Oil &amp; Gas",
+        "name": "BSE OIL &AMP; GAS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 26546.98,
@@ -518,7 +518,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Power",
+        "name": "BSE POWER",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 7108.12,
@@ -560,7 +560,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Pvt Bank",
+        "name": "BSE PVT BANK",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 20920.27,
@@ -574,7 +574,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Realty",
+        "name": "BSE REALTY",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 6994.78,
@@ -630,7 +630,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Services",
+        "name": "BSE SERVICES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 1684.14,
@@ -672,7 +672,7 @@
         "volume": 0
       },
       {
-        "name": "BSE TECk",
+        "name": "BSE TECK",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 16632.49,
@@ -686,7 +686,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Telecom",
+        "name": "BSE TELECOM",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 3735.76,
@@ -700,7 +700,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Utilities",
+        "name": "BSE UTILITIES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 5385.85,
@@ -2634,7 +2634,7 @@
         "volume": 11242453
       },
       {
-        "name": "BSE 100 LargeCap TMC",
+        "name": "BSE 100 LARGECAP TMC",
         "exchange": "BSE",
         "category": "Other",
         "close": 9207.97,
@@ -2746,7 +2746,7 @@
         "volume": 9903909
       },
       {
-        "name": "BSE Auto",
+        "name": "BSE AUTO",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 60561.08,
@@ -2788,7 +2788,7 @@
         "volume": 9156914
       },
       {
-        "name": "BSE Cap Goods",
+        "name": "BSE CAP GOODS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 71432.54,
@@ -2802,7 +2802,7 @@
         "volume": 8549603
       },
       {
-        "name": "BSE Commodities",
+        "name": "BSE COMMODITIES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 8189.54,
@@ -2816,7 +2816,7 @@
         "volume": 9884973
       },
       {
-        "name": "BSE Cons Discret",
+        "name": "BSE CONS DISCRET",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 9959.24,
@@ -2830,7 +2830,7 @@
         "volume": 9495665
       },
       {
-        "name": "BSE Cons Durables",
+        "name": "BSE CONS DURABLES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 60686.1,
@@ -2858,7 +2858,7 @@
         "volume": 11292024
       },
       {
-        "name": "BSE Energy",
+        "name": "BSE ENERGY",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 11277.2,
@@ -2872,7 +2872,7 @@
         "volume": 10688757
       },
       {
-        "name": "BSE Fin Services",
+        "name": "BSE FIN SERVICES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 12517.14,
@@ -2900,7 +2900,7 @@
         "volume": 9542005
       },
       {
-        "name": "BSE Healthcare",
+        "name": "BSE HEALTHCARE",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 51422.89,
@@ -2914,7 +2914,7 @@
         "volume": 10925435
       },
       {
-        "name": "BSE India Defence",
+        "name": "BSE INDIA DEFENCE",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 7658.88,
@@ -2956,7 +2956,7 @@
         "volume": 11358616
       },
       {
-        "name": "BSE Industrials",
+        "name": "BSE INDUSTRIALS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 15615.21,
@@ -2998,7 +2998,7 @@
         "volume": 10353192
       },
       {
-        "name": "BSE Metal",
+        "name": "BSE METAL",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 40227.53,
@@ -3026,7 +3026,7 @@
         "volume": 8533424
       },
       {
-        "name": "BSE Oil &amp; Gas",
+        "name": "BSE OIL &AMP; GAS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 26365.06,
@@ -3040,7 +3040,7 @@
         "volume": 11302586
       },
       {
-        "name": "BSE Power",
+        "name": "BSE POWER",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 7133.09,
@@ -3082,7 +3082,7 @@
         "volume": 10375529
       },
       {
-        "name": "BSE Pvt Bank",
+        "name": "BSE PVT BANK",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 20312.91,
@@ -3096,7 +3096,7 @@
         "volume": 10897015
       },
       {
-        "name": "BSE Realty",
+        "name": "BSE REALTY",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 6977.34,
@@ -3152,7 +3152,7 @@
         "volume": 10714506
       },
       {
-        "name": "BSE Services",
+        "name": "BSE SERVICES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 1682.46,
@@ -3194,7 +3194,7 @@
         "volume": 9075901
       },
       {
-        "name": "BSE TECk",
+        "name": "BSE TECK",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 16520.15,
@@ -3208,7 +3208,7 @@
         "volume": 9816808
       },
       {
-        "name": "BSE Telecom",
+        "name": "BSE TELECOM",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 3758.31,
@@ -3222,7 +3222,7 @@
         "volume": 10443805
       },
       {
-        "name": "BSE Utilities",
+        "name": "BSE UTILITIES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 5379.93,
@@ -5156,7 +5156,7 @@
         "volume": 12725094
       },
       {
-        "name": "BSE 100 LargeCap TMC",
+        "name": "BSE 100 LARGECAP TMC",
         "exchange": "BSE",
         "category": "Other",
         "close": 9123.12,
@@ -5268,7 +5268,7 @@
         "volume": 8564234
       },
       {
-        "name": "BSE Auto",
+        "name": "BSE AUTO",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 60003.05,
@@ -5310,7 +5310,7 @@
         "volume": 9660289
       },
       {
-        "name": "BSE Cap Goods",
+        "name": "BSE CAP GOODS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 70774.34,
@@ -5324,7 +5324,7 @@
         "volume": 7616720
       },
       {
-        "name": "BSE Commodities",
+        "name": "BSE COMMODITIES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 8114.08,
@@ -5338,7 +5338,7 @@
         "volume": 10051977
       },
       {
-        "name": "BSE Cons Discret",
+        "name": "BSE CONS DISCRET",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 9867.47,
@@ -5352,7 +5352,7 @@
         "volume": 9946232
       },
       {
-        "name": "BSE Cons Durables",
+        "name": "BSE CONS DURABLES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 60126.92,
@@ -5380,7 +5380,7 @@
         "volume": 12630809
       },
       {
-        "name": "BSE Energy",
+        "name": "BSE ENERGY",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 11173.29,
@@ -5394,7 +5394,7 @@
         "volume": 11358594
       },
       {
-        "name": "BSE Fin Services",
+        "name": "BSE FIN SERVICES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 12401.8,
@@ -5422,7 +5422,7 @@
         "volume": 8923447
       },
       {
-        "name": "BSE Healthcare",
+        "name": "BSE HEALTHCARE",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 50949.06,
@@ -5436,7 +5436,7 @@
         "volume": 10480669
       },
       {
-        "name": "BSE India Defence",
+        "name": "BSE INDIA DEFENCE",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 7588.31,
@@ -5478,7 +5478,7 @@
         "volume": 11433175
       },
       {
-        "name": "BSE Industrials",
+        "name": "BSE INDUSTRIALS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 15471.33,
@@ -5520,7 +5520,7 @@
         "volume": 10080352
       },
       {
-        "name": "BSE Metal",
+        "name": "BSE METAL",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 39856.86,
@@ -5548,7 +5548,7 @@
         "volume": 9430113
       },
       {
-        "name": "BSE Oil &amp; Gas",
+        "name": "BSE OIL &AMP; GAS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 26122.12,
@@ -5562,7 +5562,7 @@
         "volume": 11430953
       },
       {
-        "name": "BSE Power",
+        "name": "BSE POWER",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 7067.36,
@@ -5604,7 +5604,7 @@
         "volume": 10626877
       },
       {
-        "name": "BSE Pvt Bank",
+        "name": "BSE PVT BANK",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 20125.74,
@@ -5618,7 +5618,7 @@
         "volume": 9911437
       },
       {
-        "name": "BSE Realty",
+        "name": "BSE REALTY",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 6913.05,
@@ -5674,7 +5674,7 @@
         "volume": 11996511
       },
       {
-        "name": "BSE Services",
+        "name": "BSE SERVICES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 1666.96,
@@ -5716,7 +5716,7 @@
         "volume": 9334266
       },
       {
-        "name": "BSE TECk",
+        "name": "BSE TECK",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 16367.93,
@@ -5730,7 +5730,7 @@
         "volume": 9994638
       },
       {
-        "name": "BSE Telecom",
+        "name": "BSE TELECOM",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 3723.68,
@@ -5744,7 +5744,7 @@
         "volume": 10928900
       },
       {
-        "name": "BSE Utilities",
+        "name": "BSE UTILITIES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 5330.36,
@@ -7678,7 +7678,7 @@
         "volume": 14215068
       },
       {
-        "name": "BSE 100 LargeCap TMC",
+        "name": "BSE 100 LARGECAP TMC",
         "exchange": "BSE",
         "category": "Other",
         "close": 9089.49,
@@ -7790,7 +7790,7 @@
         "volume": 9485452
       },
       {
-        "name": "BSE Auto",
+        "name": "BSE AUTO",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 59781.86,
@@ -7832,7 +7832,7 @@
         "volume": 9463096
       },
       {
-        "name": "BSE Cap Goods",
+        "name": "BSE CAP GOODS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 70513.44,
@@ -7846,7 +7846,7 @@
         "volume": 6901061
       },
       {
-        "name": "BSE Commodities",
+        "name": "BSE COMMODITIES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 8084.17,
@@ -7860,7 +7860,7 @@
         "volume": 10607922
       },
       {
-        "name": "BSE Cons Discret",
+        "name": "BSE CONS DISCRET",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 9831.09,
@@ -7874,7 +7874,7 @@
         "volume": 9110099
       },
       {
-        "name": "BSE Cons Durables",
+        "name": "BSE CONS DURABLES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 59905.27,
@@ -7902,7 +7902,7 @@
         "volume": 12524810
       },
       {
-        "name": "BSE Energy",
+        "name": "BSE ENERGY",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 11132.1,
@@ -7916,7 +7916,7 @@
         "volume": 9901468
       },
       {
-        "name": "BSE Fin Services",
+        "name": "BSE FIN SERVICES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 12356.08,
@@ -7944,7 +7944,7 @@
         "volume": 8082675
       },
       {
-        "name": "BSE Healthcare",
+        "name": "BSE HEALTHCARE",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 50761.24,
@@ -7958,7 +7958,7 @@
         "volume": 10473814
       },
       {
-        "name": "BSE India Defence",
+        "name": "BSE INDIA DEFENCE",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 7560.34,
@@ -8000,7 +8000,7 @@
         "volume": 9797097
       },
       {
-        "name": "BSE Industrials",
+        "name": "BSE INDUSTRIALS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 15414.3,
@@ -8042,7 +8042,7 @@
         "volume": 9686341
       },
       {
-        "name": "BSE Metal",
+        "name": "BSE METAL",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 39709.93,
@@ -8070,7 +8070,7 @@
         "volume": 10003228
       },
       {
-        "name": "BSE Oil &amp; Gas",
+        "name": "BSE OIL &AMP; GAS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 26025.82,
@@ -8084,7 +8084,7 @@
         "volume": 11513104
       },
       {
-        "name": "BSE Power",
+        "name": "BSE POWER",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 7041.31,
@@ -8126,7 +8126,7 @@
         "volume": 11442751
       },
       {
-        "name": "BSE Pvt Bank",
+        "name": "BSE PVT BANK",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 20051.55,
@@ -8140,7 +8140,7 @@
         "volume": 8806848
       },
       {
-        "name": "BSE Realty",
+        "name": "BSE REALTY",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 6887.57,
@@ -8196,7 +8196,7 @@
         "volume": 11201692
       },
       {
-        "name": "BSE Services",
+        "name": "BSE SERVICES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 1660.81,
@@ -8238,7 +8238,7 @@
         "volume": 10078309
       },
       {
-        "name": "BSE TECk",
+        "name": "BSE TECK",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 16307.59,
@@ -8252,7 +8252,7 @@
         "volume": 8863033
       },
       {
-        "name": "BSE Telecom",
+        "name": "BSE TELECOM",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 3709.95,
@@ -8266,7 +8266,7 @@
         "volume": 10956397
       },
       {
-        "name": "BSE Utilities",
+        "name": "BSE UTILITIES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 5310.71,
@@ -10200,7 +10200,7 @@
         "volume": 14350622
       },
       {
-        "name": "BSE 100 LargeCap TMC",
+        "name": "BSE 100 LARGECAP TMC",
         "exchange": "BSE",
         "category": "Other",
         "close": 9115.01,
@@ -10312,7 +10312,7 @@
         "volume": 9380254
       },
       {
-        "name": "BSE Auto",
+        "name": "BSE AUTO",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 59949.72,
@@ -10354,7 +10354,7 @@
         "volume": 9295659
       },
       {
-        "name": "BSE Cap Goods",
+        "name": "BSE CAP GOODS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 70711.43,
@@ -10368,7 +10368,7 @@
         "volume": 7009866
       },
       {
-        "name": "BSE Commodities",
+        "name": "BSE COMMODITIES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 8106.87,
@@ -10382,7 +10382,7 @@
         "volume": 11813412
       },
       {
-        "name": "BSE Cons Discret",
+        "name": "BSE CONS DISCRET",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 9858.69,
@@ -10396,7 +10396,7 @@
         "volume": 8263245
       },
       {
-        "name": "BSE Cons Durables",
+        "name": "BSE CONS DURABLES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 60073.48,
@@ -10424,7 +10424,7 @@
         "volume": 14169948
       },
       {
-        "name": "BSE Energy",
+        "name": "BSE ENERGY",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 11163.36,
@@ -10438,7 +10438,7 @@
         "volume": 9631983
       },
       {
-        "name": "BSE Fin Services",
+        "name": "BSE FIN SERVICES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 12390.77,
@@ -10466,7 +10466,7 @@
         "volume": 8178016
       },
       {
-        "name": "BSE Healthcare",
+        "name": "BSE HEALTHCARE",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 50903.77,
@@ -10480,7 +10480,7 @@
         "volume": 11356938
       },
       {
-        "name": "BSE India Defence",
+        "name": "BSE INDIA DEFENCE",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 7581.57,
@@ -10522,7 +10522,7 @@
         "volume": 8570630
       },
       {
-        "name": "BSE Industrials",
+        "name": "BSE INDUSTRIALS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 15457.58,
@@ -10564,7 +10564,7 @@
         "volume": 10578872
       },
       {
-        "name": "BSE Metal",
+        "name": "BSE METAL",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 39821.43,
@@ -10592,7 +10592,7 @@
         "volume": 9205908
       },
       {
-        "name": "BSE Oil &amp; Gas",
+        "name": "BSE OIL &AMP; GAS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 26098.9,
@@ -10606,7 +10606,7 @@
         "volume": 11820413
       },
       {
-        "name": "BSE Power",
+        "name": "BSE POWER",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 7061.08,
@@ -10648,7 +10648,7 @@
         "volume": 11330184
       },
       {
-        "name": "BSE Pvt Bank",
+        "name": "BSE PVT BANK",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 20107.85,
@@ -10662,7 +10662,7 @@
         "volume": 8067037
       },
       {
-        "name": "BSE Realty",
+        "name": "BSE REALTY",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 6906.91,
@@ -10718,7 +10718,7 @@
         "volume": 10890423
       },
       {
-        "name": "BSE Services",
+        "name": "BSE SERVICES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 1665.47,
@@ -10760,7 +10760,7 @@
         "volume": 10902856
       },
       {
-        "name": "BSE TECk",
+        "name": "BSE TECK",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 16353.38,
@@ -10774,7 +10774,7 @@
         "volume": 7688628
       },
       {
-        "name": "BSE Telecom",
+        "name": "BSE TELECOM",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 3720.37,
@@ -10788,7 +10788,7 @@
         "volume": 11196517
       },
       {
-        "name": "BSE Utilities",
+        "name": "BSE UTILITIES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 5325.62,
@@ -12722,7 +12722,7 @@
         "volume": 13114639
       },
       {
-        "name": "BSE 100 LargeCap TMC",
+        "name": "BSE 100 LARGECAP TMC",
         "exchange": "BSE",
         "category": "Other",
         "close": 9076.89,
@@ -12834,7 +12834,7 @@
         "volume": 8110274
       },
       {
-        "name": "BSE Auto",
+        "name": "BSE AUTO",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 59698.98,
@@ -12876,7 +12876,7 @@
         "volume": 8157173
       },
       {
-        "name": "BSE Cap Goods",
+        "name": "BSE CAP GOODS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 70415.68,
@@ -12890,7 +12890,7 @@
         "volume": 6905430
       },
       {
-        "name": "BSE Commodities",
+        "name": "BSE COMMODITIES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 8072.96,
@@ -12904,7 +12904,7 @@
         "volume": 10089608
       },
       {
-        "name": "BSE Cons Discret",
+        "name": "BSE CONS DISCRET",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 9817.46,
@@ -12918,7 +12918,7 @@
         "volume": 7511808
       },
       {
-        "name": "BSE Cons Durables",
+        "name": "BSE CONS DURABLES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 59822.23,
@@ -12946,7 +12946,7 @@
         "volume": 15341508
       },
       {
-        "name": "BSE Energy",
+        "name": "BSE ENERGY",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 11116.67,
@@ -12960,7 +12960,7 @@
         "volume": 10659065
       },
       {
-        "name": "BSE Fin Services",
+        "name": "BSE FIN SERVICES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 12338.95,
@@ -12988,7 +12988,7 @@
         "volume": 7630398
       },
       {
-        "name": "BSE Healthcare",
+        "name": "BSE HEALTHCARE",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 50690.87,
@@ -13002,7 +13002,7 @@
         "volume": 12292010
       },
       {
-        "name": "BSE India Defence",
+        "name": "BSE INDIA DEFENCE",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 7549.86,
@@ -13044,7 +13044,7 @@
         "volume": 7592902
       },
       {
-        "name": "BSE Industrials",
+        "name": "BSE INDUSTRIALS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 15392.93,
@@ -13086,7 +13086,7 @@
         "volume": 11976931
       },
       {
-        "name": "BSE Metal",
+        "name": "BSE METAL",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 39654.88,
@@ -13114,7 +13114,7 @@
         "volume": 9746832
       },
       {
-        "name": "BSE Oil &amp; Gas",
+        "name": "BSE OIL &AMP; GAS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 25989.74,
@@ -13128,7 +13128,7 @@
         "volume": 11791782
       },
       {
-        "name": "BSE Power",
+        "name": "BSE POWER",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 7031.55,
@@ -13170,7 +13170,7 @@
         "volume": 12270692
       },
       {
-        "name": "BSE Pvt Bank",
+        "name": "BSE PVT BANK",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 20023.75,
@@ -13184,7 +13184,7 @@
         "volume": 7163209
       },
       {
-        "name": "BSE Realty",
+        "name": "BSE REALTY",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 6878.02,
@@ -13240,7 +13240,7 @@
         "volume": 11316528
       },
       {
-        "name": "BSE Services",
+        "name": "BSE SERVICES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 1658.5,
@@ -13282,7 +13282,7 @@
         "volume": 10443783
       },
       {
-        "name": "BSE TECk",
+        "name": "BSE TECK",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 16284.98,
@@ -13296,7 +13296,7 @@
         "volume": 7718172
       },
       {
-        "name": "BSE Telecom",
+        "name": "BSE TELECOM",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 3704.81,
@@ -13310,7 +13310,7 @@
         "volume": 12680880
       },
       {
-        "name": "BSE Utilities",
+        "name": "BSE UTILITIES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 5303.35,
@@ -15244,7 +15244,7 @@
         "volume": 0
       },
       {
-        "name": "BSE 100 LargeCap TMC",
+        "name": "BSE 100 LARGECAP TMC",
         "exchange": "BSE",
         "category": "Broad Market",
         "close": 9385.63,
@@ -15356,7 +15356,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Auto",
+        "name": "BSE AUTO",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 61369.78,
@@ -15398,7 +15398,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Cap Goods",
+        "name": "BSE CAP GOODS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 71148.91,
@@ -15412,7 +15412,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Commodities",
+        "name": "BSE COMMODITIES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 8217.89,
@@ -15426,7 +15426,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Cons Discret",
+        "name": "BSE CONS DISCRET",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 10058.68,
@@ -15440,7 +15440,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Cons Durables",
+        "name": "BSE CONS DURABLES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 61728.24,
@@ -15468,7 +15468,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Energy",
+        "name": "BSE ENERGY",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 11393.34,
@@ -15482,7 +15482,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Fin Services",
+        "name": "BSE FIN SERVICES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 12874.76,
@@ -15510,7 +15510,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Healthcare",
+        "name": "BSE HEALTHCARE",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 53080.74,
@@ -15524,7 +15524,7 @@
         "volume": 0
       },
       {
-        "name": "BSE India Defence",
+        "name": "BSE INDIA DEFENCE",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 7736.28,
@@ -15566,7 +15566,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Industrials",
+        "name": "BSE INDUSTRIALS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 15672.87,
@@ -15608,7 +15608,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Metal",
+        "name": "BSE METAL",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 40401.19,
@@ -15636,7 +15636,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Oil & Gas",
+        "name": "BSE OIL & GAS",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 26619.91,
@@ -15650,7 +15650,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Power",
+        "name": "BSE POWER",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 7178.99,
@@ -15692,7 +15692,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Pvt Bank",
+        "name": "BSE PVT BANK",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 21042.57,
@@ -15706,7 +15706,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Realty",
+        "name": "BSE REALTY",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 7006.54,
@@ -15762,7 +15762,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Services",
+        "name": "BSE SERVICES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 1685.78,
@@ -15804,7 +15804,7 @@
         "volume": 0
       },
       {
-        "name": "BSE TECk",
+        "name": "BSE TECK",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 16390.78,
@@ -15818,7 +15818,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Telecom",
+        "name": "BSE TELECOM",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 3692.62,
@@ -15832,7 +15832,7 @@
         "volume": 0
       },
       {
-        "name": "BSE Utilities",
+        "name": "BSE UTILITIES",
         "exchange": "BSE",
         "category": "Sectoral",
         "close": 5422.16,
@@ -15860,7 +15860,7 @@
         "volume": 0
       },
       {
-        "name": "Nifty 200",
+        "name": "NIFTY 200",
         "exchange": "NSE",
         "category": "Broad Market",
         "close": 14245.9,
@@ -15902,7 +15902,7 @@
         "volume": 0
       },
       {
-        "name": "NIFTY AlphaLowVol 30",
+        "name": "NIFTY ALPHALOWVOL 30",
         "exchange": "NSE",
         "category": "Broad Market",
         "close": 26551.45,
@@ -15930,9 +15930,9 @@
         "volume": 0
       },
       {
-        "name": "Nifty Capital Market",
+        "name": "NIFTY CAPITAL MARKET",
         "exchange": "NSE",
-        "category": "Broad Market",
+        "category": "Sectoral",
         "close": 5718.1,
         "chg": 9.05,
         "percentChange": 0.16,
@@ -15944,7 +15944,7 @@
         "volume": 0
       },
       {
-        "name": "NIFTY Commodities",
+        "name": "NIFTY COMMODITIES",
         "exchange": "NSE",
         "category": "Sectoral",
         "close": 9697.2,
@@ -15958,7 +15958,7 @@
         "volume": 0
       },
       {
-        "name": "Nifty Cons Durbl",
+        "name": "NIFTY CONS DURBL",
         "exchange": "NSE",
         "category": "Sectoral",
         "close": 38255.7,
@@ -15972,7 +15972,7 @@
         "volume": 0
       },
       {
-        "name": "NIFTY Consumption",
+        "name": "NIFTY CONSUMPTION",
         "exchange": "NSE",
         "category": "Sectoral",
         "close": 11935.55,
@@ -16014,7 +16014,7 @@
         "volume": 0
       },
       {
-        "name": "NIFTY Fin Service",
+        "name": "NIFTY FIN SERVICE",
         "exchange": "NSE",
         "category": "Sectoral",
         "close": 27384.9,
@@ -16028,7 +16028,7 @@
         "volume": 0
       },
       {
-        "name": "Nifty FinSrv25/50",
+        "name": "NIFTY FINSRV25/50",
         "exchange": "NSE",
         "category": "Sectoral",
         "close": 29427.55,
@@ -16056,7 +16056,7 @@
         "volume": 0
       },
       {
-        "name": "Nifty Healthcare",
+        "name": "NIFTY HEALTHCARE",
         "exchange": "NSE",
         "category": "Sectoral",
         "close": 17411,
@@ -16084,7 +16084,7 @@
         "volume": 0
       },
       {
-        "name": "Nifty India Defence",
+        "name": "NIFTY INDIA DEFENCE",
         "exchange": "NSE",
         "category": "Sectoral",
         "close": 9041.15,
@@ -16098,7 +16098,7 @@
         "volume": 0
       },
       {
-        "name": "Nifty India FPI 150",
+        "name": "NIFTY INDIA FPI 150",
         "exchange": "NSE",
         "category": "Broad Market",
         "close": 1593,
@@ -16112,7 +16112,7 @@
         "volume": 0
       },
       {
-        "name": "NIFTY India Mfg",
+        "name": "NIFTY INDIA MFG",
         "exchange": "NSE",
         "category": "Sectoral",
         "close": 16040.4,
@@ -16126,7 +16126,7 @@
         "volume": 0
       },
       {
-        "name": "NIFTY Infra",
+        "name": "NIFTY INFRA",
         "exchange": "NSE",
         "category": "Sectoral",
         "close": 9462.9,
@@ -16154,7 +16154,7 @@
         "volume": 0
       },
       {
-        "name": "Nifty LargeMid250",
+        "name": "NIFTY LARGEMID250",
         "exchange": "NSE",
         "category": "Broad Market",
         "close": 16703.2,
@@ -16210,7 +16210,7 @@
         "volume": 0
       },
       {
-        "name": "Nifty Microcap 250",
+        "name": "NIFTY MICROCAP 250",
         "exchange": "NSE",
         "category": "Broad Market",
         "close": 25161.4,
@@ -16294,7 +16294,7 @@
         "volume": 0
       },
       {
-        "name": "Nifty Oil & Gas",
+        "name": "NIFTY OIL & GAS",
         "exchange": "NSE",
         "category": "Sectoral",
         "close": 11334.6,
@@ -16350,7 +16350,7 @@
         "volume": 0
       },
       {
-        "name": "Nifty Pvt Bank",
+        "name": "NIFTY PVT BANK",
         "exchange": "NSE",
         "category": "Sectoral",
         "close": 29608.15,
@@ -16378,7 +16378,7 @@
         "volume": 0
       },
       {
-        "name": "NIFTY Services",
+        "name": "NIFTY SERVICES",
         "exchange": "NSE",
         "category": "Sectoral",
         "close": 32494.7,
@@ -16434,7 +16434,7 @@
         "volume": 0
       },
       {
-        "name": "Nifty200 Momentum 30",
+        "name": "NIFTY200 MOMENTUM 30",
         "exchange": "NSE",
         "category": "Broad Market",
         "close": 30255.55,
@@ -16448,7 +16448,7 @@
         "volume": 0
       },
       {
-        "name": "Nifty500 Mul50:25:25",
+        "name": "NIFTY500 MUL50:25:25",
         "exchange": "NSE",
         "category": "Broad Market",
         "close": 16546.15,

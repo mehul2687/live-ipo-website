@@ -42,30 +42,9 @@ const SYMBOL_MAP = {
 
 export function normalizeIndexName(rawName) {
     if (!rawName) return '';
-    const clean = rawName.trim();
-    const upper = clean.toUpperCase();
-    if (upper === 'INDIA VIX' || upper === 'VIX') return 'INDIA VIX';
-    if (upper === 'SENSEX' || upper === 'BSE SENSEX') return 'SENSEX';
-    if (upper === 'NIFTY 50') return 'NIFTY 50';
-    if (upper === 'NIFTY BANK' || upper === 'BANK NIFTY') return 'NIFTY BANK';
-    if (upper === 'NIFTY NEXT 50') return 'NIFTY NEXT 50';
-    if (upper === 'NIFTY MIDCAP 100') return 'NIFTY MIDCAP 100';
-    if (upper === 'NIFTY SMALLCAP 100') return 'NIFTY SMALLCAP 100';
-    if (upper === 'NIFTY MIDCAP 50') return 'NIFTY MIDCAP 50';
-    if (upper === 'NIFTY SMALLCAP 50') return 'NIFTY SMALLCAP 50';
-    if (upper === 'NIFTY FINANCIAL SERVICES') return 'NIFTY FINANCIAL SERVICES';
-    if (upper === 'NIFTY IT') return 'NIFTY IT';
-    if (upper === 'NIFTY AUTO') return 'NIFTY AUTO';
-    if (upper === 'NIFTY PHARMA') return 'NIFTY PHARMA';
-    if (upper === 'NIFTY FMCG') return 'NIFTY FMCG';
-    if (upper === 'NIFTY METAL') return 'NIFTY METAL';
-    if (upper === 'NIFTY REALTY') return 'NIFTY REALTY';
-    if (upper === 'NIFTY ENERGY') return 'NIFTY ENERGY';
-    if (upper === 'NIFTY MEDIA') return 'NIFTY MEDIA';
-    if (upper === 'NIFTY PSU BANK') return 'NIFTY PSU BANK';
-    if (upper === 'BSE 100') return 'BSE 100';
-    if (upper === 'BSE 200') return 'BSE 200';
-    if (upper === 'BSE 500') return 'BSE 500';
+    const clean = rawName.trim().toUpperCase().replace(/\s+/g, ' ');
+    if (clean === 'INDIA VIX' || clean === 'VIX') return 'INDIA VIX';
+    if (clean === 'SENSEX' || clean === 'BSE SENSEX') return 'SENSEX';
     return clean;
 }
 

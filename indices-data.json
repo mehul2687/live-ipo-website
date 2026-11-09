@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-11-09T11:16:08.898Z",
-  "lastUpdatedDisplay": "9 Nov 2026, 4:46 pm",
+  "lastUpdated": "2026-11-09T11:41:43.301Z",
+  "lastUpdatedDisplay": "9 Nov 2026, 5:11 pm",
   "marketStatus": "CLOSED",
   "summary": {
     "nifty50": {
@@ -187,7 +187,7 @@
       "symbol": "in;tkx"
     },
     {
-      "name": "BSE 100 LargeCap TMC",
+      "name": "BSE 100 LARGECAP TMC",
       "exchange": "BSE",
       "category": "Broad Market",
       "ltp": 9385.63,
@@ -315,7 +315,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Auto",
+      "name": "BSE AUTO",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 61369.78,
@@ -363,7 +363,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Cap Goods",
+      "name": "BSE CAP GOODS",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 71148.91,
@@ -379,7 +379,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Commodities",
+      "name": "BSE COMMODITIES",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 8217.89,
@@ -395,7 +395,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Cons Discret",
+      "name": "BSE CONS DISCRET",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 10058.68,
@@ -411,7 +411,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Cons Durables",
+      "name": "BSE CONS DURABLES",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 61728.24,
@@ -443,7 +443,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Energy",
+      "name": "BSE ENERGY",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 11393.34,
@@ -459,7 +459,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Fin Services",
+      "name": "BSE FIN SERVICES",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 12874.76,
@@ -491,7 +491,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Healthcare",
+      "name": "BSE HEALTHCARE",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 53080.74,
@@ -507,7 +507,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE India Defence",
+      "name": "BSE INDIA DEFENCE",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 7736.28,
@@ -555,7 +555,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Industrials",
+      "name": "BSE INDUSTRIALS",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 15672.87,
@@ -603,7 +603,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Metal",
+      "name": "BSE METAL",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 40401.19,
@@ -635,7 +635,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Oil & Gas",
+      "name": "BSE OIL & GAS",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 26619.91,
@@ -651,7 +651,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Power",
+      "name": "BSE POWER",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 7178.99,
@@ -699,7 +699,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Pvt Bank",
+      "name": "BSE PVT BANK",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 21042.57,
@@ -715,7 +715,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Realty",
+      "name": "BSE REALTY",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 7006.54,
@@ -779,7 +779,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Services",
+      "name": "BSE SERVICES",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 1685.78,
@@ -827,7 +827,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE TECk",
+      "name": "BSE TECK",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 16390.78,
@@ -843,7 +843,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Telecom",
+      "name": "BSE TELECOM",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 3692.62,
@@ -859,7 +859,7 @@
       "symbol": ""
     },
     {
-      "name": "BSE Utilities",
+      "name": "BSE UTILITIES",
       "exchange": "BSE",
       "category": "Sectoral",
       "ltp": 5422.16,
@@ -891,7 +891,7 @@
       "symbol": "in;cjn"
     },
     {
-      "name": "Nifty 200",
+      "name": "NIFTY 200",
       "exchange": "NSE",
       "category": "Broad Market",
       "ltp": 14245.9,
@@ -904,7 +904,7 @@
       "yearHigh": 14700.95,
       "yearLow": 12396.1,
       "volume": 0,
-      "symbol": ""
+      "symbol": "in;cnxt"
     },
     {
       "name": "NIFTY 500",
@@ -939,7 +939,7 @@
       "symbol": ""
     },
     {
-      "name": "NIFTY AlphaLowVol 30",
+      "name": "NIFTY ALPHALOWVOL 30",
       "exchange": "NSE",
       "category": "Broad Market",
       "ltp": 26551.45,
@@ -971,9 +971,9 @@
       "symbol": "in;cnxa"
     },
     {
-      "name": "Nifty Capital Market",
+      "name": "NIFTY CAPITAL MARKET",
       "exchange": "NSE",
-      "category": "Broad Market",
+      "category": "Sectoral",
       "ltp": 5718.1,
       "chg": 9.05,
       "percentChange": 0.16,
@@ -987,7 +987,7 @@
       "symbol": ""
     },
     {
-      "name": "NIFTY Commodities",
+      "name": "NIFTY COMMODITIES",
       "exchange": "NSE",
       "category": "Sectoral",
       "ltp": 9697.2,
@@ -1003,7 +1003,7 @@
       "symbol": ""
     },
     {
-      "name": "Nifty Cons Durbl",
+      "name": "NIFTY CONS DURBL",
       "exchange": "NSE",
       "category": "Sectoral",
       "ltp": 38255.7,
@@ -1019,7 +1019,7 @@
       "symbol": ""
     },
     {
-      "name": "NIFTY Consumption",
+      "name": "NIFTY CONSUMPTION",
       "exchange": "NSE",
       "category": "Sectoral",
       "ltp": 11935.55,
@@ -1067,7 +1067,7 @@
       "symbol": "in;cgy"
     },
     {
-      "name": "NIFTY Fin Service",
+      "name": "NIFTY FIN SERVICE",
       "exchange": "NSE",
       "category": "Sectoral",
       "ltp": 27384.9,
@@ -1080,10 +1080,10 @@
       "yearHigh": 28562.5,
       "yearLow": 23373.95,
       "volume": 0,
-      "symbol": ""
+      "symbol": "in;cnxf"
     },
     {
-      "name": "Nifty FinSrv25/50",
+      "name": "NIFTY FINSRV25/50",
       "exchange": "NSE",
       "category": "Sectoral",
       "ltp": 29427.55,
@@ -1115,7 +1115,7 @@
       "symbol": "in;cfm"
     },
     {
-      "name": "Nifty Healthcare",
+      "name": "NIFTY HEALTHCARE",
       "exchange": "NSE",
       "category": "Sectoral",
       "ltp": 17411,
@@ -1128,7 +1128,7 @@
       "yearHigh": 17594.35,
       "yearLow": 13536.5,
       "volume": 0,
-      "symbol": ""
+      "symbol": "mc;helcar"
     },
     {
       "name": "NIFTY IND DIGITAL",
@@ -1147,7 +1147,7 @@
       "symbol": ""
     },
     {
-      "name": "Nifty India Defence",
+      "name": "NIFTY INDIA DEFENCE",
       "exchange": "NSE",
       "category": "Sectoral",
       "ltp": 9041.15,
@@ -1163,7 +1163,7 @@
       "symbol": ""
     },
     {
-      "name": "Nifty India FPI 150",
+      "name": "NIFTY INDIA FPI 150",
       "exchange": "NSE",
       "category": "Broad Market",
       "ltp": 1593,
@@ -1179,7 +1179,7 @@
       "symbol": ""
     },
     {
-      "name": "NIFTY India Mfg",
+      "name": "NIFTY INDIA MFG",
       "exchange": "NSE",
       "category": "Sectoral",
       "ltp": 16040.4,
@@ -1195,7 +1195,7 @@
       "symbol": ""
     },
     {
-      "name": "NIFTY Infra",
+      "name": "NIFTY INFRA",
       "exchange": "NSE",
       "category": "Sectoral",
       "ltp": 9462.9,
@@ -1227,7 +1227,7 @@
       "symbol": "in;cnit"
     },
     {
-      "name": "Nifty LargeMid250",
+      "name": "NIFTY LARGEMID250",
       "exchange": "NSE",
       "category": "Broad Market",
       "ltp": 16703.2,
@@ -1291,7 +1291,7 @@
       "symbol": "in;CNXM"
     },
     {
-      "name": "Nifty Microcap 250",
+      "name": "NIFTY MICROCAP 250",
       "exchange": "NSE",
       "category": "Broad Market",
       "ltp": 25161.4,
@@ -1387,7 +1387,7 @@
       "symbol": ""
     },
     {
-      "name": "Nifty Oil & Gas",
+      "name": "NIFTY OIL & GAS",
       "exchange": "NSE",
       "category": "Sectoral",
       "ltp": 11334.6,
@@ -1400,7 +1400,7 @@
       "yearHigh": 12445.7,
       "yearLow": 10203.7,
       "volume": 0,
-      "symbol": ""
+      "symbol": "mc;oilgas"
     },
     {
       "name": "NIFTY PHARMA",
@@ -1451,7 +1451,7 @@
       "symbol": "in;nxb"
     },
     {
-      "name": "Nifty Pvt Bank",
+      "name": "NIFTY PVT BANK",
       "exchange": "NSE",
       "category": "Sectoral",
       "ltp": 29608.15,
@@ -1483,7 +1483,7 @@
       "symbol": "in;crl"
     },
     {
-      "name": "NIFTY Services",
+      "name": "NIFTY SERVICES",
       "exchange": "NSE",
       "category": "Sectoral",
       "ltp": 32494.7,
@@ -1547,7 +1547,7 @@
       "symbol": ""
     },
     {
-      "name": "Nifty200 Momentum 30",
+      "name": "NIFTY200 MOMENTUM 30",
       "exchange": "NSE",
       "category": "Broad Market",
       "ltp": 30255.55,
@@ -1563,7 +1563,7 @@
       "symbol": ""
     },
     {
-      "name": "Nifty500 Mul50:25:25",
+      "name": "NIFTY500 MUL50:25:25",
       "exchange": "NSE",
       "category": "Broad Market",
       "ltp": 16546.15,

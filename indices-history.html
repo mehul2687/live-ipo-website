@@ -572,7 +572,7 @@
                     <div style="font-size: 12px; color: #64748b; margin-top: 5px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <span>Daily Closing Snapshots of all NSE & BSE Indices by Date</span>
                         <span id="liveSyncStatusBadge" class="live-sync-badge">
-                            <span class="live-pulse-dot"></span> <span id="liveSyncStatusText">⚡ Moneycontrol Live Synced</span>
+                            <span class="live-pulse-dot"></span> <span id="liveSyncStatusText">09-11-2026, 05:00 pm</span>
                         </span>
                     </div>
                 </div>
@@ -617,8 +617,8 @@
             <div class="index-stat-card stat-card-nifty">
                 <div>
                     <div class="card-top-row">
-                        <span class="card-index-title">NIFTY 50</span>
-                        <span class="card-exchange-pill pill-nse">NSE</span>
+                        <span class="card-index-title" id="cardNiftyTitle">NIFTY 50</span>
+                        <span class="card-exchange-pill pill-nse" id="cardNiftyPill">NSE</span>
                     </div>
                     <div class="card-ltp-val" id="cardNiftyLtp">-</div>
                     <div class="card-chg-row" id="cardNiftyChgWrap">
@@ -974,15 +974,9 @@
                         const rawName = aTag ? aTag.textContent.trim() : '';
                         if (!rawName) return;
 
-                        let name = rawName;
-                        const upper = name.toUpperCase();
-                        if (upper === 'INDIA VIX' || upper === 'VIX') name = 'INDIA VIX';
-                        else if (upper === 'SENSEX' || upper === 'BSE SENSEX') name = 'SENSEX';
-                        else if (upper === 'NIFTY 50') name = 'NIFTY 50';
-                        else if (upper === 'NIFTY BANK') name = 'NIFTY BANK';
-                        else if (upper === 'NIFTY NEXT 50') name = 'NIFTY NEXT 50';
-                        else if (upper === 'NIFTY MIDCAP 100') name = 'NIFTY MIDCAP 100';
-                        else if (upper === 'NIFTY SMALLCAP 100') name = 'NIFTY SMALLCAP 100';
+                        let name = rawName.trim().toUpperCase().replace(/\s+/g, ' ');
+                        if (name === 'VIX' || name.includes('INDIA VIX')) name = 'INDIA VIX';
+                        else if (name === 'BSE SENSEX') name = 'SENSEX';
 
                         const uKey = `${name}_${exchange}`;
                         if (seen.has(uKey)) return;
@@ -1050,7 +1044,7 @@
                     const timeStr = istDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
                     const statusText = document.getElementById('liveSyncStatusText');
                     if (statusText) {
-                        statusText.innerText = `⚡ Moneycontrol Live Synced (${todayKey} - ${timeStr})`;
+                        statusText.innerText = `${todayKey}, ${timeStr}`;
                     }
                 }
             } catch (e) {
@@ -1123,11 +1117,20 @@
         function renderByDate() {
             const snapshot = historyData.dailySnapshots[selectedDate] || [];
 
+            // Reset card 1 title to NIFTY 50
+            const cardTitleEl = document.getElementById('cardNiftyTitle');
+            if (cardTitleEl) cardTitleEl.innerText = 'NIFTY 50';
+            const cardPillEl = document.getElementById('cardNiftyPill');
+            if (cardPillEl) {
+                cardPillEl.innerText = 'NSE';
+                cardPillEl.className = 'card-exchange-pill pill-nse';
+            }
+
             // Update top cards for selected date
-            const n50 = snapshot.find(i => i.name === 'NIFTY 50');
-            const sen = snapshot.find(i => i.name === 'SENSEX');
-            const bnk = snapshot.find(i => i.name === 'NIFTY BANK');
-            const vix = snapshot.find(i => i.name === 'INDIA VIX');
+            const n50 = snapshot.find(i => (i.name || '').trim().toUpperCase() === 'NIFTY 50');
+            const sen = snapshot.find(i => (i.name || '').trim().toUpperCase() === 'SENSEX');
+            const bnk = snapshot.find(i => (i.name || '').trim().toUpperCase() === 'NIFTY BANK');
+            const vix = snapshot.find(i => (i.name || '').trim().toUpperCase() === 'INDIA VIX');
             updateTopCards(n50, sen, bnk, vix);
 
             // Update Badge Counts
@@ -1220,11 +1223,12 @@
         }
 
         function renderByIndex() {
-            // Find records for selectedIndex across all available dates
+            // Find records for selectedIndex across all available dates (case-insensitive)
+            const targetName = (selectedIndex || '').trim().toUpperCase();
             const records = [];
             availableDates.forEach(dt => {
                 const snapshot = historyData.dailySnapshots[dt] || [];
-                const found = snapshot.find(i => i.name === selectedIndex);
+                const found = snapshot.find(i => (i.name || '').trim().toUpperCase() === targetName);
                 if (found) {
                     records.push({
                         date: dt,
@@ -1237,13 +1241,23 @@
             if (availableDates.length > 0) {
                 const latestDt = availableDates[0];
                 const latestSnap = historyData.dailySnapshots[latestDt] || [];
-                const n50 = latestSnap.find(i => i.name === 'NIFTY 50');
-                const sen = latestSnap.find(i => i.name === 'SENSEX');
-                const bnk = latestSnap.find(i => i.name === 'NIFTY BANK');
-                const vix = latestSnap.find(i => i.name === 'INDIA VIX');
+                const n50 = latestSnap.find(i => (i.name || '').trim().toUpperCase() === 'NIFTY 50');
+                const sen = latestSnap.find(i => (i.name || '').trim().toUpperCase() === 'SENSEX');
+                const bnk = latestSnap.find(i => (i.name || '').trim().toUpperCase() === 'NIFTY BANK');
+                const vix = latestSnap.find(i => (i.name || '').trim().toUpperCase() === 'INDIA VIX');
                 updateTopCards(n50, sen, bnk, vix);
 
-                if (records.length > 0 && selectedIndex !== 'NIFTY 50') {
+                // Show selected index in card 1
+                const cardTitleEl = document.getElementById('cardNiftyTitle');
+                if (cardTitleEl) cardTitleEl.innerText = selectedIndex;
+
+                if (records.length > 0) {
+                    const cardPillEl = document.getElementById('cardNiftyPill');
+                    if (cardPillEl) {
+                        const ex = records[0].exchange || 'NSE';
+                        cardPillEl.innerText = ex;
+                        cardPillEl.className = ex === 'BSE' ? 'card-exchange-pill pill-bse' : 'card-exchange-pill pill-nse';
+                    }
                     updateSingleTopCard(records[0]);
                 }
             }
@@ -1339,12 +1353,14 @@
         }
 
         function isKeyIndex(name) {
+            if (!name) return false;
+            const clean = name.trim().toUpperCase();
             const keyNames = [
                 'NIFTY 50', 'SENSEX', 'NIFTY BANK', 'NIFTY NEXT 50', 'NIFTY MIDCAP 100',
                 'NIFTY 100', 'NIFTY 200', 'NIFTY 500', 'NIFTY SMALLCAP 100', 'INDIA VIX',
                 'BSE 100', 'BSE 200', 'BSE 500', 'BSE SENSEX NEXT 30'
             ];
-            return keyNames.includes(name);
+            return keyNames.includes(clean);
         }
 
         document.addEventListener('DOMContentLoaded', () => {

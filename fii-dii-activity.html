@@ -1312,8 +1312,173 @@
 
                 renderThead();
                 renderActiveView();
+
+                // 3. Immediately trigger real-time Moneycontrol sync in browser
+                syncLiveFiiDiiFromMoneycontrol();
+
+                // Auto-sync every 60 seconds
+                setInterval(syncLiveFiiDiiFromMoneycontrol, 60000);
             } catch (err) {
                 console.error("Data Load Error:", err);
+            }
+        }
+
+        async function syncLiveFiiDiiFromMoneycontrol() {
+            try {
+                const parseNum = (v) => {
+                    if (v === null || v === undefined) return 0;
+                    if (typeof v === 'number') return v;
+                    return parseFloat(String(v).replace(/,/g, '')) || 0;
+                };
+                const formatINR = (num) => num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+                const cashPromise = fetch('https://www.moneycontrol.com/markets/fii-dii-data/cash/')
+                    .then(r => r.text())
+                    .then(html => {
+                        const match = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/i);
+                        if (!match) return null;
+                        const json = JSON.parse(match[1]);
+                        return json.props?.pageProps?.FiiDiiData?.fiiDiiData || null;
+                    }).catch(() => null);
+
+                const fnoPromise = fetch('https://www.moneycontrol.com/markets/fii-dii-data/futures-and-options/')
+                    .then(r => r.text())
+                    .then(html => {
+                        const match = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/i);
+                        if (!match) return null;
+                        const json = JSON.parse(match[1]);
+                        return json.props?.pageProps?.FiiDiiData?.fiiDiiData || null;
+                    }).catch(() => null);
+
+                const [liveCashRows, liveFnoRows] = await Promise.all([cashPromise, fnoPromise]);
+
+                let updated = false;
+
+                // Process Live Cash
+                if (Array.isArray(liveCashRows) && liveCashRows.length > 0 && cachedData.cash && Array.isArray(cachedData.cash.daily)) {
+                    const existingMap = new Map();
+                    cachedData.cash.daily.forEach(d => {
+                        const key = d.isoDate || d.date;
+                        if (key) existingMap.set(key, d);
+                    });
+
+                    let hasNew = false;
+                    liveCashRows.forEach(item => {
+                        const parts = (item.date || '').split('-');
+                        const yyyy = parts[0] || '';
+                        const mm = parts[1] || '';
+                        const dd = parts[2] || '';
+                        const displayDate = dd && mm && yyyy ? `${dd}-${mm}-${yyyy}` : item.date;
+
+                        const fiiBuy = parseNum(item.fiiPurchase);
+                        const fiiSell = parseNum(item.fiiSales);
+                        const fiiNet = parseNum(item.fiiNet);
+                        const diiBuy = parseNum(item.diiPurchase);
+                        const diiSell = parseNum(item.diiSale);
+                        const diiNet = parseNum(item.diiNet);
+                        const totalNet = fiiNet + diiNet;
+
+                        const rec = {
+                            date: displayDate,
+                            isoDate: item.date,
+                            year: yyyy,
+                            month: `${yyyy}-${mm}`,
+                            monthName: item.graphToolTipRecordDate ? item.graphToolTipRecordDate.split(',')[0] : displayDate,
+                            fiiBuy: formatINR(fiiBuy),
+                            fiiSell: formatINR(fiiSell),
+                            fiiNet: formatINR(fiiNet),
+                            diiBuy: formatINR(diiBuy),
+                            diiSell: formatINR(diiSell),
+                            diiNet: formatINR(diiNet),
+                            totalNet: formatINR(totalNet),
+                            rawFiiBuy: fiiBuy,
+                            rawFiiSell: fiiSell,
+                            rawFiiNet: fiiNet,
+                            rawDiiBuy: diiBuy,
+                            rawDiiSell: diiSell,
+                            rawDiiNet: diiNet,
+                            rawTotalNet: totalNet,
+                            niftyClose: item.niftyClose || '-'
+                        };
+
+                        const key = item.date;
+                        if (!existingMap.has(key)) {
+                            hasNew = true;
+                        }
+                        existingMap.set(key, rec);
+                    });
+
+                    if (hasNew) {
+                        cachedData.cash.daily = Array.from(existingMap.values()).sort((a, b) => (b.isoDate || b.date).localeCompare(a.isoDate || a.date));
+                        updated = true;
+                    }
+                }
+
+                // Process Live F&O
+                if (Array.isArray(liveFnoRows) && liveFnoRows.length > 0 && cachedData.fno && Array.isArray(cachedData.fno.daily)) {
+                    const existingMapFno = new Map();
+                    cachedData.fno.daily.forEach(d => {
+                        const key = d.isoDate || d.date;
+                        if (key) existingMapFno.set(key, d);
+                    });
+
+                    let hasNewFno = false;
+                    liveFnoRows.forEach(item => {
+                        const parts = (item.date || '').split('-');
+                        const yyyy = parts[0] || '';
+                        const mm = parts[1] || '';
+                        const dd = parts[2] || '';
+                        const displayDate = dd && mm && yyyy ? `${dd}-${mm}-${yyyy}` : item.date;
+
+                        const futBuy = parseNum(item.futPurchase);
+                        const futSell = parseNum(item.futSales);
+                        const futNet = parseNum(item.futNet);
+                        const optBuy = parseNum(item.optPurchase);
+                        const optSell = parseNum(item.optSale);
+                        const optNet = parseNum(item.optNet);
+                        const totalNet = futNet + optNet;
+
+                        const rec = {
+                            date: displayDate,
+                            isoDate: item.date,
+                            year: yyyy,
+                            month: `${yyyy}-${mm}`,
+                            monthName: item.graphToolTipRecordDate ? item.graphToolTipRecordDate.split(',')[0] : displayDate,
+                            futBuy: formatINR(futBuy),
+                            futSell: formatINR(futSell),
+                            futNet: formatINR(futNet),
+                            optBuy: formatINR(optBuy),
+                            optSell: formatINR(optSell),
+                            optNet: formatINR(optNet),
+                            totalNet: formatINR(totalNet),
+                            rawFutBuy: futBuy,
+                            rawFutSell: futSell,
+                            rawFutNet: futNet,
+                            rawOptBuy: optBuy,
+                            rawOptSell: optSell,
+                            rawOptNet: optNet,
+                            rawTotalNet: totalNet,
+                            indexClose: item.indexClose || item.niftyClose || '-'
+                        };
+
+                        const key = item.date;
+                        if (!existingMapFno.has(key)) {
+                            hasNewFno = true;
+                        }
+                        existingMapFno.set(key, rec);
+                    });
+
+                    if (hasNewFno) {
+                        cachedData.fno.daily = Array.from(existingMapFno.values()).sort((a, b) => (b.isoDate || b.date).localeCompare(a.isoDate || a.date));
+                        updated = true;
+                    }
+                }
+
+                if (updated) {
+                    renderActiveView();
+                }
+            } catch (err) {
+                console.warn('Real-time Moneycontrol FII/DII sync note:', err.message);
             }
         }
 
@@ -1333,7 +1498,10 @@
             renderSummaryCards(data);
             renderTable();
 
-            if (data.updatedAt) {
+            if (data.daily && data.daily.length > 0) {
+                const latestD = data.daily[0];
+                document.getElementById('dataTimestampBadge').innerText = `Updated: ${latestD.date}`;
+            } else if (data.updatedAt) {
                 const d = new Date(data.updatedAt);
                 const timeStr = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
                 document.getElementById('dataTimestampBadge').innerText = `Updated: ${timeStr}`;

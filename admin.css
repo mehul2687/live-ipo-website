@@ -209,157 +209,192 @@ body {
     border-color: #e2e8f0;
 }
 
-/* Add / Edit Form Drawer */
+/* Add / Edit Form Drawer - Space Optimized & Systematic */
 .form-drawer {
     background: #ffffff;
-    border-radius: 12px;
+    border-radius: 10px;
     border: 1px solid #cbd5e1;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    margin-bottom: 30px;
+    margin-bottom: 22px;
     display: none;
     overflow: hidden;
-    animation: slideDown 0.3s ease;
+    animation: slideDown 0.25s ease;
 }
 @keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
+    from { opacity: 0; transform: translateY(-8px); }
     to { opacity: 1; transform: translateY(0); }
 }
 .form-drawer-header {
     background: #0d1b2a;
     color: #ffffff;
-    padding: 15px 20px;
+    padding: 11px 18px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-.form-drawer-header h3 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
-.close-drawer-btn { background: none; border: none; color: #ffffff; font-size: 18px; cursor: pointer; }
-.form-drawer-body { padding: 20px 24px; }
+.form-drawer-header h3 { margin: 0; font-size: 14.5px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.close-drawer-btn { background: none; border: none; color: #ffffff; font-size: 18px; cursor: pointer; padding: 2px 6px; }
+.form-drawer-body { padding: 14px 18px; }
 
-.form-section-title { font-size: 14px; font-weight: 700; color: #1e293b; margin: 20px 0 10px 0; border-left: 3px solid #0284c7; padding-left: 8px; background: #f8fafc; padding-top: 8px; padding-bottom: 8px; border-radius: 0 6px 6px 0; }
+.form-section-title { 
+    font-size: 13px; 
+    font-weight: 700; 
+    color: #0f172a; 
+    margin: 14px 0 8px 0; 
+    border-left: 3px solid #0284c7; 
+    padding: 5px 10px; 
+    background: #f1f5f9; 
+    border-radius: 0 5px 5px 0; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
+/* Grids: fully proportional and systematic */
+.form-grid-6 { 
+    display: grid; 
+    grid-template-columns: repeat(6, 1fr); 
+    gap: 8px 10px; 
+    margin-bottom: 8px; 
+}
+.form-grid-5 { 
+    display: grid; 
+    grid-template-columns: repeat(5, 1fr); 
+    gap: 8px 10px; 
+    margin-bottom: 8px; 
+}
 .form-grid-4 { 
     display: grid; 
-    grid-template-columns: repeat(4, minmax(140px, 1fr)); 
-    gap: 8px; 
+    grid-template-columns: repeat(4, 1fr); 
+    gap: 8px 10px; 
     margin-bottom: 8px; 
 }
 .form-grid-3 { 
     display: grid; 
-    grid-template-columns: repeat(3, minmax(200px, 1fr)); 
-    gap: 8px; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 8px 10px; 
     margin-bottom: 8px; 
 }
 .form-grid-2 { 
     display: grid; 
-    grid-template-columns: repeat(2, minmax(250px, 1fr)); 
-    gap: 8px; 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 8px 10px; 
     margin-bottom: 8px; 
 }
 
-/* Dark and Bold Labels for Inputs */
+/* Input Group Labels */
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
 .form-group label {
-    display: block;
-    font-size: 12.5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11.5px;
     font-weight: 700;
-    color: #0f172a;
-    margin-bottom: 4px;
+    color: #334155;
+    margin-bottom: 3px;
 }
 
-/* 🎯 ફોર્મના તમામ ઇનપુટ, સિલેક્ટ અને ડેટ બોક્સની સાઈઝ પ્રોપર કંટ્રોલ કરવા માટે */
+/* 🎯 Form Inputs: Full cell width, compact, crisp styling */
 .form-group input, 
 .form-group select, 
 .form-group textarea { 
-    width: 100%; 
-    max-width: 220px; /* અહીંથી તમે બોક્સની મહત્તમ પહોળાઈ કંટ્રોલ કરી શકો છો */
-    padding: 8px 10px; 
+    width: 100% !important; 
+    max-width: 100% !important; 
+    padding: 5px 8px; 
     border: 1px solid #cbd5e1; 
-    border-radius: 6px; 
-    font-size: 13px; 
+    border-radius: 5px; 
+    font-size: 12.5px; 
     outline: none; 
     box-sizing: border-box;
+    background: #ffffff;
+    color: #0f172a;
+    transition: border-color 0.15s, box-shadow 0.15s;
 }
 
-/* જે ઇનપુટ પૂરી લાઈનમાં રાખવાના હોય (જેવા કે 'About Company') તેના માટે */
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group input[type="date"],
+.form-group input[type="email"],
+.form-group select {
+    height: 33px;
+}
+
 .form-group textarea {
-    max-width: 100% !important;
+    resize: vertical;
 }
 
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
     border-color: #0284c7;
     box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
 }
-.form-actions { display: flex; gap: 10px; margin-top: 25px; padding-top: 15px; border-top: 1px solid #e2e8f0; }
 
-@media(max-width: 1024px) {
-    .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    .form-grid-4 { grid-template-columns: repeat(2, 1fr); }
-    .form-grid-3 { grid-template-columns: 1fr; }
-    .admin-main { margin-left: 0; padding: 15px; }
-    .admin-sidebar { width: 70px; }
+.lock-badge {
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    text-transform: none;
+    color: #1e293b;
+    background: #e2e8f0;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin: 0;
+}
+.lock-badge-danger {
+    color: #b91c1c;
+    background: #fee2e2;
+}
+
+.form-actions { 
+    display: flex; 
+    gap: 8px; 
+    margin-top: 18px; 
+    padding-top: 12px; 
+    border-top: 1px solid #e2e8f0; 
+    flex-wrap: wrap;
 }
 
 /* Precise Financial Table Alignment */
 .financial-matrix-table th {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
     color: #334155;
     background-color: #f8fafc;
-    padding: 12px 10px;
+    padding: 8px 8px;
     border-bottom: 2px solid #e2e8f0;
 }
 
 .financial-matrix-table td {
-    padding: 10px;
+    padding: 6px 8px;
     border-bottom: 1px solid #f1f5f9;
     vertical-align: middle;
 }
 
-.financial-matrix-table input[type="text"] {
+.financial-matrix-table input[type="text"],
+.financial-matrix-table input[type="number"] {
     width: 100% !important;
     max-width: 110px !important;
-    height: 34px;
-    padding: 4px 8px;
+    height: 29px;
+    padding: 3px 6px;
     text-align: center;
     border: 1px solid #cbd5e1;
-    border-radius: 6px;
-    font-size: 13px;
+    border-radius: 5px;
+    font-size: 12px;
     outline: none;
     box-sizing: border-box;
     margin: 0 auto;
     display: block;
 }
 
-.financial-matrix-table input[type="text"]:focus {
+.financial-matrix-table input[type="text"]:focus,
+.financial-matrix-table input[type="number"]:focus {
     border-color: #0284c7;
     box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.15);
-}
-/* ટેબલની અંદરના ફોન્ટ સાઈઝ નાના કરવા માટે */
-.admin-table th {
-    font-size: 12px !important;
-    padding: 10px 10px !important;
-}
-
-.admin-table td {
-    font-size: 12px !important;
-    padding: 10px 10px !important;
-}
-
-/* ડેશબોર્ડના હેડિંગ અને ટાઇટલની સાઈઝ થોડી કಾಂપેક્ટ કરવા માટે */
-.top-header-bar h1 {
-    font-size: 20px !important;
-}
-
-.top-header-bar p {
-    font-size: 12px !important;
-}
-
-.stat-card-value {
-    font-size: 20px !important;
-}
-
-.content-card-header h3 {
-    font-size: 15px !important;
 }
 
 /* Auto-Sync Button & Animations */
@@ -389,4 +424,21 @@ body {
 .spin-anim {
     display: inline-block;
     animation: spin 0.9s linear infinite;
+}
+
+@media(max-width: 1200px) {
+    .form-grid-6 { grid-template-columns: repeat(3, 1fr); }
+    .form-grid-5 { grid-template-columns: repeat(3, 1fr); }
+}
+@media(max-width: 900px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .form-grid-6 { grid-template-columns: repeat(2, 1fr); }
+    .form-grid-5 { grid-template-columns: repeat(2, 1fr); }
+    .form-grid-4 { grid-template-columns: repeat(2, 1fr); }
+    .form-grid-3 { grid-template-columns: 1fr; }
+    .admin-main { margin-left: 0; padding: 12px; }
+    .admin-sidebar { width: 70px; }
+}
+@media(max-width: 600px) {
+    .form-grid-6, .form-grid-5, .form-grid-4, .form-grid-2 { grid-template-columns: 1fr; }
 }

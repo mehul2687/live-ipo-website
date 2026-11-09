@@ -8,16 +8,17 @@
 ## 2. Core Operational Workflow (Golden Rule)
 Whenever any modification, feature addition, or bug fix is requested:
 1. **Local Update:** Modify the corresponding local files directly in `D:\LiveIPO Website` (e.g., `ipo-detail.html`, `script.js`, `style.css`, `admin.html`).
-2. **Auto GitHub Sync & Mirror:** Always commit and push changes directly to GitHub `main` branch so both local files, GitHub repository, and `liveipo.in` stay 100% in sync:
+2. **Auto GitHub Sync & Mirror via Bulletproof Deploy Script:**
+   Always use the automated bulletproof deployment script `deploy.ps1` which handles auto-unlock, process cleanup, commit, and push in a single fail-safe atomic execution:
    ```powershell
-   git -C "D:\LiveIPO Website" add .
-   git -C "D:\LiveIPO Website" commit -m "<Clear description of change>"
-   git -C "D:\LiveIPO Website" push origin main
+   powershell -NoProfile -ExecutionPolicy Bypass -File "D:\LiveIPO Website\deploy.ps1" -Message "<Clear description of change>"
    ```
+   *(Note: Run with BypassSandbox: true for direct network/auth access to GitHub).*
 3. Report the result clearly to the user with commit confirmation.
 
 ## 3. Auto Diagnostic & Self-Healing
-If any git command hangs or shows lock errors:
-- Check if `.git\index.lock` exists in `D:\LiveIPO Website`. If it exists, remove it immediately.
-- If background `git.exe` tasks are stuck, terminate them.
-- Always run commands with explicit path: `git -C "D:\LiveIPO Website" ...`.
+`deploy.ps1` automatically performs pre-flight checks:
+- Terminates lingering `git.exe` tasks before running.
+- Removes `.git\index.lock`, `.git\HEAD.lock`, and `.git\refs\heads\main.lock` if present.
+- Configures Windows-friendly Git settings (`core.autocrlf true`, `core.filemode false`).
+- Handles no-op deployments gracefully if no files were changed.

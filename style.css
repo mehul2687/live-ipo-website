@@ -1702,3 +1702,44 @@ body.home-page {
     animation: allotmentSpin 0.7s linear infinite;
     font-size: 15px;
 }
+
+
+/* ==========================================
+   FRONT PAGE & COMMON PAGINATION CONTROLS
+   ========================================== */
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+.pagination-controls button {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #334155;
+    padding: 5px 11px;
+    border-radius: 6px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-width: 32px;
+    text-align: center;
+}
+.pagination-controls button:hover:not(:disabled) {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+    color: #0f172a;
+}
+.pagination-controls button.active {
+    background: #0284c7 !important;
+    border-color: #0284c7 !important;
+    color: #ffffff !important;
+    box-shadow: 0 1px 3px rgba(2, 132, 199, 0.3);
+}
+.pagination-controls button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #f8fafc;
+    border-color: #e2e8f0;
+}

@@ -1,5 +1,8 @@
 let currentEditingId = null;
 let isManualId = false;
+let adminCurrentPage = 1;
+let adminPageSize = 50; // બાય ડિફોલ્ટ ૫૦ IPO
+let adminSearchQuery = '';
 // ==========================================
 // ADMIN PANEL SCRIPT (JSONBin.io Cloud Synced)
 // ==========================================
@@ -368,7 +371,7 @@ function getIpoStatus(openStr, closeStr, allotStr, listStr, isAllotmentOut) {
 }
 
 // ==========================================
-// ડેશબોર્ડ ડેટા લોડ અને ટેબલ રેન્ડર કરવા માટેનું ફંક્શન
+// ડેશબોર્ડ ડેટા લોડ અને ટેબલ રેન્ડર કરવા માટેનું ફંક્શન (વિથ પેજિનેશન અને સર્ચ)
 // ==========================================
 async function loadAdminDashboard() {
     const tbody = document.getElementById('adminTableBody');
@@ -391,11 +394,9 @@ async function loadAdminDashboard() {
         return closeB - closeA;
     });
 
+    // ગણતરી કરો કુલ આંકડાઓ
     ipoList.forEach(ipo => {
         total++;
-
-        const statusObj = getIpoStatus(ipo.openDate, ipo.closeDate, ipo.allotmentDate, ipo.listingDate, ipo.isAllotmentOut);
-
         const openD = ipo.openDate ? new Date(ipo.openDate) : null;
         const closeD = ipo.closeDate ? new Date(ipo.closeDate) : null;
         if (openD) openD.setHours(0, 0, 0, 0);
@@ -408,78 +409,142 @@ async function loadAdminDashboard() {
         } else if (openD && today < openD) {
             upcoming++;
         }
-
-        let statusBg = "#ffedd5"; 
-        let statusColor = "#c2410c";
-
-        if (ipo.isAllotmentOut === true) {
-            statusBg = "#d1fae5";
-            statusColor = "#047857";
-        } else if (statusObj.text.includes("Live")) {
-            statusBg = "#dcfce7"; 
-            statusColor = "#15803d";
-        } else if (statusObj.text.includes("Closing")) {
-            statusBg = "#fee2e2"; 
-            statusColor = "#b91c1c";
-        } else if (statusObj.text.includes("Waiting")) {
-            statusBg = "#fef3c7";
-            statusColor = "#b45309";
-        } else if (statusObj.text.includes("Listing Today")) {
-            statusBg = "#e0e7ff";
-            statusColor = "#4338ca";
-        } else if (statusObj.text.includes("Listed")) {
-            statusBg = "#f1f5f9";
-            statusColor = "#475569";
-        }
-
-        const isChecked = ipo.isAllotmentOut === true ? 'checked' : '';
-        const isSme = (ipo.type || '').toLowerCase().includes('sme');
-        const typeText = isSme ? 'SME' : 'Mainboard';
-        const typeColor = isSme ? '#7c3aed' : '#1d4ed8'; // Purple for SME, Blue for Mainboard
-        const typeHtml = `<span style="color: ${typeColor}; font-weight: 700; font-size: 12px; background: transparent;">${typeText}</span>`;
-
-        tbody.innerHTML += `
-            <tr class="${statusObj.rowClass}">
-                <td style="text-align: center;"><strong>${ipo.id}</strong></td>
-                <td style="text-align: left; padding-left: 14px;">
-                    <span onclick="editIpo('${ipo.id}')" style="color: #1d4ed8; font-weight: 600; cursor: pointer; text-decoration: underline dotted;" title="Click for Full Edit">${ipo.name}</span><br>
-                    <span style="font-size: 11px; color: #64748b;">Est: ₹${ipo.estPrice || '-'}</span>
-                </td>
-                <td style="text-align: center;">${typeHtml}</td>
-                <td style="text-align: center;">${formatDateReadable(ipo.openDate)}</td>
-                <td style="text-align: center;">${formatDateReadable(ipo.closeDate)}</td>
-                <td style="text-align: center;">${formatDateReadable(ipo.allotmentDate)}</td>
-                <td style="text-align: center;">${formatDateReadable(ipo.listingDate)}</td>
-                <td style="text-align: center; font-weight: bold;">₹${ipo.priceBand || '-'}</td>
-                <td style="text-align: center;">${ipo.lotSize || (ipo.lotRaw + ' Shares')}</td>
-                <td style="text-align: center;">
-                    <input type="text" id="dash_gmp_${ipo.id}" value="${ipo.gmp || ''}" placeholder="0" style="width: 70px; padding: 4px; text-align: center; font-weight: 700; color: ${parseFloat(ipo.gmp) < 0 ? '#dc2626' : (parseFloat(ipo.gmp) > 0 ? '#16a34a' : '#64748b')}; border: 1px solid #cbd5e1; border-radius: 4px;">
-                </td>
-                <td style="text-align: center;">
-                    <label style="cursor: pointer; font-size: 11.5px; font-weight: 600; color: #7c3aed; display: inline-flex; align-items: center; gap: 4px;">
-                        <input type="checkbox" id="dash_allot_${ipo.id}" ${isChecked} style="width: 15px; height: 15px;"> Out
-                    </label>
-                </td>
-                <td style="text-align: center;">
-                    <span class="${statusObj.class}">${statusObj.text}</span>
-                </td>
-                <td style="text-align: center;">
-                    <div class="action-btns" style="justify-content: center; gap: 4px;">
-                        <button type="button" onclick="quickSaveFromDashboard('${ipo.id}')" class="btn-action-edit" style="background: #166534; color: #fff;" title="Save GMP & Allotment">💾 Save</button>
-                        <button type="button" onclick="editIpo('${ipo.id}')" class="btn-action-edit" title="Full Edit">✏️ Edit</button>
-                        <button type="button" onclick="syncSingleIpo('${ipo.id}')" class="btn-action-edit" style="background: #0284c7; color: #fff;" title="Auto-Sync data from Chittorgarh">⚡ Sync</button>
-                        <button type="button" onclick="deleteIpo('${ipo.id}')" class="btn-action-del" title="Delete">🗑️</button>
-                    </div>
-                </td>
-            </tr>
-        `;
     });
 
     if (document.getElementById('stat_total')) document.getElementById('stat_total').innerText = total;
     if (document.getElementById('stat_live')) document.getElementById('stat_live').innerText = live;
     if (document.getElementById('stat_upcoming')) document.getElementById('stat_upcoming').innerText = upcoming;
     if (document.getElementById('stat_allotment')) document.getElementById('stat_allotment').innerText = allotment;
+
+    // સર્ચ ફિલ્ટર
+    let filteredList = ipoList;
+    if (adminSearchQuery) {
+        const q = adminSearchQuery.toLowerCase();
+        filteredList = ipoList.filter(ipo => 
+            (ipo.name && ipo.name.toLowerCase().includes(q)) || 
+            (ipo.id && ipo.id.toLowerCase().includes(q)) ||
+            (ipo.type && ipo.type.toLowerCase().includes(q))
+        );
+    }
+
+    const totalFiltered = filteredList.length;
+    let totalPages = adminPageSize === -1 ? 1 : Math.ceil(totalFiltered / adminPageSize);
+    if (totalPages < 1) totalPages = 1;
+    if (adminCurrentPage > totalPages) adminCurrentPage = totalPages;
+    if (adminCurrentPage < 1) adminCurrentPage = 1;
+
+    const startIndex = adminPageSize === -1 ? 0 : (adminCurrentPage - 1) * adminPageSize;
+    const endIndex = adminPageSize === -1 ? totalFiltered : Math.min(startIndex + adminPageSize, totalFiltered);
+    const pageItems = filteredList.slice(startIndex, endIndex);
+
+    if (pageItems.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="13" style="text-align: center; color: #64748b; padding: 25px; font-size: 13px;">કોઈ IPO રેકોર્ડ મળ્યો નથી.</td></tr>`;
+    } else {
+        pageItems.forEach(ipo => {
+            const statusObj = getIpoStatus(ipo.openDate, ipo.closeDate, ipo.allotmentDate, ipo.listingDate, ipo.isAllotmentOut);
+            const isChecked = ipo.isAllotmentOut === true ? 'checked' : '';
+            const isSme = (ipo.type || '').toLowerCase().includes('sme');
+            const typeText = isSme ? 'SME' : 'Mainboard';
+            const typeColor = isSme ? '#7c3aed' : '#1d4ed8';
+            const typeHtml = `<span style="color: ${typeColor}; font-weight: 700; font-size: 12px; background: transparent;">${typeText}</span>`;
+
+            tbody.innerHTML += `
+                <tr class="${statusObj.rowClass}">
+                    <td style="text-align: center;"><strong>${ipo.id}</strong></td>
+                    <td style="text-align: left; padding-left: 14px;">
+                        <span onclick="editIpo('${ipo.id}')" style="color: #1d4ed8; font-weight: 600; cursor: pointer; text-decoration: underline dotted;" title="Click for Full Edit">${ipo.name}</span><br>
+                        <span style="font-size: 11px; color: #64748b;">Est: ₹${ipo.estPrice || '-'}</span>
+                    </td>
+                    <td style="text-align: center;">${typeHtml}</td>
+                    <td style="text-align: center;">${formatDateReadable(ipo.openDate)}</td>
+                    <td style="text-align: center;">${formatDateReadable(ipo.closeDate)}</td>
+                    <td style="text-align: center;">${formatDateReadable(ipo.allotmentDate)}</td>
+                    <td style="text-align: center;">${formatDateReadable(ipo.listingDate)}</td>
+                    <td style="text-align: center; font-weight: bold;">₹${ipo.priceBand || '-'}</td>
+                    <td style="text-align: center;">${ipo.lotSize || (ipo.lotRaw + ' Shares')}</td>
+                    <td style="text-align: center;">
+                        <input type="text" id="dash_gmp_${ipo.id}" value="${ipo.gmp || ''}" placeholder="0" style="width: 70px; padding: 4px; text-align: center; font-weight: 700; color: ${parseFloat(ipo.gmp) < 0 ? '#dc2626' : (parseFloat(ipo.gmp) > 0 ? '#16a34a' : '#64748b')}; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    </td>
+                    <td style="text-align: center;">
+                        <label style="cursor: pointer; font-size: 11.5px; font-weight: 600; color: #7c3aed; display: inline-flex; align-items: center; gap: 4px;">
+                            <input type="checkbox" id="dash_allot_${ipo.id}" ${isChecked} style="width: 15px; height: 15px;"> Out
+                        </label>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="${statusObj.class}">${statusObj.text}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <div class="action-btns" style="justify-content: center; gap: 4px;">
+                            <button type="button" onclick="quickSaveFromDashboard('${ipo.id}')" class="btn-action-edit" style="background: #166534; color: #fff;" title="Save GMP & Allotment">💾 Save</button>
+                            <button type="button" onclick="editIpo('${ipo.id}')" class="btn-action-edit" title="Full Edit">✏️ Edit</button>
+                            <button type="button" onclick="syncSingleIpo('${ipo.id}')" class="btn-action-edit" style="background: #0284c7; color: #fff;" title="Auto-Sync data from Chittorgarh">⚡ Sync</button>
+                            <button type="button" onclick="deleteIpo('${ipo.id}')" class="btn-action-del" title="Delete">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    // પેજિનેશન કંટ્રોલ અને માહિતી અપડેટ કરો
+    const infoEl = document.getElementById('adminPaginationInfo');
+    if (infoEl) {
+        if (totalFiltered === 0) {
+            infoEl.innerText = 'Showing 0 to 0 of 0 IPOs';
+        } else {
+            infoEl.innerText = `Showing ${startIndex + 1} to ${endIndex} of ${totalFiltered} IPOs (Page ${adminCurrentPage} of ${totalPages})`;
+        }
+    }
+
+    const controlsEl = document.getElementById('adminPaginationControls');
+    if (controlsEl) {
+        if (adminPageSize === -1 || totalPages <= 1) {
+            controlsEl.innerHTML = '';
+        } else {
+            let btnsHtml = '';
+            btnsHtml += `<button type="button" onclick="setAdminPage(1)" ${adminCurrentPage === 1 ? 'disabled' : ''} title="First Page">⏮ First</button>`;
+            btnsHtml += `<button type="button" onclick="setAdminPage(${adminCurrentPage - 1})" ${adminCurrentPage === 1 ? 'disabled' : ''} title="Previous Page">◀ Prev</button>`;
+
+            const maxVisible = 5;
+            let startP = Math.max(1, adminCurrentPage - Math.floor(maxVisible / 2));
+            let endP = Math.min(totalPages, startP + maxVisible - 1);
+            if (endP - startP + 1 < maxVisible) {
+                startP = Math.max(1, endP - maxVisible + 1);
+            }
+
+            for (let p = startP; p <= endP; p++) {
+                btnsHtml += `<button type="button" class="${p === adminCurrentPage ? 'active' : ''}" onclick="setAdminPage(${p})">${p}</button>`;
+            }
+
+            btnsHtml += `<button type="button" onclick="setAdminPage(${adminCurrentPage + 1})" ${adminCurrentPage === totalPages ? 'disabled' : ''} title="Next Page">Next ▶</button>`;
+            btnsHtml += `<button type="button" onclick="setAdminPage(${totalPages})" ${adminCurrentPage === totalPages ? 'disabled' : ''} title="Last Page">Last ⏭</button>`;
+
+            controlsEl.innerHTML = btnsHtml;
+        }
+    }
 }
+
+// પેજ સાઈઝ બદલવા માટેનું ફંક્શન
+window.changeAdminPageSize = function(val) {
+    adminPageSize = parseInt(val);
+    adminCurrentPage = 1;
+    loadAdminDashboard();
+};
+
+// પેજ નંબર બદલવા માટેનું ફંક્શન
+window.setAdminPage = function(pageNum) {
+    adminCurrentPage = pageNum;
+    loadAdminDashboard();
+    const section = document.getElementById('masterRecordSection');
+    if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+// એડમિન સર્ચ ફંક્શન
+window.handleAdminSearch = function(val) {
+    adminSearchQuery = (val || '').trim();
+    adminCurrentPage = 1;
+    loadAdminDashboard();
+};
 
 // ડેશબોર્ડ ટેબલ પરથી જ ડાયરેક્ટ GMP અને અલોટમેન્ટ સેવ કરવા માટે
 async function quickSaveFromDashboard(ipoId) {

@@ -78,15 +78,25 @@
                 <a href="#" class="filter-btn" onclick="filterHomeIpos('sme', event)">SME IPOs</a>
             </div>
 
-            <!-- Search Box Section -->
-            <div style="margin-top: 15px; display: flex; align-items: center; gap: 10px;">
+            <!-- Search Box & Page Size Section -->
+            <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
                 <input type="text" id="ipoSearchInput" placeholder="🔍 Search IPO by name..." onkeyup="filterIpoTable()"
                     style="width: 100%; max-width: 350px; padding: 9px 14px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; outline: none; transition: border 0.2s;">
+
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label for="homePageSizeSelect" style="font-size: 13px; font-weight: 600; color: #475569;">Show:</label>
+                    <select id="homePageSizeSelect" onchange="changeHomePageSize(this.value)" style="padding: 7px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; font-weight: 600; color: #1e293b; background: #ffffff; cursor: pointer; outline: none;">
+                        <option value="25">25 per page</option>
+                        <option value="50" selected>50 per page (Default)</option>
+                        <option value="75">75 per page</option>
+                        <option value="100">100 per page</option>
+                    </select>
+                </div>
             </div>
         </div>
 
         <!-- IPO Table Section -->
-        <div class="card-detail">
+        <div class="card-detail" style="padding: 0; overflow: hidden;">
             <div style="overflow-x: auto;">
                 <table class="structured-table" style="width: 100%; border-collapse: collapse;">
                     <thead>
@@ -103,13 +113,22 @@
                             <th style="text-align: center;">Subscription</th>
                             <th style="text-align: center;">Allotment Status</th>
                             <th style="text-align: center;">Status</th>
-
                         </tr>
                     </thead>
                     <tbody id="homeTableBody">
                         <!-- જાવાસ્ક્રિપ્ટ દ્વારા ડેટા અહીં ઓટોમેટિક લોડ થશે -->
                     </tbody>
                 </table>
+            </div>
+
+            <!-- Front Page Pagination Bar -->
+            <div id="homePaginationBar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 14px 18px; border-top: 1px solid #e2e8f0; background: #ffffff;">
+                <div id="homePaginationInfo" style="font-size: 13px; color: #64748b; font-weight: 600;">
+                    Showing 0 to 0 of 0 IPOs
+                </div>
+                <div id="homePaginationControls" class="pagination-controls">
+                    <!-- Dynamic Page Buttons -->
+                </div>
             </div>
         </div>
 

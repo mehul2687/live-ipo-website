@@ -334,9 +334,12 @@ function calculateTimelineProgress(openStr, closeStr, allotStr, listStr, isAllot
 }
 
 // ==========================================
-// 4. HOME PAGE LOGIC (Cloud Connected)
+// 4. HOME PAGE LOGIC (Cloud Connected with Pagination & Page Size Control)
 // ==========================================
 let currentHomeFilter = 'all';
+let homeCurrentPage = 1;
+let homePageSize = parseInt(localStorage.getItem('live_ipo_home_page_size')) || 50; // બાય ડિફોલ્ટ ૫૦ IPO
+let homeSearchQuery = '';
 
 async function loadHomeIpoTable(filterType = currentHomeFilter) {
     const tableBody = document.getElementById('homeTableBody');
@@ -345,8 +348,6 @@ async function loadHomeIpoTable(filterType = currentHomeFilter) {
     currentHomeFilter = filterType;
     let dbData = await getMasterIpoData();
     tableBody.innerHTML = '';
-
-    let renderedCount = 0;
 
     // તારીખ મુજબ સોર્ટિંગ: સૌથી લેટેસ્ટ Open / Close ડેટ ધરાવતા IPO સૌથી ઉપર (Top) આવશે
     const ipoList = Object.keys(dbData).map(key => dbData[key]).filter(Boolean);
@@ -359,83 +360,146 @@ async function loadHomeIpoTable(filterType = currentHomeFilter) {
         return closeB - closeA;
     });
 
-    ipoList.forEach(ipo => {
-
+    // કેટેગરી અને સર્ચ ફિલ્ટર
+    let filteredList = ipoList.filter(ipo => {
         const ipoType = (ipo.type || 'Mainboard').trim().toLowerCase();
-        if (filterType === 'mainboard' && !ipoType.includes('main')) return;
-        if (filterType === 'sme' && !ipoType.includes('sme')) return;
+        if (filterType === 'mainboard' && !ipoType.includes('main')) return false;
+        if (filterType === 'sme' && !ipoType.includes('sme')) return false;
 
-        renderedCount++;
-        const logoVal = ipo.logo ? ipo.logo.trim() : '';
-        
-        let logoHtml = '';
-        if (logoVal.startsWith("http://") || logoVal.startsWith("https://") || logoVal.startsWith("data:image/")) {
-            logoHtml = `<div style="background: #ffffff; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden;"><img src="${logoVal}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;"></div>`;
-        } else {
-            logoHtml = `<div style="background: #ffffff; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #e2e8f0; font-weight: bold; color: #1e3a8a; font-size: 10px;">${logoVal || ipo.id}</div>`;
+        if (homeSearchQuery) {
+            const q = homeSearchQuery.toLowerCase();
+            const nameMatch = ipo.name && ipo.name.toLowerCase().includes(q);
+            const idMatch = ipo.id && ipo.id.toLowerCase().includes(q);
+            if (!nameMatch && !idMatch) return false;
         }
-
-        const statusObj = getIpoStatus(ipo.openDate, ipo.closeDate, ipo.allotmentDate, ipo.listingDate, ipo.isAllotmentOut);
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const allotDate = ipo.allotmentDate ? new Date(ipo.allotmentDate) : null;
-        if (allotDate) allotDate.setHours(0, 0, 0, 0);
-
-        let homeAllotmentHtml = '';
-        if (ipo.isAllotmentOut === true || (allotDate && today >= allotDate)) {
-            const regLink = ipo.registrarUrl || (ipo.regWeb ? `https://${ipo.regWeb}` : '#');
-            homeAllotmentHtml = `<a href="${regLink}" target="_blank" onclick="event.stopPropagation();" style="background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 5px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 600; display: inline-block;">🔍 Check Allotment</a>`;
-        } else {
-            homeAllotmentHtml = `<span style="color: #c2410c; background-color: #ffedd5; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">Waiting</span>`;
-        }
-
-        let totalOff = 0, totalApp = 0;
-        if (ipo.subShares) {
-            ipo.subShares.forEach(row => {
-                if (row.cat !== "B-NII(₹10L+)" && row.cat !== "S-NII(₹2-10L)") {
-                    totalOff += (row.off || 0);
-                    totalApp += (row.app || 0);
-                }
-            });
-        }
-        let overallSubTimes = totalOff > 0 ? (totalApp / totalOff).toFixed(2) + 'x' : '0.00x';
-
-        tableBody.innerHTML += `
-            <tr class="${statusObj.rowClass}" onclick="window.location.href='ipo-detail.html?id=${ipo.id}'">
-                <td style="padding: 12px; text-align: center;">${logoHtml}</td>
-                <td class="ipo-name-cell" style="text-align: left; padding: 12px 16px;">
-                    <a href="ipo-detail.html?id=${ipo.id}" onclick="event.stopPropagation();" style="text-decoration: none; text-align: left;">
-                        <strong style="color: #1d4ed8; display: block; cursor: pointer; text-align: left; margin-bottom: 3px;">${ipo.name}</strong>
-                    </a>
-                    <span style="background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 11px; display: inline-block;">${ipo.type || 'Mainboard'}</span>
-                </td>
-                <td style="text-align: center;">${formatDateReadable(ipo.openDate)}</td>
-                <td style="text-align: center;">${formatDateReadable(ipo.closeDate)}</td>
-                <td style="text-align: center;">${formatDateReadable(ipo.allotmentDate)}</td>
-                <td style="text-align: center;">${formatDateReadable(ipo.listingDate)}</td>
-                <td style="text-align: center; font-weight: bold;">₹${ipo.priceBand}</td>
-                <td style="text-align: center;">${ipo.lotSize}</td>
-                <td style="text-align: center;">
-                    ${formatGmpBadge(ipo.gmp)}
-                </td>
-                <td style="text-align: center; font-weight: 600; color: #1e293b;">${overallSubTimes}</td>
-                <td style="text-align: center;">${homeAllotmentHtml}</td>
-                <td style="text-align: center;">
-                    <span class="${statusObj.class}">${statusObj.text}</span>
-                </td>
-            </tr>
-        `;
+        return true;
     });
 
-    if (renderedCount === 0) {
+    const totalFiltered = filteredList.length;
+    let totalPages = Math.ceil(totalFiltered / homePageSize);
+    if (totalPages < 1) totalPages = 1;
+    if (homeCurrentPage > totalPages) homeCurrentPage = totalPages;
+    if (homeCurrentPage < 1) homeCurrentPage = 1;
+
+    const startIndex = (homeCurrentPage - 1) * homePageSize;
+    const endIndex = Math.min(startIndex + homePageSize, totalFiltered);
+    const pageItems = filteredList.slice(startIndex, endIndex);
+
+    if (pageItems.length === 0) {
         tableBody.innerHTML = `<tr><td colspan="12" style="text-align: center; color: #64748b; padding: 30px; font-size: 14px;">આ કેટેગરીમાં હાલ કોઈ IPO ઉપલબ્ધ નથી.</td></tr>`;
+    } else {
+        pageItems.forEach(ipo => {
+            const logoVal = ipo.logo ? ipo.logo.trim() : '';
+            
+            let logoHtml = '';
+            if (logoVal.startsWith("http://") || logoVal.startsWith("https://") || logoVal.startsWith("data:image/")) {
+                logoHtml = `<div style="background: #ffffff; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden;"><img src="${logoVal}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;"></div>`;
+            } else {
+                logoHtml = `<div style="background: #ffffff; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #e2e8f0; font-weight: bold; color: #1e3a8a; font-size: 10px;">${logoVal || ipo.id}</div>`;
+            }
+
+            const statusObj = getIpoStatus(ipo.openDate, ipo.closeDate, ipo.allotmentDate, ipo.listingDate, ipo.isAllotmentOut);
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const allotDate = ipo.allotmentDate ? new Date(ipo.allotmentDate) : null;
+            if (allotDate) allotDate.setHours(0, 0, 0, 0);
+
+            let homeAllotmentHtml = '';
+            if (ipo.isAllotmentOut === true || (allotDate && today >= allotDate)) {
+                const regLink = ipo.registrarUrl || (ipo.regWeb ? `https://${ipo.regWeb}` : '#');
+                homeAllotmentHtml = `<a href="${regLink}" target="_blank" onclick="event.stopPropagation();" style="background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 5px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 600; display: inline-block;">🔍 Check Allotment</a>`;
+            } else {
+                homeAllotmentHtml = `<span style="color: #c2410c; background-color: #ffedd5; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">Waiting</span>`;
+            }
+
+            let totalOff = 0, totalApp = 0;
+            if (ipo.subShares) {
+                ipo.subShares.forEach(row => {
+                    if (row.cat !== "B-NII(₹10L+)" && row.cat !== "S-NII(₹2-10L)") {
+                        totalOff += (row.off || 0);
+                        totalApp += (row.app || 0);
+                    }
+                });
+            }
+            let overallSubTimes = totalOff > 0 ? (totalApp / totalOff).toFixed(2) + 'x' : '0.00x';
+
+            tableBody.innerHTML += `
+                <tr class="${statusObj.rowClass}" onclick="window.location.href='ipo-detail.html?id=${ipo.id}'">
+                    <td style="padding: 12px; text-align: center;">${logoHtml}</td>
+                    <td class="ipo-name-cell" style="text-align: left; padding: 12px 16px;">
+                        <a href="ipo-detail.html?id=${ipo.id}" onclick="event.stopPropagation();" style="text-decoration: none; text-align: left;">
+                            <strong style="color: #1d4ed8; display: block; cursor: pointer; text-align: left; margin-bottom: 3px;">${ipo.name}</strong>
+                        </a>
+                        <span style="background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 11px; display: inline-block;">${ipo.type || 'Mainboard'}</span>
+                    </td>
+                    <td style="text-align: center;">${formatDateReadable(ipo.openDate)}</td>
+                    <td style="text-align: center;">${formatDateReadable(ipo.closeDate)}</td>
+                    <td style="text-align: center;">${formatDateReadable(ipo.allotmentDate)}</td>
+                    <td style="text-align: center;">${formatDateReadable(ipo.listingDate)}</td>
+                    <td style="text-align: center; font-weight: bold;">₹${ipo.priceBand}</td>
+                    <td style="text-align: center;">${ipo.lotSize}</td>
+                    <td style="text-align: center;">
+                        ${formatGmpBadge(ipo.gmp)}
+                    </td>
+                    <td style="text-align: center; font-weight: 600; color: #1e293b;">${overallSubTimes}</td>
+                    <td style="text-align: center;">${homeAllotmentHtml}</td>
+                    <td style="text-align: center;">
+                        <span class="${statusObj.class}">${statusObj.text}</span>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    // ફ્રન્ટ પેજ પેજિનેશન કંટ્રોલ અને માહિતી અપડેટ
+    const infoEl = document.getElementById('homePaginationInfo');
+    if (infoEl) {
+        if (totalFiltered === 0) {
+            infoEl.innerText = 'Showing 0 of 0 IPOs';
+        } else {
+            infoEl.innerText = `Showing ${startIndex + 1} to ${endIndex} of ${totalFiltered} IPOs (Page ${homeCurrentPage} of ${totalPages})`;
+        }
+    }
+
+    const controlsEl = document.getElementById('homePaginationControls');
+    if (controlsEl) {
+        if (totalPages <= 1) {
+            controlsEl.innerHTML = '';
+        } else {
+            let btnsHtml = '';
+            btnsHtml += `<button type="button" onclick="setHomePage(1)" ${homeCurrentPage === 1 ? 'disabled' : ''} title="First Page">⏮ First</button>`;
+            btnsHtml += `<button type="button" onclick="setHomePage(${homeCurrentPage - 1})" ${homeCurrentPage === 1 ? 'disabled' : ''} title="Previous Page">◀ Prev</button>`;
+
+            const maxVisible = 5;
+            let startP = Math.max(1, homeCurrentPage - Math.floor(maxVisible / 2));
+            let endP = Math.min(totalPages, startP + maxVisible - 1);
+            if (endP - startP + 1 < maxVisible) {
+                startP = Math.max(1, endP - maxVisible + 1);
+            }
+
+            for (let p = startP; p <= endP; p++) {
+                btnsHtml += `<button type="button" class="${p === homeCurrentPage ? 'active' : ''}" onclick="setHomePage(${p})">${p}</button>`;
+            }
+
+            btnsHtml += `<button type="button" onclick="setHomePage(${homeCurrentPage + 1})" ${homeCurrentPage === totalPages ? 'disabled' : ''} title="Next Page">Next ▶</button>`;
+            btnsHtml += `<button type="button" onclick="setHomePage(${totalPages})" ${homeCurrentPage === totalPages ? 'disabled' : ''} title="Last Page">Last ⏭</button>`;
+
+            controlsEl.innerHTML = btnsHtml;
+        }
+    }
+
+    // પેજ સાઇઝ ડ્રોપડાઉન સિન્ક
+    const sizeSelect = document.getElementById('homePageSizeSelect');
+    if (sizeSelect && sizeSelect.value !== String(homePageSize)) {
+        sizeSelect.value = String(homePageSize);
     }
 }
 
 function filterHomeIpos(type, event) {
     if (event) event.preventDefault();
     currentHomeFilter = type;
+    homeCurrentPage = 1;
 
     const buttons = document.querySelectorAll('.hero-card .filter-buttons .filter-btn');
     buttons.forEach(btn => btn.classList.remove('active-btn'));
@@ -446,29 +510,30 @@ function filterHomeIpos(type, event) {
 
     const searchInput = document.getElementById('ipoSearchInput');
     if (searchInput) searchInput.value = '';
+    homeSearchQuery = '';
 
     loadHomeIpoTable(type);
 }
 
 function filterIpoTable() {
     const input = document.getElementById('ipoSearchInput');
-    if (!input) return;
-    const filter = input.value.toLowerCase();
-    const tableBody = document.getElementById('homeTableBody');
-    if (!tableBody) return;
-    const rows = tableBody.getElementsByTagName('tr');
+    homeSearchQuery = input ? input.value.trim() : '';
+    homeCurrentPage = 1;
+    loadHomeIpoTable(currentHomeFilter);
+}
 
-    for (let i = 0; i < rows.length; i++) {
-        const nameCell = rows[i].getElementsByTagName('td')[1];
-        if (nameCell) {
-            const textValue = nameCell.textContent || nameCell.innerText;
-            if (textValue.toLowerCase().indexOf(filter) > -1) {
-                rows[i].style.display = "";
-            } else {
-                rows[i].style.display = "none";
-            }
-        }
-    }
+function changeHomePageSize(val) {
+    homePageSize = parseInt(val) || 50;
+    localStorage.setItem('live_ipo_home_page_size', homePageSize);
+    homeCurrentPage = 1;
+    loadHomeIpoTable(currentHomeFilter);
+}
+
+function setHomePage(pageNum) {
+    homeCurrentPage = pageNum;
+    loadHomeIpoTable(currentHomeFilter);
+    const tableEl = document.querySelector('.card-detail');
+    if (tableEl) tableEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ==========================================
@@ -699,15 +764,11 @@ async function loadDynamicIpoDetails() {
     if (reservationTbody) {
         reservationTbody.innerHTML = '';
         
-        // ૧. કુલ શેર્સની સંખ્યા મેળવો (Total Issue Size માંથી)
         let totalSharesCount = 0;
         if (ipo.totalSize) {
-            // જો totalSize માંથી માત્ર આંકડા કાઢવાના હોય
             let rawTotal = ipo.totalSize.replace(/[^0-9]/g, '');
-            // અથવા જો તમે lotRaw કે બીજા કોઈ ફોર્મેટમાં રાખતા હોવ તો તેને અનુરૂપ
         }
         
-        // જો totalSize સીધી જ આંકડાકીય કે શેરમાં હોય તો તેને parse કરો
         let baseShares = parseFloat(ipo.lotRaw) * 100000 || 5152000;
         if (ipo.totalSize) {
             const sharesMatch = ipo.totalSize.match(/([\d,]+)\s*shares/i);
@@ -726,7 +787,6 @@ async function loadDynamicIpoDetails() {
         ];
 
         reservationData.forEach(row => {
-            // પર્સન્ટેજ કાઢીને ટકાવારી મુજબ શેર્સ ગણો
             let pct = parseFloat(row.percentage) || 0;
             let calculatedShares = Math.round((baseShares * pct) / 100);
             let formattedShares = calculatedShares > 0 ? calculatedShares.toLocaleString('en-IN') : row.shares || '0';
@@ -1177,7 +1237,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 async function fetchChittorgarhData(chittorgarhKey) {
     if (!chittorgarhKey) return null;
     try {
-        // chittorgarhKey ઉદાહરણ તરીકે: /ipo/purple-style-labs-ipo/1782/
         let targetUrl = `https://www.chittorgarh.com/ipo_subscription${chittorgarhKey}`;
         let proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
 
@@ -1187,15 +1246,13 @@ async function fetchChittorgarhData(chittorgarhKey) {
         let data = await response.json();
         let htmlText = data.contents;
 
-        // HTML ને પાર્સ કરવા માટે DOMParser નો ઉપયોગ
         let parser = new DOMParser();
         let doc = parser.parseFromString(htmlText, 'text/html');
 
-        // ચિત્તોડગઢના પેજ પરથી સબસ્ક્રિપ્શન ટેબલ શોધો
         let tables = doc.querySelectorAll('table');
         if (tables.length < 2) return null;
 
-        let subTable = tables[1]; // સામાન્ય રીતે બીજું ટેબલ સબસ્ક્રિપ્શનનું હોય છે
+        let subTable = tables[1];
         let rows = subTable.querySelectorAll('tbody tr');
         
         let scrapedData = {};
@@ -1208,7 +1265,6 @@ async function fetchChittorgarhData(chittorgarhKey) {
                 let applied = cols[2].textContent.trim().replace(/,/g, '');
                 let times = cols[3].textContent.trim().replace(/,/g, '');
 
-                // કેટેગરી મુજબ મેપિંગ
                 if (category.includes('qib')) {
                     scrapedData['QIB'] = { off: parseFloat(offered) || 0, app: parseFloat(applied) || 0, times: parseFloat(times) || 0 };
                 } else if (category.includes('non') || category.includes('nii')) {
@@ -1342,7 +1398,6 @@ function initGoogleSignIn() {
                     );
                 }
 
-                // If not logged in, prompt Google One Tap
                 if (!localStorage.getItem('live_ipo_user')) {
                     google.accounts.id.prompt();
                 }

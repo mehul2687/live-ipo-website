@@ -53,7 +53,7 @@ function getSubscriptionUrl(key) {
 
 function parseSingleDate(str) {
     if (!str) return null;
-    const clean = str.replace(/[Tt]$/, '').trim();
+    let clean = str.replace(/[Tt]$/, '').replace(/\b(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)[,\s]*/i, '').trim();
     const d = new Date(clean);
     if (!isNaN(d.getTime())) {
         const yyyy = d.getFullYear();
@@ -70,12 +70,24 @@ function parseIpoDateRange(str) {
     if (parts.length === 2) {
         let part1 = parts[0].trim();
         let part2 = parts[1].trim();
+
+        // Extract 4-digit year from part2 (e.g. "2026")
+        const yearMatch = part2.match(/\b(20\d\d)\b/);
+        const year = yearMatch ? yearMatch[1] : new Date().getFullYear();
+
+        // Extract month name from part2 (e.g. "Nov")
+        const monthMatch = part2.match(/([a-zA-Z]+)/);
+        const month2 = monthMatch ? monthMatch[1] : '';
+
+        // If part1 is just a day number (e.g. "30") -> "30 Nov 2026"
         if (/^\d+$/.test(part1)) {
-            const monthYearMatch = part2.match(/([a-zA-Z]+)[,\s]+(\d{4})/);
-            if (monthYearMatch) {
-                part1 = `${part1} ${monthYearMatch[1]}, ${monthYearMatch[2]}`;
-            }
+            part1 = `${part1} ${month2} ${year}`;
         }
+        // If part1 has day and month (e.g. "30 Oct") but no year -> "30 Oct 2026"
+        else if (!/\b20\d\d\b/.test(part1)) {
+            part1 = `${part1} ${year}`;
+        }
+
         return {
             openDate: parseSingleDate(part1),
             closeDate: parseSingleDate(part2)
@@ -90,21 +102,8 @@ function parseIssueSize(val) {
     if (!clean || clean === '-' || clean === '[.]' || clean.toLowerCase() === 'n/a') return null;
     if (clean.toLowerCase() === 'nil') return 'Nil';
 
-    // If it has shares and ₹ amount (e.g. "27,00,00,000 shares (agg. up to ₹30,213 Cr)")
-    if (/\bshares\b/i.test(clean) && /₹/i.test(clean)) {
-        return clean;
-    }
-
-    // If it has shares (e.g. "27,00,00,000 shares")
-    if (/\bshares\b/i.test(clean)) {
-        return clean;
-    }
-
-    // If it has Cr amount (e.g. "₹30,213 Cr" or "up to ₹30,213 Cr")
-    const fullMatch = clean.match(/₹[\d,.]+\s*(?:Cr|crore)?/i);
-    if (fullMatch) return fullMatch[0].includes('Cr') ? fullMatch[0] : fullMatch[0] + ' Cr';
-    const aggMatch = clean.match(/up to\s*(₹[\d,.]+\s*(?:Cr|crore)?)/i);
-    if (aggMatch) return aggMatch[1].includes('Cr') ? aggMatch[1] : aggMatch[1] + ' Cr';
+    // Normalize any corrupted characters to ₹
+    clean = clean.replace(/,1/g, '₹').replace(/\uFFFD/g, '₹');
 
     return clean;
 }
@@ -226,10 +225,16 @@ async function get_Chittorgarh_details_data(key) {
                         if (range.closeDate) dates.closeDate = range.closeDate;
                     }
 
-                    // Listing Date
-                    if (k === 'listing date' && !dates.listingDate) {
+                    // Listing Date / Listed on
+                    if ((k === 'listing date' || k.includes('listed on') || k === 'listing') && !dates.listingDate) {
                         const parsed = parseSingleDate(v);
                         if (parsed) dates.listingDate = parsed;
+                    }
+
+                    // Basis of Allotment in table
+                    if ((k.includes('basis of allotment') || k.includes('allotment date')) && !dates.allotmentDate) {
+                        const parsed = parseSingleDate(v);
+                        if (parsed) dates.allotmentDate = parsed;
                     }
 
                     // Price Band
@@ -304,6 +309,13 @@ async function get_Chittorgarh_details_data(key) {
                 }
             }
         });
+
+        // If allotment date is still missing but close date exists
+        if (!dates.allotmentDate && dates.closeDate) {
+            const close = new Date(dates.closeDate);
+            close.setDate(close.getDate() + 1);
+            dates.allotmentDate = close.toISOString().slice(0, 10);
+        }
 
         // 2. Financial Information Table Scraping
         let headerRow = null;

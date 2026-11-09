@@ -249,6 +249,36 @@
             border-radius: 4px;
         }
 
+        /* Live Moneycontrol Real-Time Sync Badge */
+        .live-sync-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #065f46;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 999px;
+            transition: all 0.3s ease;
+        }
+
+        .live-pulse-dot {
+            width: 7px;
+            height: 7px;
+            background-color: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: livePulse 2s infinite;
+        }
+
+        @keyframes livePulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
         /* Category Filter Tabs & Search Bar */
         .history-controls-panel {
             background: #ffffff;
@@ -539,8 +569,11 @@
                     <h1 class="history-page-title">
                         📅 INDIAN INDICES DAILY HISTORY
                     </h1>
-                    <div style="font-size: 12px; color: #64748b; margin-top: 4px; font-weight: 600;">
-                        Daily Closing Snapshots of all NSE & BSE Indices by Date
+                    <div style="font-size: 12px; color: #64748b; margin-top: 5px; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span>Daily Closing Snapshots of all NSE & BSE Indices by Date</span>
+                        <span id="liveSyncStatusBadge" class="live-sync-badge">
+                            <span class="live-pulse-dot"></span> <span id="liveSyncStatusText">⚡ Moneycontrol Live Synced</span>
+                        </span>
                     </div>
                 </div>
 
@@ -814,10 +847,28 @@
                 availableDates = historyData.dates || [];
 
                 populateDateDropdown();
+                populateIndexDropdown();
+
                 if (availableDates.length > 0) {
                     selectedDate = availableDates[0];
                     renderView();
                 }
+
+                // Immediately trigger real-time Moneycontrol sync in browser
+                syncLiveMoneycontrolToday();
+
+                // If Indian market hours (09:15 to 15:30 IST Mon-Fri), auto-sync every 30 seconds
+                setInterval(() => {
+                    const now = new Date();
+                    const istOffset = 5.5 * 60 * 60 * 1000;
+                    const ist = new Date(now.getTime() + (now.getTimezoneOffset() * 60 * 1000) + istOffset);
+                    const mins = ist.getHours() * 60 + ist.getMinutes();
+                    const isTrading = ist.getDay() >= 1 && ist.getDay() <= 5 && mins >= (9 * 60 + 15) && mins <= (15 * 60 + 35);
+                    if (isTrading) {
+                        syncLiveMoneycontrolToday();
+                    }
+                }, 30000);
+
             } catch (err) {
                 console.error('Error loading history data:', err);
                 document.getElementById('historyTableBody').innerHTML = `
@@ -830,13 +881,181 @@
 
         function populateDateDropdown() {
             const dropdown = document.getElementById('dateDropdown');
+            if (!dropdown) return;
+            const prevVal = selectedDate || (availableDates.length > 0 ? availableDates[0] : '');
             dropdown.innerHTML = '';
             availableDates.forEach((dt, idx) => {
                 const opt = document.createElement('option');
                 opt.value = dt;
                 opt.innerText = `📅 ${dt} ${idx === 0 ? '(Latest Session)' : ''}`;
+                if (dt === prevVal) opt.selected = true;
                 dropdown.appendChild(opt);
             });
+        }
+
+        function populateIndexDropdown() {
+            const dropdown = document.getElementById('indexDropdown');
+            if (!dropdown || !historyData || !historyData.dailySnapshots) return;
+
+            const allNamesSet = new Set();
+            (availableDates || []).forEach(dt => {
+                const list = historyData.dailySnapshots[dt] || [];
+                list.forEach(i => {
+                    if (i.name) allNamesSet.add(i.name);
+                });
+            });
+
+            if (allNamesSet.size === 0) return;
+
+            const priority = [
+                'NIFTY 50', 'SENSEX', 'NIFTY BANK', 'NIFTY FINANCIAL SERVICES',
+                'NIFTY NEXT 50', 'NIFTY MIDCAP 100', 'NIFTY SMALLCAP 100', 'INDIA VIX',
+                'BSE 100', 'BSE 200', 'BSE 500', 'NIFTY IT', 'NIFTY AUTO', 'NIFTY PHARMA', 'NIFTY METAL'
+            ];
+
+            const allNames = Array.from(allNamesSet).sort((a, b) => {
+                const idxA = priority.indexOf(a);
+                const idxB = priority.indexOf(b);
+                if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+                if (idxA !== -1) return -1;
+                if (idxB !== -1) return 1;
+                return a.localeCompare(b);
+            });
+
+            const currentVal = selectedIndex || 'NIFTY 50';
+            dropdown.innerHTML = '';
+            allNames.forEach(name => {
+                const opt = document.createElement('option');
+                opt.value = name;
+                opt.innerText = name;
+                if (name === currentVal) opt.selected = true;
+                dropdown.appendChild(opt);
+            });
+        }
+
+        async function syncLiveMoneycontrolToday() {
+            try {
+                const now = new Date();
+                const istOffset = 5.5 * 60 * 60 * 1000;
+                const istDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60 * 1000) + istOffset);
+                const day = String(istDate.getDate()).padStart(2, '0');
+                const month = String(istDate.getMonth() + 1).padStart(2, '0');
+                const year = istDate.getFullYear();
+                const todayKey = `${day}-${month}-${year}`;
+
+                const dayOfWeek = istDate.getDay();
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    const statusText = document.getElementById('liveSyncStatusText');
+                    if (statusText) statusText.innerText = `Market Closed (Weekend) • Displaying Recorded Sessions`;
+                    return;
+                }
+
+                const urlNse = 'https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=N&selTab=o&selPage=marketLive&classic=true';
+                const urlBse = 'https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=B&selTab=o&selPage=marketLive&classic=true';
+
+                const [resNse, resBse] = await Promise.all([
+                    fetch(urlNse).then(r => r.text()).catch(() => ''),
+                    fetch(urlBse).then(r => r.text()).catch(() => '')
+                ]);
+
+                if (!resNse && !resBse) return;
+
+                const liveIndices = [];
+                const seen = new Set();
+
+                function parseTableHtml(html, exchange) {
+                    if (!html) return;
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const rows = doc.querySelectorAll('tr[data-type]');
+                    rows.forEach(tr => {
+                        const rawCat = (tr.getAttribute('data-type') || '').trim();
+                        const aTag = tr.querySelector('a');
+                        const rawName = aTag ? aTag.textContent.trim() : '';
+                        if (!rawName) return;
+
+                        let name = rawName;
+                        const upper = name.toUpperCase();
+                        if (upper === 'INDIA VIX' || upper === 'VIX') name = 'INDIA VIX';
+                        else if (upper === 'SENSEX' || upper === 'BSE SENSEX') name = 'SENSEX';
+                        else if (upper === 'NIFTY 50') name = 'NIFTY 50';
+                        else if (upper === 'NIFTY BANK') name = 'NIFTY BANK';
+                        else if (upper === 'NIFTY NEXT 50') name = 'NIFTY NEXT 50';
+                        else if (upper === 'NIFTY MIDCAP 100') name = 'NIFTY MIDCAP 100';
+                        else if (upper === 'NIFTY SMALLCAP 100') name = 'NIFTY SMALLCAP 100';
+
+                        const uKey = `${name}_${exchange}`;
+                        if (seen.has(uKey)) return;
+                        seen.add(uKey);
+
+                        const tds = Array.from(tr.querySelectorAll('td')).map(td => td.textContent.trim());
+                        const ltp = parseFloat((tds[1] || '0').replace(/,/g, '')) || 0;
+                        const chg = parseFloat((tds[2] || '0').replace(/,/g, '')) || 0;
+                        const pchg = parseFloat((tds[3] || '0').replace(/,/g, '')) || 0;
+                        const open = parseFloat((tds[4] || '0').replace(/,/g, '')) || 0;
+                        const high = parseFloat((tds[5] || '0').replace(/,/g, '')) || 0;
+                        const low = parseFloat((tds[6] || '0').replace(/,/g, '')) || 0;
+                        const yHigh = parseFloat((tds[7] || '0').replace(/,/g, '')) || 0;
+                        const yLow = parseFloat((tds[8] || '0').replace(/,/g, '')) || 0;
+
+                        let category = 'Broad Market';
+                        const upperCat = rawCat.toUpperCase();
+                        if (upperCat.includes('SECTORAL') || name.includes('BANK') || name.includes('IT') || name.includes('AUTO') || name.includes('METAL') || name.includes('PHARMA') || name.includes('FMCG') || name.includes('REALTY')) {
+                            category = 'Sectoral';
+                        } else if (upperCat.includes('THEMATIC')) {
+                            category = 'Thematic';
+                        } else if (upperCat.includes('STRATEGY')) {
+                            category = 'Strategy';
+                        }
+
+                        if (isKeyIndex(name)) {
+                            category = 'Key Indices';
+                        }
+
+                        liveIndices.push({
+                            name,
+                            exchange,
+                            category,
+                            close: ltp,
+                            chg,
+                            percentChange: pchg,
+                            open,
+                            high,
+                            low,
+                            yearHigh: yHigh,
+                            yearLow: yLow,
+                            volume: 0
+                        });
+                    });
+                }
+
+                parseTableHtml(resNse, 'NSE');
+                parseTableHtml(resBse, 'BSE');
+
+                if (liveIndices.length > 0) {
+                    historyData.dailySnapshots = historyData.dailySnapshots || {};
+                    historyData.dailySnapshots[todayKey] = liveIndices;
+
+                    if (!availableDates.includes(todayKey)) {
+                        availableDates.unshift(todayKey);
+                        historyData.dates = availableDates;
+                        selectedDate = todayKey;
+                    }
+
+                    populateDateDropdown();
+                    populateIndexDropdown();
+
+                    renderView();
+
+                    const timeStr = istDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    const statusText = document.getElementById('liveSyncStatusText');
+                    if (statusText) {
+                        statusText.innerText = `⚡ Moneycontrol Live Synced (${todayKey} - ${timeStr})`;
+                    }
+                }
+            } catch (e) {
+                console.warn('Realtime Moneycontrol browser sync check:', e.message);
+            }
         }
 
         function switchViewMode(mode) {
@@ -1014,10 +1233,19 @@
                 }
             });
 
-            // Update top cards with latest record
-            if (records.length > 0) {
-                const latest = records[0];
-                updateSingleTopCard(latest);
+            // Update top cards with latest session values
+            if (availableDates.length > 0) {
+                const latestDt = availableDates[0];
+                const latestSnap = historyData.dailySnapshots[latestDt] || [];
+                const n50 = latestSnap.find(i => i.name === 'NIFTY 50');
+                const sen = latestSnap.find(i => i.name === 'SENSEX');
+                const bnk = latestSnap.find(i => i.name === 'NIFTY BANK');
+                const vix = latestSnap.find(i => i.name === 'INDIA VIX');
+                updateTopCards(n50, sen, bnk, vix);
+
+                if (records.length > 0 && selectedIndex !== 'NIFTY 50') {
+                    updateSingleTopCard(records[0]);
+                }
             }
 
             // Sort by date (desc by default)

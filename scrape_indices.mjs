@@ -1,16 +1,10 @@
 import fs from 'fs';
 import path from 'path';
+import * as cheerio from 'cheerio';
 
 const DATA_FILE = path.resolve('indices-data.json');
 const HISTORY_FILE = path.resolve('indices-history-data.json');
 
-const BROWSER_HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Language': 'en-US,en;q=0.9'
-};
-
-// Known Moneycontrol symbol map for live browser websocket/priceapi
 const SYMBOL_MAP = {
     'NIFTY 50': 'in;NSX',
     'NIFTY BANK': 'in;nbx',
@@ -39,42 +33,107 @@ const SYMBOL_MAP = {
     'NIFTY HEALTHCARE': 'mc;helcar',
     'NIFTY CONSUMER DURABLES': 'mc;condur',
     'INDIA VIX': 'in;IDXN',
+    'India VIX': 'in;IDXN',
     'SENSEX': 'in;SEN',
     'BSE SENSEX': 'in;SEN',
     'BSE 100': 'in;tkx',
     'BSE SENSEX NEXT 30': 'mc;snt'
 };
 
-async function fetchNseIndices() {
-    console.log('Fetching official NSE allIndices...');
-    try {
-        const homeRes = await fetch('https://www.nseindia.com', {
-            headers: BROWSER_HEADERS
-        });
-        const setCookies = homeRes.headers.getSetCookie ? homeRes.headers.getSetCookie() : [homeRes.headers.get('set-cookie')];
-        const cookieHeader = (setCookies || []).map(c => c ? c.split(';')[0] : '').filter(Boolean).join('; ');
-
-        const apiRes = await fetch('https://www.nseindia.com/api/allIndices', {
-            headers: {
-                ...BROWSER_HEADERS,
-                'Accept': 'application/json, text/plain, */*',
-                'Referer': 'https://www.nseindia.com/market-data/live-market-indices',
-                'Cookie': cookieHeader
-            }
-        });
-
-        if (!apiRes.ok) throw new Error(`NSE API status ${apiRes.status}`);
-        const data = await apiRes.json();
-        return data.data || [];
-    } catch (err) {
-        console.warn('NSE fetch error:', err.message);
-        return [];
-    }
+export function normalizeIndexName(rawName) {
+    if (!rawName) return '';
+    const clean = rawName.trim();
+    const upper = clean.toUpperCase();
+    if (upper === 'INDIA VIX' || upper === 'VIX') return 'INDIA VIX';
+    if (upper === 'SENSEX' || upper === 'BSE SENSEX') return 'SENSEX';
+    if (upper === 'NIFTY 50') return 'NIFTY 50';
+    if (upper === 'NIFTY BANK' || upper === 'BANK NIFTY') return 'NIFTY BANK';
+    if (upper === 'NIFTY NEXT 50') return 'NIFTY NEXT 50';
+    if (upper === 'NIFTY MIDCAP 100') return 'NIFTY MIDCAP 100';
+    if (upper === 'NIFTY SMALLCAP 100') return 'NIFTY SMALLCAP 100';
+    if (upper === 'NIFTY MIDCAP 50') return 'NIFTY MIDCAP 50';
+    if (upper === 'NIFTY SMALLCAP 50') return 'NIFTY SMALLCAP 50';
+    if (upper === 'NIFTY FINANCIAL SERVICES') return 'NIFTY FINANCIAL SERVICES';
+    if (upper === 'NIFTY IT') return 'NIFTY IT';
+    if (upper === 'NIFTY AUTO') return 'NIFTY AUTO';
+    if (upper === 'NIFTY PHARMA') return 'NIFTY PHARMA';
+    if (upper === 'NIFTY FMCG') return 'NIFTY FMCG';
+    if (upper === 'NIFTY METAL') return 'NIFTY METAL';
+    if (upper === 'NIFTY REALTY') return 'NIFTY REALTY';
+    if (upper === 'NIFTY ENERGY') return 'NIFTY ENERGY';
+    if (upper === 'NIFTY MEDIA') return 'NIFTY MEDIA';
+    if (upper === 'NIFTY PSU BANK') return 'NIFTY PSU BANK';
+    if (upper === 'BSE 100') return 'BSE 100';
+    if (upper === 'BSE 200') return 'BSE 200';
+    if (upper === 'BSE 500') return 'BSE 500';
+    return clean;
 }
 
-async function fetchBseSensexPrice() {
+function parseMoneycontrolTable(html, exchange) {
+    if (!html) return [];
+    const $ = cheerio.load(html);
+    const list = [];
+    const seen = new Set();
+
+    $('tr[data-type]').each((idx, el) => {
+        const rawCat = ($(el).attr('data-type') || '').trim();
+        const rawName = $(el).find('a').first().text().trim();
+        if (!rawName) return;
+
+        const name = normalizeIndexName(rawName);
+        const uniqueKey = `${name}_${exchange}`;
+        if (seen.has(uniqueKey)) return;
+        seen.add(uniqueKey);
+
+        const tds = $(el).find('td').map((i, td) => $(td).text().replace(/\s+/g, ' ').trim()).get();
+        const ltp = parseFloat((tds[1] || '0').replace(/,/g, '')) || 0;
+        const chg = parseFloat((tds[2] || '0').replace(/,/g, '')) || 0;
+        const pchg = parseFloat((tds[3] || '0').replace(/,/g, '')) || 0;
+        const open = parseFloat((tds[4] || '0').replace(/,/g, '')) || 0;
+        const high = parseFloat((tds[5] || '0').replace(/,/g, '')) || 0;
+        const low = parseFloat((tds[6] || '0').replace(/,/g, '')) || 0;
+        const yHigh = parseFloat((tds[7] || '0').replace(/,/g, '')) || 0;
+        const yLow = parseFloat((tds[8] || '0').replace(/,/g, '')) || 0;
+
+        let category = 'Broad Market';
+        const upperCat = rawCat.toUpperCase();
+        if (upperCat.includes('SECTORAL') || name.includes('BANK') || name.includes('IT') || name.includes('AUTO') || name.includes('METAL') || name.includes('PHARMA') || name.includes('FMCG') || name.includes('REALTY')) {
+            category = 'Sectoral';
+        } else if (upperCat.includes('THEMATIC')) {
+            category = 'Thematic';
+        } else if (upperCat.includes('STRATEGY')) {
+            category = 'Strategy';
+        }
+
+        if (name === 'NIFTY 50' || name === 'SENSEX' || name === 'NIFTY BANK' || name === 'NIFTY NEXT 50' || name === 'NIFTY MIDCAP 100' || name === 'INDIA VIX' || name === 'BSE 100') {
+            category = 'Key Indices';
+        }
+
+        list.push({
+            name,
+            exchange,
+            category,
+            ltp,
+            chg,
+            percentChange: pchg,
+            open,
+            high,
+            low,
+            previousClose: open ? parseFloat((ltp - chg).toFixed(2)) : 0,
+            yearHigh: yHigh,
+            yearLow: yLow,
+            volume: 0,
+            symbol: SYMBOL_MAP[name] || ''
+        });
+    });
+
+    return list;
+}
+
+async function fetchLiveFeed(symbol) {
+    if (!symbol) return null;
     try {
-        const res = await fetch('https://priceapi.moneycontrol.com/pricefeed/notapplicable/inidicesindia/in%3BSEN', {
+        const res = await fetch(`https://priceapi.moneycontrol.com/pricefeed/notapplicable/inidicesindia/${encodeURIComponent(symbol)}`, {
             headers: { 'User-Agent': 'Mozilla/5.0' }
         });
         if (res.ok) {
@@ -82,157 +141,78 @@ async function fetchBseSensexPrice() {
             return json.data;
         }
     } catch (e) {
-        console.warn('SENSEX fetch warning:', e.message);
+        // ignore
     }
     return null;
 }
 
-async function fetchMoneycontrolBseIndices() {
-    console.log('Fetching Moneycontrol BSE indices...');
-    try {
-        const res = await fetch('https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=B&selTab=o&selPage=marketLive&classic=true', {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        });
-        if (!res.ok) return [];
-        const html = await res.text();
-        const trRegex = /<tr[^>]*data-type=["']([^"']+)["'][^>]*>([\s\S]*?)<\/tr>/gi;
-        const bseList = [];
-        let m;
-        while ((m = trRegex.exec(html)) !== null) {
-            const category = m[1].trim();
-            const row = m[2];
-            const nameMatch = row.match(/<a[^>]*>([^<]+)<\/a>/i);
-            if (!nameMatch) continue;
-            const name = nameMatch[1].trim();
-
-            const tds = [];
-            const tdRegex = /<td[^>]*>([\s\S]*?)<\/td>/gi;
-            let tdMatch;
-            while ((tdMatch = tdRegex.exec(row)) !== null) {
-                tds.push(tdMatch[1].replace(/<[^>]+>/g, '').trim());
-            }
-
-            const ltp = tds[1] || '0.00';
-            const chg = tds[2] || '0.00';
-            const pchg = tds[3] || '0.00';
-            const open = tds[4] || '0.00';
-            const high = tds[5] || '0.00';
-            const low = tds[6] || '0.00';
-            const yHigh = tds[7] || '0.00';
-            const yLow = tds[8] || '0.00';
-
-            bseList.push({
-                name,
-                exchange: 'BSE',
-                category: category.replace(' Indices', ''),
-                ltp: parseFloat(ltp.replace(/,/g, '')) || 0,
-                chg: parseFloat(chg.replace(/,/g, '')) || 0,
-                percentChange: parseFloat(pchg.replace(/,/g, '')) || 0,
-                open: parseFloat(open.replace(/,/g, '')) || 0,
-                high: parseFloat(high.replace(/,/g, '')) || 0,
-                low: parseFloat(low.replace(/,/g, '')) || 0,
-                yearHigh: parseFloat(yHigh.replace(/,/g, '')) || 0,
-                yearLow: parseFloat(yLow.replace(/,/g, '')) || 0,
-                volume: 0,
-                symbol: SYMBOL_MAP[name] || ''
-            });
-        }
-        return bseList;
-    } catch (e) {
-        console.warn('Moneycontrol BSE fetch warning:', e.message);
-        return [];
-    }
-}
-
 export async function scrapeIndices() {
-    console.log('=== Starting Indian Indices Scrape ===');
-    const [nseRaw, bseRaw, sensexLive] = await Promise.all([
-        fetchNseIndices(),
-        fetchMoneycontrolBseIndices(),
-        fetchBseSensexPrice()
+    console.log('=== Starting Indian Indices Scrape (Moneycontrol Live Source) ===');
+    const headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'X-Requested-With': 'XMLHttpRequest'
+    };
+
+    const urlNse = 'https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=N&selTab=o&selPage=marketLive&classic=true';
+    const urlBse = 'https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=B&selTab=o&selPage=marketLive&classic=true';
+
+    const [resN, resB, feedSensex, feedNifty, feedBank, feedVix] = await Promise.all([
+        fetch(urlNse, { headers }).then(r => r.text()).catch(e => { console.warn('NSE table error:', e.message); return ''; }),
+        fetch(urlBse, { headers }).then(r => r.text()).catch(e => { console.warn('BSE table error:', e.message); return ''; }),
+        fetchLiveFeed('in;SEN'),
+        fetchLiveFeed('in;NSX'),
+        fetchLiveFeed('in;nbx'),
+        fetchLiveFeed('in;IDXN')
     ]);
 
-    const formattedList = [];
+    const nseList = parseMoneycontrolTable(resN, 'NSE');
+    const bseList = parseMoneycontrolTable(resB, 'BSE');
+    const combined = [...nseList, ...bseList];
 
-    // 1. Process NSE Indices
-    for (const item of nseRaw) {
-        if (!item.index || item.index.includes('NIFTY GS') || item.index.includes('NIFTY BHARAT')) continue;
+    function applyFeed(item, feed) {
+        if (!item || !feed) return;
+        if (feed.pricecurrent) item.ltp = parseFloat(feed.pricecurrent) || item.ltp;
+        if (feed.pricechange) item.chg = parseFloat(feed.pricechange) || item.chg;
+        if (feed.pricepercentchange) item.percentChange = parseFloat(feed.pricepercentchange) || item.percentChange;
+        if (feed.OPEN) item.open = parseFloat(feed.OPEN) || item.open;
+        if (feed.HIGH) item.high = parseFloat(feed.HIGH) || item.high;
+        if (feed.LOW) item.low = parseFloat(feed.LOW) || item.low;
+        if (feed['52wkhi']) item.yearHigh = parseFloat(feed['52wkhi']) || item.yearHigh;
+        if (feed['52wklow']) item.yearLow = parseFloat(feed['52wklow']) || item.yearLow;
+        if (feed.priceprevclose) item.previousClose = parseFloat(feed.priceprevclose) || item.previousClose;
+    }
 
-        let category = 'Broad Market';
-        const key = (item.key || '').toUpperCase();
-        if (key.includes('SECTORAL') || item.index.includes('AUTO') || item.index.includes('BANK') || item.index.includes('IT') || item.index.includes('METAL') || item.index.includes('PHARMA') || item.index.includes('FMCG') || item.index.includes('REALTY')) {
-            category = 'Sectoral';
-        } else if (key.includes('THEMATIC')) {
-            category = 'Thematic';
-        } else if (item.index === 'NIFTY 50' || item.index === 'NIFTY BANK' || item.index === 'NIFTY NEXT 50' || item.index === 'NIFTY MIDCAP 100' || item.index === 'INDIA VIX') {
-            category = 'Key Indices';
-        }
+    const n50 = combined.find(i => i.name === 'NIFTY 50');
+    const sen = combined.find(i => i.name === 'SENSEX');
+    const bnk = combined.find(i => i.name === 'NIFTY BANK');
+    const vix = combined.find(i => i.name === 'INDIA VIX');
 
-        formattedList.push({
-            name: item.index,
+    applyFeed(n50, feedNifty);
+    applyFeed(sen, feedSensex);
+    applyFeed(bnk, feedBank);
+    applyFeed(vix, feedVix);
+
+    if (!vix && feedVix) {
+        combined.push({
+            name: 'INDIA VIX',
             exchange: 'NSE',
-            category,
-            ltp: item.last || 0,
-            chg: item.variation || 0,
-            percentChange: item.percentChange || 0,
-            open: item.open || 0,
-            high: item.high || 0,
-            low: item.low || 0,
-            previousClose: item.previousClose || 0,
-            yearHigh: item.yearHigh || 0,
-            yearLow: item.yearLow || 0,
-            volume: item.volume || 0,
-            pe: item.pe || '-',
-            pb: item.pb || '-',
-            advances: item.advances || 0,
-            declines: item.declines || 0,
-            symbol: SYMBOL_MAP[item.index] || ''
-        });
-    }
-
-    // 2. Process BSE Indices
-    if (bseRaw && bseRaw.length > 0) {
-        for (const item of bseRaw) {
-            // If SENSEX, use rich live data from priceapi
-            if (item.name === 'SENSEX' && sensexLive) {
-                item.ltp = parseFloat(sensexLive.pricecurrent) || item.ltp;
-                item.chg = parseFloat(sensexLive.pricechange) || item.chg;
-                item.percentChange = parseFloat(sensexLive.pricepercentchange) || item.percentChange;
-                item.open = parseFloat(sensexLive.OPEN) || item.open;
-                item.high = parseFloat(sensexLive.HIGH) || item.high;
-                item.low = parseFloat(sensexLive.LOW) || item.low;
-                item.yearHigh = parseFloat(sensexLive['52wkhi']) || item.yearHigh;
-                item.yearLow = parseFloat(sensexLive['52wklow']) || item.yearLow;
-                item.advances = sensexLive.adv || 0;
-                item.declines = sensexLive.decl || 0;
-                item.symbol = 'in;SEN';
-            }
-            formattedList.push(item);
-        }
-    } else if (sensexLive) {
-        // Fallback single SENSEX
-        formattedList.push({
-            name: 'SENSEX',
-            exchange: 'BSE',
             category: 'Key Indices',
-            ltp: parseFloat(sensexLive.pricecurrent) || 0,
-            chg: parseFloat(sensexLive.pricechange) || 0,
-            percentChange: parseFloat(sensexLive.pricepercentchange) || 0,
-            open: parseFloat(sensexLive.OPEN) || 0,
-            high: parseFloat(sensexLive.HIGH) || 0,
-            low: parseFloat(sensexLive.LOW) || 0,
-            yearHigh: parseFloat(sensexLive['52wkhi']) || 0,
-            yearLow: parseFloat(sensexLive['52wklow']) || 0,
-            symbol: 'in;SEN'
+            ltp: parseFloat(feedVix.pricecurrent) || 0,
+            chg: parseFloat(feedVix.pricechange) || 0,
+            percentChange: parseFloat(feedVix.pricepercentchange) || 0,
+            open: parseFloat(feedVix.OPEN) || 0,
+            high: parseFloat(feedVix.HIGH) || 0,
+            low: parseFloat(feedVix.LOW) || 0,
+            previousClose: parseFloat(feedVix.priceprevclose) || 0,
+            yearHigh: parseFloat(feedVix['52wkhi']) || 0,
+            yearLow: parseFloat(feedVix['52wklow']) || 0,
+            volume: 0,
+            symbol: 'in;IDXN'
         });
     }
 
-    // Sort to prioritize Key Indices first (NIFTY 50, SENSEX, NIFTY BANK, etc.)
     const priority = ['NIFTY 50', 'SENSEX', 'NIFTY BANK', 'NIFTY NEXT 50', 'NIFTY MIDCAP 100', 'INDIA VIX', 'BSE 100'];
-    formattedList.sort((a, b) => {
+    combined.sort((a, b) => {
         const idxA = priority.indexOf(a.name);
         const idxB = priority.indexOf(b.name);
         if (idxA !== -1 && idxB !== -1) return idxA - idxB;
@@ -241,36 +221,39 @@ export async function scrapeIndices() {
         return a.name.localeCompare(b.name);
     });
 
-    // Summary Cards Data
-    const nifty50 = formattedList.find(i => i.name === 'NIFTY 50') || {};
-    const sensex = formattedList.find(i => i.name === 'SENSEX') || {};
-    const niftyBank = formattedList.find(i => i.name === 'NIFTY BANK') || {};
-    const indiaVix = formattedList.find(i => i.name === 'INDIA VIX') || {};
-
     const now = new Date();
+    // Indian Market hours check (09:15 to 15:30 IST, Mon-Fri)
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const istNow = new Date(now.getTime() + (now.getTimezoneOffset() * 60 * 1000) + istOffset);
+    const dayOfWeek = istNow.getDay();
+    const curHour = istNow.getHours();
+    const curMin = istNow.getMinutes();
+    const curMinutesTotal = curHour * 60 + curMin;
+    const isTradingHours = (dayOfWeek >= 1 && dayOfWeek <= 5) && (curMinutesTotal >= 9 * 60 + 15 && curMinutesTotal <= 15 * 60 + 30);
+
     const result = {
         lastUpdated: now.toISOString(),
-        lastUpdatedDisplay: now.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'medium', timeStyle: 'short' }),
-        marketStatus: (now.getDay() === 0 || now.getDay() === 6) ? 'CLOSED' : 'LIVE',
+        lastUpdatedDisplay: istNow.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }),
+        marketStatus: isTradingHours ? 'LIVE' : 'CLOSED',
         summary: {
-            nifty50,
-            sensex,
-            niftyBank,
-            indiaVix
+            nifty50: combined.find(i => i.name === 'NIFTY 50') || {},
+            sensex: combined.find(i => i.name === 'SENSEX') || {},
+            niftyBank: combined.find(i => i.name === 'NIFTY BANK') || {},
+            indiaVix: combined.find(i => i.name === 'INDIA VIX') || {}
         },
         counts: {
-            total: formattedList.length,
-            nse: formattedList.filter(i => i.exchange === 'NSE').length,
-            bse: formattedList.filter(i => i.exchange === 'BSE').length
+            total: combined.length,
+            nse: combined.filter(i => i.exchange === 'NSE').length,
+            bse: combined.filter(i => i.exchange === 'BSE').length
         },
-        indices: formattedList
+        indices: combined
     };
 
     fs.writeFileSync(DATA_FILE, JSON.stringify(result, null, 2), 'utf-8');
-    console.log(`Successfully saved ${formattedList.length} indices to ${DATA_FILE}`);
+    console.log(`Successfully saved ${combined.length} indices to ${DATA_FILE}`);
 
     // Cumulative Historical Snapshot Retention
-    saveDailyIndicesSnapshot(formattedList);
+    saveDailyIndicesSnapshot(combined);
 
     return result;
 }
@@ -303,12 +286,13 @@ export function saveDailyIndicesSnapshot(indices) {
             low: i.low,
             yearHigh: i.yearHigh,
             yearLow: i.yearLow,
-            volume: i.volume
+            volume: i.volume || 0
         }));
 
         historyData.dailySnapshots = historyData.dailySnapshots || {};
         historyData.dates = historyData.dates || [];
 
+        // Save today's snapshot
         historyData.dailySnapshots[dateKey] = snapshot;
         if (!historyData.dates.includes(dateKey)) {
             historyData.dates.unshift(dateKey);

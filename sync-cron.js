@@ -808,4 +808,12 @@ if (process.argv[1] && process.argv[1].endsWith("sync-cron.js")) {
     main();
 }
 
-export { syncAllIposFromChittorgarh };
+export { 
+    syncAllIposFromChittorgarh,
+    get_Chittorgarh_details_data,
+    get_Chittorgarh_subscription_data,
+    getDetailUrl,
+    getSubscriptionUrl,
+    parseSingleDate,
+    parseIpoDateRange
+};

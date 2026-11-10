@@ -4,7 +4,11 @@ import http from "http";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { syncAllIposFromChittorgarh } from "./sync-cron.js";
+import { 
+    syncAllIposFromChittorgarh, 
+    get_Chittorgarh_details_data, 
+    get_Chittorgarh_subscription_data 
+} from "./sync-cron.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -492,6 +496,48 @@ export function startServer() {
                 res.end(JSON.stringify({ success: true, message: "Sync completed successfully" }));
             } catch (err) {
                 console.error("Local sync error:", err.message);
+                res.writeHead(500, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ success: false, error: err.message }));
+            }
+            return;
+        }
+
+        // Route 6: GET/POST /api/fetch-chittorgarh-details (Fetch Single IPO Details for Instant Auto-Fill)
+        if (parsedUrl.pathname === "/api/fetch-chittorgarh-details") {
+            try {
+                let targetUrl = parsedUrl.searchParams.get("url") || parsedUrl.searchParams.get("key");
+                
+                if (!targetUrl && req.method === "POST") {
+                    let body = "";
+                    req.on("data", chunk => body += chunk);
+                    await new Promise(r => req.on("end", r));
+                    try {
+                        const parsedBody = JSON.parse(body);
+                        targetUrl = parsedBody.url || parsedBody.key;
+                    } catch (e) {}
+                }
+
+                if (!targetUrl) {
+                    res.writeHead(400, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({ success: false, error: "URL or key parameter is required" }));
+                    return;
+                }
+
+                console.log(`\n⚡ Fetching Chittorgarh details for: ${targetUrl}...`);
+                const [details, subscription] = await Promise.all([
+                    get_Chittorgarh_details_data(targetUrl),
+                    get_Chittorgarh_subscription_data(targetUrl)
+                ]);
+
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({
+                    success: true,
+                    targetUrl,
+                    details: details || null,
+                    subscription: subscription || null
+                }));
+            } catch (err) {
+                console.error("Fetch Chittorgarh details error:", err.message);
                 res.writeHead(500, { "Content-Type": "application/json" });
                 res.end(JSON.stringify({ success: false, error: err.message }));
             }

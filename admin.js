@@ -268,6 +268,9 @@ async function fetchAdminDataFromCloud() {
         });
         if (response.ok) {
             const result = await response.json();
+            if (result.record && result.record.ghToken) {
+                window._cloudToken = result.record.ghToken;
+            }
             const cloudData = result.record.ipos || result.record;
             if (cloudData && typeof cloudData === 'object' && Object.keys(cloudData).length > 0) {
                 localStorage.setItem('live_ipo_master_cloud_data', JSON.stringify(cloudData));
@@ -304,13 +307,20 @@ async function fetchAdminDataFromCloud() {
 async function saveAdminDataToCloud(dbData) {
     localStorage.setItem('live_ipo_master_cloud_data', JSON.stringify(dbData));
     try {
+        const payload = {
+            ipos: dbData,
+            updatedAt: new Date().toISOString()
+        };
+        if (window._cloudToken) {
+            payload.ghToken = window._cloudToken;
+        }
         await fetch(`https://api.jsonbin.io/v3/b/${ADMIN_BIN_ID}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Master-Key': ADMIN_API_KEY
             },
-            body: JSON.stringify({ ipos: dbData, updatedAt: new Date().toISOString() })
+            body: JSON.stringify(payload)
         });
     } catch (err) {
         console.error("Cloud sync error during save:", err);
@@ -1517,13 +1527,46 @@ async function fetchChittorgarhData(keyOrUrl) {
     return null;
 }
 
+// ==========================================
+// CLOUD RUNNER DISPATCH & AUTO-SYNC ENGINE
+// ==========================================
+async function dispatchCloudSync() {
+    try {
+        let activeToken = localStorage.getItem('live_ipo_github_token') || window._cloudToken;
+        if (!activeToken) {
+            // Fetch fresh from cloud bin if not yet loaded
+            await fetchAdminDataFromCloud();
+            activeToken = localStorage.getItem('live_ipo_github_token') || window._cloudToken;
+        }
+
+        if (!activeToken) {
+            console.warn("No cloud token available for dispatch.");
+            return false;
+        }
+
+        const res = await fetch('https://api.github.com/repos/mehul2687/live-ipo-website/actions/workflows/sync.yml/dispatches', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${activeToken}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ ref: 'main' })
+        });
+        return res.status === 204 || res.ok;
+    } catch (e) {
+        console.warn("Cloud dispatch error:", e);
+        return false;
+    }
+}
+
 // ફોર્મમાં Chittorgarh પરથી ઓટો-ફેચ કરીને તમામ ઇનપુટ ભરવા માટેનું મુખ્ય ફંક્શન
 window.fetchAndAutoFillFromChittorgarh = async function() {
     const keyInput = document.getElementById('adm_chittorgarhKey');
     const rawVal = keyInput ? keyInput.value.trim() : '';
 
     if (!rawVal) {
-        alert('⚠️ કૃપા કરીને પહેલા Chittorgarh IPO ની URL અથવા Key પેસ્ટ કરો.\nઉદાહરણ તરીકે: https://www.chittorgarh.com/ipo/jio-platforms-ipo/3152/');
+        alert('⚠️ કૃપા કરીને પહેલા Chittorgarh IPO ની URL અથવા Key પેસ્ટ કરો.\nઉદાહરણ તરીકે: https://www.chittorgarh.com/ipo/mksons-fine-jewels-ipo/3100/');
         if (keyInput) keyInput.focus();
         return;
     }
@@ -1535,134 +1578,80 @@ window.fetchAndAutoFillFromChittorgarh = async function() {
 
     if (btn) btn.disabled = true;
     if (icon) icon.className = 'spin-anim';
-    if (txt) txt.innerText = 'Fetching Data...';
+    if (txt) txt.innerText = 'Fetching live data (~10s)...';
     if (statusSpan) {
         statusSpan.style.display = 'inline-block';
         statusSpan.style.color = '#0284c7';
-        statusSpan.innerText = '⏳ Scraping live data from Chittorgarh...';
+        statusSpan.innerText = '⏳ Connecting to Chittorgarh live scraper...';
     }
 
     try {
-        const result = await fetchChittorgarhData(rawVal);
-        if (!result || !result.details) {
-            throw new Error("Chittorgarh પરથી ડેટા મળ્યો નથી. URL સાચી છે કે નહીં તે ચકાસો અથવા લોકલ સર્વર ચાલુ છે કે નહીં તે જુઓ.");
-        }
-
-        const d = result.details;
-
-        // ૧. બેસિક વિગતો
-        if (d.name) {
-            const nameEl = document.getElementById('adm_name');
-            if (nameEl && (!nameEl.value || nameEl.value.trim() === '' || nameEl.value.includes('Test'))) {
-                nameEl.value = d.name;
-            }
-        }
-        if (d.type) {
-            const typeEl = document.getElementById('adm_type');
-            if (typeEl) typeEl.value = d.type;
-        }
-
-        // ૨. Unique ID (જો ખાલી હોય તો ઓટો-જનરેટ કરો)
-        const idEl = document.getElementById('adm_id');
-        if (idEl && !idEl.value) {
+        // ૧. Unique Code અને Name સુનિશ્ચિત કરો
+        const idInput = document.getElementById('adm_id');
+        let ipoId = idInput ? idInput.value.trim().toUpperCase() : '';
+        if (!ipoId) {
             autoGenerateIpoCode();
+            ipoId = idInput ? idInput.value.trim().toUpperCase() : 'IPO' + Math.floor(100 + Math.random() * 900);
+            if (idInput) idInput.value = ipoId;
         }
 
-        // ૩. તારીખો
-        if (d.dates) {
-            if (d.dates.openDate && document.getElementById('adm_openDate')) document.getElementById('adm_openDate').value = d.dates.openDate;
-            if (d.dates.closeDate && document.getElementById('adm_closeDate')) document.getElementById('adm_closeDate').value = d.dates.closeDate;
-            if (d.dates.allotmentDate && document.getElementById('adm_allotmentDate')) document.getElementById('adm_allotmentDate').value = d.dates.allotmentDate;
-            if (d.dates.listingDate && document.getElementById('adm_listingDate')) document.getElementById('adm_listingDate').value = d.dates.listingDate;
-        }
-
-        // ૪. એક્સચેન્જ
-        if (d.issue && d.issue.listingAt) {
-            if (document.getElementById('ex_bse')) document.getElementById('ex_bse').checked = d.issue.listingAt.includes('BSE');
-            if (document.getElementById('ex_nse')) document.getElementById('ex_nse').checked = d.issue.listingAt.includes('NSE');
-        }
-
-        // ૫. પ્રાઇસ બેન્ડ અને ઇશ્યૂ સાઇઝ
-        if (d.issue) {
-            if (d.issue.priceStart && document.getElementById('adm_priceStart')) document.getElementById('adm_priceStart').value = d.issue.priceStart;
-            if (d.issue.priceEnd && document.getElementById('adm_priceEnd')) document.getElementById('adm_priceEnd').value = d.issue.priceEnd;
-            if (d.issue.cutOff && document.getElementById('adm_cutOff')) document.getElementById('adm_cutOff').value = d.issue.cutOff;
-            if (d.issue.lotRaw && document.getElementById('adm_lotRaw')) document.getElementById('adm_lotRaw').value = d.issue.lotRaw;
-            if (d.issue.faceValue && document.getElementById('adm_faceValue')) document.getElementById('adm_faceValue').value = d.issue.faceValue;
-            if (d.issue.empDiscount && document.getElementById('adm_empDiscount')) document.getElementById('adm_empDiscount').value = d.issue.empDiscount;
-            if (d.issue.totalSize && document.getElementById('adm_totalSize')) document.getElementById('adm_totalSize').value = d.issue.totalSize;
-            if (d.issue.freshIssue && document.getElementById('adm_freshissue')) document.getElementById('adm_freshissue').value = d.issue.freshIssue;
-            if (d.issue.ofs && document.getElementById('adm_ofs')) document.getElementById('adm_ofs').value = d.issue.ofs;
-        }
-
-        // ૬. ફાઇનાન્સિયલ્સ
-        if (d.fin) {
-            if (d.fin.fy24) {
-                if (document.getElementById('fin_24_yr')) document.getElementById('fin_24_yr').value = d.fin.fy24.yr || 'FY-2024';
-                if (document.getElementById('fin_24_ast')) document.getElementById('fin_24_ast').value = d.fin.fy24.ast !== '-' ? d.fin.fy24.ast : '';
-                if (document.getElementById('fin_24_rev')) document.getElementById('fin_24_rev').value = d.fin.fy24.rev !== '-' ? d.fin.fy24.rev : '';
-                if (document.getElementById('fin_24_exp')) document.getElementById('fin_24_exp').value = d.fin.fy24.exp !== '-' ? d.fin.fy24.exp : '';
-                if (document.getElementById('fin_24_prf')) document.getElementById('fin_24_prf').value = d.fin.fy24.prf !== '-' ? d.fin.fy24.prf : '';
-            }
-            if (d.fin.fy25) {
-                if (document.getElementById('fin_25_yr')) document.getElementById('fin_25_yr').value = d.fin.fy25.yr || 'FY-2025';
-                if (document.getElementById('fin_25_ast')) document.getElementById('fin_25_ast').value = d.fin.fy25.ast !== '-' ? d.fin.fy25.ast : '';
-                if (document.getElementById('fin_25_rev')) document.getElementById('fin_25_rev').value = d.fin.fy25.rev !== '-' ? d.fin.fy25.rev : '';
-                if (document.getElementById('fin_25_exp')) document.getElementById('fin_25_exp').value = d.fin.fy25.exp !== '-' ? d.fin.fy25.exp : '';
-                if (document.getElementById('fin_25_prf')) document.getElementById('fin_25_prf').value = d.fin.fy25.prf !== '-' ? d.fin.fy25.prf : '';
-            }
-            if (d.fin.fy26) {
-                if (document.getElementById('fin_26_yr')) document.getElementById('fin_26_yr').value = d.fin.fy26.yr || 'FY-2026';
-                if (document.getElementById('fin_26_ast')) document.getElementById('fin_26_ast').value = d.fin.fy26.ast !== '-' ? d.fin.fy26.ast : '';
-                if (document.getElementById('fin_26_rev')) document.getElementById('fin_26_rev').value = d.fin.fy26.rev !== '-' ? d.fin.fy26.rev : '';
-                if (document.getElementById('fin_26_exp')) document.getElementById('fin_26_exp').value = d.fin.fy26.exp !== '-' ? d.fin.fy26.exp : '';
-                if (document.getElementById('fin_26_prf')) document.getElementById('fin_26_prf').value = d.fin.fy26.prf !== '-' ? d.fin.fy26.prf : '';
-            }
-            if (d.fin.jun26) {
-                if (document.getElementById('fin_jun_yr')) document.getElementById('fin_jun_yr').value = d.fin.jun26.yr || '30 Jun 2026';
-                if (document.getElementById('fin_jun_ast')) document.getElementById('fin_jun_ast').value = d.fin.jun26.ast !== '-' ? d.fin.jun26.ast : '';
-                if (document.getElementById('fin_jun_rev')) document.getElementById('fin_jun_rev').value = d.fin.jun26.rev !== '-' ? d.fin.jun26.rev : '';
-                if (document.getElementById('fin_jun_exp')) document.getElementById('fin_jun_exp').value = d.fin.jun26.exp !== '-' ? d.fin.jun26.exp : '';
-                if (document.getElementById('fin_jun_prf')) document.getElementById('fin_jun_prf').value = d.fin.jun26.prf !== '-' ? d.fin.jun26.prf : '';
+        const nameInput = document.getElementById('adm_name');
+        let companyName = nameInput ? nameInput.value.trim() : '';
+        if (!companyName || companyName.includes('Test')) {
+            const slugMatch = rawVal.match(/\/ipo\/([^\/]+)/);
+            if (slugMatch) {
+                const words = slugMatch[1].replace(/-ipo$/i, '').split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                companyName = words + ' IPO Details';
+                if (nameInput) nameInput.value = companyName;
             }
         }
 
-        // ૭. વેલ્યુએશન રેશિયો
-        if (d.valuation) {
-            if (d.valuation.eps && document.getElementById('val_eps')) document.getElementById('val_eps').value = d.valuation.eps;
-            if (d.valuation.pe && document.getElementById('val_pe')) document.getElementById('val_pe').value = d.valuation.pe;
-            if (d.valuation.ronw && document.getElementById('val_ronw')) document.getElementById('val_ronw').value = d.valuation.ronw;
-            if (d.valuation.nav && document.getElementById('val_nav')) document.getElementById('val_nav').value = d.valuation.nav;
-            if (d.valuation.ebitdaMargin && document.getElementById('val_ebitda')) document.getElementById('val_ebitda').value = d.valuation.ebitdaMargin;
-            if (d.valuation.patMargin && document.getElementById('val_pat')) document.getElementById('val_pat').value = d.valuation.patMargin;
+        // ૨. આ IPO ને Chittorgarh URL સાથે JSONBin માં તાત્કાલિક મૂકો જેથી બેકએન્ડ સ્ક્રિપ્ટ તેને સ્ક્રૅપ કરી શકે
+        let dbData = await fetchAdminDataFromCloud();
+        let existing = dbData[ipoId] || {};
+        existing.id = ipoId;
+        existing.name = companyName || existing.name || 'New IPO';
+        existing.chittorgarhKey = rawVal;
+        existing.type = document.getElementById('adm_type')?.value || existing.type || 'Mainboard';
+        dbData[ipoId] = existing;
+        await saveAdminDataToCloud(dbData);
+
+        // ૩. Cloud Scraper Dispatch કરો
+        await dispatchCloudSync();
+
+        // ૪. JSONBin માંથી ડેટા અપડેટ થાય ત્યાં સુધી દર ૨ સેકન્ડે પોલિંગ કરો
+        let populatedIpo = null;
+        for (let i = 1; i <= 10; i++) {
+            if (statusSpan) statusSpan.innerText = `⏳ Chittorgarh પરથી ડેટા આવી રહ્યો છે... (${(11 - i) * 2}s)`;
+            await new Promise(r => setTimeout(r, 2200));
+
+            const fresh = await fetchAdminDataFromCloud();
+            if (fresh[ipoId] && fresh[ipoId].openDate && fresh[ipoId].openDate !== 'N/A' && fresh[ipoId].priceBand && fresh[ipoId].priceBand !== '₹-') {
+                populatedIpo = fresh[ipoId];
+                break;
+            }
         }
 
-        // ૮. લોટ્સ
-        if (d.customLots && Array.isArray(d.customLots)) {
-            d.customLots.forEach(cl => {
-                const name = (cl.app || '').toLowerCase();
-                if (name.includes('retail') && (name.includes('min') || !name.includes('max')) && document.getElementById('lot_retail')) {
-                    document.getElementById('lot_retail').value = cl.lot || 1;
-                } else if ((name.includes('small') || name.includes('s-hni') || name.includes('s-nii')) && document.getElementById('lot_shni')) {
-                    document.getElementById('lot_shni').value = cl.lot || 14;
-                } else if ((name.includes('big') || name.includes('b-hni') || name.includes('b-nii')) && document.getElementById('lot_bhni')) {
-                    document.getElementById('lot_bhni').value = cl.lot || 68;
-                }
-            });
+        // ૫. જો ક્લાઉડ પરથી ડેટા મળી ગયો હોય તો ફોર્મના તમામ ઇનપુટ ભરી દો
+        if (populatedIpo) {
+            await editIpo(ipoId);
+            updateLotCalculations();
+
+            if (statusSpan) {
+                statusSpan.style.color = '#166534';
+                statusSpan.innerText = '✅ Chittorgarh પરથી તમામ ડેટા સફળતાપૂર્વક ફોર્મમાં ભરાઈ ગયો!';
+            }
+            alert(`🎉 Chittorgarh પરથી તમામ વિગતો સફળતાપૂર્વક ફોર્મમાં ભરાઈ ગઈ છે!\n\n✓ Open Date: ${formatDateReadable(populatedIpo.openDate)}\n✓ Close Date: ${formatDateReadable(populatedIpo.closeDate)}\n✓ Price Band: ₹${populatedIpo.priceBand}\n✓ Lot Size: ${populatedIpo.lotSize}\n✓ Financials & Valuation Ratios Loaded!\n\nહવે તમે ફોર્મ ચકાસીને "Save & Publish" કરી શકો છો.`);
+        } else {
+            if (statusSpan) {
+                statusSpan.style.color = '#15803d';
+                statusSpan.innerText = '✓ Cloud Sync શરૂ થઈ ગયો છે. તમે Save કરી શકો છો.';
+            }
+            alert('✓ Chittorgarh Scraping પ્રોસેસ બેકગ્રાઉન્ડમાં શરૂ થઈ ગઈ છે. તમે આ IPO ને Save કરી શકો છો, થોડીવારમાં ડેટા ટેબલ પર આવી જશે.');
         }
-
-        // ગણતરી ફરીથી તાજી કરો
-        updateLotCalculations();
-
-        if (statusSpan) {
-            statusSpan.style.color = '#166534';
-            statusSpan.innerText = '✅ Form data successfully auto-filled!';
-        }
-
-        alert('🎉 Chittorgarh પરથી તમામ વિગતો સફળતાપૂર્વક ફોર્મમાં ભરાઈ ગઈ છે!\n\n✓ કંપનીનું નામ અને પ્રકાર\n✓ ઓપન/ક્લોઝ/લિસ્ટિંગ તારીખો\n✓ પ્રાઇસ બેન્ડ અને લોટ સાઇઝ\n✓ કંપની ફાઇનાન્સિયલ્સ અને વેલ્યુએશન રેશિયો\n\nહવે તમે વિગતો ચકાસીને "Save & Publish" કરી શકો છો.');
 
     } catch (err) {
-        console.error("Auto-fill error:", err);
+        console.error("Auto-fetch error:", err);
         if (statusSpan) {
             statusSpan.style.color = '#dc2626';
             statusSpan.innerText = `❌ Error: ${err.message}`;
@@ -1674,109 +1663,6 @@ window.fetchAndAutoFillFromChittorgarh = async function() {
         if (txt) txt.innerText = 'Auto-Fetch & Fill Form Now';
     }
 };
-
-function applyChittorgarhDataToIpo(ipo, detailData, subData) {
-    if (!ipo || !detailData) return false;
-    let changed = false;
-
-    // 1. DATES
-    if (!ipo.manualDates && detailData.dates) {
-        if (detailData.dates.openDate && ipo.openDate !== detailData.dates.openDate) { ipo.openDate = detailData.dates.openDate; changed = true; }
-        if (detailData.dates.closeDate && ipo.closeDate !== detailData.dates.closeDate) { ipo.closeDate = detailData.dates.closeDate; changed = true; }
-        if (detailData.dates.allotmentDate && ipo.allotmentDate !== detailData.dates.allotmentDate) { ipo.allotmentDate = detailData.dates.allotmentDate; changed = true; }
-        if (detailData.dates.listingDate && ipo.listingDate !== detailData.dates.listingDate) { ipo.listingDate = detailData.dates.listingDate; changed = true; }
-    }
-
-    // 2. ISSUE & PRICE
-    if (!ipo.manualIssueInfo && detailData.issue) {
-        if (detailData.issue.priceBand && (!ipo.priceBand || ipo.priceBand === '546 to 575' || !ipo.priceBand.includes('to') || detailData.issue.priceBand !== ipo.priceBand)) {
-            ipo.priceBand = detailData.issue.priceBand;
-            if (detailData.issue.cutOff) ipo.cutOff = detailData.issue.cutOff;
-            changed = true;
-        }
-        if (detailData.issue.lotRaw && (!ipo.lotRaw || ipo.lotRaw === 26 || ipo.lotRaw <= 1 || detailData.issue.lotRaw !== ipo.lotRaw)) {
-            ipo.lotRaw = detailData.issue.lotRaw;
-            ipo.lotSize = detailData.issue.lotSize;
-            changed = true;
-        }
-        if (detailData.issue.faceValue && (!ipo.faceValue || ipo.faceValue === '₹10 per share' || detailData.issue.faceValue !== ipo.faceValue)) {
-            ipo.faceValue = detailData.issue.faceValue;
-            changed = true;
-        }
-        if (detailData.issue.totalSize && (!ipo.totalSize || ipo.totalSize === 'N/A' || detailData.issue.totalSize !== ipo.totalSize)) {
-            ipo.totalSize = detailData.issue.totalSize;
-            changed = true;
-        }
-        if (detailData.issue.freshIssue && (!ipo.freshIssue || ipo.freshIssue === 'N/A' || detailData.issue.freshIssue !== ipo.freshIssue)) {
-            ipo.freshIssue = detailData.issue.freshIssue;
-            changed = true;
-        }
-        if (detailData.issue.ofs && (!ipo.ofs || ipo.ofs === 'N/A' || detailData.issue.ofs !== ipo.ofs)) {
-            ipo.ofs = detailData.issue.ofs;
-            changed = true;
-        }
-        if (detailData.issue.listingAt && (!ipo.listingAt || ipo.listingAt === 'BSE, NSE' || detailData.issue.listingAt !== ipo.listingAt)) {
-            ipo.listingAt = detailData.issue.listingAt;
-            changed = true;
-        }
-        if (detailData.issue.empDiscount && (!ipo.empDiscount || ipo.empDiscount === 'Nil')) {
-            ipo.empDiscount = detailData.issue.empDiscount;
-            changed = true;
-        }
-    }
-
-    // 3. LOTS
-    if (!ipo.manualLots && detailData.customLots) {
-        ipo.customLots = detailData.customLots;
-        changed = true;
-    }
-
-    // 4. FINANCIALS
-    if (!ipo.manualFin && detailData.fin) {
-        if (!ipo.fin) ipo.fin = {};
-        ['fy24', 'fy25', 'fy26', 'jun26'].forEach(fy => {
-            if (detailData.fin[fy] && detailData.fin[fy].ast !== '-') {
-                if (!ipo.fin[fy] || ipo.fin[fy].ast === '-' || ipo.fin[fy].ast === '') {
-                    ipo.fin[fy] = detailData.fin[fy];
-                    changed = true;
-                }
-            }
-        });
-    }
-
-    // 5. VALUATIONS
-    if (!ipo.manualValuation && detailData.valuation) {
-        if (!ipo.valuation) ipo.valuation = {};
-        Object.keys(detailData.valuation).forEach(vk => {
-            if (!ipo.valuation[vk] || ipo.valuation[vk] === '-' || ipo.valuation[vk] === '') {
-                ipo.valuation[vk] = detailData.valuation[vk];
-                changed = true;
-            }
-        });
-    }
-
-    // 6. SUBSCRIPTION
-    if (!ipo.manualSub && subData) {
-        if (!ipo.subShares) ipo.subShares = [];
-        const standardCats = ["QIB", "NII", "B-NII(₹10L+)", "S-NII(₹2-10L)", "Retail", "Employee", "Shareholder"];
-        standardCats.forEach(catName => {
-            if (!ipo.subShares.some(r => r.cat === catName)) {
-                ipo.subShares.push({ cat: catName, off: 0, app: 0 });
-            }
-        });
-        ipo.subShares.forEach(row => {
-            if (row.cat === "QIB" && subData['QIB']) { row.off = subData['QIB'].off; row.app = subData['QIB'].app; changed = true; }
-            if (row.cat === "NII" && subData['NII']) { row.off = subData['NII'].off; row.app = subData['NII'].app; changed = true; }
-            if (row.cat === "B-NII(₹10L+)" && subData['B-NII']) { row.off = subData['B-NII'].off; row.app = subData['B-NII'].app; changed = true; }
-            if (row.cat === "S-NII(₹2-10L)" && subData['S-NII']) { row.off = subData['S-NII'].off; row.app = subData['S-NII'].app; changed = true; }
-            if (row.cat === "Retail" && subData['Retail']) { row.off = subData['Retail'].off; row.app = subData['Retail'].app; changed = true; }
-            if (row.cat === "Employee" && subData['Employee']) { row.off = subData['Employee'].off; row.app = subData['Employee'].app; changed = true; }
-            if (row.cat === "Shareholder" && subData['Shareholder']) { row.off = subData['Shareholder'].off; row.app = subData['Shareholder'].app; changed = true; }
-        });
-    }
-
-    return changed;
-}
 
 // ==========================================
 // સિંગલ IPO માટે તાત્કાલિક ૧-ક્લિક ઓન-ધ-સ્પોટ સિંક
@@ -1801,19 +1687,48 @@ window.syncSingleIpo = async function(ipoId) {
         b.disabled = true;
     });
 
+    const badge = document.getElementById('syncStatusBadge');
+    if (badge) {
+        badge.style.display = 'inline-block';
+        badge.innerText = `⏳ Cloud Syncing "${ipo.name}"...`;
+        badge.style.background = '#fef3c7';
+        badge.style.color = '#92400e';
+    }
+
     try {
-        const result = await fetchChittorgarhData(key);
-        if (!result || !result.details) {
-            throw new Error("Chittorgarh પરથી ડેટા ફેચ થઈ શક્યો નથી. કૃપા કરીને લિંક સાચી છે કે નહીં તે ચકાસો.");
+        // ૧. Cloud Scraper Dispatch કરો
+        await dispatchCloudSync();
+
+        // ૨. JSONBin માંથી આ IPO અપડેટ થાય ત્યાં સુધી દર ૨.૨ સેકન્ડે પોલિંગ કરો
+        let updatedIpo = null;
+        for (let attempt = 1; attempt <= 10; attempt++) {
+            const remainingSecs = (11 - attempt) * 2;
+            if (badge) badge.innerText = `⏳ Scraping "${ipo.name}" (${remainingSecs}s)...`;
+            rowBtns.forEach(b => b.innerHTML = `🔄 (${remainingSecs}s)`);
+
+            await new Promise(r => setTimeout(r, 2200));
+
+            const fresh = await fetchAdminDataFromCloud();
+            if (fresh[ipoId] && fresh[ipoId].openDate && fresh[ipoId].openDate !== 'N/A' && fresh[ipoId].priceBand && fresh[ipoId].priceBand !== '₹-') {
+                updatedIpo = fresh[ipoId];
+                break;
+            }
         }
 
-        applyChittorgarhDataToIpo(ipo, result.details, result.subscription);
-
-        dbData[ipoId] = ipo;
-        await saveAdminDataToCloud(dbData);
+        // ૩. ડેશબોર્ડ ટેબલ રિલોડ કરો
         await loadAdminDashboard();
 
-        alert(`🎉 IPO "${ipo.name}" નો તમામ ડેટા Chittorgarh પરથી સફળતાપૂર્વક અપડેટ થઈ ગયો છે!\n\n✓ ઓપન/ક્લોઝ/લિસ્ટિંગ તારીખો\n✓ પ્રાઇસ બેન્ડ અને લોટ સાઇઝ\n✓ કંપની ફાઇનાન્સિયલ્સ\n✓ વેલ્યુએશન રેશિયો`);
+        if (badge) {
+            badge.innerText = '✅ Synced Successfully!';
+            badge.style.background = '#dcfce7';
+            badge.style.color = '#166534';
+        }
+
+        if (updatedIpo) {
+            alert(`🎉 IPO "${updatedIpo.name}" નો તમામ ડેટા Chittorgarh પરથી સફળતાપૂર્વક અપડેટ થઈ ગયો છે!\n\n✓ Open Date: ${formatDateReadable(updatedIpo.openDate)}\n✓ Close Date: ${formatDateReadable(updatedIpo.closeDate)}\n✓ Price Band: ₹${updatedIpo.priceBand}\n✓ Lot Size: ${updatedIpo.lotSize}\n✓ Financials & Valuations Synced!`);
+        } else {
+            alert(`✓ IPO "${ipo.name}" નો ડેટા ક્લાઉડ પર સિંક થઈ રહ્યો છે. થોડી જ સેકન્ડોમાં ટેબલ પર આવી જશે.`);
+        }
 
     } catch (err) {
         console.error("Single IPO sync error:", err);
@@ -1823,11 +1738,12 @@ window.syncSingleIpo = async function(ipoId) {
             b.innerHTML = '⚡ Sync';
             b.disabled = false;
         });
+        setTimeout(() => { if (badge) badge.style.display = 'none'; }, 5000);
     }
 };
 
 // ==========================================
-// INSTANT AUTO-SYNC ENGINE (Local & Direct Cloud)
+// INSTANT AUTO-SYNC ENGINE (All IPOs)
 // ==========================================
 let isSyncInProgress = false;
 
@@ -1852,77 +1768,24 @@ async function triggerInstantSync(event) {
     if (syncText) syncText.innerText = 'Syncing...';
     if (badge) {
         badge.style.display = 'inline-block';
-        badge.innerText = '⏳ Syncing with Chittorgarh...';
+        badge.innerText = '⏳ Triggering Cloud Runner...';
         badge.style.background = '#fef3c7';
         badge.style.color = '#92400e';
     }
 
     try {
-        let synced = false;
+        await dispatchCloudSync();
 
-        // ૧. સૌથી પહેલા લોકલ બેકએન્ડ (Port 3001) ટ્રાય કરો
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 3500);
-            const localRes = await fetch('http://localhost:3001/api/sync-chittorgarh', {
-                method: 'POST',
-                signal: controller.signal
-            });
-            clearTimeout(timeoutId);
-            if (localRes.ok) {
-                const data = await localRes.json();
-                if (data.success) {
-                    synced = true;
-                }
+        let countdown = 14;
+        const timer = setInterval(() => {
+            countdown--;
+            if (badge && countdown > 0) {
+                badge.innerText = `🚀 Cloud Fetching Live Data... (${countdown}s)`;
             }
-        } catch (localErr) {
-            console.log("Local backend not answering, syncing active IPOs directly...");
-        }
+        }, 1000);
 
-        // ૨. જો લોકલ બેકએન્ડ ન હોય તો સીધા જ એક્ટિવ IPOs ને ક્લાયન્ટ-સાઇડથી સિંક કરો
-        if (!synced) {
-            let dbData = await fetchAdminDataFromCloud();
-            const keysWithChittorgarh = Object.keys(dbData).filter(id => {
-                const item = dbData[id];
-                return item && item.chittorgarhKey && !item.manualLockAll;
-            });
-
-            if (keysWithChittorgarh.length > 0) {
-                let count = 0;
-                for (const ipoId of keysWithChittorgarh) {
-                    const ipo = dbData[ipoId];
-                    if (badge) badge.innerText = `⏳ Syncing ${count + 1}/${keysWithChittorgarh.length}...`;
-                    try {
-                        const res = await fetchChittorgarhData(ipo.chittorgarhKey);
-                        if (res && res.details) {
-                            applyChittorgarhDataToIpo(ipo, res.details, res.subscription);
-                            count++;
-                        }
-                    } catch (e) {
-                        console.warn(`Could not sync ${ipoId}:`, e.message);
-                    }
-                }
-
-                if (count > 0) {
-                    await saveAdminDataToCloud(dbData);
-                    synced = true;
-                }
-            }
-        }
-
-        // ૩. જો યુઝરે કસ્ટમ ગિટહબ ટોકન રાખ્યો હોય તો ક્લાઉડ પર પણ વર્કફ્લો ચલાવો
-        const ghToken = localStorage.getItem('live_ipo_github_token');
-        if (ghToken) {
-            fetch('https://api.github.com/repos/mehul2687/live-ipo-website/actions/workflows/sync.yml/dispatches', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${ghToken}`,
-                    'Accept': 'application/vnd.github.v3+json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ ref: 'main' })
-            }).catch(e => console.log('GH Dispatch notification error:', e));
-        }
+        await new Promise(res => setTimeout(res, 14000));
+        clearInterval(timer);
 
         await loadAdminDashboard();
 
@@ -1959,7 +1822,7 @@ async function triggerInstantSync(event) {
 function configureGithubToken() {
     const current = localStorage.getItem('live_ipo_github_token') || '';
     const input = prompt(
-        '🔑 GitHub Personal Access Token (PAT) સેટિંગ્સ:\n\nજો તમારે ૧-ક્લિકથી GitHub Cloud Runner વર્કફ્લો પણ ટ્રિગર કરવો હોય તો ટોકન દાખલ કરો:\n\n(ટોકન દૂર કરવા માટે ખાલી રાખીને OK આપો):',
+        '🔑 GitHub Personal Access Token (PAT) સેટિંગ્સ:\n\nજો તમારે પોતાનો કસ્ટમ GitHub Token વાપરવો હોય તો અહીં દાખલ કરો:\n(ડિફોલ્ટ ઓટોમેટિક ક્લાઉડ ટોકન પહેલેથી સેટ જ છે)\n\nટોકન દૂર કરવા માટે ખાલી રાખીને OK આપો:',
         current
     );
     if (input === null) return;
@@ -1969,7 +1832,7 @@ function configureGithubToken() {
         alert('✅ GitHub Token સફળતાપૂર્વક સેવ થઈ ગયો છે!');
     } else {
         localStorage.removeItem('live_ipo_github_token');
-        alert('ℹ️ GitHub Token દૂર કરી દેવાયો છે.');
+        alert('ℹ️ કસ્ટમ GitHub Token દૂર કર્યો છે (ડિફોલ્ટ સિસ્ટમ ટોકન સક્રિય રહેશે).');
     }
 }
 
@@ -2002,7 +1865,7 @@ window.saveAndSyncIpo = async function(event) {
             } finally {
                 window._isSaveAndSyncTriggered = false;
             }
-        }, 500);
+        }, 600);
     } else {
         window._isSaveAndSyncTriggered = false;
     }

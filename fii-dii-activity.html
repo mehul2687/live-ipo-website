@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live IPO - FII / DII & F&O Activity</title>
 
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- External CSS Link -->
     <link rel="stylesheet" href="style.css?v=2026.11.08.5">
 
@@ -53,10 +58,9 @@
 
         .fii-page-title {
             font-size: 20px;
-            font-weight: 800;
+            font-weight: 750;
             color: #0f172a;
-            letter-spacing: -0.4px;
-            text-transform: uppercase;
+            letter-spacing: -0.3px;
             margin: 0 0 12px 0;
             display: flex;
             align-items: center;
@@ -89,14 +93,14 @@
             border: none;
             padding: 7px 18px;
             font-size: 12.5px;
-            font-weight: 800;
+            font-weight: 700;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
             gap: 7px;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
         }
 
         /* 1. Cash Market Button: Rich Emerald Theme */
@@ -190,7 +194,7 @@
             border: none;
             padding: 7px 16px;
             font-size: 12.5px;
-            font-weight: 800;
+            font-weight: 700;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.25s ease;
@@ -219,8 +223,8 @@
 
         .fii-summary-card {
             background: #ffffff;
-            border-radius: 10px;
-            padding: 12px 16px;
+            border-radius: 12px;
+            padding: 14px 18px;
             box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
             display: flex;
             flex-direction: column;
@@ -266,11 +270,11 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
-            font-size: 11.5px;
+            font-size: 12px;
             font-weight: 700;
             letter-spacing: -0.1px;
-            padding: 2.5px 7px;
-            border-radius: 5px;
+            padding: 3px 8px;
+            border-radius: 6px;
         }
 
         .fii-pill-theme {
@@ -293,19 +297,20 @@
 
         .card-status-badge {
             font-size: 10px;
-            padding: 2px 7px;
+            padding: 2.5px 8px;
             border-radius: 12px;
-            font-weight: 800;
-            letter-spacing: 0.2px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
             text-transform: uppercase;
         }
 
         .fii-summary-value {
-            font-size: 21px;
-            font-weight: 800;
+            font-size: 24px;
+            font-weight: 750;
             letter-spacing: -0.5px;
-            line-height: 1.1;
+            line-height: 1.15;
             margin: 2px 0 1px 0;
+            font-feature-settings: 'tnum' 1;
             font-variant-numeric: tabular-nums;
         }
 
@@ -355,7 +360,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 9px 15px;
+            padding: 11px 16px;
             border-bottom: 1.5px solid #e2e8f0;
             flex-wrap: wrap;
             gap: 10px;
@@ -363,7 +368,7 @@
         }
 
         .fii-unit-label {
-            font-size: 12px;
+            font-size: 12.5px;
             color: #475569;
             font-weight: 600;
             display: flex;
@@ -373,12 +378,12 @@
         }
 
         .fii-search-input {
-            padding: 6px 12px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 12px;
+            padding: 7px 12px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 12.5px;
             outline: none;
-            width: 210px;
+            width: 220px;
             background: #ffffff;
             transition: all 0.2s ease;
         }
@@ -398,51 +403,57 @@
             width: 100%;
             border-collapse: collapse;
             text-align: center;
-            font-size: 12px;
+            font-size: 13px;
+            font-feature-settings: 'tnum' 1;
             font-variant-numeric: tabular-nums;
+            letter-spacing: -0.01em;
         }
 
         .fii-table thead tr:first-child th {
-            padding: 8px 10px;
-            font-weight: 800;
+            padding: 11px 12px;
+            font-weight: 700;
             border-bottom: 1.5px solid #cbd5e1;
         }
 
         .th-date-col {
-            background: #f1f5f9;
-            color: #1e293b;
+            background: #f8fafc;
+            color: #334155;
             font-size: 12px;
-            font-weight: 800;
+            font-weight: 700;
             border-right: 1.5px solid #cbd5e1;
             vertical-align: middle;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
         }
 
         .th-group-1 {
             background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
             color: #1e40af;
             font-size: 12.5px;
+            font-weight: 750;
             border-top: 2.5px solid #2563eb;
             border-right: 2px solid #94a3b8 !important;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.3px;
         }
 
         .th-group-2 {
             background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
             color: #15803d;
             font-size: 12.5px;
+            font-weight: 750;
             border-top: 2.5px solid #16a34a;
             border-right: 2px solid #94a3b8 !important;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.3px;
         }
 
         .th-total-net-col {
             background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
             color: #ffffff;
             font-size: 12.5px;
-            font-weight: 800;
+            font-weight: 750;
             border-top: 2.5px solid #f59e0b;
             vertical-align: middle;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.3px;
         }
 
         .header-badge-content {
@@ -453,11 +464,11 @@
         }
 
         .fii-table thead tr:nth-child(2) th {
-            font-size: 11px;
+            font-size: 11.5px;
             font-weight: 700;
-            padding: 6px 8px;
-            border-bottom: 1.5px solid #94a3b8;
-            letter-spacing: 0.2px;
+            padding: 8px 10px;
+            border-bottom: 2px solid #cbd5e1;
+            letter-spacing: 0.3px;
             text-transform: uppercase;
         }
 
@@ -470,7 +481,7 @@
         .th-sub-1-net {
             background: #eff6ff;
             color: #1e3a8a;
-            font-weight: 800;
+            font-weight: 750;
             border-right: 2px solid #94a3b8 !important;
         }
 
@@ -483,17 +494,20 @@
         .th-sub-2-net {
             background: #f0fdf4;
             color: #14532d;
-            font-weight: 800;
+            font-weight: 750;
             border-right: 2px solid #94a3b8 !important;
         }
 
         .fii-table tbody td {
-            padding: 7px 9px;
+            padding: 10px 13px;
             border-bottom: 1px solid #f1f5f9;
-            color: #1e293b;
+            color: #334155;
             font-weight: 500;
             white-space: nowrap;
-            font-size: 12px;
+            font-size: 13px;
+            font-feature-settings: 'tnum' 1;
+            font-variant-numeric: tabular-nums;
+            transition: background-color 0.15s ease;
         }
 
         .fii-table tbody tr:hover td {
@@ -501,32 +515,34 @@
         }
 
         .td-date {
-            font-weight: 700;
+            font-weight: 650;
             color: #0f172a;
             border-right: 1.5px solid #cbd5e1;
-            background: #fafafa;
+            background: #ffffff;
+            font-size: 12.5px;
         }
 
         .fii-table tbody tr:hover .td-date {
-            background: #f1f5f9;
+            background: #f8fafc;
         }
 
         .td-net-1 {
             border-right: 2px solid #cbd5e1 !important;
             font-weight: 700;
-            background: rgba(239, 246, 255, 0.3);
+            background: rgba(239, 246, 255, 0.45);
         }
 
         .td-net-2 {
             border-right: 2px solid #cbd5e1 !important;
             font-weight: 700;
-            background: rgba(240, 253, 244, 0.3);
+            background: rgba(240, 253, 244, 0.45);
         }
 
         .td-total-net {
-            font-weight: 800 !important;
-            font-size: 12.5px;
+            font-weight: 750 !important;
+            font-size: 13px;
             background: #f8fafc;
+            letter-spacing: -0.1px;
         }
 
         .fii-table tbody tr:hover .td-total-net {
@@ -824,9 +840,10 @@
         }
 
         .poster-mini-val {
-            font-size: 14px;
-            font-weight: 900;
+            font-size: 14.5px;
+            font-weight: 750;
             letter-spacing: -0.3px;
+            font-feature-settings: 'tnum' 1;
             font-variant-numeric: tabular-nums;
         }
 

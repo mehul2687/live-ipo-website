@@ -7,6 +7,11 @@
     <title>Indices History - Date-wise Historical Closing Data of Indian Indices | Live IPO</title>
     <meta name="description" content="Explore daily historical closing data, day range, and performance of all NSE and BSE indices including NIFTY 50, SENSEX, NIFTY BANK, Derivative & Sectoral indices by date.">
 
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- External CSS Link -->
     <link rel="stylesheet" href="style.css?v=2026.11.08.7">
 
@@ -59,11 +64,10 @@
         }
 
         .history-page-title {
-            font-size: 21px;
-            font-weight: 900;
+            font-size: 20px;
+            font-weight: 750;
             color: #0f172a;
-            letter-spacing: -0.4px;
-            text-transform: uppercase;
+            letter-spacing: -0.3px;
             margin: 0;
             display: flex;
             align-items: center;
@@ -177,16 +181,17 @@
 
         .card-index-title {
             font-size: 13.5px;
-            font-weight: 800;
-            color: #0f172a;
+            font-weight: 700;
+            color: #1e293b;
         }
 
         .card-exchange-pill {
-            font-size: 9.5px;
-            font-weight: 800;
-            padding: 1.5px 6px;
-            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 5px;
             text-transform: uppercase;
+            letter-spacing: 0.3px;
         }
 
         .pill-nse {
@@ -202,10 +207,11 @@
         }
 
         .card-ltp-val {
-            font-size: 21px;
-            font-weight: 900;
+            font-size: 23px;
+            font-weight: 750;
             color: #0f172a;
-            letter-spacing: -0.4px;
+            letter-spacing: -0.5px;
+            font-feature-settings: 'tnum' 1;
             font-variant-numeric: tabular-nums;
             margin-bottom: 4px;
         }
@@ -214,8 +220,10 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 12px;
-            font-weight: 700;
+            font-size: 12.5px;
+            font-weight: 600;
+            font-feature-settings: 'tnum' 1;
+            font-variant-numeric: tabular-nums;
             margin-bottom: 8px;
         }
 
@@ -223,7 +231,8 @@
             margin-top: 6px;
             padding-top: 8px;
             border-top: 1px dashed #e2e8f0;
-            font-size: 10px;
+            font-size: 11px;
+            font-weight: 500;
             color: #64748b;
         }
 
@@ -305,15 +314,15 @@
             background: #f8fafc;
             border: 1.5px solid #e2e8f0;
             color: #475569;
-            padding: 6px 14px;
+            padding: 7px 14px;
             border-radius: 8px;
-            font-size: 12px;
-            font-weight: 700;
+            font-size: 12.5px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 6px;
         }
 
         .btn-category-tab:hover {
@@ -330,11 +339,12 @@
         }
 
         .tab-badge-count {
-            background: rgba(0, 0, 0, 0.08);
-            padding: 1px 6px;
+            background: rgba(0, 0, 0, 0.07);
+            padding: 2px 7px;
             border-radius: 10px;
-            font-size: 10px;
-            font-weight: 800;
+            font-size: 11px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
         }
 
         .btn-category-tab.active .tab-badge-count {
@@ -389,21 +399,32 @@
             width: 100%;
             border-collapse: collapse;
             text-align: center;
-            font-size: 12px;
+            font-size: 13px;
+            font-feature-settings: 'tnum' 1;
             font-variant-numeric: tabular-nums;
+            letter-spacing: -0.01em;
         }
 
         .history-table thead th {
-            background: #f1f5f9;
-            color: #1e293b;
-            font-weight: 800;
-            padding: 10px 12px;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            padding: 11px 14px;
             border-bottom: 2px solid #cbd5e1;
             border-right: 1px solid #e2e8f0;
             cursor: pointer;
             user-select: none;
             white-space: nowrap;
             text-align: center;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .history-table thead th:hover {
+            background: #f1f5f9;
+            color: #0f172a;
         }
 
         .history-table thead th.th-sticky-first {
@@ -411,18 +432,22 @@
             position: sticky;
             left: 0;
             z-index: 2;
-            background: #f1f5f9;
+            background: #f8fafc;
             border-right: 2px solid #cbd5e1;
             min-width: 210px;
         }
 
         .history-table tbody td {
-            padding: 9px 12px;
+            padding: 11px 14px;
             border-bottom: 1px solid #f1f5f9;
             border-right: 1px solid #f8fafc;
             white-space: nowrap;
             color: #334155;
-            font-weight: 600;
+            font-size: 13px;
+            font-weight: 500;
+            font-feature-settings: 'tnum' 1;
+            font-variant-numeric: tabular-nums;
+            transition: background-color 0.2s;
             text-align: center;
         }
 
@@ -432,7 +457,7 @@
 
         .history-table tbody td.td-sticky-first {
             text-align: left;
-            font-weight: 800;
+            font-weight: 600;
             color: #0f172a;
             position: sticky;
             left: 0;
@@ -442,20 +467,21 @@
         }
 
         .history-table tbody tr:hover td.td-sticky-first {
-            background-color: #f1f5f9;
+            background-color: #f8fafc;
         }
 
         .index-name-flex {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 8px;
+            gap: 10px;
         }
 
         .td-close-val {
-            font-weight: 800 !important;
-            font-size: 13px !important;
+            font-weight: 700 !important;
+            font-size: 13.5px !important;
             color: #0f172a !important;
+            letter-spacing: -0.2px;
         }
 
         /* Color Coding */
@@ -476,10 +502,11 @@
 
         .badge-pill-val {
             display: inline-block;
-            padding: 2px 7px;
-            border-radius: 4px;
-            font-weight: 800;
-            font-size: 11px;
+            padding: 2.5px 8px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 11.5px;
+            font-variant-numeric: tabular-nums;
             text-align: center;
         }
 

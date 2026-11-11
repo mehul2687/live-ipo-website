@@ -159,6 +159,17 @@ function buildPosterHtml(cashRow, fnoRow, logoDataUri) {
     const badgeStyle = (n) => (n >= 0
         ? 'background:#dcfce7; color:#15803d;'
         : 'background:#fee2e2; color:#b91c1c;');
+    const dotBadge = (n, posLabel, negLabel) => (n >= 0
+        ? `${posLabel}<span class="poster-status-dot dot-green"></span>`
+        : `${negLabel}<span class="poster-status-dot dot-red"></span>`);
+
+    const svgCalendar = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+    const svgCash = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>`;
+    const svgChart = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>`;
+    const svgGlobe = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`;
+    const flowBadge = (n, posLabel, negLabel) => (n >= 0
+        ? `${posLabel}<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="18 15 12 9 6 15"/></svg>`
+        : `${negLabel}<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>`);
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -166,13 +177,13 @@ function buildPosterHtml(cashRow, fnoRow, logoDataUri) {
 <meta charset="UTF-8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
     * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans', Arial, 'Noto Color Emoji', 'Segoe UI Emoji', sans-serif;
+        font-family: 'Inter', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'DejaVu Sans', 'Liberation Sans', Arial, sans-serif;
         -webkit-font-smoothing: antialiased;
     }
     body {
@@ -230,12 +241,15 @@ function buildPosterHtml(cashRow, fnoRow, logoDataUri) {
     .poster-date-badge {
         background: rgba(255, 255, 255, 0.2);
         border: 1px solid rgba(255, 255, 255, 0.35);
-        padding: 5px 12px;
+        padding: 5px 11px;
         border-radius: 20px;
         font-size: 11.5px;
         font-weight: 800;
         white-space: nowrap;
         color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
     }
     .poster-body {
         padding: 16px 18px;
@@ -296,11 +310,27 @@ function buildPosterHtml(cashRow, fnoRow, logoDataUri) {
     }
     .poster-mini-badge {
         font-size: 8.5px;
-        padding: 1.5px 5px;
+        padding: 2px 5.5px;
         border-radius: 8px;
         font-weight: 800;
         white-space: nowrap;
         flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+    }
+    .poster-status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+    .dot-green {
+        background: radial-gradient(circle at 30% 30%, #86efac, #16a34a 70%);
+    }
+    .dot-red {
+        background: radial-gradient(circle at 30% 30%, #fca5a5, #dc2626 70%);
     }
     .poster-mini-val {
         font-size: 14.5px;
@@ -369,20 +399,20 @@ function buildPosterHtml(cashRow, fnoRow, logoDataUri) {
                 ${logoDataUri ? `<img src="${logoDataUri}" alt="Live IPO" class="poster-official-logo">` : `<span style="font-weight:900;color:#047857;font-size:15px;">LiveIPO</span>`}
             </div>
             <div class="poster-center-title">FII &amp; DII Activity</div>
-            <div class="poster-date-badge">📅 ${dateBadge}</div>
+            <div class="poster-date-badge">${svgCalendar}<span>${dateBadge}</span></div>
         </div>
 
         <div class="poster-body">
             <div>
                 <div class="poster-section-header">
-                    <span class="poster-section-title poster-cash-pill">💵 Cash Market Activity</span>
+                    <span class="poster-section-title poster-cash-pill">${svgCash}<span>Cash Market Activity</span></span>
                     <span style="font-size: 10px; color: #64748b; font-weight: 600;">NSE + BSE Cash</span>
                 </div>
                 <div class="poster-grid-3">
                     <div class="poster-mini-card">
                         <div class="poster-mini-header">
                             <span>FII Net</span>
-                            <span class="poster-mini-badge" style="${badgeStyle(cFiiNet)}">${cFiiNet >= 0 ? 'BUYING 🟢' : 'SELLING 🔴'}</span>
+                            <span class="poster-mini-badge" style="${badgeStyle(cFiiNet)}">${dotBadge(cFiiNet, 'BUYING', 'SELLING')}</span>
                         </div>
                         <div class="poster-mini-val ${valClass(cFiiNet)}">${escapeHtml(formatSignedInrCr(cashRow.fiiNet, cFiiNet))}</div>
                         <div class="poster-mini-sub">
@@ -394,7 +424,7 @@ function buildPosterHtml(cashRow, fnoRow, logoDataUri) {
                     <div class="poster-mini-card">
                         <div class="poster-mini-header">
                             <span>DII Net</span>
-                            <span class="poster-mini-badge" style="${badgeStyle(cDiiNet)}">${cDiiNet >= 0 ? 'BUYING 🟢' : 'SELLING 🔴'}</span>
+                            <span class="poster-mini-badge" style="${badgeStyle(cDiiNet)}">${dotBadge(cDiiNet, 'BUYING', 'SELLING')}</span>
                         </div>
                         <div class="poster-mini-val ${valClass(cDiiNet)}">${escapeHtml(formatSignedInrCr(cashRow.diiNet, cDiiNet))}</div>
                         <div class="poster-mini-sub">
@@ -406,7 +436,7 @@ function buildPosterHtml(cashRow, fnoRow, logoDataUri) {
                     <div class="poster-mini-card poster-total-dark-card">
                         <div class="poster-mini-header">
                             <span>Total Cash Net</span>
-                            <span class="poster-mini-badge" style="${badgeStyle(cTotalNet)}">${cTotalNet >= 0 ? 'NET INFLOW 🚀' : 'NET OUTFLOW 🔻'}</span>
+                            <span class="poster-mini-badge" style="${badgeStyle(cTotalNet)}">${flowBadge(cTotalNet, 'NET INFLOW', 'NET OUTFLOW')}</span>
                         </div>
                         <div class="poster-mini-val">${escapeHtml(formatSignedInrCr(cashRow.totalNet, cTotalNet))}</div>
                         <div class="poster-mini-sub">FII + DII Combined</div>
@@ -416,14 +446,14 @@ function buildPosterHtml(cashRow, fnoRow, logoDataUri) {
 
             <div>
                 <div class="poster-section-header">
-                    <span class="poster-section-title poster-fno-pill">📈 Futures &amp; Options (F&amp;O)</span>
+                    <span class="poster-section-title poster-fno-pill">${svgChart}<span>Futures &amp; Options (F&amp;O)</span></span>
                     <span style="font-size: 10px; color: #64748b; font-weight: 600;">${niftyText}</span>
                 </div>
                 <div class="poster-grid-3">
                     <div class="poster-mini-card">
                         <div class="poster-mini-header">
                             <span>Futures Net</span>
-                            <span class="poster-mini-badge" style="${badgeStyle(fFutNet)}">${fFutNet >= 0 ? 'BULLISH 🟢' : 'BEARISH 🔴'}</span>
+                            <span class="poster-mini-badge" style="${badgeStyle(fFutNet)}">${dotBadge(fFutNet, 'BULLISH', 'BEARISH')}</span>
                         </div>
                         <div class="poster-mini-val ${valClass(fFutNet)}">${escapeHtml(formatSignedInrCr(fnoRow.futNet, fFutNet))}</div>
                         <div class="poster-mini-sub">
@@ -435,7 +465,7 @@ function buildPosterHtml(cashRow, fnoRow, logoDataUri) {
                     <div class="poster-mini-card">
                         <div class="poster-mini-header">
                             <span>Options Net</span>
-                            <span class="poster-mini-badge" style="${badgeStyle(fOptNet)}">${fOptNet >= 0 ? 'BULLISH 🟢' : 'BEARISH 🔴'}</span>
+                            <span class="poster-mini-badge" style="${badgeStyle(fOptNet)}">${dotBadge(fOptNet, 'BULLISH', 'BEARISH')}</span>
                         </div>
                         <div class="poster-mini-val ${valClass(fOptNet)}">${escapeHtml(formatSignedInrCr(fnoRow.optNet, fOptNet))}</div>
                         <div class="poster-mini-sub">
@@ -447,7 +477,7 @@ function buildPosterHtml(cashRow, fnoRow, logoDataUri) {
                     <div class="poster-mini-card poster-total-dark-card" style="border-top: 2.5px solid #a855f7;">
                         <div class="poster-mini-header">
                             <span>Total F&amp;O Net</span>
-                            <span class="poster-mini-badge" style="${badgeStyle(fTotalNet)}">${fTotalNet >= 0 ? 'NET LONG 🚀' : 'NET SHORT 🔻'}</span>
+                            <span class="poster-mini-badge" style="${badgeStyle(fTotalNet)}">${flowBadge(fTotalNet, 'NET LONG', 'NET SHORT')}</span>
                         </div>
                         <div class="poster-mini-val">${escapeHtml(formatSignedInrCr(fnoRow.totalNet, fTotalNet))}</div>
                         <div class="poster-mini-sub">Derivatives Net</div>
@@ -457,7 +487,7 @@ function buildPosterHtml(cashRow, fnoRow, logoDataUri) {
         </div>
 
         <div class="poster-footer-frame">
-            <div class="poster-footer-url">🌐 www.liveipo.in</div>
+            <div class="poster-footer-url">${svgGlobe}<span>www.liveipo.in</span></div>
             <div class="poster-footer-tagline">Live IPO GMP • Subscriptions • FII Tracker</div>
         </div>
     </div>
@@ -548,6 +578,7 @@ async function renderPosterPng(html, outputPath) {
             '--no-sandbox',
             '--disable-setuid-sandbox',
             '--disable-dev-shm-usage',
+            '--disable-gpu',
             '--font-render-hinting=medium'
         ]
     });

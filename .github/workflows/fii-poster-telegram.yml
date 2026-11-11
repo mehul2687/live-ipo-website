@@ -24,6 +24,7 @@ concurrency:
 jobs:
   post-fii-poster:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - name: Checkout main repository
@@ -62,16 +63,10 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install emoji font for crisp Chrome poster rendering
-        if: steps.state_check.outputs.skip != 'true'
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq fonts-noto-color-emoji fonts-noto-core
-          sudo fc-cache -f
-
       - name: Install Node dependencies (reusing preinstalled Chrome)
         if: steps.state_check.outputs.skip != 'true'
         env:
+          PUPPETEER_SKIP_DOWNLOAD: 'true'
           PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
         run: npm install --no-save axios cheerio puppeteer-core
 

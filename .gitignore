@@ -3,4 +3,5 @@ node_modules/
 Thumbs.db
 github-token.json
 test_chittor.mjs
-
+.poster-state.json
+fii-poster-preview.png

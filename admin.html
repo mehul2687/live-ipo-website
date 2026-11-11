@@ -11,8 +11,8 @@
     <link rel="stylesheet" href="style.css">
 
     <!-- JavaScript Links -->
-    <script src="script.js?v=2026.11.10.3"></script>
-    <script src="admin.js?v=2026.11.10.3"></script>
+    <script src="script.js?v=2026.11.11.1"></script>
+    <script src="admin.js?v=2026.11.11.1"></script>
     <script>
         // જો લોગિન ના કરેલું હોય તો સીધું લોગિન પેજ પર મોકલી દો
         if (localStorage.getItem('live_ipo_admin_logged') !== 'true') {
@@ -331,6 +331,39 @@
                         <div class="form-group">
                             <label>Offer For Sale (OFS)</label>
                             <input type="text" id="adm_ofs" placeholder="1,19,00,000 shares (agg. up to ₹113 Cr)">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px 0 6px 0; border-top: 1px dashed #cbd5e1; padding-top: 8px;">
+                        <span style="font-size: 12px; font-weight: 700; color: #0f766e;">Exchange Codes &amp; Listing Prices <span style="font-weight: 500; color: #64748b;">(Auto-Synced — Optional Override)</span></span>
+                        <label class="lock-badge">
+                            <input type="checkbox" id="lock_manual_listing"> 🔒 Lock Codes &amp; Prices
+                        </label>
+                    </div>
+                    <div class="form-grid-6">
+                        <div class="form-group">
+                            <label>BSE Code</label>
+                            <input type="text" id="adm_bseCode" placeholder="Auto (545004)">
+                        </div>
+                        <div class="form-group">
+                            <label>NSE Symbol</label>
+                            <input type="text" id="adm_nseCode" placeholder="Auto (JPL)" style="text-transform: uppercase;">
+                        </div>
+                        <div class="form-group">
+                            <label>ISIN Code</label>
+                            <input type="text" id="adm_isinCode" placeholder="Auto (INE...)" style="text-transform: uppercase;">
+                        </div>
+                        <div class="form-group">
+                            <label>Moneycontrol ID</label>
+                            <input type="text" id="adm_mcScId" placeholder="Auto (JPL)">
+                        </div>
+                        <div class="form-group">
+                            <label>Listing Price NSE (₹)</label>
+                            <input type="number" step="0.01" id="adm_listingPriceNse" placeholder="Auto">
+                        </div>
+                        <div class="form-group">
+                            <label>Listing Price BSE (₹)</label>
+                            <input type="number" step="0.01" id="adm_listingPriceBse" placeholder="Auto">
                         </div>
                     </div>
 

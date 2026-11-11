@@ -121,6 +121,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     markManualLock('input[id^="sub_"], input[id^="app_"]', 'lock_manual_sub');
     markManualLock('#adm_openDate, #adm_closeDate, #adm_allotmentDate, #adm_listingDate', 'lock_manual_dates');
     markManualLock('#adm_priceStart, #adm_priceEnd, #adm_cutOff, #adm_lotRaw, #adm_faceValue, #adm_totalSize, #adm_freshissue, #adm_ofs', 'lock_manual_issue');
+    markManualLock('#adm_bseCode, #adm_nseCode, #adm_isinCode, #adm_mcScId, #adm_listingPriceNse, #adm_listingPriceBse', 'lock_manual_listing');
 
     // ૫. Form Submit Handler (ક્લાઉડ સેવ સાથે)
     const manageForm = document.getElementById('manageIpoForm');
@@ -157,6 +158,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (exNse && exNse.checked) exchanges.push('NSE');
             const listingAtVal = exchanges.length > 0 ? exchanges.join(', ') : 'BSE, NSE';
 
+            const listPriceNseRaw = document.getElementById('adm_listingPriceNse')?.value.trim() || '';
+            const listPriceBseRaw = document.getElementById('adm_listingPriceBse')?.value.trim() || '';
+
             const ipoData = {
                 id: ipoId,
                 name: document.getElementById('adm_name').value,
@@ -173,6 +177,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 freshIssue: document.getElementById('adm_freshissue').value || "N/A",
                 ofs: document.getElementById('adm_ofs').value || "N/A",
                 listingAt: listingAtVal,
+                bseCode: document.getElementById('adm_bseCode')?.value.trim() || existingIpo.bseCode || '',
+                nseCode: (document.getElementById('adm_nseCode')?.value.trim() || existingIpo.nseCode || '').toUpperCase(),
+                isinCode: (document.getElementById('adm_isinCode')?.value.trim() || existingIpo.isinCode || '').toUpperCase(),
+                mcScId: document.getElementById('adm_mcScId')?.value.trim() || existingIpo.mcScId || '',
+                listingPriceNse: listPriceNseRaw ? (parseFloat(listPriceNseRaw) || existingIpo.listingPriceNse || null) : (existingIpo.listingPriceNse || null),
+                listingPriceBse: listPriceBseRaw ? (parseFloat(listPriceBseRaw) || existingIpo.listingPriceBse || null) : (existingIpo.listingPriceBse || null),
                 openDate: document.getElementById('adm_openDate').value,
                 closeDate: document.getElementById('adm_closeDate').value,
                 allotmentDate: document.getElementById('adm_allotmentDate').value,
@@ -240,6 +250,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 manualFin: document.getElementById('lock_manual_fin')?.checked || false,
                 manualValuation: document.getElementById('lock_manual_val')?.checked || false,
                 manualSub: document.getElementById('lock_manual_sub')?.checked || false,
+                manualListingInfo: document.getElementById('lock_manual_listing')?.checked || false,
                 manualLockAll: document.getElementById('lock_manual_all')?.checked || false
             };
 
@@ -620,9 +631,13 @@ function openAddDrawer() {
     updateLotCalculations();
 
     // મેન્યુઅલ લોક ચેકબોક્સ અનચેક કરવા (નવા IPO માટે ઓટો-સિંક ચાલુ રહે)
-    ['lock_manual_dates', 'lock_manual_issue', 'lock_manual_lots', 'lock_manual_fin', 'lock_manual_val', 'lock_manual_sub', 'lock_manual_all'].forEach(id => {
+    ['lock_manual_dates', 'lock_manual_issue', 'lock_manual_lots', 'lock_manual_fin', 'lock_manual_val', 'lock_manual_sub', 'lock_manual_listing', 'lock_manual_all'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.checked = false;
+    });
+    ['adm_bseCode', 'adm_nseCode', 'adm_isinCode', 'adm_mcScId', 'adm_listingPriceNse', 'adm_listingPriceBse'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
     });
 
     const drawerTitle = document.getElementById('drawerTitle');
@@ -672,6 +687,12 @@ async function editIpo(id) {
     document.getElementById('adm_freshissue').value = ipo.freshIssue || '';
     document.getElementById('adm_ofs').value = ipo.ofs || '';
     document.getElementById('adm_listingAt').value = ipo.listingAt || '';
+    if (document.getElementById('adm_bseCode')) document.getElementById('adm_bseCode').value = ipo.bseCode || '';
+    if (document.getElementById('adm_nseCode')) document.getElementById('adm_nseCode').value = ipo.nseCode || '';
+    if (document.getElementById('adm_isinCode')) document.getElementById('adm_isinCode').value = ipo.isinCode || '';
+    if (document.getElementById('adm_mcScId')) document.getElementById('adm_mcScId').value = ipo.mcScId || '';
+    if (document.getElementById('adm_listingPriceNse')) document.getElementById('adm_listingPriceNse').value = ipo.listingPriceNse || '';
+    if (document.getElementById('adm_listingPriceBse')) document.getElementById('adm_listingPriceBse').value = ipo.listingPriceBse || '';
     
     if (ipo.listingAt) {
         document.getElementById('ex_bse').checked = ipo.listingAt.includes('BSE');
@@ -807,6 +828,7 @@ async function editIpo(id) {
     if (document.getElementById('lock_manual_fin')) document.getElementById('lock_manual_fin').checked = !!ipo.manualFin;
     if (document.getElementById('lock_manual_val')) document.getElementById('lock_manual_val').checked = !!ipo.manualValuation;
     if (document.getElementById('lock_manual_sub')) document.getElementById('lock_manual_sub').checked = !!ipo.manualSub;
+    if (document.getElementById('lock_manual_listing')) document.getElementById('lock_manual_listing').checked = !!ipo.manualListingInfo;
     if (document.getElementById('lock_manual_all')) document.getElementById('lock_manual_all').checked = !!ipo.manualLockAll;
 
     const drawerTitle = document.getElementById('drawerTitle');
@@ -1233,6 +1255,7 @@ function parseChittorgarhHtml(html, pageUrl) {
         // Parse Main Tables
         const tables = doc.querySelectorAll('table');
         tables.forEach(table => {
+            let priceDetailsCols = null;
             const rows = table.querySelectorAll('tr');
             rows.forEach(tr => {
                 const cells = Array.from(tr.querySelectorAll('th, td')).map(c => c.textContent.trim().replace(/\s+/g, ' '));
@@ -1301,6 +1324,39 @@ function parseChittorgarhHtml(html, pageUrl) {
 
                     if (k === 'listing at' && !issue.listingAt) {
                         issue.listingAt = v;
+                    }
+
+                    if (k.includes('bse script code') || k.includes('bse scrip code') || k.includes('nse symbol') || k === 'nse code' || k === 'bse code') {
+                        const parts = v.split('/').map(p => p.trim()).filter(Boolean);
+                        for (const p of parts) {
+                            if (/^\d{6}$/.test(p) && !issue.bseCode) {
+                                issue.bseCode = p;
+                            } else if (/^[A-Z0-9&-]{2,20}$/i.test(p) && !['N/A', 'NIL', 'TBA', 'DESCRIPTION'].includes(p.toUpperCase()) && !issue.nseCode) {
+                                issue.nseCode = p.toUpperCase();
+                            }
+                        }
+                    }
+
+                    if (k === 'isin' && !issue.isinCode) {
+                        const isinMatch = v.match(/\b(IN[A-Z0-9]{10})\b/i);
+                        if (isinMatch) issue.isinCode = isinMatch[1].toUpperCase();
+                    }
+
+                    if (k === 'price details') {
+                        priceDetailsCols = cells.slice(1).map(c => c.toUpperCase());
+                    } else if (priceDetailsCols && k === 'open') {
+                        priceDetailsCols.forEach((colName, idx) => {
+                            const rawCell = (cells[idx + 1] || '').replace(/,/g, '');
+                            const num = parseFloat(rawCell.replace(/[^0-9.]/g, ''));
+                            if (!isNaN(num) && num > 0) {
+                                if (colName.includes('BSE') && !issue.listingPriceBse) {
+                                    issue.listingPriceBse = num;
+                                }
+                                if (colName.includes('NSE') && !issue.listingPriceNse) {
+                                    issue.listingPriceNse = num;
+                                }
+                            }
+                        });
                     }
                 }
             });

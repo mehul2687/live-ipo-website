@@ -212,6 +212,8 @@ async function get_Chittorgarh_details_data(key) {
         const issue = {};
 
         $('table').each((_, table) => {
+            let priceDetailsCols = null;
+
             $(table).find('tr').each((_, tr) => {
                 const cells = $(tr).find('th, td').map((_, c) => $(c).text().trim().replace(/\s+/g, ' ')).get();
                 if (cells.length >= 2) {
@@ -294,9 +296,51 @@ async function get_Chittorgarh_details_data(key) {
                     if (k === 'listing at' && !issue.listingAt) {
                         issue.listingAt = v;
                     }
+
+                    // BSE Script Code / NSE Symbol
+                    if (k.includes('bse script code') || k.includes('bse scrip code') || k.includes('nse symbol') || k === 'nse code' || k === 'bse code') {
+                        const parts = v.split('/').map(p => p.trim()).filter(Boolean);
+                        for (const p of parts) {
+                            if (/^\d{6}$/.test(p) && !issue.bseCode) {
+                                issue.bseCode = p;
+                            } else if (/^[A-Z0-9&-]{2,20}$/i.test(p) && !['N/A', 'NIL', 'TBA', 'DESCRIPTION'].includes(p.toUpperCase()) && !issue.nseCode) {
+                                issue.nseCode = p.toUpperCase();
+                            }
+                        }
+                    }
+
+                    // ISIN
+                    if (k === 'isin' && !issue.isinCode) {
+                        const isinMatch = v.match(/\b(IN[A-Z0-9]{10})\b/i);
+                        if (isinMatch) issue.isinCode = isinMatch[1].toUpperCase();
+                    }
+
+                    // Listing Day Price Details Table (BSE / NSE / BSE SME / NSE SME)
+                    if (k === 'price details') {
+                        priceDetailsCols = cells.slice(1).map(c => c.toUpperCase());
+                    } else if (priceDetailsCols && k === 'open') {
+                        priceDetailsCols.forEach((colName, idx) => {
+                            const rawCell = (cells[idx + 1] || '').replace(/,/g, '');
+                            const num = parseFloat(rawCell.replace(/[^0-9.]/g, ''));
+                            if (!isNaN(num) && num > 0) {
+                                if (colName.includes('BSE') && !issue.listingPriceBse) {
+                                    issue.listingPriceBse = num;
+                                }
+                                if (colName.includes('NSE') && !issue.listingPriceNse) {
+                                    issue.listingPriceNse = num;
+                                }
+                            }
+                        });
+                    }
                 }
             });
         });
+
+        // Fallback ISIN scan across page text if row label differed
+        if (!issue.isinCode && typeof response.data === 'string') {
+            const fallbackIsin = response.data.match(/\bINE[A-Z0-9]{9}\b/);
+            if (fallbackIsin) issue.isinCode = fallbackIsin[0].toUpperCase();
+        }
 
         // Basis of Allotment date from FAQ or text
         $('p, div, td').each((_, el) => {
@@ -476,6 +520,183 @@ async function get_Chittorgarh_details_data(key) {
     }
 }
 
+function normalizeMarketName(str) {
+    return (str || '')
+        .toLowerCase()
+        .replace(/\b(ipo|details|limited|ltd\.?|private|pvt\.?|india)\b/g, ' ')
+        .replace(/[^a-z0-9]/g, '');
+}
+
+function cleanIpoNameForSearch(str) {
+    return (str || '')
+        .replace(/\b(ipo|details|limited|ltd\.?|private|pvt\.?)\b/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+async function queryMoneycontrolSuggest(q) {
+    if (!q) return [];
+    try {
+        const res = await axios.get(`https://www.moneycontrol.com/mccode/common/autosuggestion_solr.php?classic=true&query=${encodeURIComponent(q)}&type=1&format=json`, {
+            headers: httpHeaders,
+            timeout: 8000,
+            validateStatus: () => true
+        });
+        const list = Array.isArray(res.data) ? res.data : [];
+        return list.filter(x => x && x.sc_id && x.sc_id !== '0');
+    } catch {
+        return [];
+    }
+}
+
+async function resolveMoneycontrolStockId({ isinCode, nseCode, bseCode, name }) {
+    // 1. Highest reliability: unique ISIN
+    if (isinCode) {
+        const hits = await queryMoneycontrolSuggest(isinCode);
+        if (hits.length > 0) {
+            const exactIsin = hits.find(h => (h.pdt_dis_nm || '').toUpperCase().includes(isinCode.toUpperCase()));
+            return (exactIsin || hits[0]).sc_id;
+        }
+    }
+
+    // 2. NSE Symbol match
+    if (nseCode) {
+        const hits = await queryMoneycontrolSuggest(nseCode);
+        const targetNse = nseCode.toUpperCase();
+        const exactNse = hits.find(h => (h.pdt_dis_nm || '').toUpperCase().includes(targetNse));
+        if (exactNse) return exactNse.sc_id;
+    }
+
+    // 3. BSE Script Code match
+    if (bseCode) {
+        const hits = await queryMoneycontrolSuggest(bseCode);
+        const exactBse = hits.find(h => (h.pdt_dis_nm || '').includes(bseCode));
+        if (exactBse) return exactBse.sc_id;
+    }
+
+    // 4. Fallback: exact normalized company name only (avoids wrong partial matches)
+    const cleaned = cleanIpoNameForSearch(name);
+    const targetNorm = normalizeMarketName(name);
+    if (cleaned && targetNorm) {
+        const hits = await queryMoneycontrolSuggest(cleaned);
+        const exactName = hits.find(h => normalizeMarketName(h.stock_name || h.name) === targetNorm);
+        if (exactName) return exactName.sc_id;
+    }
+
+    return null;
+}
+
+function isValidExchangeFeed(resData, expectedIsin, expectedCode, codeField) {
+    if (!resData || String(resData.code) !== '200' || !resData.data) return false;
+    const d = resData.data;
+    const price = parseFloat(d.pricecurrent);
+    if (isNaN(price) || price <= 0) return false;
+    if (expectedIsin && d.isinid && d.isinid.toUpperCase() !== expectedIsin.toUpperCase()) {
+        return false;
+    }
+    if (expectedCode && d[codeField] && String(d[codeField]).toUpperCase() !== String(expectedCode).toUpperCase()) {
+        return false;
+    }
+    return true;
+}
+
+async function fetchMoneycontrolExchangeFeeds(scId, expectedIsin, listingAtStr, bseCode, nseCode) {
+    if (!scId) return { nse: null, bse: null };
+    const exUpper = (listingAtStr || 'BSE, NSE').toUpperCase();
+    const allowBse = exUpper.includes('BSE') || !!bseCode;
+    const allowNse = exUpper.includes('NSE') || !!nseCode;
+
+    const reqs = [];
+    reqs.push(allowNse
+        ? axios.get(`https://priceapi.moneycontrol.com/pricefeed/nse/equitycash/${encodeURIComponent(scId)}`, {
+            headers: httpHeaders, timeout: 8000, validateStatus: () => true
+        }).catch(() => null)
+        : Promise.resolve(null));
+    reqs.push(allowBse
+        ? axios.get(`https://priceapi.moneycontrol.com/pricefeed/bse/equitycash/${encodeURIComponent(scId)}`, {
+            headers: httpHeaders, timeout: 8000, validateStatus: () => true
+        }).catch(() => null)
+        : Promise.resolve(null));
+
+    const [nseRes, bseRes] = await Promise.all(reqs);
+    const nseData = nseRes && isValidExchangeFeed(nseRes.data, expectedIsin, nseCode, 'NSEID') ? nseRes.data.data : null;
+    const bseData = bseRes && isValidExchangeFeed(bseRes.data, expectedIsin, bseCode, 'BSEID') ? bseRes.data.data : null;
+    return { nse: nseData, bse: bseData };
+}
+
+function applyExchangeFeedMeta(ipo, feedData, codeProp, feedCodeKey, listPriceProp, effectiveListingDate) {
+    if (!feedData) return false;
+    let changed = false;
+    const exCode = feedData[feedCodeKey] ? String(feedData[feedCodeKey]).toUpperCase() : '';
+    if (!ipo[codeProp] && exCode) {
+        ipo[codeProp] = exCode;
+        changed = true;
+    }
+    if (!ipo.isinCode && feedData.isinid) {
+        ipo.isinCode = String(feedData.isinid).toUpperCase();
+        changed = true;
+    }
+    if (!ipo[listPriceProp]) {
+        const lastUpdDate = String(feedData.lastupd || '').slice(0, 10);
+        const opn = parseFloat(feedData.OPN);
+        const isDay1 = (lastUpdDate && effectiveListingDate && lastUpdDate === effectiveListingDate) ||
+            !feedData.PREVDATE ||
+            (feedData.clMaxDt && lastUpdDate && feedData.clMaxDt === lastUpdDate);
+        if (isDay1 && !isNaN(opn) && opn > 0) {
+            ipo[listPriceProp] = opn;
+            changed = true;
+        }
+    }
+    return changed;
+}
+
+/** Auto-resolves exchange codes, ISIN, Moneycontrol sc_id, and listing prices for an IPO. */
+async function enrichIpoMarketData(ipo, detailData, istTodayStr) {
+    if (ipo.manualListingInfo) return false;
+    let marketUpdated = false;
+    const chIssue = (detailData && detailData.issue) ? detailData.issue : {};
+    const chListDate = (detailData && detailData.dates && detailData.dates.listingDate) ? detailData.dates.listingDate : '';
+    const effectiveListingDate = chListDate || ipo.listingDate || '';
+
+    for (const field of ['bseCode', 'nseCode', 'isinCode', 'listingPriceBse', 'listingPriceNse']) {
+        if (chIssue[field] && ipo[field] !== chIssue[field]) {
+            ipo[field] = chIssue[field];
+            marketUpdated = true;
+        }
+    }
+
+    if (!ipo.mcScId && (ipo.isinCode || ipo.nseCode || ipo.bseCode || (effectiveListingDate && effectiveListingDate <= istTodayStr))) {
+        const resolvedScId = await resolveMoneycontrolStockId({
+            isinCode: ipo.isinCode,
+            nseCode: ipo.nseCode,
+            bseCode: ipo.bseCode,
+            name: ipo.name
+        });
+        if (resolvedScId) {
+            ipo.mcScId = resolvedScId;
+            marketUpdated = true;
+        }
+    }
+
+    const shouldProbeFeeds = ipo.mcScId && (
+        !effectiveListingDate ||
+        effectiveListingDate <= istTodayStr ||
+        ipo.listingPriceBse ||
+        ipo.listingPriceNse
+    );
+    if (shouldProbeFeeds && (!ipo.bseCode || !ipo.nseCode || !ipo.listingPriceBse || !ipo.listingPriceNse)) {
+        const effectiveListingAt = chIssue.listingAt || ipo.listingAt;
+        const feeds = await fetchMoneycontrolExchangeFeeds(ipo.mcScId, ipo.isinCode, effectiveListingAt, ipo.bseCode, ipo.nseCode);
+        if (applyExchangeFeedMeta(ipo, feeds.nse, 'nseCode', 'NSEID', 'listingPriceNse', effectiveListingDate)) marketUpdated = true;
+        if (applyExchangeFeedMeta(ipo, feeds.bse, 'bseCode', 'BSEID', 'listingPriceBse', effectiveListingDate)) marketUpdated = true;
+    }
+
+    if (marketUpdated) {
+        console.log(`  ✓ Synced Market Data for ${ipo.name}: ISIN=${ipo.isinCode || '-'}, BSE=${ipo.bseCode || '-'}(List:${ipo.listingPriceBse ?? '-'}), NSE=${ipo.nseCode || '-'}(List:${ipo.listingPriceNse ?? '-'}), MC=${ipo.mcScId || '-'}`);
+    }
+    return marketUpdated;
+}
+
 async function syncAllIposFromChittorgarh() {
     try {
         console.log("🔄 Fetching Master IPO data from JSONBin.io...");
@@ -490,15 +711,16 @@ async function syncAllIposFromChittorgarh() {
         }
 
         let updated = false;
+        const istTodayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 
         for (const ipoId of Object.keys(dbData)) {
             let ipo = dbData[ipoId];
+            if (ipo.manualLockAll) {
+                console.log(`\n🔒 Skipping ${ipo.name} - Entire IPO is manually locked.`);
+                continue;
+            }
+            let detailData = null;
             if (ipo.chittorgarhKey) {
-                if (ipo.manualLockAll) {
-                    console.log(`\n🔒 Skipping ${ipo.name} - Entire IPO is manually locked.`);
-                    continue;
-                }
-
                 console.log(`\n📡 Checking live data for IPO: ${ipo.name} (${ipo.chittorgarhKey})...`);
                 
                 // 1. Live Subscription Data
@@ -573,7 +795,7 @@ async function syncAllIposFromChittorgarh() {
                 }
 
                 // 2. Dates, Issue Info, Financials, Lot Sizes & Valuation Ratios
-                let detailData = await get_Chittorgarh_details_data(ipo.chittorgarhKey);
+                detailData = await get_Chittorgarh_details_data(ipo.chittorgarhKey);
                 if (detailData) {
                     // DATES AUTO-SYNC
                     if (!ipo.manualDates && detailData.dates) {
@@ -705,6 +927,10 @@ async function syncAllIposFromChittorgarh() {
                         console.log(`  🔒 Valuation manually locked for ${ipo.name} (Kept custom data)`);
                     }
                 }
+            }
+
+            if (await enrichIpoMarketData(ipo, detailData, istTodayStr)) {
+                updated = true;
             }
         }
 

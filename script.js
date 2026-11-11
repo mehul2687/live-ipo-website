@@ -1072,6 +1072,256 @@ async function loadDynamicIpoDetails() {
             }
         }
     }
+
+    initLiveIpoPriceTracker(ipo, issuePriceVal);
+}
+
+// ==========================================
+// 6.1 LIVE LISTING & CURRENT PRICE ENGINE (NSE & BSE)
+// ==========================================
+function formatStockPriceInr(val) {
+    const num = parseFloat(val);
+    if (isNaN(num) || num <= 0) return null;
+    return num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function normalizeIpoCompanyName(str) {
+    return (str || '')
+        .toLowerCase()
+        .replace(/\b(ipo|details|limited|ltd\.?|private|pvt\.?|india)\b/g, ' ')
+        .replace(/[^a-z0-9]/g, '');
+}
+
+function cleanIpoNameQuery(str) {
+    return (str || '')
+        .replace(/\b(ipo|details|limited|ltd\.?|private|pvt\.?)\b/gi, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function buildExchangePriceLine(label, priceVal, pctVal, tooltip, useDayColorForPct) {
+    const formatted = formatStockPriceInr(priceVal);
+    if (!formatted) return '';
+    let badgeHtml = '';
+    if (pctVal !== null && pctVal !== undefined && !isNaN(pctVal)) {
+        const sign = pctVal > 0 ? '+' : '';
+        const color = pctVal > 0 ? '#16a34a' : (pctVal < 0 ? '#dc2626' : '#64748b');
+        const decimals = useDayColorForPct ? 2 : 1;
+        badgeHtml = ` <span style="font-size:11px; color:${color}; font-weight:600;">(${sign}${pctVal.toFixed(decimals)}%)</span>`;
+    }
+    const titleAttr = tooltip ? ` title="${tooltip.replace(/"/g, '&quot;')}"` : '';
+    return `<span${titleAttr} style="display:inline-block;"><span style="color:#64748b; font-size:11px; font-weight:700;">${label}:</span> <strong style="color:#0f172a;">₹${formatted}</strong>${badgeHtml}</span>`;
+}
+
+function renderQuickListingPrices(listEl, nsePrice, bsePrice, issuePrice) {
+    if (!listEl) return;
+    const rows = [];
+    const calcPct = (p) => (issuePrice > 0 && p > 0) ? (((p - issuePrice) / issuePrice) * 100) : null;
+    if (nsePrice > 0) {
+        const pct = calcPct(nsePrice);
+        const tip = issuePrice > 0 ? `NSE Listing Open: ₹${formatStockPriceInr(nsePrice)} vs IPO Issue Price ₹${issuePrice}` : '';
+        rows.push(buildExchangePriceLine('NSE', nsePrice, pct, tip, false));
+    }
+    if (bsePrice > 0) {
+        const pct = calcPct(bsePrice);
+        const tip = issuePrice > 0 ? `BSE Listing Open: ₹${formatStockPriceInr(bsePrice)} vs IPO Issue Price ₹${issuePrice}` : '';
+        rows.push(buildExchangePriceLine('BSE', bsePrice, pct, tip, false));
+    }
+    listEl.innerHTML = rows.length > 0 ? rows.join('<br>') : `<span style="color:#94a3b8; font-weight:600;">-</span>`;
+}
+
+function renderQuickCurrentPrices(currEl, nseQuote, bseQuote, issuePrice, prevState) {
+    if (!currEl) return;
+    const rows = [];
+    const buildLiveRow = (label, quote) => {
+        if (!quote || !(quote.price > 0)) return '';
+        const overallPct = issuePrice > 0 ? (((quote.price - issuePrice) / issuePrice) * 100) : null;
+        const overallStr = overallPct !== null ? ` | Overall IPO Return: ${overallPct > 0 ? '+' : ''}${overallPct.toFixed(2)}%` : '';
+        const chgStr = quote.chg !== null && !isNaN(quote.chg) ? ` | Day: ${quote.chg > 0 ? '+' : ''}${quote.chg.toFixed(2)} (${quote.pct > 0 ? '+' : ''}${quote.pct.toFixed(2)}%)` : '';
+        const updStr = quote.lastupd ? ` | Updated: ${quote.lastupd}` : '';
+        const tip = `${label} Live: ₹${formatStockPriceInr(quote.price)}${chgStr}${overallStr}${updStr}`;
+        return buildExchangePriceLine(label, quote.price, quote.pct, tip, true);
+    };
+
+    const nseRow = buildLiveRow('NSE', nseQuote);
+    const bseRow = buildLiveRow('BSE', bseQuote);
+    if (nseRow) rows.push(nseRow);
+    if (bseRow) rows.push(bseRow);
+
+    if (rows.length === 0) {
+        currEl.innerHTML = `<span style="color:#94a3b8; font-weight:600;">-</span>`;
+        return;
+    }
+    currEl.innerHTML = rows.join('<br>');
+
+    // Flash subtle tick highlight when either exchange price moves live
+    const nextNse = nseQuote?.price || 0;
+    const nextBse = bseQuote?.price || 0;
+    if (prevState.initialized && (nextNse !== prevState.nse || nextBse !== prevState.bse)) {
+        const wentUp = (nextNse > prevState.nse) || (nextBse > prevState.bse);
+        currEl.style.transition = 'background-color 0.25s ease';
+        currEl.style.backgroundColor = wentUp ? '#dcfce7' : '#fee2e2';
+        setTimeout(() => { currEl.style.backgroundColor = ''; }, 650);
+    }
+    prevState.nse = nextNse;
+    prevState.bse = nextBse;
+    prevState.initialized = true;
+}
+
+async function queryMoneycontrolSuggestBrowser(q) {
+    if (!q) return [];
+    try {
+        const r = await fetch(`https://www.moneycontrol.com/mccode/common/autosuggestion_solr.php?classic=true&query=${encodeURIComponent(q)}&type=1&format=json`, {
+            cache: 'no-store'
+        });
+        if (!r.ok) return [];
+        const data = await r.json();
+        return Array.isArray(data) ? data.filter(x => x && x.sc_id && x.sc_id !== '0') : [];
+    } catch {
+        return [];
+    }
+}
+
+async function resolveMoneycontrolIdInBrowser(ipo) {
+    if (ipo.mcScId) return ipo.mcScId;
+    if (ipo.isinCode) {
+        const hits = await queryMoneycontrolSuggestBrowser(ipo.isinCode);
+        if (hits.length > 0) {
+            const match = hits.find(h => (h.pdt_dis_nm || '').toUpperCase().includes(ipo.isinCode.toUpperCase()));
+            return (match || hits[0]).sc_id;
+        }
+    }
+    if (ipo.nseCode) {
+        const hits = await queryMoneycontrolSuggestBrowser(ipo.nseCode);
+        const match = hits.find(h => (h.pdt_dis_nm || '').toUpperCase().includes(ipo.nseCode.toUpperCase()));
+        if (match) return match.sc_id;
+    }
+    if (ipo.bseCode) {
+        const hits = await queryMoneycontrolSuggestBrowser(ipo.bseCode);
+        const match = hits.find(h => (h.pdt_dis_nm || '').includes(ipo.bseCode));
+        if (match) return match.sc_id;
+    }
+    const cleanQ = cleanIpoNameQuery(ipo.name);
+    const targetNorm = normalizeIpoCompanyName(ipo.name);
+    if (cleanQ && targetNorm) {
+        const hits = await queryMoneycontrolSuggestBrowser(cleanQ);
+        const match = hits.find(h => normalizeIpoCompanyName(h.stock_name || h.name) === targetNorm);
+        if (match) return match.sc_id;
+    }
+    return null;
+}
+
+function parseMoneycontrolPriceFeed(resJson, expectedIsin, expectedCode, codeField) {
+    if (!resJson || String(resJson.code) !== '200' || !resJson.data) return null;
+    const d = resJson.data;
+    const price = parseFloat(d.pricecurrent);
+    if (isNaN(price) || price <= 0) return null;
+    if (expectedIsin && d.isinid && d.isinid.toUpperCase() !== expectedIsin.toUpperCase()) return null;
+    if (expectedCode && d[codeField] && String(d[codeField]).toUpperCase() !== String(expectedCode).toUpperCase()) return null;
+    return {
+        price,
+        chg: parseFloat(d.pricechange),
+        pct: parseFloat(d.pricepercentchange),
+        opn: parseFloat(d.OPN),
+        prevdate: d.PREVDATE,
+        clMaxDt: d.clMaxDt,
+        lastupd: d.lastupd || '',
+        code: d[codeField] ? String(d[codeField]).toUpperCase() : '',
+        isin: d.isinid ? String(d.isinid).toUpperCase() : ''
+    };
+}
+
+async function initLiveIpoPriceTracker(ipo, issuePrice) {
+    if (window._ipoDetailLiveTimer) {
+        clearInterval(window._ipoDetailLiveTimer);
+        window._ipoDetailLiveTimer = null;
+    }
+
+    const listEl = document.getElementById('qs_listing_price');
+    const currEl = document.getElementById('qs_current_price');
+    if (!listEl && !currEl) return;
+
+    const listAtUpper = (ipo.listingAt || 'BSE, NSE').toUpperCase();
+    const allowNse = listAtUpper.includes('NSE') || !!ipo.nseCode || !!ipo.listingPriceNse;
+    const allowBse = listAtUpper.includes('BSE') || !!ipo.bseCode || !!ipo.listingPriceBse;
+
+    let nseListing = allowNse ? (parseFloat(ipo.listingPriceNse) || 0) : 0;
+    let bseListing = allowBse ? (parseFloat(ipo.listingPriceBse) || 0) : 0;
+
+    // Immediately render saved listing prices (zero wait)
+    renderQuickListingPrices(listEl, nseListing, bseListing, issuePrice);
+
+    const istTodayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    const mightBeListed = !ipo.listingDate || ipo.listingDate <= istTodayStr || !!ipo.mcScId || nseListing > 0 || bseListing > 0;
+    if (!mightBeListed) {
+        renderQuickCurrentPrices(currEl, null, null, issuePrice, { initialized: false, nse: 0, bse: 0 });
+        return;
+    }
+
+    const scId = await resolveMoneycontrolIdInBrowser(ipo);
+    if (!scId) {
+        renderQuickCurrentPrices(currEl, null, null, issuePrice, { initialized: false, nse: 0, bse: 0 });
+        return;
+    }
+
+    const tickState = { initialized: false, nse: 0, bse: 0 };
+    let isFetching = false;
+
+    const refreshPrices = async () => {
+        if (isFetching) return false;
+        isFetching = true;
+        try {
+            const ts = Date.now();
+            const [nseRaw, bseRaw] = await Promise.all([
+                allowNse ? fetch(`https://priceapi.moneycontrol.com/pricefeed/nse/equitycash/${encodeURIComponent(scId)}?_=${ts}`, { cache: 'no-store' }).then(r => r.json()).catch(() => null) : Promise.resolve(null),
+                allowBse ? fetch(`https://priceapi.moneycontrol.com/pricefeed/bse/equitycash/${encodeURIComponent(scId)}?_=${ts}`, { cache: 'no-store' }).then(r => r.json()).catch(() => null) : Promise.resolve(null)
+            ]);
+
+            const nseQ = parseMoneycontrolPriceFeed(nseRaw, ipo.isinCode, ipo.nseCode, 'NSEID');
+            const bseQ = parseMoneycontrolPriceFeed(bseRaw, ipo.isinCode, ipo.bseCode, 'BSEID');
+
+            // Fill Listing Details card (#section-listing) live if JSONBin didn't have codes yet
+            const bseEl = document.getElementById('l_bse');
+            const nseEl = document.getElementById('l_nse');
+            const isinEl = document.getElementById('l_isin');
+            if (bseEl && bseEl.innerText === 'N/A' && bseQ?.code) bseEl.innerText = bseQ.code;
+            if (nseEl && nseEl.innerText === 'N/A' && nseQ?.code) nseEl.innerText = nseQ.code;
+            const liveIsin = nseQ?.isin || bseQ?.isin;
+            if (isinEl && isinEl.innerText === 'N/A' && liveIsin) isinEl.innerText = liveIsin;
+
+            // Listing Day Fallback (if Chittorgarh Open row isn't saved yet)
+            let listingChanged = false;
+            if (nseQ && !(nseListing > 0) && nseQ.opn > 0) {
+                const updDate = nseQ.lastupd.slice(0, 10);
+                if (!nseQ.prevdate || (updDate && ipo.listingDate && updDate === ipo.listingDate) || (nseQ.clMaxDt && updDate && nseQ.clMaxDt === updDate)) {
+                    nseListing = nseQ.opn;
+                    listingChanged = true;
+                }
+            }
+            if (bseQ && !(bseListing > 0) && bseQ.opn > 0) {
+                const updDate = bseQ.lastupd.slice(0, 10);
+                if (!bseQ.prevdate || (updDate && ipo.listingDate && updDate === ipo.listingDate) || (bseQ.clMaxDt && updDate && bseQ.clMaxDt === updDate)) {
+                    bseListing = bseQ.opn;
+                    listingChanged = true;
+                }
+            }
+            if (listingChanged) {
+                renderQuickListingPrices(listEl, nseListing, bseListing, issuePrice);
+            }
+
+            renderQuickCurrentPrices(currEl, nseQ, bseQ, issuePrice, tickState);
+            return Boolean(nseQ || bseQ);
+        } finally {
+            isFetching = false;
+        }
+    };
+
+    const hasLiveFeed = await refreshPrices();
+    if (hasLiveFeed) {
+        window._ipoDetailLiveTimer = setInterval(() => {
+            if (!document.hidden) refreshPrices();
+        }, 5000);
+    }
 }
 
 // ==========================================

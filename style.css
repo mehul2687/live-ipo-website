@@ -1745,3 +1745,169 @@ body.home-page {
     background: #f8fafc;
     border-color: #e2e8f0;
 }
+
+/* ==========================================================
+   7. IPO DETAIL PAGE SPACE MANAGEMENT (ipo-detail.html)
+   ========================================================== */
+body.ipo-detail-page .main-content {
+    padding: 14px 18px 24px 18px;
+}
+
+body.ipo-detail-page .user-header-bar {
+    padding: 8px 16px;
+    margin-bottom: 10px;
+}
+
+body.ipo-detail-page .hero-card {
+    padding: 16px 18px 12px 18px;
+    margin-bottom: 10px;
+}
+
+body.ipo-detail-page .hero-top {
+    margin-bottom: 12px;
+}
+
+body.ipo-detail-page .hero-company-info {
+    gap: 14px;
+}
+
+body.ipo-detail-page .company-avatar-large {
+    width: 84px;
+    height: 84px;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+body.ipo-detail-page .company-title-wrap h1 {
+    font-size: 19px !important;
+    margin-bottom: 4px;
+}
+
+body.ipo-detail-page .hero-about-text {
+    font-size: 13px;
+    line-height: 1.48;
+    margin-top: 2px;
+    margin-bottom: 5px;
+}
+
+body.ipo-detail-page .hero-subtext {
+    font-size: 12.5px;
+    margin-top: 4px;
+}
+
+/* Flush Quick Summary Box inside Hero Card (no redundant inner padding) */
+body.ipo-detail-page #section-quick-summary.quick-summary-box {
+    padding: 0;
+    margin: 0 0 10px 0;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    box-shadow: none;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+body.ipo-detail-page #section-quick-summary .structured-table {
+    margin-bottom: 0;
+    border-collapse: collapse;
+}
+
+body.ipo-detail-page #section-quick-summary .structured-table th {
+    background: #f8fafc;
+    font-size: 11.5px !important;
+    padding: 8px 6px !important;
+    border-top: none;
+    white-space: nowrap;
+}
+
+body.ipo-detail-page #section-quick-summary .structured-table td {
+    font-size: 12px !important;
+    padding: 8px 6px !important;
+    border-bottom: none;
+}
+
+body.ipo-detail-page #section-quick-summary .structured-table th:first-child,
+body.ipo-detail-page #section-quick-summary .structured-table td:first-child {
+    border-left: none;
+}
+
+body.ipo-detail-page #section-quick-summary .structured-table th:last-child,
+body.ipo-detail-page #section-quick-summary .structured-table td:last-child {
+    border-right: none;
+}
+
+/* Tighter Hero Timeline without empty bottom void */
+body.ipo-detail-page .timeline-container {
+    margin-top: 10px;
+    margin-bottom: 2px;
+}
+
+/* Balanced Grid & Two-Column Card Stack */
+body.ipo-detail-page .details-grid {
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+body.ipo-detail-page .details-columns-balanced {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    align-items: start;
+}
+
+body.ipo-detail-page .details-col-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+}
+
+body.ipo-detail-page .card-detail {
+    padding: 13px 15px;
+    margin-bottom: 0;
+}
+
+body.ipo-detail-page .card-detail-header {
+    margin-bottom: 8px;
+    padding-left: 8px;
+}
+
+body.ipo-detail-page .card-detail-header h3 {
+    font-size: 14.5px;
+}
+
+body.ipo-detail-page .sub-section-title {
+    font-size: 12.5px;
+    margin-top: 6px;
+    margin-bottom: 5px;
+}
+
+body.ipo-detail-page .table-data td,
+body.ipo-detail-page .table-data th {
+    padding: 6.5px 10px;
+    font-size: 12.5px;
+}
+
+body.ipo-detail-page .table-data tbody tr:last-child td {
+    border-bottom: none;
+}
+
+body.ipo-detail-page .card-detail .structured-table th,
+body.ipo-detail-page .card-detail .structured-table td {
+    padding: 7.5px 8px !important;
+    font-size: 12.5px !important;
+}
+
+@media (max-width: 900px) {
+    body.ipo-detail-page .main-content {
+        padding: 12px;
+    }
+
+    body.ipo-detail-page .details-columns-balanced {
+        grid-template-columns: 1fr;
+    }
+
+    body.ipo-detail-page .hero-card {
+        padding: 14px;
+    }
+}
+

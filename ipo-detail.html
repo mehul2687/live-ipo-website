@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- External CSS Link -->
-    <link rel="stylesheet" href="style.css?v=2026.11.11.1">
+    <link rel="stylesheet" href="style.css?v=2026.11.11.2">
 
     <!-- Google Identity Services (Google Sign-In) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -19,7 +19,7 @@
     <script src="script.js?v=2026.11.11.1"></script>
 </head>
 
-<body>
+<body class="ipo-detail-page">
 
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
@@ -89,7 +89,7 @@
             </div>
 
             <!-- Horizontal Quick Stats & Details Summary Box -->
-            <div class="card-detail" id="section-quick-summary" style="margin-bottom: 12px; padding: 16px;">
+            <div class="card-detail quick-summary-box" id="section-quick-summary">
                 <div style="overflow-x: auto;">
                     <table class="structured-table" style="margin-bottom: 0; text-align: center;">
                         <thead>
@@ -141,7 +141,7 @@
         <div class="details-grid">
 
             <!-- 1.1. Important Dates & Key Details Box -->
-            <div class="card-detail" id="section-combined-details" style="margin-bottom: 0;">
+            <div class="card-detail" id="section-combined-details">
                 <div class="card-detail-header">
                     <h3>📋 IPO Important Dates & Details</h3>
                     <button class="btn-share"
@@ -149,8 +149,8 @@
                         Share</button>
                 </div>
 
-                <div class="sub-section-title">Important Dates</div>
-                <table class="table-data" style="margin-bottom: 12px;">
+                <div class="sub-section-title" style="margin-top: 2px;">Important Dates</div>
+                <table class="table-data" style="margin-bottom: 10px;">
                     <tbody>
                         <tr>
                             <td>IPO Open Date</td>
@@ -220,7 +220,7 @@
             </div>
 
             <!-- 2. Subscription Details Box -->
-            <div class="card-detail" id="section-detailed-subscription" style="margin-bottom: 0;">
+            <div class="card-detail" id="section-detailed-subscription">
                 <div class="card-detail-header">
                     <h3>📈 Subscription Details</h3>
                     <button class="btn-share"
@@ -228,9 +228,9 @@
                         Share</button>
                 </div>
 
-                <div class="sub-section-title">Subscription Details (No. of Shares)</div>
-                <div style="overflow-x: auto; margin-bottom: 12px;">
-                    <table class="structured-table">
+                <div class="sub-section-title" style="margin-top: 2px;">Subscription Details (No. of Shares)</div>
+                <div style="overflow-x: auto; margin-bottom: 10px;">
+                    <table class="structured-table" style="margin-bottom: 0;">
                         <thead>
                             <tr>
                                 <th style="text-align:left;">Category</th>
@@ -245,7 +245,7 @@
 
                 <div class="sub-section-title">Application-Wise Breakup (Approx. no. of Apps)</div>
                 <div style="overflow-x: auto;">
-                    <table class="structured-table">
+                    <table class="structured-table" style="margin-bottom: 0;">
                         <thead>
                             <tr>
                                 <th style="text-align:left;">Category</th>
@@ -261,276 +261,270 @@
             </div>
         </div>
 
-        <!-- Row 2: Company Financials & Company Valuation side-by-side -->
-        <div class="details-grid" style="margin-top: 12px;">
+        <!-- Balanced 2-Column Stack (Eliminates uneven card whitespace gaps) -->
+        <div class="details-columns-balanced">
 
-            <!-- 3. Company Financials Box -->
-            <div class="card-detail" id="section-consolidated-financials" style="margin-bottom: 0;">
-                <div class="card-detail-header">
-                    <h3>💰 Company Financials <span style="font-size: 12px; font-weight: normal; color: #64748b;">(₹ in
-                            Cr)</span></h3>
-                    <button class="btn-share"
-                        onclick="shareSectionAsImage('section-consolidated-financials', 'Company-Financials-Restated')">🔗
-                        Share</button>
+            <!-- Left Stack: Financials, Lot Sizes, Listing Details, Offer Documents -->
+            <div class="details-col-stack">
+
+                <!-- 3. Company Financials Box -->
+                <div class="card-detail" id="section-consolidated-financials">
+                    <div class="card-detail-header">
+                        <h3>💰 Company Financials <span style="font-size: 12px; font-weight: normal; color: #64748b;">(₹ in Cr)</span></h3>
+                        <button class="btn-share"
+                            onclick="shareSectionAsImage('section-consolidated-financials', 'Company-Financials-Restated')">🔗
+                            Share</button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="structured-table" style="margin-bottom: 0;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left;">Financial Year</th>
+                                    <th>Total Asset</th>
+                                    <th>Total Revenue</th>
+                                    <th>Total Expenses</th>
+                                    <th>Profit</th>
+                                </tr>
+                            </thead>
+                            <tbody id="financialsTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="export-brand-footer">Live IPO Tracking Portal</div>
                 </div>
-                <div style="overflow-x: auto;">
-                    <table class="structured-table" style="margin-bottom: 0;">
-                        <thead>
+
+                <!-- 5. Application Lot Size Details Box -->
+                <div class="card-detail" id="section-lotsizes-box">
+                    <div class="card-detail-header">
+                        <h3>📦 Application Lot Size Details</h3>
+                        <button class="btn-share"
+                            onclick="shareSectionAsImage('section-lotsizes-box', 'IPO-Lot-Size-Details')">🔗 Share</button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table class="structured-table" style="margin-bottom: 0;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left;">Application</th>
+                                    <th style="text-align:center;">Lot Size</th>
+                                    <th style="text-align:center;">Shares</th>
+                                    <th style="text-align:center;">Total Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lotMatrixBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="export-brand-footer">Live IPO Tracking Portal</div>
+                </div>
+
+                <!-- 7. Listing Details Box -->
+                <div class="card-detail" id="section-listing">
+                    <div class="card-detail-header">
+                        <h3>🔔 Listing Details</h3>
+                        <button class="btn-share" onclick="shareSectionAsImage('section-listing', 'IPO-Listing-Details')">🔗
+                            Share</button>
+                    </div>
+                    <table class="table-data">
+                        <tbody>
                             <tr>
-                                <th style="text-align:left;">Financial Year</th>
-                                <th>Total Asset</th>
-                                <th>Total Revenue</th>
-                                <th>Total Expenses</th>
-                                <th>Profit</th>
+                                <td>Listing Date</td>
+                                <td id="l_date">-</td>
                             </tr>
-                        </thead>
-                        <tbody id="financialsTableBody"></tbody>
-                    </table>
-                </div>
-                <div class="export-brand-footer">Live IPO Tracking Portal</div>
-            </div>
-
-            <!-- 4. Company Valuation Box -->
-            <div class="card-detail" id="section-valuation" style="margin-bottom: 0;">
-                <div class="card-detail-header">
-                    <h3>📊 Company Valuation</h3>
-                    <button class="btn-share" onclick="shareSectionAsImage('section-valuation', 'Company-Valuation')">🔗
-                        Share</button>
-                </div>
-                <table class="table-data">
-                    <tbody>
-                        <tr>
-                            <td>Earnings Per Share [EPS]</td>
-                            <td id="v_eps">-</td>
-                        </tr>
-                        <tr>
-                            <td>Price/Earnings [P/E] Ratio</td>
-                            <td id="v_pe">-</td>
-                        </tr>
-                        <tr>
-                            <td>Return on Net Worth [RoNW]</td>
-                            <td id="v_ronw">-</td>
-                        </tr>
-                        <tr>
-                            <td>Net Asset Value [NAV]</td>
-                            <td id="v_nav">-</td>
-                        </tr>
-                        <tr>
-                            <td>EBITDA Margin</td>
-                            <td id="v_ebitda">-</td>
-                        </tr>
-                        <tr>
-                            <td>PAT Margin</td>
-                            <td id="v_pat">-</td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="export-brand-footer">Live IPO Tracking Portal</div>
-            </div>
-        </div>
-
-        <!-- Row 3: GMP & Application Lot Size Details -->
-        <div class="details-grid" style="margin-top: 12px;">
-
-            <!-- 5. Application Lot Size Details Box -->
-            <div class="card-detail" id="section-lotsizes-box" style="margin-bottom: 0;">
-                <div class="card-detail-header">
-                    <h3>📦 Application Lot Size Details</h3>
-                    <button class="btn-share"
-                        onclick="shareSectionAsImage('section-lotsizes-box', 'IPO-Lot-Size-Details')">🔗 Share</button>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table class="structured-table" style="margin-bottom: 0;">
-                        <thead>
                             <tr>
-                                <th style="text-align:left;">Application</th>
-                                <th style="text-align:center;">Lot Size</th>
-                                <th style="text-align:center;">Shares</th>
-                                <th style="text-align:center;">Total Amount</th>
+                                <td>BSE Code</td>
+                                <td id="l_bse">-</td>
                             </tr>
-                        </thead>
-                        <tbody id="lotMatrixBody"></tbody>
-                    </table>
-                </div>
-                <div class="export-brand-footer">Live IPO Tracking Portal</div>
-            </div>
-
-            <!-- 6. Live GMP Box -->
-            <div class="card-detail" id="section-gmp" style="margin-bottom: 0;">
-                <div class="card-detail-header">
-                    <h3>📈 Live Grey Market Premium (GMP)</h3>
-                    <button class="btn-share" onclick="shareSectionAsImage('section-gmp', 'IPO-Live-GMP')">🔗
-                        Share</button>
-                </div>
-                <table class="table-data">
-                    <tbody>
-                        <tr>
-                            <td>Latest GMP</td>
-                            <td><span class="badge-gmp" id="g_gmp">-</span></td>
-                        </tr>
-                        <tr>
-                            <td>Estimated Listing Price</td>
-                            <td><strong id="g_estprice">-</strong></td>
-                        </tr>
-                        <tr>
-                            <td>Estimated Profit (Retail)</td>
-                            <td><strong style="color: #166534;" id="g_profit">-</strong></td>
-                        </tr>
-                        <tr>
-                            <td>Estimated Profit (HNI)</td>
-                            <td><strong style="color: #166534;" id="g_hni_profit">-</strong></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="export-brand-footer">Live IPO Tracking Portal</div>
-            </div>
-
-
-        </div>
-
-        <!-- Row 4: Listing Details & Offer Documents -->
-        <div class="details-grid" style="margin-top: 12px;">
-
-            <!-- 7. Listing Details Box -->
-            <div class="card-detail" id="section-listing" style="margin-bottom: 0;">
-                <div class="card-detail-header">
-                    <h3>🔔 Listing Details</h3>
-                    <button class="btn-share" onclick="shareSectionAsImage('section-listing', 'IPO-Listing-Details')">🔗
-                        Share</button>
-                </div>
-                <table class="table-data">
-                    <tbody>
-                        <tr>
-                            <td>Listing Date</td>
-                            <td id="l_date">-</td>
-                        </tr>
-                        <tr>
-                            <td>BSE Code</td>
-                            <td id="l_bse">-</td>
-                        </tr>
-                        <tr>
-                            <td>NSE Code</td>
-                            <td id="l_nse">-</td>
-                        </tr>
-                        <tr>
-                            <td>ISIN Code</td>
-                            <td id="l_isin">-</td>
-                        </tr>
-                        <tr>
-                            <td>IPO Price</td>
-                            <td id="l_price">-</td>
-                        </tr>
-                        <tr>
-                            <td>Lot Size</td>
-                            <td id="l_lotsize">-</td>
-                        </tr>
-                        <tr>
-                            <td>Expected Listing Price</td>
-                            <td><strong style="color: #0284c7;" id="l_expprice">-</strong></td>
-                        </tr>
-                        <tr>
-                            <td>Book Profit</td>
-                            <td><strong style="color: #166534;" id="l_profit">-</strong></td>
-                        </tr>
-                        <tr>
-                            <td>Stop Loss</td>
-                            <td><strong style="color: #dc2626;" id="l_stoploss">-</strong></td>
-                        </tr>
-                    </tbody>
-                </table>
-                <div class="export-brand-footer">Live IPO Tracking Portal</div>
-            </div>
-
-            <!-- 8. Reservation Quota Box -->
-            <div class="card-detail" id="section-reservation">
-                <div class="card-detail-header">
-                    <h3>🎯 IPO Reservation Quota</h3>
-                    <button class="btn-share" onclick="shareSectionAsImage('section-reservation', 'IPO_Reservation')">🔗
-                        Share</button>
-                </div>
-                <div style="overflow-x: auto;">
-                    <table class="structured-table" style="width: 100%; border-collapse: collapse;">
-                        <thead>
                             <tr>
-                                <th style="text-align: left;">Investor Category</th>
-                                <th style="text-align: center;">% of Total Issue</th>
-                                <th style="text-align: center;">Shares</th>
+                                <td>NSE Code</td>
+                                <td id="l_nse">-</td>
                             </tr>
-                        </thead>
-                        <tbody id="reservationTableBody">
-                            <!-- Dynamic Reservation Rows -->
+                            <tr>
+                                <td>ISIN Code</td>
+                                <td id="l_isin">-</td>
+                            </tr>
+                            <tr>
+                                <td>IPO Price</td>
+                                <td id="l_price">-</td>
+                            </tr>
+                            <tr>
+                                <td>Lot Size</td>
+                                <td id="l_lotsize">-</td>
+                            </tr>
+                            <tr>
+                                <td>Expected Listing Price</td>
+                                <td><strong style="color: #0284c7;" id="l_expprice">-</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Book Profit</td>
+                                <td><strong style="color: #166534;" id="l_profit">-</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Stop Loss</td>
+                                <td><strong style="color: #dc2626;" id="l_stoploss">-</strong></td>
+                            </tr>
                         </tbody>
                     </table>
+                    <div class="export-brand-footer">Live IPO Tracking Portal</div>
                 </div>
-                <div class="export-brand-footer">Live IPO Portal - liveipo.in</div>
+
+                <!-- 10. Offer Documents Box -->
+                <div class="card-detail" id="section-offer-docs">
+                    <div class="card-detail-header">
+                        <h3>📄 Offer Documents</h3>
+                        <button class="btn-share"
+                            onclick="shareSectionAsImage('section-offer-docs', 'IPO-Offer-Documents')">🔗 Share</button>
+                    </div>
+                    <div style="padding: 4px 0;">
+                        <div class="doc-row">
+                            <span class="doc-title">DHRP</span>
+                            <a href="#" target="_blank" class="btn-download" id="doc_drhp">📥 Download</a>
+                        </div>
+                        <div class="doc-row">
+                            <span class="doc-title">RHP</span>
+                            <a href="#" target="_blank" class="btn-download" id="doc_rhp">📥 Download</a>
+                        </div>
+                        <div class="doc-row">
+                            <span class="doc-title">Anchor Investors list</span>
+                            <a href="#" target="_blank" class="btn-download" id="doc_anchor">📥 Download</a>
+                        </div>
+                    </div>
+                    <div class="export-brand-footer">Live IPO Tracking Portal</div>
+                </div>
+
             </div>
 
-        </div>
+            <!-- Right Stack: Valuation, Live GMP, Reservation Quota, Registrar -->
+            <div class="details-col-stack">
 
-        <!-- Row 5: Registrar & Reservation Quota -->
-        <div class="details-grid" style="margin-top: 12px;">
-
-            <!-- 9. Registrar & Lead Managers Box -->
-            <div class="card-detail" id="section-registrar">
-                <div class="card-detail-header">
-                    <h3>🏢 IPO Registrar</h3>
-                    <button class="btn-share" onclick="shareSectionAsImage('section-registrar', 'IPO_Registrar')">🔗
-                        Share</button>
+                <!-- 4. Company Valuation Box -->
+                <div class="card-detail" id="section-valuation">
+                    <div class="card-detail-header">
+                        <h3>📊 Company Valuation</h3>
+                        <button class="btn-share" onclick="shareSectionAsImage('section-valuation', 'Company-Valuation')">🔗
+                            Share</button>
+                    </div>
+                    <table class="table-data">
+                        <tbody>
+                            <tr>
+                                <td>Earnings Per Share [EPS]</td>
+                                <td id="v_eps">-</td>
+                            </tr>
+                            <tr>
+                                <td>Price/Earnings [P/E] Ratio</td>
+                                <td id="v_pe">-</td>
+                            </tr>
+                            <tr>
+                                <td>Return on Net Worth [RoNW]</td>
+                                <td id="v_ronw">-</td>
+                            </tr>
+                            <tr>
+                                <td>Net Asset Value [NAV]</td>
+                                <td id="v_nav">-</td>
+                            </tr>
+                            <tr>
+                                <td>EBITDA Margin</td>
+                                <td id="v_ebitda">-</td>
+                            </tr>
+                            <tr>
+                                <td>PAT Margin</td>
+                                <td id="v_pat">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="export-brand-footer">Live IPO Tracking Portal</div>
                 </div>
 
-                <table class="table-data">
-                    <tbody>
-                        <tr>
-                            <td>Registrar Name</td>
-                            <td><span id="reg_name">N/A</span></td>
-                        </tr>
-                        <tr>
-                            <td>Registrar Website</td>
-                            <td><a href="#" id="reg_web" target="_blank"
-                                    style="color: #0284c7; text-decoration: none;">N/A</a></td>
-                        </tr>
-                        <tr>
-                            <td>Contact / Mobile</td>
-                            <td><span id="reg_mobile">N/A</span></td>
-                        </tr>
-                        <tr>
-                            <td>Email Support</td>
-                            <td><a href="#" id="reg_email" style="color: #0284c7; text-decoration: none;">N/A</a></td>
-                        </tr>
-                        <tr>
-                            <td>Allotment Link</td>
-                            <td><a href="#" id="reg_allotment_url" target="_blank"
-                                    style="background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 6px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🔍
-                                    Check Allotment</a></td>
-                        </tr>
-
-                    </tbody>
-                </table>
-                <div class="export-brand-footer">Live IPO Portal - liveipo.in</div>
-            </div>
-
-            <!-- 10. Offer Documents Box -->
-            <div class="card-detail" id="section-offer-docs" style="margin-bottom: 0;">
-                <div class="card-detail-header">
-                    <h3>📄 Offer Documents</h3>
-                    <button class="btn-share"
-                        onclick="shareSectionAsImage('section-offer-docs', 'IPO-Offer-Documents')">🔗 Share</button>
+                <!-- 6. Live GMP Box -->
+                <div class="card-detail" id="section-gmp">
+                    <div class="card-detail-header">
+                        <h3>📈 Live Grey Market Premium (GMP)</h3>
+                        <button class="btn-share" onclick="shareSectionAsImage('section-gmp', 'IPO-Live-GMP')">🔗
+                            Share</button>
+                    </div>
+                    <table class="table-data">
+                        <tbody>
+                            <tr>
+                                <td>Latest GMP</td>
+                                <td><span class="badge-gmp" id="g_gmp">-</span></td>
+                            </tr>
+                            <tr>
+                                <td>Estimated Listing Price</td>
+                                <td><strong id="g_estprice">-</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Estimated Profit (Retail)</td>
+                                <td><strong style="color: #166534;" id="g_profit">-</strong></td>
+                            </tr>
+                            <tr>
+                                <td>Estimated Profit (HNI)</td>
+                                <td><strong style="color: #166534;" id="g_hni_profit">-</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="export-brand-footer">Live IPO Tracking Portal</div>
                 </div>
-                <div style="padding: 10px 0;">
-                    <div class="doc-row">
-                        <span class="doc-title">DHRP</span>
-                        <a href="#" target="_blank" class="btn-download" id="doc_drhp">📥 Download</a>
+
+                <!-- 8. Reservation Quota Box -->
+                <div class="card-detail" id="section-reservation">
+                    <div class="card-detail-header">
+                        <h3>🎯 IPO Reservation Quota</h3>
+                        <button class="btn-share" onclick="shareSectionAsImage('section-reservation', 'IPO_Reservation')">🔗
+                            Share</button>
                     </div>
-                    <div class="doc-row">
-                        <span class="doc-title">RHP</span>
-                        <a href="#" target="_blank" class="btn-download" id="doc_rhp">📥 Download</a>
+                    <div style="overflow-x: auto;">
+                        <table class="structured-table" style="width: 100%; border-collapse: collapse; margin-bottom: 0;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left;">Investor Category</th>
+                                    <th style="text-align: center;">% of Total Issue</th>
+                                    <th style="text-align: center;">Shares</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reservationTableBody">
+                                <!-- Dynamic Reservation Rows -->
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="doc-row">
-                        <span class="doc-title">Anchor Investors list</span>
-                        <a href="#" target="_blank" class="btn-download" id="doc_anchor">📥 Download</a>
-                    </div>
+                    <div class="export-brand-footer">Live IPO Portal - liveipo.in</div>
                 </div>
-                <div class="export-brand-footer">Live IPO Tracking Portal</div>
+
+                <!-- 9. Registrar & Lead Managers Box -->
+                <div class="card-detail" id="section-registrar">
+                    <div class="card-detail-header">
+                        <h3>🏢 IPO Registrar</h3>
+                        <button class="btn-share" onclick="shareSectionAsImage('section-registrar', 'IPO_Registrar')">🔗
+                            Share</button>
+                    </div>
+
+                    <table class="table-data">
+                        <tbody>
+                            <tr>
+                                <td>Registrar Name</td>
+                                <td><span id="reg_name">N/A</span></td>
+                            </tr>
+                            <tr>
+                                <td>Registrar Website</td>
+                                <td><a href="#" id="reg_web" target="_blank"
+                                        style="color: #0284c7; text-decoration: none;">N/A</a></td>
+                            </tr>
+                            <tr>
+                                <td>Contact / Mobile</td>
+                                <td><span id="reg_mobile">N/A</span></td>
+                            </tr>
+                            <tr>
+                                <td>Email Support</td>
+                                <td><a href="#" id="reg_email" style="color: #0284c7; text-decoration: none;">N/A</a></td>
+                            </tr>
+                            <tr>
+                                <td>Allotment Link</td>
+                                <td><a href="#" id="reg_allotment_url" target="_blank"
+                                        style="background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 6px 14px; border-radius: 6px; font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🔍
+                                        Check Allotment</a></td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                    <div class="export-brand-footer">Live IPO Portal - liveipo.in</div>
+                </div>
+
             </div>
 
         </div>

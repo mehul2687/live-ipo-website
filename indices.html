@@ -970,20 +970,21 @@
         let autoRefreshInterval = null;
         let isAutoRefreshEnabled = true;
 
-        // Moneycontrol bridge symbols map for client live ticks
+        // Moneycontrol bridge symbols map for verified key live ticks
         const SYMBOL_MAP = {
             'NIFTY 50': 'in;NSX',
             'NIFTY BANK': 'in;nbx',
-            'NIFTY NEXT 50': 'in;nnx',
+            'NIFTY NEXT 50': 'in;cjn',
             'NIFTY MIDCAP 100': 'in;ccx',
             'NIFTY Midcap 100': 'in;ccx',
-            'NIFTY 100': 'in;cjn',
+            'NIFTY 100': 'in;nnx',
             'NIFTY 200': 'in;cnxt',
             'NIFTY 500': 'in;ncx',
             'NIFTY SMALLCAP 100': 'in;cnxs',
             'NIFTY Smallcap 100': 'in;cnxs',
             'NIFTY MIDCAP 50': 'in;mfy',
             'NIFTY SMALLCAP 50': 'mc;nscapf',
+            'NIFTY SMLCAP 50': 'mc;nscapf',
             'NIFTY IT': 'in;cnit',
             'NIFTY AUTO': 'in;cnxa',
             'NIFTY PHARMA': 'in;cpr',
@@ -992,18 +993,19 @@
             'NIFTY REALTY': 'in;crl',
             'NIFTY ENERGY': 'in;cgy',
             'NIFTY MEDIA': 'in;cnmx',
-            'NIFTY PSU BANK': 'in;nxb',
             'NIFTY FINANCIAL SERVICES': 'in;cnxf',
             'NIFTY FIN SERVICE': 'in;cnxf',
             'NIFTY OIL & GAS': 'mc;oilgas',
             'NIFTY HEALTHCARE': 'mc;helcar',
             'NIFTY CONSUMER DURABLES': 'mc;condur',
+            'NIFTY CONS DURBL': 'mc;condur',
             'INDIA VIX': 'in;IDXN',
             'SENSEX': 'in;SEN',
             'BSE SENSEX': 'in;SEN',
-            'BSE 100': 'in;tkx',
             'BSE SENSEX NEXT 30': 'mc;snt'
         };
+
+        let isFetchingLive = false;
 
         // Number formatter with Indian format
         function formatNumber(num) {
@@ -1124,6 +1126,19 @@
             }
         }
 
+        function formatChange(num) {
+            if (num === null || num === undefined || isNaN(num)) return '-';
+            const val = parseFloat(num);
+            const sign = val > 0 ? '+' : '';
+            return `${sign}${val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        function getRowId(item) {
+            const ex = (item && item.exchange ? item.exchange : 'NSE').replace(/[^a-zA-Z0-9]/g, '');
+            const nm = (item && item.name ? item.name : '').replace(/[^a-zA-Z0-9]/g, '_');
+            return `row_${ex}_${nm}`;
+        }
+
         function updateCardChg(chgId, pchgId, chg, pchg) {
             const chgEl = document.getElementById(chgId);
             const pchgEl = document.getElementById(pchgId);
@@ -1131,9 +1146,9 @@
 
             const numChg = parseFloat(chg) || 0;
             const numPchg = parseFloat(pchg) || 0;
-
             const sign = numChg > 0 ? '+' : '';
-            chgEl.innerText = `${sign}${formatNumber(numChg)}`;
+
+            chgEl.innerText = formatChange(numChg);
             pchgEl.innerText = `${sign}${numPchg.toFixed(2)}%`;
 
             if (numChg > 0) {
@@ -1152,7 +1167,9 @@
             'NIFTY 50',
             'NIFTY NEXT 50',
             'NIFTY BANK',
+            'NIFTY FIN SERVICE',
             'NIFTY FINANCIAL SERVICES',
+            'NIFTY MID SELECT',
             'NIFTY MIDCAP SELECT',
             'NIFTY INDIA FPI 150'
         ];
@@ -1161,6 +1178,17 @@
             if (!name) return false;
             const clean = name.trim().toUpperCase();
             return DERIVATIVE_INDICES.some(d => d.toUpperCase() === clean);
+        }
+
+        function getDerivativeSortOrder(name) {
+            const upper = (name || '').trim().toUpperCase();
+            if (upper === 'NIFTY 50') return 0;
+            if (upper === 'NIFTY NEXT 50') return 1;
+            if (upper === 'NIFTY BANK') return 2;
+            if (upper === 'NIFTY FIN SERVICE' || upper === 'NIFTY FINANCIAL SERVICES') return 3;
+            if (upper === 'NIFTY MID SELECT' || upper === 'NIFTY MIDCAP SELECT') return 4;
+            if (upper === 'NIFTY INDIA FPI 150') return 5;
+            return 99;
         }
 
         function updateBadgeCounts() {
@@ -1175,12 +1203,13 @@
         }
 
         function isKeyIndex(name) {
+            const upper = (name || '').trim().toUpperCase();
             const keyNames = [
                 'NIFTY 50', 'SENSEX', 'NIFTY BANK', 'NIFTY NEXT 50', 'NIFTY MIDCAP 100',
                 'NIFTY 100', 'NIFTY 200', 'NIFTY 500', 'NIFTY SMALLCAP 100', 'INDIA VIX',
                 'BSE 100', 'BSE 200', 'BSE 500', 'BSE SENSEX NEXT 30'
             ];
-            return keyNames.includes(name);
+            return keyNames.includes(upper);
         }
 
         function setCategoryFilter(filter) {
@@ -1271,7 +1300,7 @@
 
             // 3. Sort
             if (currentFilter === 'derivative' && currentSort.column === 'custom') {
-                list.sort((a, b) => DERIVATIVE_INDICES.indexOf(a.name) - DERIVATIVE_INDICES.indexOf(b.name));
+                list.sort((a, b) => getDerivativeSortOrder(a.name) - getDerivativeSortOrder(b.name));
             } else {
                 const col = currentSort.column;
                 const asc = currentSort.order === 'asc';
@@ -1320,7 +1349,7 @@
                 }
 
                 const exPillClass = item.exchange === 'BSE' ? 'pill-bse' : 'pill-nse';
-                const rowId = 'row_' + item.name.replace(/[^a-zA-Z0-9]/g, '_');
+                const rowId = getRowId(item);
 
                 html += `
                     <tr id="${rowId}">
@@ -1337,17 +1366,17 @@
                             </div>
                         </td>
                         <td class="td-ltp" id="ltp_${rowId}">${formatNumber(item.ltp)}</td>
-                        <td class="${chgColorClass}" id="chg_${rowId}">${sign}${formatNumber(numChg)}</td>
+                        <td class="${chgColorClass}" id="chg_${rowId}">${formatChange(numChg)}</td>
                         <td>
                             <span class="badge-pill-val ${pchgBadgeClass}" id="pchg_${rowId}">
                                 ${sign}${numPchg.toFixed(2)}%
                             </span>
                         </td>
-                        <td>${formatNumber(item.open)}</td>
-                        <td style="color: #15803d;">${formatNumber(item.high)}</td>
-                        <td style="color: #b91c1c;">${formatNumber(item.low)}</td>
-                        <td>${formatNumber(item.yearHigh)}</td>
-                        <td>${formatNumber(item.yearLow)}</td>
+                        <td id="open_${rowId}">${formatNumber(item.open)}</td>
+                        <td id="high_${rowId}" style="color: #15803d;">${formatNumber(item.high)}</td>
+                        <td id="low_${rowId}" style="color: #b91c1c;">${formatNumber(item.low)}</td>
+                        <td id="yhigh_${rowId}">${formatNumber(item.yearHigh)}</td>
+                        <td id="ylow_${rowId}">${formatNumber(item.yearLow)}</td>
                         <td>${formatVolume(item.volume)}</td>
                     </tr>
                 `;
@@ -1357,70 +1386,240 @@
         }
 
         // ==========================================================
-        // ⚡ REAL-TIME LIVE PRICE STREAMING (CLIENT-SIDE)
+        // ⚡ REAL-TIME LIVE PRICE STREAMING (ALL 94+ INDICES)
         // ==========================================================
-        async function fetchLiveTickerUpdates() {
-            // Priority list of key symbols to live-stream
-            const liveSymbols = [
-                { name: 'NIFTY 50', symbol: 'in;NSX' },
-                { name: 'SENSEX', symbol: 'in;SEN' },
-                { name: 'NIFTY BANK', symbol: 'in;nbx' },
-                { name: 'NIFTY NEXT 50', symbol: 'in;nnx' },
-                { name: 'NIFTY Midcap 100', symbol: 'in;ccx' },
-                { name: 'NIFTY IT', symbol: 'in;cnit' },
-                { name: 'NIFTY AUTO', symbol: 'in;cnxa' },
-                { name: 'INDIA VIX', symbol: 'in;IDXN' }
-            ];
+        function normalizeIndexKey(rawName) {
+            if (!rawName) return '';
+            const clean = rawName.trim().toUpperCase().replace(/\s+/g, ' ');
+            if (clean === 'VIX' || clean === 'INDIA VIX') return 'INDIA VIX';
+            if (clean === 'BSE SENSEX') return 'SENSEX';
+            return clean;
+        }
 
-            for (const item of liveSymbols) {
-                try {
-                    const res = await fetch(`https://priceapi.moneycontrol.com/pricefeed/notapplicable/inidicesindia/${encodeURIComponent(item.symbol)}`);
-                    if (!res.ok) continue;
-                    const json = await res.json();
-                    if (!json || !json.data) continue;
+        function parseMoneycontrolTableHtml(html, exchange) {
+            if (!html) return [];
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const rows = doc.querySelectorAll('tr[data-type]');
+            const list = [];
 
-                    const d = json.data;
-                    const newLtp = parseFloat(d.pricecurrent) || 0;
-                    const newChg = parseFloat(d.pricechange) || 0;
-                    const newPchg = parseFloat(d.pricepercentchange) || 0;
+            const parseNum = (s) => {
+                const n = parseFloat((s || '0').replace(/,/g, ''));
+                return isNaN(n) ? 0 : n;
+            };
 
-                    // Find index in cached array
-                    const target = allIndices.find(i => i.name === item.name || (i.name && i.name.toUpperCase() === item.name.toUpperCase()));
-                    if (target) {
-                        const oldLtp = target.ltp;
-                        target.ltp = newLtp;
-                        target.chg = newChg;
-                        target.percentChange = newPchg;
-                        if (d.HIGH && parseFloat(d.HIGH) > 0) target.high = parseFloat(d.HIGH);
-                        if (d.LOW && parseFloat(d.LOW) > 0) target.low = parseFloat(d.LOW);
-                        if (d.OPEN && parseFloat(d.OPEN) > 0) target.open = parseFloat(d.OPEN);
+            rows.forEach(tr => {
+                const aTag = tr.querySelector('a');
+                const rawName = aTag ? aTag.textContent.trim() : '';
+                if (!rawName) return;
 
-                        // If value changed, trigger table row live flash animation
-                        if (oldLtp !== newLtp) {
-                            const rowId = 'row_' + target.name.replace(/[^a-zA-Z0-9]/g, '_');
-                            const ltpEl = document.getElementById(`ltp_${rowId}`);
-                            if (ltpEl) {
-                                ltpEl.innerText = formatNumber(newLtp);
-                                ltpEl.classList.remove('flash-up', 'flash-down');
-                                void ltpEl.offsetWidth; // trigger reflow
-                                ltpEl.classList.add(newLtp > oldLtp ? 'flash-up' : 'flash-down');
-                            }
-                        }
-                    }
-                } catch (e) {
-                    // Fail silently for background ticks
+                const name = normalizeIndexKey(rawName);
+                const tds = Array.from(tr.querySelectorAll('td')).map(td => td.textContent.replace(/\s+/g, ' ').trim());
+                if (tds.length < 9) return;
+
+                const ltp = parseNum(tds[1]);
+                if (ltp <= 0) return;
+
+                list.push({
+                    name,
+                    exchange,
+                    ltp,
+                    chg: parseNum(tds[2]),
+                    percentChange: parseNum(tds[3]),
+                    open: parseNum(tds[4]),
+                    high: parseNum(tds[5]),
+                    low: parseNum(tds[6]),
+                    yearHigh: parseNum(tds[7]),
+                    yearLow: parseNum(tds[8])
+                });
+            });
+
+            return list;
+        }
+
+        function updateRowDOM(item, oldState) {
+            if (!item) return;
+            const rowId = getRowId(item);
+
+            const numLtp = parseFloat(item.ltp) || 0;
+            const numChg = parseFloat(item.chg) || 0;
+            const numPchg = parseFloat(item.percentChange) || 0;
+            const sign = numChg > 0 ? '+' : '';
+
+            let chgColorClass = 'val-neutral';
+            let pchgBadgeClass = 'badge-pill-neu';
+            if (numChg > 0) {
+                chgColorClass = 'val-positive';
+                pchgBadgeClass = 'badge-pill-pos';
+            } else if (numChg < 0) {
+                chgColorClass = 'val-negative';
+                pchgBadgeClass = 'badge-pill-neg';
+            }
+
+            const ltpChanged = oldState && oldState.ltp !== numLtp;
+            const chgChanged = oldState && (oldState.chg !== numChg || oldState.percentChange !== numPchg);
+
+            const ltpEl = document.getElementById(`ltp_${rowId}`);
+            if (ltpEl) {
+                ltpEl.innerText = formatNumber(numLtp);
+                if (ltpChanged) {
+                    ltpEl.classList.remove('flash-up', 'flash-down');
+                    void ltpEl.offsetWidth;
+                    ltpEl.classList.add(numLtp > oldState.ltp ? 'flash-up' : 'flash-down');
                 }
             }
 
-            // Also update top cards
-            const n50 = allIndices.find(i => i.name === 'NIFTY 50');
-            const sen = allIndices.find(i => i.name === 'SENSEX');
-            const bnk = allIndices.find(i => i.name === 'NIFTY BANK');
-            const vix = allIndices.find(i => i.name === 'INDIA VIX');
-            updateSummaryCards({ nifty50: n50, sensex: sen, niftyBank: bnk, indiaVix: vix });
+            const chgEl = document.getElementById(`chg_${rowId}`);
+            if (chgEl) {
+                chgEl.className = chgColorClass;
+                chgEl.innerText = formatChange(numChg);
+                if (ltpChanged || chgChanged) {
+                    const dirUp = ltpChanged ? (numLtp > oldState.ltp) : (numChg > oldState.chg);
+                    chgEl.classList.remove('flash-up', 'flash-down');
+                    void chgEl.offsetWidth;
+                    chgEl.classList.add(dirUp ? 'flash-up' : 'flash-down');
+                }
+            }
 
-            const now = new Date();
-            document.getElementById('lastUpdatedLabel').innerText = `Live: ${now.toLocaleTimeString('en-IN')}`;
+            const pchgEl = document.getElementById(`pchg_${rowId}`);
+            if (pchgEl) {
+                pchgEl.className = `badge-pill-val ${pchgBadgeClass}`;
+                pchgEl.innerText = `${sign}${numPchg.toFixed(2)}%`;
+            }
+
+            const openEl = document.getElementById(`open_${rowId}`);
+            if (openEl) openEl.innerText = formatNumber(item.open);
+
+            const highEl = document.getElementById(`high_${rowId}`);
+            if (highEl) highEl.innerText = formatNumber(item.high);
+
+            const lowEl = document.getElementById(`low_${rowId}`);
+            if (lowEl) lowEl.innerText = formatNumber(item.low);
+
+            const yhighEl = document.getElementById(`yhigh_${rowId}`);
+            if (yhighEl) yhighEl.innerText = formatNumber(item.yearHigh);
+
+            const ylowEl = document.getElementById(`ylow_${rowId}`);
+            if (ylowEl) ylowEl.innerText = formatNumber(item.yearLow);
+        }
+
+        async function fetchLiveTickerUpdates() {
+            if (isFetchingLive) return;
+            isFetchingLive = true;
+
+            try {
+                const ts = Date.now();
+                const oldStateMap = new Map();
+                allIndices.forEach(item => {
+                    oldStateMap.set(getRowId(item), {
+                        ltp: parseFloat(item.ltp) || 0,
+                        chg: parseFloat(item.chg) || 0,
+                        percentChange: parseFloat(item.percentChange) || 0
+                    });
+                });
+
+                // Key indices fetched with high-frequency PriceAPI in parallel
+                const heroSymbols = [
+                    { name: 'NIFTY 50', symbol: 'in;NSX' },
+                    { name: 'SENSEX', symbol: 'in;SEN' },
+                    { name: 'NIFTY BANK', symbol: 'in;nbx' },
+                    { name: 'INDIA VIX', symbol: 'in;IDXN' },
+                    { name: 'NIFTY NEXT 50', symbol: 'in;cjn' },
+                    { name: 'NIFTY FIN SERVICE', symbol: 'in;cnxf' },
+                    { name: 'NIFTY MIDCAP 100', symbol: 'in;ccx' },
+                    { name: 'NIFTY 100', symbol: 'in;nnx' },
+                    { name: 'NIFTY IT', symbol: 'in;cnit' },
+                    { name: 'NIFTY AUTO', symbol: 'in;cnxa' }
+                ];
+
+                const urlNse = `https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=N&selTab=o&selPage=marketLive&classic=true&_=${ts}`;
+                const urlBse = `https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=B&selTab=o&selPage=marketLive&classic=true&_=${ts}`;
+
+                // Run full NSE/BSE table fetch + hero priceapi ticks simultaneously
+                const [nseRes, bseRes, ...heroResults] = await Promise.allSettled([
+                    fetch(urlNse, { cache: 'no-store' }).then(r => r.ok ? r.text() : ''),
+                    fetch(urlBse, { cache: 'no-store' }).then(r => r.ok ? r.text() : ''),
+                    ...heroSymbols.map(item =>
+                        fetch(`https://priceapi.moneycontrol.com/pricefeed/notapplicable/inidicesindia/${encodeURIComponent(item.symbol)}?_=${ts}`, { cache: 'no-store' })
+                            .then(r => r.ok ? r.json() : null)
+                            .then(json => ({ name: item.name, data: json && json.data ? json.data : null }))
+                    )
+                ]);
+
+                // Step 1: Apply ALL 94+ live NSE & BSE indices from changeTableData
+                const parsedRows = [
+                    ...(nseRes.status === 'fulfilled' ? parseMoneycontrolTableHtml(nseRes.value, 'NSE') : []),
+                    ...(bseRes.status === 'fulfilled' ? parseMoneycontrolTableHtml(bseRes.value, 'BSE') : [])
+                ];
+
+                let anyUpdated = false;
+
+                parsedRows.forEach(live => {
+                    const target = allIndices.find(i =>
+                        normalizeIndexKey(i.name) === live.name &&
+                        (!i.exchange || i.exchange === live.exchange)
+                    ) || allIndices.find(i => normalizeIndexKey(i.name) === live.name);
+
+                    if (target) {
+                        target.ltp = live.ltp;
+                        target.chg = live.chg;
+                        target.percentChange = live.percentChange;
+                        if (live.open > 0) target.open = live.open;
+                        if (live.high > 0) target.high = live.high;
+                        if (live.low > 0) target.low = live.low;
+                        if (live.yearHigh > 0) target.yearHigh = live.yearHigh;
+                        if (live.yearLow > 0) target.yearLow = live.yearLow;
+                        anyUpdated = true;
+                    }
+                });
+
+                // Step 2: Overlay sub-second PriceAPI ticks so Hero Cards & Table Rows always stay 100% synced
+                heroResults.forEach(res => {
+                    if (res.status !== 'fulfilled' || !res.value || !res.value.data) return;
+                    const { name, data: d } = res.value;
+                    const newLtp = parseFloat(d.pricecurrent);
+                    if (!newLtp || isNaN(newLtp)) return;
+
+                    const target = allIndices.find(i => normalizeIndexKey(i.name) === normalizeIndexKey(name));
+                    if (target) {
+                        target.ltp = newLtp;
+                        if (d.pricechange !== undefined && !isNaN(parseFloat(d.pricechange))) {
+                            target.chg = parseFloat(d.pricechange);
+                        }
+                        if (d.pricepercentchange !== undefined && !isNaN(parseFloat(d.pricepercentchange))) {
+                            target.percentChange = parseFloat(d.pricepercentchange);
+                        }
+                        if (d.OPEN && parseFloat(d.OPEN) > 0) target.open = parseFloat(d.OPEN);
+                        if (d.HIGH && parseFloat(d.HIGH) > 0) target.high = parseFloat(d.HIGH);
+                        if (d.LOW && parseFloat(d.LOW) > 0) target.low = parseFloat(d.LOW);
+                        if (d['52wkhi'] && parseFloat(d['52wkhi']) > 0) target.yearHigh = parseFloat(d['52wkhi']);
+                        if (d['52wklow'] && parseFloat(d['52wklow']) > 0) target.yearLow = parseFloat(d['52wklow']);
+                        anyUpdated = true;
+                    }
+                });
+
+                // Step 3: Push ALL updated metrics (LTP, Chg, %Chg, Open, High, Low, 52W) into the table DOM
+                if (anyUpdated) {
+                    allIndices.forEach(item => {
+                        const oldState = oldStateMap.get(getRowId(item));
+                        updateRowDOM(item, oldState);
+                    });
+                }
+
+                // Step 4: Sync Top Summary Cards from the exact same live objects
+                const n50 = allIndices.find(i => normalizeIndexKey(i.name) === 'NIFTY 50');
+                const sen = allIndices.find(i => normalizeIndexKey(i.name) === 'SENSEX');
+                const bnk = allIndices.find(i => normalizeIndexKey(i.name) === 'NIFTY BANK');
+                const vix = allIndices.find(i => normalizeIndexKey(i.name) === 'INDIA VIX');
+                updateSummaryCards({ nifty50: n50, sensex: sen, niftyBank: bnk, indiaVix: vix });
+
+                const now = new Date();
+                document.getElementById('lastUpdatedLabel').innerText = `Live: ${now.toLocaleTimeString('en-IN')}`;
+            } catch (err) {
+                console.warn('Live ticker update warning:', err);
+            } finally {
+                isFetchingLive = false;
+            }
         }
 
         function toggleAutoRefresh() {
@@ -1481,9 +1680,10 @@
         }
 
         // Initialize on page load
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             checkMarketStatus();
-            loadIndicesData();
+            await loadIndicesData();
+            fetchLiveTickerUpdates();
             startAutoRefresh();
 
             // Check market status every 60 seconds

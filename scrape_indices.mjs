@@ -8,10 +8,10 @@ const HISTORY_FILE = path.resolve('indices-history-data.json');
 const SYMBOL_MAP = {
     'NIFTY 50': 'in;NSX',
     'NIFTY BANK': 'in;nbx',
-    'NIFTY NEXT 50': 'in;nnx',
+    'NIFTY NEXT 50': 'in;cjn',
     'NIFTY MIDCAP 100': 'in;ccx',
     'NIFTY Midcap 100': 'in;ccx',
-    'NIFTY 100': 'in;cjn',
+    'NIFTY 100': 'in;nnx',
     'NIFTY 200': 'in;cnxt',
     'NIFTY 500': 'in;ncx',
     'NIFTY SMALLCAP 100': 'in;cnxs',
@@ -26,7 +26,6 @@ const SYMBOL_MAP = {
     'NIFTY REALTY': 'in;crl',
     'NIFTY ENERGY': 'in;cgy',
     'NIFTY MEDIA': 'in;cnmx',
-    'NIFTY PSU BANK': 'in;nxb',
     'NIFTY FINANCIAL SERVICES': 'in;cnxf',
     'NIFTY FIN SERVICE': 'in;cnxf',
     'NIFTY OIL & GAS': 'mc;oilgas',
@@ -36,7 +35,6 @@ const SYMBOL_MAP = {
     'India VIX': 'in;IDXN',
     'SENSEX': 'in;SEN',
     'BSE SENSEX': 'in;SEN',
-    'BSE 100': 'in;tkx',
     'BSE SENSEX NEXT 30': 'mc;snt'
 };
 

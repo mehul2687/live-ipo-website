@@ -1170,6 +1170,49 @@
             return baseData;
         }
 
+        function updateLiveIndicesFromHtml(html, exchangeLabel) {
+            if (!html) return;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const rows = doc.querySelectorAll('tr[data-type], tbody tr');
+            rows.forEach(tr => {
+                const tds = tr.querySelectorAll('td');
+                if (tds.length < 7) return;
+                const aTag = tds[0].querySelector('a');
+                const rawName = ((aTag ? aTag.textContent : tds[0].textContent) || '').trim();
+                if (!rawName || rawName === 'No Data Available') return;
+
+                const ltp = cleanNumber(tds[1].textContent);
+                const chg = cleanNumber(tds[2].textContent);
+                const pchg = cleanNumber(tds[3].textContent);
+                if (!ltp) return;
+
+                const open = cleanNumber(tds[4].textContent);
+                const high = cleanNumber(tds[5].textContent);
+                const low = cleanNumber(tds[6].textContent);
+                const yearHigh = tds[7] ? cleanNumber(tds[7].textContent) : 0;
+                const yearLow = tds[8] ? cleanNumber(tds[8].textContent) : 0;
+
+                const cleanKey = rawName.toUpperCase().trim();
+                const target = liveIndicesDataset[cleanKey] || {
+                    name: rawName,
+                    exchange: exchangeLabel,
+                    category: 'Index'
+                };
+                target.ltp = ltp;
+                target.chg = chg;
+                target.percentChange = pchg;
+                if (open) target.open = open;
+                if (high) target.high = high;
+                if (low) target.low = low;
+                if (yearHigh) target.yearHigh = yearHigh;
+                if (yearLow) target.yearLow = yearLow;
+                liveIndicesDataset[cleanKey] = target;
+                if (cleanKey === 'BSE SENSEX') liveIndicesDataset['SENSEX'] = target;
+                if (cleanKey === 'SENSEX') liveIndicesDataset['BSE SENSEX'] = target;
+            });
+        }
+
         // Live Real-Time Constituent Stocks Sync directly from Moneycontrol
         async function syncConstituentsLive(indexName) {
             const mapping = findIndexMapping(indexName);
@@ -1181,14 +1224,25 @@
             if (isSyncingLive) return;
             isSyncingLive = true;
 
-            const endpoint = `https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=${mapping.ex}&indicesID=${mapping.id}&selTab=o&selPage=marketTerminal&classic=true`;
+            const cacheBuster = Date.now();
+            const endpoint = `https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=${mapping.ex}&indicesID=${mapping.id}&selTab=o&selPage=marketTerminal&classic=true&_=${cacheBuster}`;
+            const liveIdxEndpoint = `https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=${mapping.ex}&selTab=o&selPage=marketLive&classic=true&_=${cacheBuster}`;
 
             try {
-                const res = await fetch(endpoint, {
-                    headers: { 'Accept': 'text/html,application/xhtml+xml' }
-                });
+                const [resSettled, liveIdxResSettled] = await Promise.allSettled([
+                    fetch(endpoint, { headers: { 'Accept': 'text/html,application/xhtml+xml' } }),
+                    fetch(liveIdxEndpoint, { headers: { 'Accept': 'text/html,application/xhtml+xml' } })
+                ]);
 
-                if (res.ok) {
+                let idxUpdated = false;
+                if (liveIdxResSettled.status === 'fulfilled' && liveIdxResSettled.value && liveIdxResSettled.value.ok) {
+                    const liveIdxHtml = await liveIdxResSettled.value.text();
+                    updateLiveIndicesFromHtml(liveIdxHtml, mapping.ex === 'B' ? 'BSE' : 'NSE');
+                    idxUpdated = true;
+                }
+
+                const res = resSettled.status === 'fulfilled' ? resSettled.value : null;
+                if (res && res.ok) {
                     const html = await res.text();
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
@@ -1295,7 +1349,11 @@
                         if (updatedBadge) {
                             updatedBadge.innerHTML = `⚡ Live Synced with Moneycontrol (${nowStr})`;
                         }
+                    } else if (idxUpdated) {
+                        updateHeroCard();
                     }
+                } else if (idxUpdated) {
+                    updateHeroCard();
                 }
             } catch (err) {
                 console.warn('Live constituent sync error:', err.message);

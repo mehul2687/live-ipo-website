@@ -839,15 +839,27 @@
             'NIFTY 50',
             'NIFTY NEXT 50',
             'NIFTY BANK',
+            'NIFTY FIN SERVICE',
             'NIFTY FINANCIAL SERVICES',
+            'NIFTY MID SELECT',
             'NIFTY MIDCAP SELECT',
             'NIFTY INDIA FPI 150'
         ];
 
-        function isDerivativeIndex(name) {
-            if (!name) return false;
+        function getDerivativeSortOrder(name) {
+            if (!name) return 999;
             const clean = name.trim().toUpperCase();
-            return DERIVATIVE_INDICES.some(d => d.toUpperCase() === clean);
+            if (clean === 'NIFTY 50') return 0;
+            if (clean === 'NIFTY NEXT 50') return 1;
+            if (clean === 'NIFTY BANK') return 2;
+            if (clean === 'NIFTY FIN SERVICE' || clean === 'NIFTY FINANCIAL SERVICES') return 3;
+            if (clean === 'NIFTY MID SELECT' || clean === 'NIFTY MIDCAP SELECT') return 4;
+            if (clean === 'NIFTY INDIA FPI 150') return 5;
+            return 999;
+        }
+
+        function isDerivativeIndex(name) {
+            return getDerivativeSortOrder(name) < 999;
         }
 
         function formatNumber(num) {
@@ -1193,7 +1205,7 @@
 
             // Sort
             if (currentFilter === 'derivative' && currentSort.column === 'custom') {
-                list.sort((a, b) => DERIVATIVE_INDICES.indexOf(a.name) - DERIVATIVE_INDICES.indexOf(b.name));
+                list.sort((a, b) => getDerivativeSortOrder(a.name) - getDerivativeSortOrder(b.name));
             } else {
                 const col = currentSort.column;
                 const asc = currentSort.order === 'asc';

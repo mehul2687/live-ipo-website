@@ -538,6 +538,7 @@ function buildTelegramCaption(isoDate, cashRow, fnoRow) {
 function findBrowserExecutable() {
     const envCandidates = [
         process.env.CHROME_PATH,
+        process.env.CHROME_BIN,
         process.env.PUPPETEER_EXECUTABLE_PATH
     ].filter(Boolean);
 
@@ -618,25 +619,43 @@ async function sendTelegramPhoto(botToken, chatId, imagePath, captionHtml) {
     return json.result;
 }
 
+function emitGitHubErrorAnnotation(title, message) {
+    if (!process.env.GITHUB_ACTIONS) return;
+    const clean = String(message || 'Unknown error').replace(/\r?\n/g, ' ');
+    console.log(`::error title=${title}::${clean}`);
+}
+
 async function main() {
     const opts = parseArgs(process.argv.slice(2));
     const channelId = (process.env.TELEGRAM_CHANNEL_ID || DEFAULT_CHANNEL_ID).trim();
     const botToken = (process.env.TELEGRAM_BOT_TOKEN || '').trim();
 
+    console.log(`🔑 [1/4] Checking configuration (channel=${channelId}, force=${opts.force}, dryRun=${opts.dryRun})...`);
     if (!opts.dryRun && !botToken) {
         throw new Error('TELEGRAM_BOT_TOKEN secret is missing! Add it under GitHub Repository Settings -> Secrets and variables -> Actions.');
     }
 
-    console.log(`📡 Fetching latest Moneycontrol FII/DII (Cash & F&O) datasets...`);
+    console.log(`📡 [2/4] Fetching latest Moneycontrol FII/DII (Cash & F&O) datasets...`);
     const [cashData, fnoData] = await Promise.all([
         fetchAndSaveFiiDiiData(),
         fetchAndSaveFnoData()
     ]);
 
+    const cashRows = cashData?.daily?.length || 0;
+    const fnoRows = fnoData?.daily?.length || 0;
+    console.log(`ℹ️ Fetched rows -> Cash: ${cashRows}, F&O: ${fnoRows}`);
+
+    if (cashRows === 0 || fnoRows === 0) {
+        const msg = `Moneycontrol live fetch returned empty data (Cash rows=${cashRows}, F&O rows=${fnoRows}). Check Moneycontrol network access from runner.`;
+        if (opts.force) throw new Error(msg);
+        console.warn(`⚠️ ${msg}`);
+        return;
+    }
+
     const selection = pickMatchingRecords(cashData, fnoData, opts.force);
     if (selection.error) {
+        if (opts.force) throw new Error(selection.error);
         console.warn(`⚠️ ${selection.error}`);
-        if (opts.force) process.exit(1);
         return;
     }
 
@@ -653,7 +672,7 @@ async function main() {
         return;
     }
 
-    console.log(`🎨 Preparing poster for ${isoDate} (Cash=${cashRow.date}, F&O=${fnoRow.date})...`);
+    console.log(`🎨 [3/4] Preparing poster for ${isoDate} (Cash=${cashRow.date}, F&O=${fnoRow.date})...`);
     const html = buildPosterHtml(cashRow, fnoRow, loadLogoDataUri());
     await renderPosterPng(html, opts.outputPng);
 
@@ -665,6 +684,7 @@ async function main() {
         return;
     }
 
+    console.log(`📤 [4/4] Sending poster PNG & caption to Telegram (${channelId})...`);
     const tgResult = await sendTelegramPhoto(botToken, channelId, opts.outputPng, caption);
     console.log(`🚀 Posted FII/DII poster to ${channelId}! Telegram Message ID: ${tgResult?.message_id}`);
 
@@ -678,6 +698,8 @@ async function main() {
 }
 
 main().catch(err => {
-    console.error('❌ Auto-Poster Error:', err.message);
+    const msg = err?.message || String(err);
+    emitGitHubErrorAnnotation('Auto-Poster Error', msg);
+    console.error('❌ Auto-Poster Error:', msg);
     process.exit(1);
 });

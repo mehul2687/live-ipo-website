@@ -725,13 +725,13 @@
                 <label for="allIndicesDropdown" style="font-size: 11px; font-weight: 700; color: #64748b;">More Indices:</label>
                 <select id="allIndicesDropdown" class="index-dropdown-select" onchange="switchIndex(this.value)">
                     <option value="NIFTY 50">NIFTY 50 (50)</option>
-                    <option value="NIFTY BANK">NIFTY BANK (12)</option>
+                    <option value="NIFTY BANK">NIFTY BANK (14)</option>
                     <option value="SENSEX">SENSEX (30)</option>
                     <option value="NIFTY NEXT 50">NIFTY NEXT 50 (50)</option>
                     <option value="NIFTY FINANCIAL SERVICES">NIFTY FINANCIAL SERVICES (20)</option>
                     <option value="NIFTY MIDCAP SELECT">NIFTY MIDCAP SELECT (25)</option>
                     <option value="NIFTY SMLCAP 250">NIFTY SMLCAP 250 (250)</option>
-                    <option value="NIFTY INDIA FPI 150">NIFTY INDIA FPI 150 (25)</option>
+                    <option value="NIFTY INDIA FPI 150">NIFTY INDIA FPI 150 (150)</option>
                     <option value="NIFTY IT">NIFTY IT (10)</option>
                     <option value="NIFTY AUTO">NIFTY AUTO (15)</option>
                 </select>
@@ -831,6 +831,57 @@
         let autoRefreshTimer = null;
         let isAutoRefreshActive = true;
         let isSyncingLive = false;
+        let activeSyncSeq = 0;
+        let activeAbortController = null;
+        const lastStructureFetchAt = {};
+        const stockHydrateCursor = {};
+
+        const INDEX_ALIASES = {
+            'NIFTY FIN SERVICE': ['NIFTY FINANCIAL SERVICES', 'FINNIFTY'],
+            'NIFTY FINANCIAL SERVICES': ['NIFTY FIN SERVICE', 'FINNIFTY'],
+            'FINNIFTY': ['NIFTY FINANCIAL SERVICES', 'NIFTY FIN SERVICE'],
+            'NIFTY MID SELECT': ['NIFTY MIDCAP SELECT'],
+            'NIFTY MIDCAP SELECT': ['NIFTY MID SELECT'],
+            'SENSEX': ['BSE SENSEX'],
+            'BSE SENSEX': ['SENSEX'],
+            'NIFTY SMLCAP 250': ['NIFTY SMALLCAP 250'],
+            'NIFTY SMALLCAP 250': ['NIFTY SMLCAP 250'],
+            'NIFTY CONS DURBL': ['NIFTY CONSUMER DURABLES'],
+            'NIFTY CONSUMER DURABLES': ['NIFTY CONS DURBL']
+        };
+
+        const HERO_SYMBOL_MAP = {
+            'NIFTY 50': 'in;NSX',
+            'NIFTY BANK': 'in;nbx',
+            'NIFTY NEXT 50': 'in;cjn',
+            'NIFTY MIDCAP 100': 'in;ccx',
+            'NIFTY 100': 'in;nnx',
+            'NIFTY 200': 'in;cnxt',
+            'NIFTY 500': 'in;ncx',
+            'NIFTY SMALLCAP 100': 'in;cnxs',
+            'NIFTY MIDCAP 50': 'in;mfy',
+            'NIFTY SMLCAP 50': 'mc;nscapf',
+            'NIFTY SMALLCAP 50': 'mc;nscapf',
+            'NIFTY IT': 'in;cnit',
+            'NIFTY AUTO': 'in;cnxa',
+            'NIFTY PHARMA': 'in;cpr',
+            'NIFTY FMCG': 'in;cfm',
+            'NIFTY METAL': 'in;CNXM',
+            'NIFTY REALTY': 'in;crl',
+            'NIFTY ENERGY': 'in;cgy',
+            'NIFTY MEDIA': 'in;cnmx',
+            'NIFTY FIN SERVICE': 'in;cnxf',
+            'NIFTY FINANCIAL SERVICES': 'in;cnxf',
+            'FINNIFTY': 'in;cnxf',
+            'NIFTY OIL & GAS': 'mc;oilgas',
+            'NIFTY HEALTHCARE': 'mc;helcar',
+            'NIFTY CONS DURBL': 'mc;condur',
+            'NIFTY CONSUMER DURABLES': 'mc;condur',
+            'INDIA VIX': 'in;IDXN',
+            'SENSEX': 'in;SEN',
+            'BSE SENSEX': 'in;SEN',
+            'BSE SENSEX NEXT 30': 'mc;snt'
+        };
 
         const QUICK_INDICES = [
             'NIFTY 50',
@@ -966,6 +1017,48 @@
             return num.toLocaleString('en-IN');
         }
 
+        function formatPriceOrDash(val, decimals = 2) {
+            if (val === null || val === undefined || isNaN(val) || parseFloat(val) === 0) return '-';
+            return formatNumber(val, decimals);
+        }
+
+        function formatChange(num) {
+            if (num === null || num === undefined || isNaN(num)) return '-';
+            const val = parseFloat(num);
+            const sign = val > 0 ? '+' : '';
+            return `${sign}${val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        function getStockRowId(stock) {
+            const base = stock && (stock.mcScId || stock.symbol || stock.name) ? (stock.mcScId || stock.symbol || stock.name) : 'row';
+            return 'srow_' + String(base).replace(/[^a-zA-Z0-9_-]/g, '_');
+        }
+
+        function getIndexCandidates(key) {
+            const clean = (key || '').toUpperCase().trim();
+            const list = [clean];
+            if (INDEX_ALIASES[clean]) {
+                INDEX_ALIASES[clean].forEach(a => {
+                    if (!list.includes(a)) list.push(a);
+                });
+            }
+            return list;
+        }
+
+        function findDatasetEntry(key) {
+            if (!fullStockDataset || !fullStockDataset.indices) return null;
+            if (fullStockDataset.indices[key]) return { storageKey: key, data: fullStockDataset.indices[key] };
+            const candidates = getIndexCandidates(key);
+            for (const cand of candidates) {
+                for (const [k, val] of Object.entries(fullStockDataset.indices)) {
+                    if (k.toUpperCase().trim() === cand) {
+                        return { storageKey: k, data: val };
+                    }
+                }
+            }
+            return null;
+        }
+
         function cleanNumber(str) {
             if (!str) return 0;
             return parseFloat(String(str).replace(/,/g, '').replace(/%/g, '').trim()) || 0;
@@ -980,6 +1073,9 @@
             if (!key) return null;
             const clean = key.toUpperCase().trim();
             if (MC_INDICES_MAP[clean]) return MC_INDICES_MAP[clean];
+            for (const cand of getIndexCandidates(clean)) {
+                if (MC_INDICES_MAP[cand]) return MC_INDICES_MAP[cand];
+            }
             for (const [k, v] of Object.entries(MC_INDICES_MAP)) {
                 if (clean.includes(k) || k.includes(clean)) return v;
             }
@@ -989,11 +1085,12 @@
         // Initialize Quick Switcher Pills
         function renderIndexPills() {
             const container = document.getElementById('indexPillsGroup');
+            const activeCandidates = getIndexCandidates(activeIndexKey);
             let html = '';
             QUICK_INDICES.forEach(idxName => {
-                const isActive = (idxName.toUpperCase() === activeIndexKey.toUpperCase());
-                const data = fullStockDataset.indices ? fullStockDataset.indices[idxName] : null;
-                const count = (data && data.stocks) ? data.stocks.length : '';
+                const isActive = activeCandidates.includes(idxName.toUpperCase());
+                const entry = findDatasetEntry(idxName);
+                const count = (entry && entry.data && entry.data.stocks) ? entry.data.stocks.length : '';
                 html += `
                     <button type="button" class="btn-index-pill ${isActive ? 'active' : ''}" onclick="switchIndex('${idxName}')">
                         <span>${idxName}</span>
@@ -1014,7 +1111,8 @@
             // 1. Add Quick Indices first
             QUICK_INDICES.forEach(name => {
                 existingKeys.add(name.toUpperCase());
-                const count = (fullStockDataset.indices && fullStockDataset.indices[name] && fullStockDataset.indices[name].stocks) ? fullStockDataset.indices[name].stocks.length : '';
+                const entry = findDatasetEntry(name);
+                const count = (entry && entry.data && entry.data.stocks) ? entry.data.stocks.length : '';
                 optionsHtml += `<option value="${name}">${name}${count ? ` (${count})` : ''}</option>`;
             });
 
@@ -1023,7 +1121,8 @@
             otherIndices.forEach(name => {
                 if (!existingKeys.has(name.toUpperCase())) {
                     existingKeys.add(name.toUpperCase());
-                    const count = (fullStockDataset.indices && fullStockDataset.indices[name] && fullStockDataset.indices[name].stocks) ? fullStockDataset.indices[name].stocks.length : '';
+                    const entry = findDatasetEntry(name);
+                    const count = (entry && entry.data && entry.data.stocks) ? entry.data.stocks.length : '';
                     optionsHtml += `<option value="${name}">${name}${count ? ` (${count})` : ''}</option>`;
                 }
             });
@@ -1080,7 +1179,11 @@
                     const raw = indicesRes.value;
                     if (raw.indices && Array.isArray(raw.indices)) {
                         raw.indices.forEach(idx => {
-                            liveIndicesDataset[idx.name.toUpperCase().trim()] = idx;
+                            const k = idx.name.toUpperCase().trim();
+                            liveIndicesDataset[k] = idx;
+                            getIndexCandidates(k).forEach(cand => {
+                                if (!liveIndicesDataset[cand]) liveIndicesDataset[cand] = idx;
+                            });
                         });
                     }
                 }
@@ -1094,7 +1197,7 @@
                 renderStocksTable();
 
                 // Immediately trigger Moneycontrol live sync for the active index
-                syncConstituentsLive(activeIndexKey);
+                syncConstituentsLive(activeIndexKey, { force: true });
             } catch (err) {
                 console.error('Error loading stocks data:', err);
                 document.getElementById('stocksTableBody').innerHTML = `
@@ -1125,24 +1228,14 @@
             renderStocksTable();
 
             // Immediately fetch live constituents for this index from Moneycontrol
-            syncConstituentsLive(indexName);
+            syncConstituentsLive(indexName, { force: true });
         }
 
         function getIndexData(key) {
-            const clean = (key || '').toUpperCase().trim();
-            let baseData = null;
-
-            if (fullStockDataset.indices) {
-                if (fullStockDataset.indices[key]) baseData = fullStockDataset.indices[key];
-                else {
-                    for (const [k, val] of Object.entries(fullStockDataset.indices)) {
-                        if (k.toUpperCase() === clean) {
-                            baseData = val;
-                            break;
-                        }
-                    }
-                }
-            }
+            const candidates = getIndexCandidates(key);
+            const clean = candidates[0] || '';
+            const found = findDatasetEntry(key);
+            let baseData = found ? found.data : null;
 
             if (!baseData) {
                 baseData = {
@@ -1154,7 +1247,13 @@
             }
 
             // Overlay live index price from liveIndicesDataset if available
-            const liveIdx = liveIndicesDataset[clean] || (clean === 'SENSEX' ? liveIndicesDataset['BSE SENSEX'] : null);
+            let liveIdx = null;
+            for (const cand of candidates) {
+                if (liveIndicesDataset[cand]) {
+                    liveIdx = liveIndicesDataset[cand];
+                    break;
+                }
+            }
             if (liveIdx) {
                 baseData.ltp = liveIdx.ltp;
                 baseData.chg = liveIdx.chg;
@@ -1168,6 +1267,13 @@
             }
 
             return baseData;
+        }
+
+        function findHeroSymbol(key) {
+            for (const cand of getIndexCandidates(key)) {
+                if (HERO_SYMBOL_MAP[cand]) return HERO_SYMBOL_MAP[cand];
+            }
+            return null;
         }
 
         function updateLiveIndicesFromHtml(html, exchangeLabel) {
@@ -1207,162 +1313,393 @@
                 if (low) target.low = low;
                 if (yearHigh) target.yearHigh = yearHigh;
                 if (yearLow) target.yearLow = yearLow;
-                liveIndicesDataset[cleanKey] = target;
-                if (cleanKey === 'BSE SENSEX') liveIndicesDataset['SENSEX'] = target;
-                if (cleanKey === 'SENSEX') liveIndicesDataset['BSE SENSEX'] = target;
+                getIndexCandidates(cleanKey).forEach(cand => {
+                    liveIndicesDataset[cand] = target;
+                });
             });
         }
 
-        // Live Real-Time Constituent Stocks Sync directly from Moneycontrol
-        async function syncConstituentsLive(indexName) {
+        async function runPool(items, concurrency, worker) {
+            if (!items || items.length === 0) return;
+            let idx = 0;
+            const workers = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
+                while (idx < items.length) {
+                    const current = idx++;
+                    await worker(items[current]);
+                }
+            });
+            await Promise.allSettled(workers);
+        }
+
+        function parseMarketTerminalStocks(html, existingStocks) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const rows = doc.querySelectorAll('tr');
+            const existingByScId = new Map();
+            (existingStocks || []).forEach(s => {
+                if (s && s.mcScId) existingByScId.set(s.mcScId, s);
+            });
+
+            const liveStocks = [];
+            rows.forEach(tr => {
+                if (tr.querySelector('th')) return;
+                const tds = tr.querySelectorAll('td');
+                if (tds.length < 5) return;
+
+                const firstTd = tds[0];
+                const aTag = firstTd.querySelector('a');
+                const rawName = (aTag ? aTag.textContent : firstTd.textContent).trim();
+                if (!rawName || rawName === 'No Data Available') return;
+
+                const ltpCell = tr.querySelector('td[id^="ltp_"]');
+                const ltpIdAttr = ltpCell ? (ltpCell.getAttribute('id') || '') : '';
+                const scMatch = ltpIdAttr.match(/^ltp_([^_]+)_/);
+                const mcScId = scMatch ? scMatch[1] : '';
+
+                const href = aTag ? (aTag.getAttribute('href') || '') : '';
+                let sector = 'Equity';
+                const secMatch = href.match(/\/stockpricequote\/([^\/]+)\//);
+                if (secMatch && secMatch[1]) {
+                    sector = secMatch[1].replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+                }
+
+                const identity = resolveStockIdentity(rawName, stockMasterLookup);
+                let symbol = identity.symbol;
+                let fullName = identity.name;
+                if (identity.sector && identity.sector !== 'Equity') sector = identity.sector;
+
+                let ltp = cleanNumber(tds[1].textContent);
+                let pchg = cleanNumber(tds[2].textContent);
+                let chg = cleanNumber(tds[3].textContent);
+                let vol = parseInt((tds[4].textContent || '0').replace(/,/g, ''), 10) || 0;
+                let open = 0, high = 0, low = 0, yearHigh = 0, yearLow = 0, lastTickTime = '';
+
+                const existing = (mcScId && existingByScId.get(mcScId)) || (existingStocks || []).find(s =>
+                    s.symbol.toUpperCase() === symbol.toUpperCase() ||
+                    s.name.toLowerCase() === rawName.toLowerCase() ||
+                    s.name.toLowerCase() === fullName.toLowerCase()
+                );
+
+                if (existing) {
+                    if (existing.symbol && !existing.symbol.match(/[0-9]{2}$/)) {
+                        symbol = existing.symbol;
+                    }
+                    if (existing.name) fullName = existing.name;
+                    if (existing.sector && existing.sector !== 'Equity') sector = existing.sector;
+                    open = existing.open || 0;
+                    high = existing.high || 0;
+                    low = existing.low || 0;
+                    yearHigh = existing.yearHigh || 0;
+                    yearLow = existing.yearLow || 0;
+                    if (existing.lastTickTime && existing.ltp > 0) {
+                        ltp = existing.ltp;
+                        chg = existing.chg;
+                        pchg = existing.percentChange;
+                        vol = existing.volume || vol;
+                        lastTickTime = existing.lastTickTime;
+                    }
+                }
+
+                if (ltp > 0) {
+                    liveStocks.push({
+                        mcScId,
+                        symbol,
+                        name: fullName,
+                        sector,
+                        ltp,
+                        chg,
+                        percentChange: pchg,
+                        open,
+                        high,
+                        low,
+                        yearHigh,
+                        yearLow,
+                        volume: vol,
+                        lastTickTime
+                    });
+                }
+            });
+
+            return liveStocks;
+        }
+
+        function selectStocksForLiveTick(allStocks, storageKey, isInitialHydration) {
+            const withScId = allStocks.filter(s => s && s.mcScId);
+            if (withScId.length === 0) return [];
+            const maxBudget = isInitialHydration ? 150 : 75;
+            if (withScId.length <= maxBudget) return withScId;
+
+            const chosen = [];
+            const seen = new Set();
+            const addUnique = (s) => {
+                if (s && s.mcScId && !seen.has(s.mcScId) && chosen.length < maxBudget) {
+                    seen.add(s.mcScId);
+                    chosen.push(s);
+                }
+            };
+
+            const scIdToStock = new Map(withScId.map(s => [s.mcScId, s]));
+            document.querySelectorAll('#stocksTableBody tr[data-scid]').forEach(tr => {
+                const rect = tr.getBoundingClientRect();
+                if (rect.bottom >= -300 && rect.top <= window.innerHeight + 500) {
+                    const sc = tr.getAttribute('data-scid');
+                    if (sc && scIdToStock.has(sc)) addUnique(scIdToStock.get(sc));
+                }
+            });
+
+            for (const s of withScId) {
+                if (chosen.length >= maxBudget) break;
+                if (!s.open || !s.yearHigh) addUnique(s);
+            }
+
+            const cursor = stockHydrateCursor[storageKey] || 0;
+            for (let i = 0; i < withScId.length && chosen.length < maxBudget; i++) {
+                addUnique(withScId[(cursor + i) % withScId.length]);
+            }
+            stockHydrateCursor[storageKey] = (cursor + maxBudget) % withScId.length;
+            return chosen;
+        }
+
+        // Live Real-Time Index + Constituent Stocks Streaming via Moneycontrol PriceAPI
+        async function syncConstituentsLive(indexName, opts = {}) {
             const mapping = findIndexMapping(indexName);
             if (!mapping || !mapping.id) {
                 console.log('No Moneycontrol mapping for', indexName);
                 return;
             }
 
-            if (isSyncingLive) return;
+            if (isSyncingLive && !opts.force) return;
+            if (opts.force && activeAbortController) {
+                try { activeAbortController.abort(); } catch {}
+            }
+
+            const mySeq = ++activeSyncSeq;
+            const controller = new AbortController();
+            activeAbortController = controller;
+            const signal = controller.signal;
             isSyncingLive = true;
 
             const cacheBuster = Date.now();
+            const exPath = mapping.ex === 'B' ? 'bse' : 'nse';
+            const foundEntry = findDatasetEntry(indexName);
+            const storageKey = foundEntry ? foundEntry.storageKey : indexName;
+            const existingStocks = (foundEntry && foundEntry.data && foundEntry.data.stocks) || [];
+            const needsStructure = existingStocks.length === 0 ||
+                !existingStocks.every(s => s && s.mcScId) ||
+                opts.force ||
+                (cacheBuster - (lastStructureFetchAt[storageKey] || 0) > 90000);
+
+            const prevHeroData = getIndexData(activeIndexKey);
+            const oldHeroState = prevHeroData ? {
+                ltp: parseFloat(prevHeroData.ltp) || 0,
+                chg: parseFloat(prevHeroData.chg) || 0
+            } : null;
+
+            const oldStateMap = new Map();
+            existingStocks.forEach(s => {
+                oldStateMap.set(getStockRowId(s), {
+                    ltp: parseFloat(s.ltp) || 0,
+                    chg: parseFloat(s.chg) || 0,
+                    percentChange: parseFloat(s.percentChange) || 0,
+                    volume: parseInt(s.volume, 10) || 0
+                });
+            });
+
+            const heroSymbol = findHeroSymbol(indexName);
             const endpoint = `https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=${mapping.ex}&indicesID=${mapping.id}&selTab=o&selPage=marketTerminal&classic=true&_=${cacheBuster}`;
             const liveIdxEndpoint = `https://www.moneycontrol.com/markets/indian-indices/changeTableData?deviceType=web&exName=${mapping.ex}&selTab=o&selPage=marketLive&classic=true&_=${cacheBuster}`;
+            const heroPriceEndpoint = heroSymbol
+                ? `https://priceapi.moneycontrol.com/pricefeed/notapplicable/inidicesindia/${encodeURIComponent(heroSymbol)}?_=${cacheBuster}`
+                : null;
 
             try {
-                const [resSettled, liveIdxResSettled] = await Promise.allSettled([
-                    fetch(endpoint, { headers: { 'Accept': 'text/html,application/xhtml+xml' } }),
-                    fetch(liveIdxEndpoint, { headers: { 'Accept': 'text/html,application/xhtml+xml' } })
+                // Step 1: Fetch index live prices + constituent list (if needed) in parallel
+                const [structSettled, liveIdxResSettled, heroPriceSettled] = await Promise.allSettled([
+                    needsStructure
+                        ? fetch(endpoint, { headers: { 'Accept': 'text/html,application/xhtml+xml' }, cache: 'no-store', signal })
+                        : Promise.resolve(null),
+                    fetch(liveIdxEndpoint, { headers: { 'Accept': 'text/html,application/xhtml+xml' }, cache: 'no-store', signal }),
+                    heroPriceEndpoint
+                        ? fetch(heroPriceEndpoint, { cache: 'no-store', signal }).then(r => r.ok ? r.json() : null)
+                        : Promise.resolve(null)
                 ]);
 
-                let idxUpdated = false;
+                if (mySeq !== activeSyncSeq || indexName !== activeIndexKey) return;
+
                 if (liveIdxResSettled.status === 'fulfilled' && liveIdxResSettled.value && liveIdxResSettled.value.ok) {
                     const liveIdxHtml = await liveIdxResSettled.value.text();
                     updateLiveIndicesFromHtml(liveIdxHtml, mapping.ex === 'B' ? 'BSE' : 'NSE');
-                    idxUpdated = true;
                 }
 
-                const res = resSettled.status === 'fulfilled' ? resSettled.value : null;
-                if (res && res.ok) {
-                    const html = await res.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const rows = doc.querySelectorAll('tr');
+                if (heroPriceSettled.status === 'fulfilled' && heroPriceSettled.value && heroPriceSettled.value.data) {
+                    const hd = heroPriceSettled.value.data;
+                    const heroLtp = parseFloat(hd.pricecurrent);
+                    if (heroLtp > 0) {
+                        const cleanKey = indexName.toUpperCase().trim();
+                        const target = liveIndicesDataset[cleanKey] || {
+                            name: indexName,
+                            exchange: mapping.ex === 'B' ? 'BSE' : 'NSE',
+                            category: 'Index'
+                        };
+                        target.ltp = heroLtp;
+                        if (hd.pricechange !== undefined && !isNaN(parseFloat(hd.pricechange))) target.chg = parseFloat(hd.pricechange);
+                        if (hd.pricepercentchange !== undefined && !isNaN(parseFloat(hd.pricepercentchange))) target.percentChange = parseFloat(hd.pricepercentchange);
+                        if (hd.OPEN && parseFloat(hd.OPEN) > 0) target.open = parseFloat(hd.OPEN);
+                        if (hd.HIGH && parseFloat(hd.HIGH) > 0) target.high = parseFloat(hd.HIGH);
+                        if (hd.LOW && parseFloat(hd.LOW) > 0) target.low = parseFloat(hd.LOW);
+                        if (hd['52wkhi'] && parseFloat(hd['52wkhi']) > 0) target.yearHigh = parseFloat(hd['52wkhi']);
+                        if (hd['52wklow'] && parseFloat(hd['52wklow']) > 0) target.yearLow = parseFloat(hd['52wklow']);
+                        getIndexCandidates(cleanKey).forEach(cand => {
+                            liveIndicesDataset[cand] = target;
+                        });
+                    }
+                }
 
-                    const liveStocks = [];
-                    const existingStocks = (fullStockDataset.indices && fullStockDataset.indices[indexName] && fullStockDataset.indices[indexName].stocks) || [];
-
-                    rows.forEach(tr => {
-                        if (tr.querySelector('th')) return;
-                        const tds = tr.querySelectorAll('td');
-                        if (tds.length < 5) return;
-
-                        const firstTd = tds[0];
-                        const aTag = firstTd.querySelector('a');
-                        const rawName = (aTag ? aTag.textContent : firstTd.textContent).trim();
-                        if (!rawName || rawName === 'No Data Available') return;
-
-                        const href = aTag ? (aTag.getAttribute('href') || '') : '';
-                        let sector = 'Equity';
-                        const secMatch = href.match(/\/stockpricequote\/([^\/]+)\//);
-                        if (secMatch && secMatch[1]) {
-                            sector = secMatch[1].replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-                        }
-
-                        // Resolve clean company identity and real ticker (NEVER codes like MTL11, PPE01, AE13)
-                        const identity = resolveStockIdentity(rawName, stockMasterLookup);
-                        let symbol = identity.symbol;
-                        let fullName = identity.name;
-                        if (identity.sector && identity.sector !== 'Equity') sector = identity.sector;
-
-                        const ltp = cleanNumber(tds[1].textContent);
-                        const pchg = cleanNumber(tds[2].textContent);
-                        const chg = cleanNumber(tds[3].textContent);
-                        const vol = parseInt((tds[4].textContent || '0').replace(/,/g, ''), 10) || 0;
-
-                        // Match with existing cache to keep standard symbol & 52w high/low if available
-                        let open = 0, high = 0, low = 0, yearHigh = 0, yearLow = 0;
-                        const existing = existingStocks.find(s =>
-                            s.symbol.toUpperCase() === symbol.toUpperCase() ||
-                            s.name.toLowerCase() === rawName.toLowerCase() ||
-                            s.name.toLowerCase() === fullName.toLowerCase()
-                        );
-
-                        if (existing) {
-                            if (existing.symbol && !existing.symbol.match(/[0-9]{2}$/)) {
-                                symbol = existing.symbol;
-                            }
-                            if (existing.name) fullName = existing.name;
-                            if (existing.sector && existing.sector !== 'Equity') sector = existing.sector;
-                            open = existing.open || 0;
-                            high = existing.high || 0;
-                            low = existing.low || 0;
-                            yearHigh = existing.yearHigh || 0;
-                            yearLow = existing.yearLow || 0;
-                        }
-
-                        if (ltp > 0) {
-                            liveStocks.push({
-                                symbol: symbol,
-                                name: fullName,
-                                sector,
-                                ltp,
-                                chg,
-                                percentChange: pchg,
-                                open,
-                                high,
-                                low,
-                                yearHigh,
-                                yearLow,
-                                volume: vol
-                            });
-                        }
-                    });
-
-                    if (liveStocks.length > 0) {
+                let targetStocks = existingStocks;
+                const structRes = structSettled.status === 'fulfilled' ? structSettled.value : null;
+                if (structRes && structRes.ok) {
+                    const html = await structRes.text();
+                    if (mySeq !== activeSyncSeq || indexName !== activeIndexKey) return;
+                    const parsedStocks = parseMarketTerminalStocks(html, existingStocks);
+                    if (parsedStocks.length > 0) {
                         if (!fullStockDataset.indices) fullStockDataset.indices = {};
-                        if (!fullStockDataset.indices[indexName]) {
-                            fullStockDataset.indices[indexName] = {
-                                name: indexName,
+                        if (!fullStockDataset.indices[storageKey]) {
+                            fullStockDataset.indices[storageKey] = {
+                                name: storageKey,
                                 exchange: mapping.ex === 'B' ? 'BSE' : 'NSE',
                                 category: 'Index',
                                 stocks: []
                             };
                         }
+                        fullStockDataset.indices[storageKey].stocks = parsedStocks;
+                        lastStructureFetchAt[storageKey] = Date.now();
+                        targetStocks = parsedStocks;
 
-                        let adv = 0, dec = 0;
-                        liveStocks.forEach(s => {
-                            if (s.chg >= 0) adv++;
-                            else dec++;
+                        // Ensure newly discovered rows capture old state safely
+                        targetStocks.forEach(s => {
+                            const rid = getStockRowId(s);
+                            if (!oldStateMap.has(rid)) {
+                                oldStateMap.set(rid, {
+                                    ltp: parseFloat(s.ltp) || 0,
+                                    chg: parseFloat(s.chg) || 0,
+                                    percentChange: parseFloat(s.percentChange) || 0,
+                                    volume: parseInt(s.volume, 10) || 0
+                                });
+                            }
                         });
-
-                        fullStockDataset.indices[indexName].stocks = liveStocks;
-                        fullStockDataset.indices[indexName].advances = adv;
-                        fullStockDataset.indices[indexName].declines = dec;
-                        fullStockDataset.indices[indexName].totalStocks = liveStocks.length;
-
-                        renderIndexPills();
-                        updateHeroCard();
-                        renderStocksTable();
-
-                        const nowStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
-                        const updatedBadge = document.getElementById('stocksUpdatedLabel');
-                        if (updatedBadge) {
-                            updatedBadge.innerHTML = `⚡ Live Synced with Moneycontrol (${nowStr})`;
-                        }
-                    } else if (idxUpdated) {
-                        updateHeroCard();
                     }
-                } else if (idxUpdated) {
-                    updateHeroCard();
+                }
+
+                // Step 2: Stream real-time PriceAPI ticks (LTP, Chg, %Chg, Open, High, Low, 52W, Volume) for stocks
+                const isInitialHydration = targetStocks.some(s => !s.open || !s.yearHigh);
+                const stocksToFetch = selectStocksForLiveTick(targetStocks, storageKey, isInitialHydration);
+                let anyStockTicked = false;
+
+                if (stocksToFetch.length > 0) {
+                    const tickTs = Date.now();
+                    await runPool(stocksToFetch, 25, async (stock) => {
+                        if (signal.aborted || mySeq !== activeSyncSeq) return;
+                        try {
+                            const qUrl = `https://priceapi.moneycontrol.com/pricefeed/${exPath}/equitycash/${encodeURIComponent(stock.mcScId)}?_=${tickTs}`;
+                            const qRes = await fetch(qUrl, { cache: 'no-store', signal });
+                            if (!qRes.ok) return;
+                            const json = await qRes.json();
+                            const d = json && json.data;
+                            if (!d) return;
+
+                            const newLtp = cleanNumber(d.pricecurrent);
+                            if (newLtp <= 0) return;
+
+                            stock.ltp = newLtp;
+                            if (d.pricechange !== undefined && d.pricechange !== '-') {
+                                stock.chg = cleanNumber(d.pricechange);
+                            }
+                            if (d.pricepercentchange !== undefined && d.pricepercentchange !== '-') {
+                                stock.percentChange = cleanNumber(d.pricepercentchange);
+                            }
+                            const opn = cleanNumber(d.OPN);
+                            const hp = cleanNumber(d.HP);
+                            const lp = cleanNumber(d.LP);
+                            const yh = cleanNumber(d['52H']);
+                            const yl = cleanNumber(d['52L']);
+                            const vol = parseInt(String(d.VOL || '0').replace(/,/g, ''), 10) || 0;
+                            if (opn > 0) stock.open = opn;
+                            if (hp > 0) stock.high = hp;
+                            if (lp > 0) stock.low = lp;
+                            if (yh > 0) stock.yearHigh = yh;
+                            if (yl > 0) stock.yearLow = yl;
+                            if (vol > 0) stock.volume = vol;
+
+                            if (exPath === 'nse' && d.NSEID && /^[A-Z0-9&-]{2,20}$/.test(d.NSEID.trim())) {
+                                if (!stock.symbol || stock.symbol.includes(' ') || stock.symbol.length > 14) {
+                                    stock.symbol = d.NSEID.trim();
+                                }
+                            }
+                            if (d['0']) stock.lastTickTime = d['0'];
+                            anyStockTicked = true;
+                        } catch {
+                            // Ignore individual quote hiccup or abort
+                        }
+                    });
+                }
+
+                if (mySeq !== activeSyncSeq || indexName !== activeIndexKey) return;
+
+                if (targetStocks.length > 0 && fullStockDataset.indices && fullStockDataset.indices[storageKey]) {
+                    let adv = 0, dec = 0;
+                    targetStocks.forEach(s => {
+                        if ((parseFloat(s.chg) || 0) >= 0) adv++;
+                        else dec++;
+                    });
+                    fullStockDataset.indices[storageKey].advances = adv;
+                    fullStockDataset.indices[storageKey].declines = dec;
+                    fullStockDataset.indices[storageKey].totalStocks = targetStocks.length;
+
+                    const activeData = getIndexData(activeIndexKey);
+                    const displayed = getFilteredSortedStocks(activeData);
+                    const renderedCount = document.querySelectorAll('#stocksTableBody tr[data-scid]').length;
+                    const canPatchInPlace = renderedCount === displayed.length &&
+                        displayed.every(s => document.getElementById(getStockRowId(s)));
+
+                    if (canPatchInPlace) {
+                        displayed.forEach(s => {
+                            updateStockRowDOM(s, oldStateMap.get(getStockRowId(s)));
+                        });
+                    } else {
+                        renderStocksTable();
+                        displayed.forEach(s => {
+                            const oldState = oldStateMap.get(getStockRowId(s));
+                            if (oldState && oldState.ltp !== (parseFloat(s.ltp) || 0)) {
+                                updateStockRowDOM(s, oldState);
+                            }
+                        });
+                    }
+
+                    renderIndexPills();
+                    updateHeroCard(oldHeroState);
+
+                    const nowStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true });
+                    const updatedBadge = document.getElementById('stocksUpdatedLabel');
+                    if (updatedBadge) {
+                        updatedBadge.innerHTML = anyStockTicked
+                            ? `⚡ Live Tick Stream (${nowStr})`
+                            : `⚡ Live Synced (${nowStr})`;
+                    }
+                } else {
+                    updateHeroCard(oldHeroState);
                 }
             } catch (err) {
-                console.warn('Live constituent sync error:', err.message);
+                if (err && err.name !== 'AbortError') {
+                    console.warn('Live constituent sync error:', err.message);
+                }
             } finally {
-                isSyncingLive = false;
+                if (mySeq === activeSyncSeq) {
+                    isSyncingLive = false;
+                }
             }
         }
 
-        function updateHeroCard() {
+        function updateHeroCard(oldHeroState = null) {
             const idxData = getIndexData(activeIndexKey);
 
             if (!idxData) return;
@@ -1378,7 +1715,9 @@
 
             document.getElementById('heroCategoryPill').innerText = idxData.category || 'Index';
 
-            document.getElementById('heroIndexLtp').innerText = formatNumber(idxData.ltp);
+            const numLtp = parseFloat(idxData.ltp) || 0;
+            const heroLtpEl = document.getElementById('heroIndexLtp');
+            heroLtpEl.innerText = formatNumber(numLtp);
 
             const numChg = parseFloat(idxData.chg) || 0;
             const numPchg = parseFloat(idxData.percentChange) || 0;
@@ -1394,8 +1733,15 @@
                 chgWrap.className = 'hero-chg-text val-negative';
                 pchgSpan.className = 'badge-pill-val badge-pill-neg';
             }
-            chgSpan.innerText = `${sign}${formatNumber(numChg)}`;
+            chgSpan.innerText = formatChange(numChg);
             pchgSpan.innerText = `${sign}${numPchg.toFixed(2)}%`;
+
+            if (oldHeroState && oldHeroState.ltp > 0 && oldHeroState.ltp !== numLtp) {
+                const cls = numLtp > oldHeroState.ltp ? 'flash-up' : 'flash-down';
+                heroLtpEl.classList.remove('flash-up', 'flash-down');
+                void heroLtpEl.offsetWidth;
+                heroLtpEl.classList.add(cls);
+            }
 
             const stocks = idxData.stocks || [];
             document.getElementById('heroTotalStocks').innerText = stocks.length;
@@ -1459,6 +1805,116 @@
             renderStocksTable();
         }
 
+        function getFilteredSortedStocks(idxData) {
+            if (!idxData || !idxData.stocks) return [];
+            let list = [...idxData.stocks];
+
+            if (stockFilter === 'gainers') {
+                list = list.filter(s => (parseFloat(s.chg) || 0) >= 0);
+            } else if (stockFilter === 'losers') {
+                list = list.filter(s => (parseFloat(s.chg) || 0) < 0);
+            }
+
+            if (stockSearchQuery) {
+                list = list.filter(s =>
+                    (s.symbol || '').toLowerCase().includes(stockSearchQuery) ||
+                    (s.name || '').toLowerCase().includes(stockSearchQuery) ||
+                    (s.sector || '').toLowerCase().includes(stockSearchQuery)
+                );
+            }
+
+            const col = stockSort.column;
+            const asc = stockSort.order === 'asc';
+            list.sort((a, b) => {
+                let vA = a[col];
+                let vB = b[col];
+                if (col === 'symbol' || col === 'sector' || col === 'name') {
+                    return asc ? (vA || '').localeCompare(vB || '') : (vB || '').localeCompare(vA || '');
+                }
+                vA = parseFloat(vA) || 0;
+                vB = parseFloat(vB) || 0;
+                return asc ? (vA - vB) : (vB - vA);
+            });
+
+            return list;
+        }
+
+        function updateStockRowDOM(stock, oldState) {
+            if (!stock) return false;
+            const rowId = getStockRowId(stock);
+            const rowEl = document.getElementById(rowId);
+            if (!rowEl) return false;
+
+            const numLtp = parseFloat(stock.ltp) || 0;
+            const numChg = parseFloat(stock.chg) || 0;
+            const numPchg = parseFloat(stock.percentChange) || 0;
+            const sign = numChg > 0 ? '+' : '';
+
+            let chgColorClass = 'val-neutral';
+            let pchgBadgeClass = 'badge-pill-neu';
+            if (numChg > 0) {
+                chgColorClass = 'val-positive';
+                pchgBadgeClass = 'badge-pill-pos';
+            } else if (numChg < 0) {
+                chgColorClass = 'val-negative';
+                pchgBadgeClass = 'badge-pill-neg';
+            }
+
+            const ltpChanged = oldState && oldState.ltp !== numLtp;
+            const chgChanged = oldState && (oldState.chg !== numChg || oldState.percentChange !== numPchg);
+
+            const symEl = document.getElementById(`sym_${rowId}`);
+            if (symEl && stock.symbol) symEl.innerText = stock.symbol;
+
+            const ltpEl = document.getElementById(`ltp_${rowId}`);
+            if (ltpEl) {
+                ltpEl.innerText = formatPriceOrDash(numLtp);
+                if (ltpChanged) {
+                    ltpEl.classList.remove('flash-up', 'flash-down');
+                    void ltpEl.offsetWidth;
+                    ltpEl.classList.add(numLtp > oldState.ltp ? 'flash-up' : 'flash-down');
+                }
+            }
+
+            const chgEl = document.getElementById(`chg_${rowId}`);
+            if (chgEl) {
+                chgEl.className = chgColorClass;
+                chgEl.innerText = formatChange(numChg);
+                if (ltpChanged || chgChanged) {
+                    const dirUp = ltpChanged ? (numLtp > oldState.ltp) : (numChg > oldState.chg);
+                    chgEl.classList.remove('flash-up', 'flash-down');
+                    void chgEl.offsetWidth;
+                    chgEl.classList.add(dirUp ? 'flash-up' : 'flash-down');
+                }
+            }
+
+            const pchgEl = document.getElementById(`pchg_${rowId}`);
+            if (pchgEl) {
+                pchgEl.className = `badge-pill-val ${pchgBadgeClass}`;
+                pchgEl.innerText = `${sign}${numPchg.toFixed(2)}%`;
+            }
+
+            const openEl = document.getElementById(`open_${rowId}`);
+            if (openEl) openEl.innerText = formatPriceOrDash(stock.open);
+
+            const highEl = document.getElementById(`high_${rowId}`);
+            if (highEl) highEl.innerText = formatPriceOrDash(stock.high);
+
+            const lowEl = document.getElementById(`low_${rowId}`);
+            if (lowEl) lowEl.innerText = formatPriceOrDash(stock.low);
+
+            const yhighEl = document.getElementById(`yhigh_${rowId}`);
+            if (yhighEl) yhighEl.innerText = formatPriceOrDash(stock.yearHigh);
+
+            const ylowEl = document.getElementById(`ylow_${rowId}`);
+            if (ylowEl) ylowEl.innerText = formatPriceOrDash(stock.yearLow);
+
+            const volEl = document.getElementById(`vol_${rowId}`);
+            if (volEl) volEl.innerText = formatVolume(stock.volume);
+
+            return true;
+        }
+
         function renderStocksTable() {
             const idxData = getIndexData(activeIndexKey);
 
@@ -1475,37 +1931,7 @@
                 return;
             }
 
-            let list = [...idxData.stocks];
-
-            // Filter gainers / losers
-            if (stockFilter === 'gainers') {
-                list = list.filter(s => (parseFloat(s.chg) || 0) >= 0);
-            } else if (stockFilter === 'losers') {
-                list = list.filter(s => (parseFloat(s.chg) || 0) < 0);
-            }
-
-            // Search Filter
-            if (stockSearchQuery) {
-                list = list.filter(s =>
-                    (s.symbol || '').toLowerCase().includes(stockSearchQuery) ||
-                    (s.name || '').toLowerCase().includes(stockSearchQuery) ||
-                    (s.sector || '').toLowerCase().includes(stockSearchQuery)
-                );
-            }
-
-            // Sorting
-            const col = stockSort.column;
-            const asc = stockSort.order === 'asc';
-            list.sort((a, b) => {
-                let vA = a[col];
-                let vB = b[col];
-                if (col === 'symbol' || col === 'sector' || col === 'name') {
-                    return asc ? (vA || '').localeCompare(vB || '') : (vB || '').localeCompare(vA || '');
-                }
-                vA = parseFloat(vA) || 0;
-                vB = parseFloat(vB) || 0;
-                return asc ? (vA - vB) : (vB - vA);
-            });
+            const list = getFilteredSortedStocks(idxData);
 
             document.getElementById('visibleStockCount').innerText = list.length;
 
@@ -1522,6 +1948,7 @@
 
             let html = '';
             list.forEach(stock => {
+                const rowId = getStockRowId(stock);
                 const numChg = parseFloat(stock.chg) || 0;
                 const numPchg = parseFloat(stock.percentChange) || 0;
                 const sign = numChg > 0 ? '+' : '';
@@ -1537,27 +1964,27 @@
                 }
 
                 html += `
-                    <tr id="stockRow_${stock.symbol}">
+                    <tr id="${rowId}" data-scid="${stock.mcScId || ''}">
                         <td class="td-name">
                             <div class="stock-name-flex">
-                                <span class="stock-symbol-text">${stock.symbol}</span>
+                                <span class="stock-symbol-text" id="sym_${rowId}">${stock.symbol}</span>
                                 <span class="stock-full-name">${stock.name || stock.symbol}</span>
                             </div>
                         </td>
                         <td class="td-sector">${stock.sector || '-'}</td>
-                        <td class="td-ltp" id="stockLtp_${stock.symbol}">${formatNumber(stock.ltp)}</td>
-                        <td class="${chgColorClass}" id="stockChg_${stock.symbol}">${sign}${formatNumber(numChg)}</td>
+                        <td class="td-ltp" id="ltp_${rowId}">${formatPriceOrDash(stock.ltp)}</td>
+                        <td class="${chgColorClass}" id="chg_${rowId}">${formatChange(numChg)}</td>
                         <td>
-                            <span class="badge-pill-val ${pchgBadgeClass}" id="stockPchg_${stock.symbol}">
+                            <span class="badge-pill-val ${pchgBadgeClass}" id="pchg_${rowId}">
                                 ${sign}${numPchg.toFixed(2)}%
                             </span>
                         </td>
-                        <td>${formatNumber(stock.open)}</td>
-                        <td style="color: #15803d;">${formatNumber(stock.high)}</td>
-                        <td style="color: #b91c1c;">${formatNumber(stock.low)}</td>
-                        <td>${formatNumber(stock.yearHigh)}</td>
-                        <td>${formatNumber(stock.yearLow)}</td>
-                        <td>${formatVolume(stock.volume)}</td>
+                        <td id="open_${rowId}">${formatPriceOrDash(stock.open)}</td>
+                        <td id="high_${rowId}" style="color: #15803d;">${formatPriceOrDash(stock.high)}</td>
+                        <td id="low_${rowId}" style="color: #b91c1c;">${formatPriceOrDash(stock.low)}</td>
+                        <td id="yhigh_${rowId}">${formatPriceOrDash(stock.yearHigh)}</td>
+                        <td id="ylow_${rowId}">${formatPriceOrDash(stock.yearLow)}</td>
+                        <td id="vol_${rowId}">${formatVolume(stock.volume)}</td>
                     </tr>
                 `;
             });
@@ -1582,17 +2009,18 @@
 
         function startAutoRefresh() {
             if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+            // Stream live stock ticks every 5 seconds (matching indices.html)
             autoRefreshTimer = setInterval(() => {
                 if (isAutoRefreshActive) {
                     syncConstituentsLive(activeIndexKey);
                 }
-            }, 30000); // 30s live reload
+            }, 5000);
         }
 
         function manualRefreshData() {
             const btn = document.getElementById('btnManualRefresh');
             btn.innerHTML = '<span>⏳</span><span>Refreshing...</span>';
-            syncConstituentsLive(activeIndexKey).finally(() => {
+            syncConstituentsLive(activeIndexKey, { force: true }).finally(() => {
                 setTimeout(() => {
                     btn.innerHTML = '<span>🔄</span><span>Refresh</span>';
                 }, 600);

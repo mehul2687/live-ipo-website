@@ -73,13 +73,13 @@ if ($changes) {
 
 # Push to origin main (with speed-limit timeout & HTTP/1.1 to prevent silent Windows hangs)
 Write-Host ">>> Pushing to GitHub main branch..." -ForegroundColor Cyan
-$env:GIT_TRACE = "1"
 & git -C "$repoPath" -c http.lowSpeedLimit=100 -c http.lowSpeedTime=20 -c http.version=HTTP/1.1 push --verbose --progress origin main
-$pushExit = $LASTEXITCODE
-Remove-Item Env:\GIT_TRACE -ErrorAction SilentlyContinue
-if ($pushExit -ne 0) {
-    Write-Host ">>> Git push failed with exit code $pushExit" -ForegroundColor Red
-    exit $pushExit
+if ($LASTEXITCODE -ne 0) {
+    Write-Host ">>> Git push failed with exit code $LASTEXITCODE" -ForegroundColor Red
+    if ($LASTEXITCODE -eq 128) {
+        Write-Host ">>> TIP: GitHub authentication token in remote 'origin' or Credential Manager may be expired/revoked." -ForegroundColor Yellow
+    }
+    exit $LASTEXITCODE
 }
 
 $latestCommit = & git -C "$repoPath" rev-parse --short HEAD

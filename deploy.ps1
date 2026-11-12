@@ -11,7 +11,7 @@ Write-Host ">>> [LiveIPO Auto-Deploy] Starting deployment process for: $repoPath
 
 # Step 1: Terminate any zombie or lingering git processes
 try {
-    $stuckGit = Get-Process -Name git -ErrorAction SilentlyContinue
+    $stuckGit = Get-Process -Name git, git-remote-https, git-credential-manager -ErrorAction SilentlyContinue
     if ($stuckGit) {
         Write-Host ">>> Terminating $($stuckGit.Count) lingering git process(es)..." -ForegroundColor Yellow
         $stuckGit | Stop-Process -Force -ErrorAction SilentlyContinue
@@ -70,9 +70,9 @@ if ($changes) {
     Write-Host ">>> Found $aheadCount unpushed local commit(s), pushing to origin/main..." -ForegroundColor Yellow
 }
 
-# Push to origin main
+# Push to origin main (with speed-limit timeout & HTTP/1.1 to prevent silent Windows hangs)
 Write-Host ">>> Pushing to GitHub main branch..." -ForegroundColor Cyan
-& git -C "$repoPath" push origin main
+& git -C "$repoPath" -c http.lowSpeedLimit=100 -c http.lowSpeedTime=20 -c http.version=HTTP/1.1 push --verbose --progress origin main
 if ($LASTEXITCODE -ne 0) {
     Write-Host ">>> Git push failed with exit code $LASTEXITCODE" -ForegroundColor Red
     exit $LASTEXITCODE

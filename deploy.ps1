@@ -48,19 +48,26 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
+$env:GIT_TERMINAL_PROMPT = "0"
+
 # Check for modifications
 $changes = & git -C "$repoPath" status --porcelain
-if (-not $changes) {
-    Write-Host ">>> [LiveIPO Auto-Deploy] No uncommitted changes found. Everything is already up to date!" -ForegroundColor Green
+$aheadCount = (& git -C "$repoPath" rev-list --count "origin/main..HEAD" 2>$null)
+if (-not $changes -and ([int]$aheadCount -le 0)) {
+    Write-Host ">>> [LiveIPO Auto-Deploy] No uncommitted or unpushed changes found. Everything is already up to date!" -ForegroundColor Green
     exit 0
 }
 
-# Commit
-Write-Host ">>> Committing changes: '$Message'..." -ForegroundColor Cyan
-& git -C "$repoPath" commit -m "$Message"
-if ($LASTEXITCODE -ne 0) {
-    Write-Host ">>> Git commit failed with exit code $LASTEXITCODE" -ForegroundColor Red
-    exit $LASTEXITCODE
+if ($changes) {
+    # Commit
+    Write-Host ">>> Committing changes: '$Message'..." -ForegroundColor Cyan
+    & git -C "$repoPath" commit -m "$Message"
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host ">>> Git commit failed with exit code $LASTEXITCODE" -ForegroundColor Red
+        exit $LASTEXITCODE
+    }
+} else {
+    Write-Host ">>> Found $aheadCount unpushed local commit(s), pushing to origin/main..." -ForegroundColor Yellow
 }
 
 # Push to origin main

@@ -11,16 +11,21 @@ const ADMIN_BIN_ID = "6aaf80f9ac6210605ae1bce6";
 const ADMIN_API_KEY = "$2a$10$Pl5b/ekYZXhRBmQVY6DwieMC10GztytHM9d7CnR0zqmje7BWYj6yC";
 
 document.addEventListener('DOMContentLoaded', async () => {
-    // ૦. GitHub Cloud Sync Token સ્ટેટસ બટન અપડેટ કરો અને જો ટોકન સેટ હોય તો બેકગ્રાઉન્ડમાં વેરિફાઈ કરો
+    // ૦. સૌથી પહેલા Cloudflare Cloud Worker અને/અથવા Local Token સ્ટેટસ ચકાસી બટન અપડેટ કરો
     updateSyncTokenButtonUi();
-    const storedGhToken = getStoredGithubToken();
-    if (storedGhToken) {
-        validateGithubToken(storedGhToken).then(res => {
-            if (!res.valid && res.reason !== 'network') {
-                updateSyncTokenButtonUi(false);
+    checkSyncWorkerHealth(true).then(wh => {
+        updateSyncTokenButtonUi();
+        if (!wh.hasToken) {
+            const storedGhToken = getStoredGithubToken();
+            if (storedGhToken) {
+                validateGithubToken(storedGhToken).then(res => {
+                    if (!res.valid && res.reason !== 'network') {
+                        updateSyncTokenButtonUi(false);
+                    }
+                }).catch(() => {});
             }
-        }).catch(() => {});
-    }
+        }
+    }).catch(() => {});
 
     // ૧. પેજ લોડ થતાં જ ક્લાઉડ અને લોકલમાંથી ડેશબોર્ડ ડેટા લોડ કરો
     await loadAdminDashboard();
@@ -1568,19 +1573,62 @@ async function tryLocalBackendChittorgarh(keyOrUrl) {
 }
 
 // ==========================================
-// UNIFIED CLOUD RUNNER & TOKEN HEALTH ENGINE
+// UNIFIED CLOUD RUNNER & CLOUDFLARE WORKER ENGINE
 // ==========================================
 const GH_OWNER_REPO = 'mehul2687/live-ipo-website';
 const GH_SYNC_WORKFLOW = 'sync.yml';
 const GH_TOKEN_STORAGE_KEY = 'live_ipo_github_token';
+const SYNC_WORKER_URL = 'https://liveipo-sync.mehul2687.workers.dev';
+const SYNC_ADMIN_PIN_KEY = 'live_ipo_sync_pin';
 
 function getStoredGithubToken() {
     return (localStorage.getItem(GH_TOKEN_STORAGE_KEY) || '').trim();
 }
 
+function getStoredAdminPin() {
+    return (localStorage.getItem(SYNC_ADMIN_PIN_KEY) || '').trim();
+}
+
+async function checkSyncWorkerHealth(force = false) {
+    if (!force && window._workerHealth && window._workerHealth.reachable) {
+        return window._workerHealth;
+    }
+    try {
+        const controller = new AbortController();
+        const tid = setTimeout(() => controller.abort(), 3500);
+        const res = await fetch(`${SYNC_WORKER_URL}/health?_t=${Date.now()}`, {
+            signal: controller.signal,
+            cache: 'no-store'
+        });
+        clearTimeout(tid);
+        if (res.ok) {
+            const j = await res.json();
+            window._workerHealth = {
+                reachable: true,
+                hasToken: Boolean(j && j.hasToken),
+                requiresPin: Boolean(j && j.requiresPin)
+            };
+            return window._workerHealth;
+        }
+    } catch (e) {
+        console.log("Worker health probe skipped/failed:", e.message);
+    }
+    window._workerHealth = { reachable: false, hasToken: false, requiresPin: false };
+    return window._workerHealth;
+}
+
 function updateSyncTokenButtonUi(verifiedOk = null) {
     const btn = document.getElementById('btnGithubToken');
     if (!btn) return;
+
+    if (window._workerHealth && window._workerHealth.hasToken) {
+        btn.innerText = '☁️ Cloud Ready ✅';
+        btn.style.background = '#dcfce7';
+        btn.style.color = '#166534';
+        btn.style.borderColor = '#bbf7d0';
+        btn.title = 'Cloudflare Cloud Sync સક્રિય છે — બધા બ્રાઉઝરમાં GitHub Token વગર કામ કરશે';
+        return;
+    }
 
     const token = getStoredGithubToken();
     if (!token) {
@@ -1670,21 +1718,80 @@ async function validateGithubToken(token) {
     }
 }
 
-async function ensureValidGithubToken() {
+async function ensureSyncTransport() {
+    // ૧. પહેલા Cloudflare Worker ચકાસો (જેથી બ્રાઉઝરમાં કોઈ GitHub Token વગર જ Sync ચાલે)
+    const wh = await checkSyncWorkerHealth(true);
+    updateSyncTokenButtonUi();
+
+    if (wh.hasToken) {
+        let pin = getStoredAdminPin();
+        if (wh.requiresPin && !pin) {
+            const entered = prompt('🔐 Cloudflare Worker માટે તમારો Admin Sync PIN દાખલ કરો:');
+            if (entered === null || !entered.trim()) {
+                throw new Error('Admin Sync PIN દાખલ કરેલો નથી.');
+            }
+            pin = entered.trim();
+            localStorage.setItem(SYNC_ADMIN_PIN_KEY, pin);
+        }
+        return { mode: 'worker', pin };
+    }
+
+    // ૨. Fallback: જો Worker માં GITHUB_PAT હજુ સેટ ન થયું હોય તો Local GitHub Token વાપરો
     let token = getStoredGithubToken();
     if (!token) {
         await window.configureGithubToken(true);
         token = getStoredGithubToken();
         if (!token) {
-            throw new Error('GitHub Token સેટ કરેલો નથી. ઓટો-સિંક ચલાવવા માટે ઉપર "🔑 Connect Token" પર ક્લિક કરીને PAT ટોકન સેટ કરો.');
+            throw new Error(
+                wh.reachable
+                    ? 'Cloudflare Worker માં GITHUB_PAT Secret હજુ સેટ નથી અને લોકલ ટોકન પણ નથી. Cloudflare Settings માં GITHUB_PAT સેવ કરો અથવા "🔑 Connect Token" થી PAT નાખો.'
+                    : 'GitHub Token સેટ કરેલો નથી. ઓટો-સિંક ચલાવવા માટે ઉપર "🔑 Connect Token" પર ક્લિક કરીને PAT ટોકન સેટ કરો.'
+            );
         }
     }
-    return token;
+    return { mode: 'direct', token };
 }
 
-async function dispatchCloudSync(targetIpoId = '', syncMode = 'all', explicitToken = null) {
+async function dispatchCloudSync(targetIpoId = '', syncMode = 'all', transport = null) {
     try {
-        const activeToken = (explicitToken || getStoredGithubToken() || '').trim();
+        const activeTransport = transport || await ensureSyncTransport();
+
+        if (activeTransport.mode === 'worker') {
+            const headers = { 'Content-Type': 'application/json' };
+            if (activeTransport.pin) headers['x-admin-key'] = activeTransport.pin;
+
+            const res = await fetch(`${SYNC_WORKER_URL}/dispatch`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({
+                    targetIpoId: targetIpoId || '',
+                    syncMode: targetIpoId ? 'single' : (syncMode || 'all')
+                })
+            });
+
+            let data = {};
+            try { data = await res.json(); } catch (_) {}
+
+            if (res.ok && data.ok) {
+                updateSyncTokenButtonUi(true);
+                return {
+                    ok: true,
+                    status: res.status,
+                    dispatchStartedAt: data.dispatchStartedAt || (Date.now() - 8000)
+                };
+            }
+
+            if (res.status === 401) {
+                localStorage.removeItem(SYNC_ADMIN_PIN_KEY);
+            }
+            return {
+                ok: false,
+                status: res.status,
+                error: data.error || `Cloudflare Worker HTTP ${res.status}`
+            };
+        }
+
+        const activeToken = (activeTransport.token || getStoredGithubToken() || '').trim();
         if (!activeToken) {
             return {
                 ok: false,
@@ -1739,8 +1846,26 @@ async function dispatchCloudSync(targetIpoId = '', syncMode = 'all', explicitTok
     }
 }
 
-async function fetchLatestWorkflowRun(token, dispatchStartedAt, matchedRunId = null) {
+async function fetchLatestWorkflowRun(transport, dispatchStartedAt, matchedRunId = null) {
     try {
+        if (transport && transport.mode === 'worker') {
+            const headers = {};
+            if (transport.pin) headers['x-admin-key'] = transport.pin;
+            const qs = new URLSearchParams({
+                since: String(dispatchStartedAt || 0),
+                runId: matchedRunId ? String(matchedRunId) : '',
+                _t: String(Date.now())
+            });
+            const res = await fetch(`${SYNC_WORKER_URL}/status?${qs.toString()}`, {
+                headers,
+                cache: 'no-store'
+            });
+            if (!res.ok) return { apiOk: false, status: res.status, run: null };
+            const json = await res.json();
+            return { apiOk: Boolean(json && json.ok), status: res.status, run: (json && json.run) || null };
+        }
+
+        const token = transport && transport.token ? transport.token : getStoredGithubToken();
         const res = await fetch(
             `https://api.github.com/repos/${GH_OWNER_REPO}/actions/workflows/${GH_SYNC_WORKFLOW}/runs?event=workflow_dispatch&per_page=6&_t=${Date.now()}`,
             {
@@ -1768,7 +1893,7 @@ async function fetchLatestWorkflowRun(token, dispatchStartedAt, matchedRunId = n
 }
 
 async function runUnifiedCloudSync({ ipoId = '', syncMode = 'all', onStatus = null } = {}) {
-    const token = await ensureValidGithubToken();
+    const transport = await ensureSyncTransport();
 
     const notify = (msg, phase = 'info') => {
         if (typeof onStatus === 'function') onStatus(msg, phase);
@@ -1779,7 +1904,7 @@ async function runUnifiedCloudSync({ ipoId = '', syncMode = 'all', onStatus = nu
     const preCloudData = await fetchAdminDataFromCloud();
     const preUpdatedAt = ipoId && preCloudData[ipoId] ? (preCloudData[ipoId].lastUpdated || null) : null;
 
-    const dispatch = await dispatchCloudSync(ipoId, syncMode, token);
+    const dispatch = await dispatchCloudSync(ipoId, syncMode, transport);
     if (!dispatch.ok) {
         throw new Error(dispatch.error || 'GitHub Actions ટ્રિગર થઈ શક્યું નહીં.');
     }
@@ -1792,7 +1917,7 @@ async function runUnifiedCloudSync({ ipoId = '', syncMode = 'all', onStatus = nu
         await new Promise(r => setTimeout(r, 2500));
         const elapsedSec = Math.round((Date.now() - startTime) / 1000);
 
-        const { apiOk, run } = await fetchLatestWorkflowRun(token, dispatch.dispatchStartedAt, matchedRunId);
+        const { apiOk, run } = await fetchLatestWorkflowRun(transport, dispatch.dispatchStartedAt, matchedRunId);
         if (run) {
             matchedRunId = run.id;
             if (run.status === 'completed') {
@@ -1901,8 +2026,8 @@ window.fetchAndAutoFillFromChittorgarh = async function() {
             await saveAdminDataToCloud(dbData);
             populatedIpo = existing;
         } else {
-            // Cloud Sync માટે પહેલા ટોકન ચકાસો (જેથી ટોકન વગર JSONBin માં અધૂરો રેકોર્ડ ન બને)
-            await ensureValidGithubToken();
+            // Cloud Sync માટે પહેલા Worker અથવા Local ટોકન ચકાસો (જેથી ટોકન વગર JSONBin માં અધૂરો રેકોર્ડ ન બને)
+            await ensureSyncTransport();
 
             setStatus('⏳ IPO લિંક ક્લાઉડ પર સેવ થઈ રહી છે...', '#0284c7');
             let dbData = await fetchAdminDataFromCloud();
@@ -2089,11 +2214,41 @@ async function triggerInstantSync(event) {
     }
 }
 
-// GitHub Personal Access Token (PAT) સેટ અને વેરિફાઈ કરવા માટેનું ફંક્શન
+// GitHub Personal Access Token (PAT) / Cloudflare Worker સ્ટેટસ સેટ કરવા માટેનું ફંક્શન
 async function configureGithubToken(isFromSyncPrompt = false) {
+    const wh = await checkSyncWorkerHealth(true);
+    updateSyncTokenButtonUi();
+
+    if (wh.hasToken) {
+        if (wh.requiresPin && !isFromSyncPrompt) {
+            const currentPin = getStoredAdminPin();
+            const newPin = prompt(
+                '☁️ Cloudflare Cloud Sync સક્રિય છે!\n\nઅહીં તમે સેવ કરેલો Admin Sync PIN બદલી કે દૂર કરી શકો છો (ખાલી રાખીને OK આપવાથી દૂર થશે):',
+                currentPin
+            );
+            if (newPin === null) return true;
+            if (newPin.trim()) {
+                localStorage.setItem(SYNC_ADMIN_PIN_KEY, newPin.trim());
+                alert('✅ Admin Sync PIN સેવ થઈ ગયો!');
+            } else {
+                localStorage.removeItem(SYNC_ADMIN_PIN_KEY);
+                alert('ℹ️ Admin Sync PIN દૂર કર્યો છે.');
+            }
+            return true;
+        }
+        if (!isFromSyncPrompt) {
+            const wantLocal = confirm(
+                '☁️ Cloudflare Cloud Sync પહેલેથી જ સક્રિય છે!\n\nહવે કોઈ પણ બ્રાઉઝર કે ફોનમાં અલગથી GitHub Token નાખવાની જરૂર નથી.\n\nશું તમારે તેમ છતાં વધારાનો બેકઅપ Local GitHub Token સેટ કરવો છે? (સામાન્ય રીતે Cancel દબાવો)'
+            );
+            if (!wantLocal) return true;
+        }
+    }
+
     const current = getStoredGithubToken();
     const intro = isFromSyncPrompt
-        ? '⚠️ Live Auto-Sync ચલાવવા માટે GitHub Token જરૂરી છે (ફક્ત ૧ વખત આ બ્રાઉઝરમાં સેટ કરવો પડશે):\n\n'
+        ? (wh.reachable
+            ? '⚠️ Cloudflare Worker માં GITHUB_PAT Secret હજુ સેટ થયેલ નથી.\nઅત્યારે ચલાવવા માટે GitHub Token અહીં પેસ્ટ કરો (અથવા Cloudflare Settings માં GITHUB_PAT મૂકો):\n\n'
+            : '⚠️ Live Auto-Sync ચલાવવા માટે GitHub Token જરૂરી છે (ફક્ત ૧ વખત આ બ્રાઉઝરમાં સેટ કરવો પડશે):\n\n')
         : '🔑 GitHub Personal Access Token (PAT) સેટિંગ્સ:\n\n';
     const guide =
         intro +
@@ -2101,7 +2256,7 @@ async function configureGithubToken(isFromSyncPrompt = false) {
         '1) GitHub -> Settings -> Developer settings -> Personal access tokens -> Tokens (classic)\n' +
         '2) "Generate new token (classic)" પર ક્લિક કરી [repo] અને [workflow] બંને ટીક કરો\n' +
         '3) મળેલો ટોકન (ghp_...) નીચે પેસ્ટ કરીને OK આપો.\n\n' +
-        'ટોકન દૂર કરવા માટે ખાલી રાખીને OK આપો:';
+        'લોકલ ટોકન દૂર કરવા માટે ખાલી રાખીને OK આપો:';
 
     const input = prompt(guide, current);
     if (input === null) return false;
@@ -2110,7 +2265,7 @@ async function configureGithubToken(isFromSyncPrompt = false) {
     if (!clean) {
         localStorage.removeItem(GH_TOKEN_STORAGE_KEY);
         updateSyncTokenButtonUi(false);
-        alert('ℹ️ GitHub Token દૂર કર્યો છે. Cloud Sync વાપરવા માટે ફરી ટોકન સેટ કરવો પડશે.');
+        alert('ℹ️ લોકલ GitHub Token દૂર કર્યો છે.');
         return false;
     }
 
@@ -2124,7 +2279,7 @@ async function configureGithubToken(isFromSyncPrompt = false) {
     localStorage.setItem(GH_TOKEN_STORAGE_KEY, clean);
     updateSyncTokenButtonUi(true);
     if (!isFromSyncPrompt) {
-        alert('✅ GitHub Token વેરિફાઈ અને સેવ થઈ ગયો છે!\nહવે ત્રણેય Auto-Sync બટન ("Auto-Fetch", "Sync", "Auto-Sync Data Now") સીધા કામ કરશે.');
+        alert('✅ GitHub Token વેરિફાઈ અને સેવ થઈ ગયો છે!\nહવે ત્રણેય Auto-Sync બટન સીધા કામ કરશે.');
     }
     return true;
 }

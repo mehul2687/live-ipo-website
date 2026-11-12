@@ -102,8 +102,8 @@ function parseIssueSize(val) {
     if (!clean || clean === '-' || clean === '[.]' || clean.toLowerCase() === 'n/a') return null;
     if (clean.toLowerCase() === 'nil') return 'Nil';
 
-    // Normalize any corrupted characters to ₹
-    clean = clean.replace(/,1/g, '₹').replace(/\uFFFD/g, '₹');
+    // Normalize corrupted replacement characters to ₹ (never corrupt numeric ",1" sequences like 2,23,24,120)
+    clean = clean.replace(/\uFFFD/g, '₹');
 
     return clean;
 }
@@ -507,7 +507,19 @@ async function get_Chittorgarh_details_data(key) {
             });
         });
 
+        const h1Text = ($('h1').first().text() || '').trim();
+        let detectedName = '';
+        if (h1Text) {
+            detectedName = h1Text.replace(/IPO\s*(Details|Review|Dates|Allotment|GMP|Price).*/i, 'IPO Details').trim();
+            if (detectedName && !detectedName.toLowerCase().includes('ipo')) detectedName += ' IPO Details';
+        }
+        const detectedType = (/SME/i.test(issue.listingAt || '') || /\bSME\s+IPO\b/i.test(h1Text) || /\/ipo\/[^/]*sme[^/]*\//i.test(detailUrl))
+            ? 'SME'
+            : 'Mainboard';
+
         return {
+            name: detectedName || null,
+            type: detectedType,
             dates: Object.keys(dates).length > 0 ? dates : null,
             issue: Object.keys(issue).length > 0 ? issue : null,
             fin,
@@ -697,7 +709,230 @@ async function enrichIpoMarketData(ipo, detailData, istTodayStr) {
     return marketUpdated;
 }
 
-async function syncAllIposFromChittorgarh() {
+function isIpoHistoricalComplete(ipo, istTodayStr) {
+    if (!ipo || !ipo.listingDate || ipo.listingDate === 'N/A') return false;
+    const listMs = new Date(ipo.listingDate).getTime();
+    const todayMs = new Date(istTodayStr).getTime();
+    if (isNaN(listMs) || isNaN(todayMs)) return false;
+    const daysSinceListing = (todayMs - listMs) / (1000 * 60 * 60 * 24);
+    if (daysSinceListing <= 7) return false;
+
+    const hasDates = Boolean(ipo.openDate && ipo.closeDate && ipo.openDate !== 'N/A');
+    const hasPrice = Boolean(ipo.priceBand && ipo.priceBand !== '₹-' && ipo.lotRaw > 0);
+    const hasFin = Boolean(ipo.fin && Object.values(ipo.fin).some(f => f && f.ast && f.ast !== '-'));
+    const hasCodes = Boolean(ipo.isinCode || ipo.bseCode || ipo.nseCode);
+    const hasListingPx = Boolean(ipo.listingPriceBse || ipo.listingPriceNse);
+    return hasDates && hasPrice && hasFin && hasCodes && hasListingPx;
+}
+
+async function syncSingleIpoRecord(ipo, istTodayStr) {
+    if (!ipo) return false;
+    if (ipo.manualLockAll) {
+        console.log(`\n🔒 Skipping ${ipo.name} - Entire IPO is manually locked.`);
+        return false;
+    }
+
+    let updated = false;
+    let detailData = null;
+
+    if (ipo.chittorgarhKey) {
+        console.log(`\n📡 Checking live data for IPO: ${ipo.name} (${ipo.chittorgarhKey})...`);
+
+        // 1. Live Subscription Data + Details in parallel for speed
+        const [liveData, fetchedDetails] = await Promise.all([
+            !ipo.manualSub ? get_Chittorgarh_subscription_data(ipo.chittorgarhKey) : Promise.resolve(null),
+            get_Chittorgarh_details_data(ipo.chittorgarhKey)
+        ]);
+        detailData = fetchedDetails;
+
+        if (!ipo.manualSub && liveData) {
+            if (!ipo.subShares) ipo.subShares = [];
+            const standardCats = ["QIB", "NII", "B-NII(₹10L+)", "S-NII(₹2-10L)", "Retail", "Employee", "Shareholder"];
+            standardCats.forEach(catName => {
+                if (!ipo.subShares.some(r => r.cat === catName)) {
+                    ipo.subShares.push({ cat: catName, off: 0, app: 0 });
+                }
+            });
+
+            ipo.subShares.forEach(row => {
+                if (row.cat === "QIB" && liveData['QIB']) {
+                    row.off = liveData['QIB'].off;
+                    row.app = liveData['QIB'].app;
+                } else if (row.cat === "NII" && liveData['NII']) {
+                    row.off = liveData['NII'].off;
+                    row.app = liveData['NII'].app;
+                } else if (row.cat === "B-NII(₹10L+)") {
+                    row.off = liveData['B-NII'] ? liveData['B-NII'].off : 0;
+                    row.app = liveData['B-NII'] ? liveData['B-NII'].app : 0;
+                } else if (row.cat === "S-NII(₹2-10L)") {
+                    row.off = liveData['S-NII'] ? liveData['S-NII'].off : 0;
+                    row.app = liveData['S-NII'] ? liveData['S-NII'].app : 0;
+                } else if (row.cat === "Retail" && liveData['Retail']) {
+                    row.off = liveData['Retail'].off;
+                    row.app = liveData['Retail'].app;
+                } else if (row.cat === "Employee") {
+                    row.off = liveData['Employee'] ? liveData['Employee'].off : 0;
+                    row.app = liveData['Employee'] ? liveData['Employee'].app : 0;
+                } else if (row.cat === "Shareholder") {
+                    row.off = liveData['Shareholder'] ? liveData['Shareholder'].off : 0;
+                    row.app = liveData['Shareholder'] ? liveData['Shareholder'].app : 0;
+                }
+            });
+            updated = true;
+            console.log(`  ✓ Updated subscription data for ${ipo.name}`);
+        } else if (ipo.manualSub) {
+            console.log(`  🔒 Subscription is manually locked for ${ipo.name} (Kept custom data)`);
+        }
+
+        // 2. Dates, Issue Info, Financials, Lot Sizes & Valuation Ratios
+        if (detailData) {
+            if (detailData.name && (!ipo.name || ipo.name === 'New IPO' || /\btest\b/i.test(ipo.name))) {
+                ipo.name = detailData.name;
+                updated = true;
+            }
+            if (!ipo.manualIssueInfo && detailData.type && (!ipo.type || (ipo.type === 'Mainboard' && detailData.type === 'SME'))) {
+                ipo.type = detailData.type;
+                updated = true;
+            }
+
+            // DATES AUTO-SYNC
+            if (!ipo.manualDates && detailData.dates) {
+                let dateUpdated = false;
+                if (detailData.dates.openDate && ipo.openDate !== detailData.dates.openDate) {
+                    ipo.openDate = detailData.dates.openDate;
+                    dateUpdated = true;
+                }
+                if (detailData.dates.closeDate && ipo.closeDate !== detailData.dates.closeDate) {
+                    ipo.closeDate = detailData.dates.closeDate;
+                    dateUpdated = true;
+                }
+                if (detailData.dates.allotmentDate && ipo.allotmentDate !== detailData.dates.allotmentDate) {
+                    ipo.allotmentDate = detailData.dates.allotmentDate;
+                    dateUpdated = true;
+                }
+                if (detailData.dates.listingDate && ipo.listingDate !== detailData.dates.listingDate) {
+                    ipo.listingDate = detailData.dates.listingDate;
+                    dateUpdated = true;
+                }
+                if (dateUpdated) {
+                    updated = true;
+                    console.log(`  ✓ Updated Dates for ${ipo.name} (Open: ${ipo.openDate}, Close: ${ipo.closeDate}, Allot: ${ipo.allotmentDate}, List: ${ipo.listingDate})`);
+                }
+            } else if (ipo.manualDates) {
+                console.log(`  🔒 Dates manually locked for ${ipo.name} (Kept custom data)`);
+            }
+
+            // ISSUE DETAILS & PRICE BAND AUTO-SYNC
+            if (!ipo.manualIssueInfo && detailData.issue) {
+                let issueUpdated = false;
+                if (detailData.issue.priceBand && (!ipo.priceBand || ipo.priceBand === '546 to 575' || !ipo.priceBand.includes('to') || detailData.issue.priceBand !== ipo.priceBand)) {
+                    ipo.priceBand = detailData.issue.priceBand;
+                    if (detailData.issue.cutOff) ipo.cutOff = detailData.issue.cutOff;
+                    issueUpdated = true;
+                }
+                if (detailData.issue.lotRaw && (!ipo.lotRaw || ipo.lotRaw === 26 || ipo.lotRaw <= 1 || detailData.issue.lotRaw !== ipo.lotRaw)) {
+                    ipo.lotRaw = detailData.issue.lotRaw;
+                    ipo.lotSize = detailData.issue.lotSize;
+                    issueUpdated = true;
+                }
+                if (detailData.issue.faceValue && (!ipo.faceValue || ipo.faceValue === '₹10 per share' || detailData.issue.faceValue !== ipo.faceValue)) {
+                    ipo.faceValue = detailData.issue.faceValue;
+                    issueUpdated = true;
+                }
+                if (detailData.issue.totalSize && (!ipo.totalSize || ipo.totalSize === 'N/A' || detailData.issue.totalSize !== ipo.totalSize)) {
+                    ipo.totalSize = detailData.issue.totalSize;
+                    issueUpdated = true;
+                }
+                if (detailData.issue.freshIssue && (!ipo.freshIssue || ipo.freshIssue === 'N/A' || detailData.issue.freshIssue !== ipo.freshIssue)) {
+                    ipo.freshIssue = detailData.issue.freshIssue;
+                    issueUpdated = true;
+                }
+                if (detailData.issue.ofs && (!ipo.ofs || ipo.ofs === 'N/A' || detailData.issue.ofs !== ipo.ofs)) {
+                    ipo.ofs = detailData.issue.ofs;
+                    issueUpdated = true;
+                }
+                if (detailData.issue.listingAt && (!ipo.listingAt || ipo.listingAt === 'BSE, NSE' || detailData.issue.listingAt !== ipo.listingAt)) {
+                    ipo.listingAt = detailData.issue.listingAt;
+                    issueUpdated = true;
+                }
+                if (detailData.issue.empDiscount && (!ipo.empDiscount || ipo.empDiscount === 'Nil')) {
+                    ipo.empDiscount = detailData.issue.empDiscount;
+                    issueUpdated = true;
+                }
+                if (issueUpdated) {
+                    updated = true;
+                    console.log(`  ✓ Updated Issue Details & Price Band for ${ipo.name}`);
+                }
+            } else if (ipo.manualIssueInfo) {
+                console.log(`  🔒 Issue Info manually locked for ${ipo.name} (Kept custom data)`);
+            }
+
+            // Update custom lots
+            if (!ipo.manualLots && detailData.customLots) {
+                ipo.customLots = detailData.customLots;
+                updated = true;
+                console.log(`  ✓ Updated Lot Sizes for ${ipo.name}:`, JSON.stringify(detailData.customLots));
+            } else if (ipo.manualLots) {
+                console.log(`  🔒 Lot Sizes manually locked for ${ipo.name} (Kept custom data)`);
+            }
+
+            // Update Company Financials
+            if (!ipo.manualFin && detailData.fin) {
+                const hasExisting = ipo.fin && Object.values(ipo.fin).some(f => f && f.ast && f.ast !== '-');
+                if (!hasExisting) {
+                    ipo.fin = detailData.fin;
+                    updated = true;
+                    console.log(`  ✓ Updated Financials (full) for ${ipo.name}`);
+                } else {
+                    let filledAny = false;
+                    ['fy24', 'fy25', 'fy26', 'jun26'].forEach(fy => {
+                        if (detailData.fin[fy] && detailData.fin[fy].ast !== '-') {
+                            if (!ipo.fin[fy] || ipo.fin[fy].ast === '-' || ipo.fin[fy].ast === '') {
+                                ipo.fin[fy] = detailData.fin[fy];
+                                filledAny = true;
+                            }
+                        }
+                    });
+                    if (ipo.fin && ipo.fin.fy23) {
+                        delete ipo.fin.fy23;
+                        filledAny = true;
+                    }
+                    if (filledAny) {
+                        updated = true;
+                        console.log(`  ✓ Merged missing Financials for ${ipo.name}`);
+                    }
+                }
+            } else if (ipo.manualFin) {
+                console.log(`  🔒 Financials manually locked for ${ipo.name} (Kept custom data)`);
+            }
+
+            // Update Valuation Ratios
+            if (!ipo.manualValuation && detailData.valuation) {
+                if (!ipo.valuation) ipo.valuation = {};
+                let valFilled = false;
+                Object.keys(detailData.valuation).forEach(vk => {
+                    if (!ipo.valuation[vk] || ipo.valuation[vk] === '-' || ipo.valuation[vk] === '') {
+                        ipo.valuation[vk] = detailData.valuation[vk];
+                        valFilled = true;
+                    }
+                });
+                if (valFilled) {
+                    updated = true;
+                    console.log(`  ✓ Updated Valuation Ratios for ${ipo.name}`);
+                }
+            } else if (ipo.manualValuation) {
+                console.log(`  🔒 Valuation manually locked for ${ipo.name} (Kept custom data)`);
+            }
+        }
+    }
+
+    if (await enrichIpoMarketData(ipo, detailData, istTodayStr)) {
+        updated = true;
+    }
+    return updated;
+}
+
+async function syncAllIposFromChittorgarh(targetIpoId = '') {
     try {
         console.log("🔄 Fetching Master IPO data from JSONBin.io...");
         const response = await axios.get(`https://api.jsonbin.io/v3/b/${ADMIN_BIN_ID}/latest?t=${Date.now()}`, {
@@ -713,224 +948,21 @@ async function syncAllIposFromChittorgarh() {
         let updated = false;
         const istTodayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 
-        for (const ipoId of Object.keys(dbData)) {
-            let ipo = dbData[ipoId];
-            if (ipo.manualLockAll) {
-                console.log(`\n🔒 Skipping ${ipo.name} - Entire IPO is manually locked.`);
-                continue;
+        if (targetIpoId) {
+            const matchedKey = Object.keys(dbData).find(k => k.toUpperCase() === targetIpoId.toUpperCase());
+            if (!matchedKey) {
+                console.warn(`⚠️ Target IPO ID "${targetIpoId}" not found in JSONBin.`);
+                return;
             }
-            let detailData = null;
-            if (ipo.chittorgarhKey) {
-                console.log(`\n📡 Checking live data for IPO: ${ipo.name} (${ipo.chittorgarhKey})...`);
-                
-                // 1. Live Subscription Data
-                if (!ipo.manualSub) {
-                    let liveData = await get_Chittorgarh_subscription_data(ipo.chittorgarhKey);
-                    if (liveData) {
-                        if (!ipo.subShares) ipo.subShares = [];
-                        
-                        // Ensure all 7 standard categories exist
-                        const standardCats = ["QIB", "NII", "B-NII(₹10L+)", "S-NII(₹2-10L)", "Retail", "Employee", "Shareholder"];
-                        standardCats.forEach(catName => {
-                            if (!ipo.subShares.some(r => r.cat === catName)) {
-                                ipo.subShares.push({ cat: catName, off: 0, app: 0 });
-                            }
-                        });
-
-                        ipo.subShares.forEach(row => {
-                            if (row.cat === "QIB" && liveData['QIB']) {
-                                row.off = liveData['QIB'].off;
-                                row.app = liveData['QIB'].app;
-                            }
-                            if (row.cat === "NII" && liveData['NII']) {
-                                row.off = liveData['NII'].off;
-                                row.app = liveData['NII'].app;
-                            }
-                            if (row.cat === "B-NII(₹10L+)") {
-                                if (liveData['B-NII']) {
-                                    row.off = liveData['B-NII'].off;
-                                    row.app = liveData['B-NII'].app;
-                                } else {
-                                    row.off = 0;
-                                    row.app = 0;
-                                }
-                            }
-                            if (row.cat === "S-NII(₹2-10L)") {
-                                if (liveData['S-NII']) {
-                                    row.off = liveData['S-NII'].off;
-                                    row.app = liveData['S-NII'].app;
-                                } else {
-                                    row.off = 0;
-                                    row.app = 0;
-                                }
-                            }
-                            if (row.cat === "Retail" && liveData['Retail']) {
-                                row.off = liveData['Retail'].off;
-                                row.app = liveData['Retail'].app;
-                            }
-                            if (row.cat === "Employee") {
-                                if (liveData['Employee']) {
-                                    row.off = liveData['Employee'].off;
-                                    row.app = liveData['Employee'].app;
-                                } else {
-                                    row.off = 0;
-                                    row.app = 0;
-                                }
-                            }
-                            if (row.cat === "Shareholder") {
-                                if (liveData['Shareholder']) {
-                                    row.off = liveData['Shareholder'].off;
-                                    row.app = liveData['Shareholder'].app;
-                                } else {
-                                    row.off = 0;
-                                    row.app = 0;
-                                }
-                            }
-                        });
-                        updated = true;
-                        console.log(`  ✓ Updated subscription data for ${ipo.name}`);
-                    }
-                } else {
-                    console.log(`  🔒 Subscription is manually locked for ${ipo.name} (Kept custom data)`);
-                }
-
-                // 2. Dates, Issue Info, Financials, Lot Sizes & Valuation Ratios
-                detailData = await get_Chittorgarh_details_data(ipo.chittorgarhKey);
-                if (detailData) {
-                    // DATES AUTO-SYNC
-                    if (!ipo.manualDates && detailData.dates) {
-                        let dateUpdated = false;
-                        if (detailData.dates.openDate && ipo.openDate !== detailData.dates.openDate) {
-                            ipo.openDate = detailData.dates.openDate;
-                            dateUpdated = true;
-                        }
-                        if (detailData.dates.closeDate && ipo.closeDate !== detailData.dates.closeDate) {
-                            ipo.closeDate = detailData.dates.closeDate;
-                            dateUpdated = true;
-                        }
-                        if (detailData.dates.allotmentDate && ipo.allotmentDate !== detailData.dates.allotmentDate) {
-                            ipo.allotmentDate = detailData.dates.allotmentDate;
-                            dateUpdated = true;
-                        }
-                        if (detailData.dates.listingDate && ipo.listingDate !== detailData.dates.listingDate) {
-                            ipo.listingDate = detailData.dates.listingDate;
-                            dateUpdated = true;
-                        }
-                        if (dateUpdated) {
-                            updated = true;
-                            console.log(`  ✓ Updated Dates for ${ipo.name} (Open: ${ipo.openDate}, Close: ${ipo.closeDate}, Allot: ${ipo.allotmentDate}, List: ${ipo.listingDate})`);
-                        }
-                    } else if (ipo.manualDates) {
-                        console.log(`  🔒 Dates manually locked for ${ipo.name} (Kept custom data)`);
-                    }
-
-                    // ISSUE DETAILS & PRICE BAND AUTO-SYNC
-                    if (!ipo.manualIssueInfo && detailData.issue) {
-                        let issueUpdated = false;
-                        if (detailData.issue.priceBand && (!ipo.priceBand || ipo.priceBand === '546 to 575' || !ipo.priceBand.includes('to') || detailData.issue.priceBand !== ipo.priceBand)) {
-                            ipo.priceBand = detailData.issue.priceBand;
-                            if (detailData.issue.cutOff) ipo.cutOff = detailData.issue.cutOff;
-                            issueUpdated = true;
-                        }
-                        if (detailData.issue.lotRaw && (!ipo.lotRaw || ipo.lotRaw === 26 || ipo.lotRaw <= 1 || detailData.issue.lotRaw !== ipo.lotRaw)) {
-                            ipo.lotRaw = detailData.issue.lotRaw;
-                            ipo.lotSize = detailData.issue.lotSize;
-                            issueUpdated = true;
-                        }
-                        if (detailData.issue.faceValue && (!ipo.faceValue || ipo.faceValue === '₹10 per share' || detailData.issue.faceValue !== ipo.faceValue)) {
-                            ipo.faceValue = detailData.issue.faceValue;
-                            issueUpdated = true;
-                        }
-                        if (detailData.issue.totalSize && (!ipo.totalSize || ipo.totalSize === 'N/A' || detailData.issue.totalSize !== ipo.totalSize)) {
-                            ipo.totalSize = detailData.issue.totalSize;
-                            issueUpdated = true;
-                        }
-                        if (detailData.issue.freshIssue && (!ipo.freshIssue || ipo.freshIssue === 'N/A' || detailData.issue.freshIssue !== ipo.freshIssue)) {
-                            ipo.freshIssue = detailData.issue.freshIssue;
-                            issueUpdated = true;
-                        }
-                        if (detailData.issue.ofs && (!ipo.ofs || ipo.ofs === 'N/A' || detailData.issue.ofs !== ipo.ofs)) {
-                            ipo.ofs = detailData.issue.ofs;
-                            issueUpdated = true;
-                        }
-                        if (detailData.issue.listingAt && (!ipo.listingAt || ipo.listingAt === 'BSE, NSE' || detailData.issue.listingAt !== ipo.listingAt)) {
-                            ipo.listingAt = detailData.issue.listingAt;
-                            issueUpdated = true;
-                        }
-                        if (detailData.issue.empDiscount && (!ipo.empDiscount || ipo.empDiscount === 'Nil')) {
-                            ipo.empDiscount = detailData.issue.empDiscount;
-                            issueUpdated = true;
-                        }
-                        if (issueUpdated) {
-                            updated = true;
-                            console.log(`  ✓ Updated Issue Details & Price Band for ${ipo.name}`);
-                        }
-                    } else if (ipo.manualIssueInfo) {
-                        console.log(`  🔒 Issue Info manually locked for ${ipo.name} (Kept custom data)`);
-                    }
-
-                    // Update custom lots
-                    if (!ipo.manualLots && detailData.customLots) {
-                        ipo.customLots = detailData.customLots;
-                        updated = true;
-                        console.log(`  ✓ Updated Lot Sizes for ${ipo.name}:`, JSON.stringify(detailData.customLots));
-                    } else if (ipo.manualLots) {
-                        console.log(`  🔒 Lot Sizes manually locked for ${ipo.name} (Kept custom data)`);
-                    }
-
-                    // Update Company Financials
-                    if (!ipo.manualFin && detailData.fin) {
-                        const hasExisting = ipo.fin && Object.values(ipo.fin).some(f => f && f.ast && f.ast !== '-');
-                        if (!hasExisting) {
-                            ipo.fin = detailData.fin;
-                            updated = true;
-                            console.log(`  ✓ Updated Financials (full) for ${ipo.name}`);
-                        } else {
-                            let filledAny = false;
-                            ['fy24', 'fy25', 'fy26', 'jun26'].forEach(fy => {
-                                if (detailData.fin[fy] && detailData.fin[fy].ast !== '-') {
-                                    if (!ipo.fin[fy] || ipo.fin[fy].ast === '-' || ipo.fin[fy].ast === '') {
-                                        ipo.fin[fy] = detailData.fin[fy];
-                                        filledAny = true;
-                                    }
-                                }
-                            });
-                            // Remove legacy fy23 if present so data is clean
-                            if (ipo.fin && ipo.fin.fy23) {
-                                delete ipo.fin.fy23;
-                                filledAny = true;
-                            }
-                            if (filledAny) {
-                                updated = true;
-                                console.log(`  ✓ Merged missing Financials for ${ipo.name}`);
-                            }
-                        }
-                    } else if (ipo.manualFin) {
-                        console.log(`  🔒 Financials manually locked for ${ipo.name} (Kept custom data)`);
-                    }
-
-                    // Update Valuation Ratios
-                    if (!ipo.manualValuation && detailData.valuation) {
-                        if (!ipo.valuation) ipo.valuation = {};
-                        let valFilled = false;
-                        Object.keys(detailData.valuation).forEach(vk => {
-                            if (!ipo.valuation[vk] || ipo.valuation[vk] === '-' || ipo.valuation[vk] === '') {
-                                ipo.valuation[vk] = detailData.valuation[vk];
-                                valFilled = true;
-                            }
-                        });
-                        if (valFilled) {
-                            updated = true;
-                            console.log(`  ✓ Updated Valuation Ratios for ${ipo.name}`);
-                        }
-                    } else if (ipo.manualValuation) {
-                        console.log(`  🔒 Valuation manually locked for ${ipo.name} (Kept custom data)`);
-                    }
-                }
-            }
-
-            if (await enrichIpoMarketData(ipo, detailData, istTodayStr)) {
-                updated = true;
+            console.log(`🎯 Fast Single-IPO Sync mode for: ${matchedKey}`);
+            updated = await syncSingleIpoRecord(dbData[matchedKey], istTodayStr);
+        } else {
+            const allIds = Object.keys(dbData).filter(id => !isIpoHistoricalComplete(dbData[id], istTodayStr));
+            console.log(`📋 Syncing ${allIds.length}/${Object.keys(dbData).length} active or incomplete IPO(s) in batches of 5...`);
+            for (let i = 0; i < allIds.length; i += 5) {
+                const batch = allIds.slice(i, i + 5);
+                const results = await Promise.all(batch.map(id => syncSingleIpoRecord(dbData[id], istTodayStr)));
+                if (results.some(Boolean)) updated = true;
             }
         }
 
@@ -945,7 +977,7 @@ async function syncAllIposFromChittorgarh() {
                     'X-Master-Key': ADMIN_API_KEY
                 }
             });
-            console.log("🎉 Successfully synced all IPO data to cloud!");
+            console.log("🎉 Successfully synced IPO data to cloud!");
         } else {
             console.log("ℹ️ No updates needed or keys missing.");
         }
@@ -958,6 +990,9 @@ async function syncAllIposFromChittorgarh() {
 // Arguments & Auto-Repeat Configuration
 const args = process.argv.slice(2);
 const runOnce = args.includes('--once') || args.includes('-1');
+const ipoArg = args.find(a => a.startsWith('--ipo='));
+const cliTargetIpoId = ipoArg ? ipoArg.split('=')[1].trim().toUpperCase() : '';
+const iposOnly = args.includes('--ipos-only') || Boolean(cliTargetIpoId);
 
 let intervalMinutes = 1;
 const intervalArgIndex = args.findIndex(arg => arg === '--interval' || arg === '-i');
@@ -981,26 +1016,30 @@ async function executeSync() {
     console.log(`======================================================`);
 
     try {
-        await syncAllIposFromChittorgarh();
-        try {
-            await fetchAndSaveFiiDiiData();
-        } catch (fiiErr) {
-            console.error("⚠️ FII/DII sync error:", fiiErr.message);
-        }
-        try {
-            await fetchAndSaveFnoData();
-        } catch (fnoErr) {
-            console.error("⚠️ FII F&O sync error:", fnoErr.message);
-        }
-        try {
-            await scrapeIndices();
-        } catch (indErr) {
-            console.error("⚠️ Indices sync error:", indErr.message);
-        }
-        try {
-            await scrapeIndexStocks();
-        } catch (stkErr) {
-            console.error("⚠️ Index Stocks sync error:", stkErr.message);
+        await syncAllIposFromChittorgarh(cliTargetIpoId);
+        if (!iposOnly) {
+            try {
+                await fetchAndSaveFiiDiiData();
+            } catch (fiiErr) {
+                console.error("⚠️ FII/DII sync error:", fiiErr.message);
+            }
+            try {
+                await fetchAndSaveFnoData();
+            } catch (fnoErr) {
+                console.error("⚠️ FII F&O sync error:", fnoErr.message);
+            }
+            try {
+                await scrapeIndices();
+            } catch (indErr) {
+                console.error("⚠️ Indices sync error:", indErr.message);
+            }
+            try {
+                await scrapeIndexStocks();
+            } catch (stkErr) {
+                console.error("⚠️ Index Stocks sync error:", stkErr.message);
+            }
+        } else {
+            console.log("⚡ Skipped FII/Indices scrapes (fast IPO-only sync mode).");
         }
     } catch (e) {
         console.error("❌ Sync execution error:", e.message);

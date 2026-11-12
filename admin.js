@@ -11,6 +11,17 @@ const ADMIN_BIN_ID = "6aaf80f9ac6210605ae1bce6";
 const ADMIN_API_KEY = "$2a$10$Pl5b/ekYZXhRBmQVY6DwieMC10GztytHM9d7CnR0zqmje7BWYj6yC";
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // ૦. GitHub Cloud Sync Token સ્ટેટસ બટન અપડેટ કરો અને જો ટોકન સેટ હોય તો બેકગ્રાઉન્ડમાં વેરિફાઈ કરો
+    updateSyncTokenButtonUi();
+    const storedGhToken = getStoredGithubToken();
+    if (storedGhToken) {
+        validateGithubToken(storedGhToken).then(res => {
+            if (!res.valid && res.reason !== 'network') {
+                updateSyncTokenButtonUi(false);
+            }
+        }).catch(() => {});
+    }
+
     // ૧. પેજ લોડ થતાં જ ક્લાઉડ અને લોકલમાંથી ડેશબોર્ડ ડેટા લોડ કરો
     await loadAdminDashboard();
     loadRegistrarDropdown();
@@ -123,18 +134,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     markManualLock('#adm_priceStart, #adm_priceEnd, #adm_cutOff, #adm_lotRaw, #adm_faceValue, #adm_totalSize, #adm_freshissue, #adm_ofs', 'lock_manual_issue');
     markManualLock('#adm_bseCode, #adm_nseCode, #adm_isinCode, #adm_mcScId, #adm_listingPriceNse, #adm_listingPriceBse', 'lock_manual_listing');
 
-    // ૫. Form Submit Handler (ક્લાઉડ સેવ સાથે)
-    const manageForm = document.getElementById('manageIpoForm');
-    if (manageForm) {
-        manageForm.addEventListener('submit', async function(e) {
-            e.preventDefault(); // Page reload અટકાવવા માટે
-
+    // ૫. Form Save Helper & Submit Handler (ક્લાઉડ સેવ સાથે)
+    window.saveCurrentFormToCloud = async function({ silent = false, closeDrawer = true } = {}) {
             const ipoIdInput = document.getElementById('adm_id');
-            if (!ipoIdInput) return;
+            if (!ipoIdInput) return null;
             const ipoId = ipoIdInput.value.trim().toUpperCase();
             if (!ipoId) {
                 alert("કૃપા કરીને Unique IPO Code / ID દાખલ કરો.");
-                return;
+                return null;
             }
 
             let dbData = await fetchAdminDataFromCloud();
@@ -258,12 +265,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             // ક્લાઉડ અને લોકલસ્ટોરેજ બંનેમાં સેવ કરો
             await saveAdminDataToCloud(dbData);
+            currentEditingId = ipoId;
 
-            if (!window._isSaveAndSyncTriggered) {
+            if (!silent && !window._isSaveAndSyncTriggered) {
                 alert(`✓ IPO "${ipoData.name}" successfully saved & synced to cloud!`);
             }
-            toggleDrawer(false);
+            if (closeDrawer) {
+                toggleDrawer(false);
+            }
             await loadAdminDashboard();
+            return ipoId;
+    };
+
+    const manageForm = document.getElementById('manageIpoForm');
+    if (manageForm) {
+        manageForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); // Page reload અટકાવવા માટે
+            await window.saveCurrentFormToCloud({ silent: false, closeDrawer: true });
         });
     }
 });
@@ -1310,15 +1328,15 @@ function parseChittorgarhHtml(html, pageUrl) {
                     }
 
                     if ((k.includes('total issue size') || k === 'issue size') && !issue.totalSize) {
-                        issue.totalSize = v.replace(/,1/g, '₹').replace(/\uFFFD/g, '₹').trim();
+                        issue.totalSize = v.replace(/\uFFFD/g, '₹').trim();
                     }
 
                     if (k.includes('fresh issue') && !issue.freshIssue) {
-                        issue.freshIssue = v.replace(/,1/g, '₹').replace(/\uFFFD/g, '₹').trim();
+                        issue.freshIssue = v.replace(/\uFFFD/g, '₹').trim();
                     }
 
                     if (k.includes('offer for sale') && !issue.ofs) {
-                        issue.ofs = v.replace(/,1/g, '₹').replace(/\uFFFD/g, '₹').trim();
+                        issue.ofs = v.replace(/\uFFFD/g, '₹').trim();
                     }
 
                     if (k === 'listing at' && !issue.listingAt) {
@@ -1518,14 +1536,17 @@ function parseChittorgarhHtml(html, pageUrl) {
     }
 }
 
-async function fetchChittorgarhData(keyOrUrl) {
-    const { fullUrl, pathKey } = cleanChittorgarhUrl(keyOrUrl);
+// લોકલ ડેવલપમેન્ટ પર હોઈએ ત્યારે જ Port 3001 બેકએન્ડ અજમાવો (લાઈવ સાઈટ પર 3.5s વેડફ્યા વગર સીધા ક્લાઉડ પર જશે)
+async function tryLocalBackendChittorgarh(keyOrUrl) {
+    const host = (typeof window !== 'undefined' && window.location && window.location.hostname) || '';
+    if (host !== 'localhost' && host !== '127.0.0.1') return null;
+
+    const { fullUrl } = cleanChittorgarhUrl(keyOrUrl);
     if (!fullUrl) return null;
 
-    // ૧. સૌથી પહેલા લોકલ બેકએન્ડ API ટ્રાય કરો (Port 3001)
     try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        const timeoutId = setTimeout(() => controller.abort(), 1500);
         const res = await fetch(`http://localhost:3001/api/fetch-chittorgarh-details?url=${encodeURIComponent(fullUrl)}`, {
             signal: controller.signal
         });
@@ -1534,85 +1555,276 @@ async function fetchChittorgarhData(keyOrUrl) {
             const json = await res.json();
             if (json.success && (json.details || json.subscription)) {
                 return {
-                    details: json.details,
-                    subscription: json.subscription,
+                    details: json.details || null,
+                    subscription: json.subscription || null,
                     source: 'local-backend'
                 };
             }
         }
     } catch (e) {
-        console.log("Local backend not answering, switching to client-side proxy...");
+        console.log("Local backend not active, switching to Cloud Sync:", e.message);
     }
-
-    // ૨. જો લોકલ બેકએન્ડ ઉપલબ્ધ ન હોય તો બ્રાઉઝર CORS પ્રોક્સીથી પેજ મેળવીને પાર્સ કરો
-    const proxies = [
-        `https://api.allorigins.win/raw?url=${encodeURIComponent(fullUrl)}`,
-        `https://corsproxy.io/?url=${encodeURIComponent(fullUrl)}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(fullUrl)}`
-    ];
-
-    let html = null;
-    for (const proxyUrl of proxies) {
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 6000);
-            const r = await fetch(proxyUrl, { signal: controller.signal });
-            clearTimeout(timeoutId);
-            if (r.ok) {
-                const text = await r.text();
-                if (text && text.length > 2000 && text.includes('<html')) {
-                    html = text;
-                    break;
-                }
-            }
-        } catch (err) {
-            console.warn(`Proxy fetch failed for ${proxyUrl}:`, err.message);
-        }
-    }
-
-    if (html) {
-        const parsed = parseChittorgarhHtml(html, fullUrl);
-        return {
-            details: parsed,
-            subscription: null,
-            source: 'browser-proxy'
-        };
-    }
-
     return null;
 }
 
 // ==========================================
-// CLOUD RUNNER DISPATCH & AUTO-SYNC ENGINE
+// UNIFIED CLOUD RUNNER & TOKEN HEALTH ENGINE
 // ==========================================
-async function dispatchCloudSync() {
+const GH_OWNER_REPO = 'mehul2687/live-ipo-website';
+const GH_SYNC_WORKFLOW = 'sync.yml';
+const GH_TOKEN_STORAGE_KEY = 'live_ipo_github_token';
+
+function getStoredGithubToken() {
+    return (localStorage.getItem(GH_TOKEN_STORAGE_KEY) || '').trim();
+}
+
+function updateSyncTokenButtonUi(verifiedOk = null) {
+    const btn = document.getElementById('btnGithubToken');
+    if (!btn) return;
+
+    const token = getStoredGithubToken();
+    if (!token) {
+        btn.innerText = '🔑 Connect Token ⚠️';
+        btn.style.background = '#fef3c7';
+        btn.style.color = '#92400e';
+        btn.style.borderColor = '#fde68a';
+        btn.title = 'ક્લાઉડ ઓટો-સિંક ચાલુ કરવા માટે એકવાર GitHub Token સેટ કરો';
+        return;
+    }
+
+    if (verifiedOk === false) {
+        btn.innerText = '🔑 Token Invalid ⚠️';
+        btn.style.background = '#fee2e2';
+        btn.style.color = '#991b1b';
+        btn.style.borderColor = '#fecaca';
+        btn.title = 'સેવ કરેલો GitHub Token અમાન્ય છે — ક્લિક કરીને નવો ટોકન દાખલ કરો';
+        return;
+    }
+
+    btn.innerText = '🔑 Sync Ready ✅';
+    btn.style.background = '#dcfce7';
+    btn.style.color = '#166534';
+    btn.style.borderColor = '#bbf7d0';
+    btn.title = 'GitHub Cloud Sync સક્રિય છે (ટોકન બદલવા માટે ક્લિક કરો)';
+}
+
+async function validateGithubToken(token) {
+    const clean = (token || '').trim();
+    if (!clean) {
+        return { valid: false, reason: 'missing', message: 'GitHub Token ખાલી છે.' };
+    }
+
     try {
-        let activeToken = localStorage.getItem('live_ipo_github_token') || window._cloudToken;
-        if (!activeToken) {
-            // Fetch fresh from cloud bin if not yet loaded
-            await fetchAdminDataFromCloud();
-            activeToken = localStorage.getItem('live_ipo_github_token') || window._cloudToken;
+        const res = await fetch(`https://api.github.com/repos/${GH_OWNER_REPO}`, {
+            headers: {
+                'Authorization': `Bearer ${clean}`,
+                'Accept': 'application/vnd.github+json'
+            },
+            cache: 'no-store'
+        });
+
+        if (res.status === 401) {
+            return {
+                valid: false,
+                reason: 'invalid',
+                message: 'આ GitHub Token અમાન્ય અથવા એક્સપાયર (401) થયો છે.'
+            };
+        }
+        if (res.status === 403 || res.status === 404) {
+            return {
+                valid: false,
+                reason: 'no_access',
+                message: `આ ટોકનને ${GH_OWNER_REPO} રિપોઝિટરીની એક્સેસ નથી (HTTP ${res.status}).`
+            };
+        }
+        if (!res.ok) {
+            return {
+                valid: false,
+                reason: 'http_error',
+                message: `GitHub ચકાસણીમાં ક્ષતિ આવી (HTTP ${res.status}).`
+            };
         }
 
-        if (!activeToken) {
-            console.warn("No cloud token available for dispatch.");
-            return false;
+        // Classic PAT returns x-oauth-scopes; Fine-Grained PAT returns null
+        const scopesHeader = res.headers.get('x-oauth-scopes');
+        if (scopesHeader !== null) {
+            const scopes = scopesHeader.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+            const hasRepo = scopes.includes('repo') || scopes.includes('public_repo');
+            const hasWorkflow = scopes.includes('workflow');
+            if (!hasRepo || !hasWorkflow) {
+                return {
+                    valid: false,
+                    reason: 'missing_scopes',
+                    message: `આ Classic Token માં જરૂરી સ્કોપ ખૂટે છે! GitHub માં 'repo' અને 'workflow' બંને ચેકબોક્સ ટીક હોવા જરૂરી છે. (મળેલા સ્કોપ: ${scopesHeader || 'કોઈ નહીં'})`
+                };
+            }
         }
 
-        const res = await fetch('https://api.github.com/repos/mehul2687/live-ipo-website/actions/workflows/sync.yml/dispatches', {
+        return { valid: true };
+    } catch (e) {
+        return {
+            valid: false,
+            reason: 'network',
+            message: `GitHub સાથે કનેક્ટ ન થઈ શક્યું: ${e.message}`
+        };
+    }
+}
+
+async function ensureValidGithubToken() {
+    let token = getStoredGithubToken();
+    if (!token) {
+        await window.configureGithubToken(true);
+        token = getStoredGithubToken();
+        if (!token) {
+            throw new Error('GitHub Token સેટ કરેલો નથી. ઓટો-સિંક ચલાવવા માટે ઉપર "🔑 Connect Token" પર ક્લિક કરીને PAT ટોકન સેટ કરો.');
+        }
+    }
+    return token;
+}
+
+async function dispatchCloudSync(targetIpoId = '', syncMode = 'all', explicitToken = null) {
+    try {
+        const activeToken = (explicitToken || getStoredGithubToken() || '').trim();
+        if (!activeToken) {
+            return {
+                ok: false,
+                status: 401,
+                error: 'GitHub Token સેટ કરેલો નથી. ઉપર "🔑 Connect Token" બટનથી એકવાર ટોકન સેટ કરો.'
+            };
+        }
+
+        const inputs = {
+            sync_mode: targetIpoId ? 'single' : (syncMode || 'all')
+        };
+        if (targetIpoId) {
+            inputs.target_ipo_id = targetIpoId;
+        }
+
+        const dispatchStartedAt = Date.now() - 8000;
+        const res = await fetch(`https://api.github.com/repos/${GH_OWNER_REPO}/actions/workflows/${GH_SYNC_WORKFLOW}/dispatches`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${activeToken}`,
-                'Accept': 'application/vnd.github.v3+json',
+                'Accept': 'application/vnd.github+json',
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ ref: 'main' })
+            body: JSON.stringify({
+                ref: 'main',
+                inputs
+            })
         });
-        return res.status === 204 || res.ok;
+
+        if (res.status === 204 || res.ok) {
+            updateSyncTokenButtonUi(true);
+            return { ok: true, status: res.status, dispatchStartedAt };
+        }
+
+        let errMsg = `HTTP ${res.status}`;
+        try {
+            const errJson = await res.json();
+            if (errJson && errJson.message) errMsg = `${errJson.message} (HTTP ${res.status})`;
+        } catch (_) {}
+
+        if (res.status === 401) {
+            updateSyncTokenButtonUi(false);
+            errMsg = 'GitHub Token અમાન્ય અથવા એક્સપાયર (401) છે. "🔑 Token" બટન પર ક્લિક કરીને નવો PAT ટોકન અપડેટ કરો.';
+        } else if (res.status === 403) {
+            updateSyncTokenButtonUi(false);
+            errMsg = 'GitHub Token ને "workflow" / Actions (Read & Write) પરમિશન નથી (403).';
+        }
+
+        return { ok: false, status: res.status, error: errMsg };
     } catch (e) {
-        console.warn("Cloud dispatch error:", e);
-        return false;
+        return { ok: false, status: 0, error: `નેટવર્ક ક્ષતિ: ${e.message}` };
     }
+}
+
+async function fetchLatestWorkflowRun(token, dispatchStartedAt, matchedRunId = null) {
+    try {
+        const res = await fetch(
+            `https://api.github.com/repos/${GH_OWNER_REPO}/actions/workflows/${GH_SYNC_WORKFLOW}/runs?event=workflow_dispatch&per_page=6&_t=${Date.now()}`,
+            {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Accept': 'application/vnd.github+json'
+                },
+                cache: 'no-store'
+            }
+        );
+        if (!res.ok) return { apiOk: false, status: res.status, run: null };
+        const json = await res.json();
+        const runs = Array.isArray(json.workflow_runs) ? json.workflow_runs : [];
+        let run = null;
+        if (matchedRunId) {
+            run = runs.find(r => r.id === matchedRunId) || null;
+        }
+        if (!run) {
+            run = runs.find(r => new Date(r.created_at).getTime() >= dispatchStartedAt) || null;
+        }
+        return { apiOk: true, status: res.status, run };
+    } catch (e) {
+        return { apiOk: false, status: 0, run: null };
+    }
+}
+
+async function runUnifiedCloudSync({ ipoId = '', syncMode = 'all', onStatus = null } = {}) {
+    const token = await ensureValidGithubToken();
+
+    const notify = (msg, phase = 'info') => {
+        if (typeof onStatus === 'function') onStatus(msg, phase);
+    };
+
+    notify('⏳ GitHub Cloud Runner શરૂ થઈ રહ્યું છે...', 'dispatch');
+
+    const preCloudData = await fetchAdminDataFromCloud();
+    const preUpdatedAt = ipoId && preCloudData[ipoId] ? (preCloudData[ipoId].lastUpdated || null) : null;
+
+    const dispatch = await dispatchCloudSync(ipoId, syncMode, token);
+    if (!dispatch.ok) {
+        throw new Error(dispatch.error || 'GitHub Actions ટ્રિગર થઈ શક્યું નહીં.');
+    }
+
+    const startTime = Date.now();
+    const maxAttempts = 36; // 36 * 2.5s = 90s max
+    let matchedRunId = null;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        await new Promise(r => setTimeout(r, 2500));
+        const elapsedSec = Math.round((Date.now() - startTime) / 1000);
+
+        const { apiOk, run } = await fetchLatestWorkflowRun(token, dispatch.dispatchStartedAt, matchedRunId);
+        if (run) {
+            matchedRunId = run.id;
+            if (run.status === 'completed') {
+                if (run.conclusion === 'success') {
+                    notify('✅ Cloud Sync પૂર્ણ! નવો ડેટા લોડ થઈ રહ્યો છે...', 'success');
+                    const freshData = await fetchAdminDataFromCloud();
+                    return {
+                        ok: true,
+                        allData: freshData,
+                        ipo: ipoId ? (freshData[ipoId] || null) : null,
+                        run
+                    };
+                }
+                throw new Error(`GitHub Cloud Sync નિષ્ફળ ગયો (${run.conclusion}). Logs: ${run.html_url}`);
+            } else if (run.status === 'in_progress') {
+                notify(`🚀 Chittorgarh પરથી લાઈવ ડેટા સ્ક્રૅપ થઈ રહ્યો છે... (${elapsedSec}s)`, 'running');
+            } else {
+                notify(`⏳ Cloud Runner કતારમાં છે (${run.status})... (${elapsedSec}s)`, 'queued');
+            }
+        } else {
+            notify(`⏳ Cloud Runner કનેક્ટ થઈ રહ્યું છે... (${elapsedSec}s)`, 'queued');
+            // Fallback check ONLY if GitHub Runs API wasn't reachable and JSONBin updated cleanly
+            if (!apiOk && ipoId) {
+                const fresh = await fetchAdminDataFromCloud();
+                if (fresh[ipoId] && fresh[ipoId].lastUpdated && fresh[ipoId].lastUpdated !== preUpdatedAt) {
+                    return { ok: true, allData: fresh, ipo: fresh[ipoId], run: null };
+                }
+            }
+        }
+    }
+
+    throw new Error('90 સેકન્ડ પછી પણ Cloud Sync પૂર્ણ થયું નથી. GitHub Actions હજુ બેકગ્રાઉન્ડમાં ચાલુ હોઈ શકે છે — થોડીવાર પછી Page Refresh કરો.');
 }
 
 // ફોર્મમાં Chittorgarh પરથી ઓટો-ફેચ કરીને તમામ ઇનપુટ ભરવા માટેનું મુખ્ય ફંક્શન
@@ -1631,14 +1843,17 @@ window.fetchAndAutoFillFromChittorgarh = async function() {
     const txt = document.getElementById('fetchBtnText');
     const statusSpan = document.getElementById('formFetchStatus');
 
+    const setStatus = (msg, color = '#0284c7') => {
+        if (!statusSpan) return;
+        statusSpan.style.display = 'inline-block';
+        statusSpan.style.color = color;
+        statusSpan.innerText = msg;
+    };
+
     if (btn) btn.disabled = true;
     if (icon) icon.className = 'spin-anim';
-    if (txt) txt.innerText = 'Fetching live data (~10s)...';
-    if (statusSpan) {
-        statusSpan.style.display = 'inline-block';
-        statusSpan.style.color = '#0284c7';
-        statusSpan.innerText = '⏳ Connecting to Chittorgarh live scraper...';
-    }
+    if (txt) txt.innerText = 'Fetching Live Data...';
+    setStatus('⏳ Chittorgarh કનેક્શન તપાસી રહ્યા છીએ...', '#0284c7');
 
     try {
         // ૧. Unique Code અને Name સુનિશ્ચિત કરો
@@ -1661,57 +1876,75 @@ window.fetchAndAutoFillFromChittorgarh = async function() {
             }
         }
 
-        // ૨. આ IPO ને Chittorgarh URL સાથે JSONBin માં તાત્કાલિક મૂકો જેથી બેકએન્ડ સ્ક્રિપ્ટ તેને સ્ક્રૅપ કરી શકે
-        let dbData = await fetchAdminDataFromCloud();
-        let existing = dbData[ipoId] || {};
-        existing.id = ipoId;
-        existing.name = companyName || existing.name || 'New IPO';
-        existing.chittorgarhKey = rawVal;
-        existing.type = document.getElementById('adm_type')?.value || existing.type || 'Mainboard';
-        dbData[ipoId] = existing;
-        await saveAdminDataToCloud(dbData);
-
-        // ૩. Cloud Scraper Dispatch કરો
-        await dispatchCloudSync();
-
-        // ૪. JSONBin માંથી ડેટા અપડેટ થાય ત્યાં સુધી દર ૨ સેકન્ડે પોલિંગ કરો
+        // ૨. લોકલહોસ્ટ પર લોકલ બેકએન્ડ ચાલુ હોય તો તેનો ઉપયોગ કરો, નહીંતર Cloud Sync પહેલા ટોકન ચકાસો
+        const localData = await tryLocalBackendChittorgarh(rawVal);
         let populatedIpo = null;
-        for (let i = 1; i <= 10; i++) {
-            if (statusSpan) statusSpan.innerText = `⏳ Chittorgarh પરથી ડેટા આવી રહ્યો છે... (${(11 - i) * 2}s)`;
-            await new Promise(r => setTimeout(r, 2200));
 
-            const fresh = await fetchAdminDataFromCloud();
-            if (fresh[ipoId] && fresh[ipoId].openDate && fresh[ipoId].openDate !== 'N/A' && fresh[ipoId].priceBand && fresh[ipoId].priceBand !== '₹-') {
-                populatedIpo = fresh[ipoId];
-                break;
+        if (localData && localData.details) {
+            let dbData = await fetchAdminDataFromCloud();
+            let existing = dbData[ipoId] || {};
+            const d = localData.details;
+            existing = {
+                ...existing,
+                id: ipoId,
+                name: d.name || companyName || existing.name || 'New IPO',
+                chittorgarhKey: rawVal,
+                type: d.type || document.getElementById('adm_type')?.value || existing.type || 'Mainboard'
+            };
+            const fillFields = ['openDate', 'closeDate', 'allotmentDate', 'listingDate', 'priceBand', 'cutOff', 'lotRaw', 'lotSize', 'totalSize', 'freshIssue', 'ofs', 'faceValue', 'listingAt', 'bseCode', 'nseCode', 'isinCode', 'about', 'fin', 'valuation', 'reservation', 'subShares', 'subApps'];
+            for (const f of fillFields) {
+                if (d[f] !== undefined && d[f] !== null && d[f] !== '') {
+                    existing[f] = d[f];
+                }
             }
-        }
-
-        // ૫. જો ક્લાઉડ પરથી ડેટા મળી ગયો હોય તો ફોર્મના તમામ ઇનપુટ ભરી દો
-        if (populatedIpo) {
-            await editIpo(ipoId);
-            updateLotCalculations();
-
-            if (statusSpan) {
-                statusSpan.style.color = '#166534';
-                statusSpan.innerText = '✅ Chittorgarh પરથી તમામ ડેટા સફળતાપૂર્વક ફોર્મમાં ભરાઈ ગયો!';
-            }
-            alert(`🎉 Chittorgarh પરથી તમામ વિગતો સફળતાપૂર્વક ફોર્મમાં ભરાઈ ગઈ છે!\n\n✓ Open Date: ${formatDateReadable(populatedIpo.openDate)}\n✓ Close Date: ${formatDateReadable(populatedIpo.closeDate)}\n✓ Price Band: ₹${populatedIpo.priceBand}\n✓ Lot Size: ${populatedIpo.lotSize}\n✓ Financials & Valuation Ratios Loaded!\n\nહવે તમે ફોર્મ ચકાસીને "Save & Publish" કરી શકો છો.`);
+            dbData[ipoId] = existing;
+            await saveAdminDataToCloud(dbData);
+            populatedIpo = existing;
         } else {
-            if (statusSpan) {
-                statusSpan.style.color = '#15803d';
-                statusSpan.innerText = '✓ Cloud Sync શરૂ થઈ ગયો છે. તમે Save કરી શકો છો.';
-            }
-            alert('✓ Chittorgarh Scraping પ્રોસેસ બેકગ્રાઉન્ડમાં શરૂ થઈ ગઈ છે. તમે આ IPO ને Save કરી શકો છો, થોડીવારમાં ડેટા ટેબલ પર આવી જશે.');
+            // Cloud Sync માટે પહેલા ટોકન ચકાસો (જેથી ટોકન વગર JSONBin માં અધૂરો રેકોર્ડ ન બને)
+            await ensureValidGithubToken();
+
+            setStatus('⏳ IPO લિંક ક્લાઉડ પર સેવ થઈ રહી છે...', '#0284c7');
+            let dbData = await fetchAdminDataFromCloud();
+            let existing = dbData[ipoId] || {};
+            existing.id = ipoId;
+            existing.name = companyName || existing.name || 'New IPO';
+            existing.chittorgarhKey = rawVal;
+            existing.type = document.getElementById('adm_type')?.value || existing.type || 'Mainboard';
+            dbData[ipoId] = existing;
+            await saveAdminDataToCloud(dbData);
+
+            const syncResult = await runUnifiedCloudSync({
+                ipoId,
+                syncMode: 'single',
+                onStatus: (msg) => setStatus(msg, '#0284c7')
+            });
+            populatedIpo = syncResult.ipo;
         }
 
+        // ૩. ફોર્મ અને ટેબલ તાત્કાલિક અપડેટ કરો
+        await editIpo(ipoId);
+        updateLotCalculations();
+        await loadAdminDashboard();
+
+        const hasCoreData = Boolean(
+            populatedIpo &&
+            ((populatedIpo.openDate && populatedIpo.openDate !== 'N/A') ||
+             (populatedIpo.priceBand && populatedIpo.priceBand !== '₹-') ||
+             (populatedIpo.totalSize && populatedIpo.totalSize !== 'N/A'))
+        );
+
+        if (hasCoreData) {
+            setStatus('✅ Chittorgarh પરથી તમામ ડેટા સફળતાપૂર્વક ફોર્મમાં ભરાઈ ગયો!', '#166534');
+            alert(`🎉 Chittorgarh પરથી તમામ વિગતો સફળતાપૂર્વક ફોર્મમાં ભરાઈ ગઈ છે!\n\n✓ Name: ${populatedIpo.name}\n✓ Open Date: ${formatDateReadable(populatedIpo.openDate)}\n✓ Close Date: ${formatDateReadable(populatedIpo.closeDate)}\n✓ Price Band: ${populatedIpo.priceBand || '₹-'}\n✓ Lot Size: ${populatedIpo.lotSize || '-'}\n\nહવે તમે ફોર્મ ચકાસીને "Save & Publish" કરી શકો છો.`);
+        } else {
+            setStatus('⚠️ Sync પૂર્ણ થયું, પણ Chittorgarh પર હજુ તારીખ/પ્રાઈસ (TBE) ઉપલબ્ધ નથી અથવા URL ખોટી છે.', '#b45309');
+            alert('⚠️ Cloud Sync સફળતાપૂર્વક પૂર્ણ થયું, પરંતુ આ IPO ની Chittorgarh લિંક પર હજુ તારીખો અને પ્રાઈસ બેન્ડ અપલોડ થયા નથી (અથવા URL ચકાસો).');
+        }
     } catch (err) {
         console.error("Auto-fetch error:", err);
-        if (statusSpan) {
-            statusSpan.style.color = '#dc2626';
-            statusSpan.innerText = `❌ Error: ${err.message}`;
-        }
-        alert(`❌ Auto-Fetch Error: ${err.message}`);
+        setStatus(`❌ Error: ${err.message}`, '#dc2626');
+        alert(`❌ Auto-Fetch નિષ્ફળ:\n${err.message}`);
     } finally {
         if (btn) btn.disabled = false;
         if (icon) icon.className = '';
@@ -1743,57 +1976,56 @@ window.syncSingleIpo = async function(ipoId) {
     });
 
     const badge = document.getElementById('syncStatusBadge');
-    if (badge) {
+    const setBadge = (text, bg = '#fef3c7', color = '#92400e') => {
+        if (!badge) return;
         badge.style.display = 'inline-block';
-        badge.innerText = `⏳ Cloud Syncing "${ipo.name}"...`;
-        badge.style.background = '#fef3c7';
-        badge.style.color = '#92400e';
-    }
+        badge.innerText = text;
+        badge.style.background = bg;
+        badge.style.color = color;
+    };
 
     try {
-        // ૧. Cloud Scraper Dispatch કરો
-        await dispatchCloudSync();
+        setBadge(`⏳ "${ipo.name}" માટે Cloud Sync શરૂ થઈ રહ્યું છે...`);
 
-        // ૨. JSONBin માંથી આ IPO અપડેટ થાય ત્યાં સુધી દર ૨.૨ સેકન્ડે પોલિંગ કરો
-        let updatedIpo = null;
-        for (let attempt = 1; attempt <= 10; attempt++) {
-            const remainingSecs = (11 - attempt) * 2;
-            if (badge) badge.innerText = `⏳ Scraping "${ipo.name}" (${remainingSecs}s)...`;
-            rowBtns.forEach(b => b.innerHTML = `🔄 (${remainingSecs}s)`);
-
-            await new Promise(r => setTimeout(r, 2200));
-
-            const fresh = await fetchAdminDataFromCloud();
-            if (fresh[ipoId] && fresh[ipoId].openDate && fresh[ipoId].openDate !== 'N/A' && fresh[ipoId].priceBand && fresh[ipoId].priceBand !== '₹-') {
-                updatedIpo = fresh[ipoId];
-                break;
+        const syncResult = await runUnifiedCloudSync({
+            ipoId,
+            syncMode: 'single',
+            onStatus: (msg) => {
+                setBadge(`${msg} — ${ipo.name}`);
+                const secMatch = msg.match(/\((\d+s)\)/);
+                if (secMatch) {
+                    rowBtns.forEach(b => b.innerHTML = `🔄 (${secMatch[1]})`);
+                }
             }
-        }
+        });
 
-        // ૩. ડેશબોર્ડ ટેબલ રિલોડ કરો
         await loadAdminDashboard();
 
-        if (badge) {
-            badge.innerText = '✅ Synced Successfully!';
-            badge.style.background = '#dcfce7';
-            badge.style.color = '#166534';
-        }
+        const updatedIpo = syncResult.ipo;
+        const hasCoreData = Boolean(
+            updatedIpo &&
+            ((updatedIpo.openDate && updatedIpo.openDate !== 'N/A') ||
+             (updatedIpo.priceBand && updatedIpo.priceBand !== '₹-') ||
+             (updatedIpo.totalSize && updatedIpo.totalSize !== 'N/A'))
+        );
 
-        if (updatedIpo) {
-            alert(`🎉 IPO "${updatedIpo.name}" નો તમામ ડેટા Chittorgarh પરથી સફળતાપૂર્વક અપડેટ થઈ ગયો છે!\n\n✓ Open Date: ${formatDateReadable(updatedIpo.openDate)}\n✓ Close Date: ${formatDateReadable(updatedIpo.closeDate)}\n✓ Price Band: ₹${updatedIpo.priceBand}\n✓ Lot Size: ${updatedIpo.lotSize}\n✓ Financials & Valuations Synced!`);
+        if (hasCoreData) {
+            setBadge('✅ Synced Successfully!', '#dcfce7', '#166534');
+            alert(`🎉 IPO "${updatedIpo.name}" નો તમામ ડેટા Chittorgarh પરથી સફળતાપૂર્વક અપડેટ થઈ ગયો છે!\n\n✓ Open Date: ${formatDateReadable(updatedIpo.openDate)}\n✓ Close Date: ${formatDateReadable(updatedIpo.closeDate)}\n✓ Price Band: ${updatedIpo.priceBand || '₹-'}\n✓ Lot Size: ${updatedIpo.lotSize || '-'}\n✓ Financials & Valuations Synced!`);
         } else {
-            alert(`✓ IPO "${ipo.name}" નો ડેટા ક્લાઉડ પર સિંક થઈ રહ્યો છે. થોડી જ સેકન્ડોમાં ટેબલ પર આવી જશે.`);
+            setBadge('⚠️ Sync Done (Dates Pending on Source)', '#fef3c7', '#92400e');
+            alert(`⚠️ IPO "${ipo.name}" માટે Cloud Sync પૂર્ણ થયું, પરંતુ Chittorgarh પેજ પર હજુ તારીખો કે પ્રાઈસ બેન્ડ જાહેર થયા નથી (અથવા URL ચકાસો).`);
         }
-
     } catch (err) {
         console.error("Single IPO sync error:", err);
-        alert(`❌ Sync કરવામાં ક્ષતિ આવી: ${err.message}`);
+        setBadge('❌ Sync Failed', '#fee2e2', '#991b1b');
+        alert(`❌ Sync કરવામાં ક્ષતિ આવી:\n${err.message}`);
     } finally {
         rowBtns.forEach(b => {
             b.innerHTML = '⚡ Sync';
             b.disabled = false;
         });
-        setTimeout(() => { if (badge) badge.style.display = 'none'; }, 5000);
+        setTimeout(() => { if (badge) badge.style.display = 'none'; }, 6000);
     }
 };
 
@@ -1805,7 +2037,7 @@ let isSyncInProgress = false;
 async function triggerInstantSync(event) {
     if (event && event.preventDefault) event.preventDefault();
     if (isSyncInProgress) {
-        alert("⚠️ Auto-Sync is already in progress. Please wait a moment.");
+        alert("⚠️ Auto-Sync પહેલાથી ચાલુ છે. કૃપા કરીને થોડીવાર રાહ જુઓ.");
         return;
     }
 
@@ -1814,6 +2046,14 @@ async function triggerInstantSync(event) {
     const syncIcon = document.getElementById('syncIcon');
     const badge = document.getElementById('syncStatusBadge');
 
+    const setBadge = (text, bg = '#fef3c7', color = '#92400e') => {
+        if (!badge) return;
+        badge.style.display = 'inline-block';
+        badge.innerText = text;
+        badge.style.background = bg;
+        badge.style.color = color;
+    };
+
     isSyncInProgress = true;
     if (btn) btn.disabled = true;
     if (syncIcon) {
@@ -1821,44 +2061,20 @@ async function triggerInstantSync(event) {
         syncIcon.className = 'spin-anim';
     }
     if (syncText) syncText.innerText = 'Syncing...';
-    if (badge) {
-        badge.style.display = 'inline-block';
-        badge.innerText = '⏳ Triggering Cloud Runner...';
-        badge.style.background = '#fef3c7';
-        badge.style.color = '#92400e';
-    }
 
     try {
-        await dispatchCloudSync();
-
-        let countdown = 14;
-        const timer = setInterval(() => {
-            countdown--;
-            if (badge && countdown > 0) {
-                badge.innerText = `🚀 Cloud Fetching Live Data... (${countdown}s)`;
-            }
-        }, 1000);
-
-        await new Promise(res => setTimeout(res, 14000));
-        clearInterval(timer);
+        await runUnifiedCloudSync({
+            syncMode: 'ipos',
+            onStatus: (msg) => setBadge(msg)
+        });
 
         await loadAdminDashboard();
-
-        if (badge) {
-            badge.innerText = '✅ Synced Successfully!';
-            badge.style.background = '#dcfce7';
-            badge.style.color = '#166534';
-        }
-        alert('🎉 Auto-Sync સફળ! Chittorgarh પરથી تمام IPOs ની તારીખો, પ્રાઇસ બેન્ડ અને વિગતો ઓન-ધ-સ્પોટ અપડેટ થઈ ગઈ છે.');
-
+        setBadge('✅ All IPOs Synced Successfully!', '#dcfce7', '#166534');
+        alert('🎉 Auto-Sync સફળ! Chittorgarh પરથી તમામ IPOs ની તારીખો, પ્રાઇસ બેન્ડ અને વિગતો ક્લાઉડ પરથી ઓન-ધ-સ્પોટ અપડેટ થઈ ગઈ છે.');
     } catch (err) {
         console.error("Auto-sync error:", err);
-        if (badge) {
-            badge.innerText = '❌ Sync Error';
-            badge.style.background = '#fee2e2';
-            badge.style.color = '#991b1b';
-        }
-        alert(`❌ Auto-Sync માં ક્ષતિ આવી: ${err.message}`);
+        setBadge('❌ Sync Failed', '#fee2e2', '#991b1b');
+        alert(`❌ Auto-Sync નિષ્ફળ:\n${err.message}`);
     } finally {
         isSyncInProgress = false;
         if (btn) btn.disabled = false;
@@ -1869,27 +2085,50 @@ async function triggerInstantSync(event) {
         if (syncText) syncText.innerText = 'Auto-Sync Data Now';
         setTimeout(() => {
             if (badge) badge.style.display = 'none';
-        }, 5000);
+        }, 6000);
     }
 }
 
-// GitHub Personal Access Token (PAT) સેટ કરવા માટેનું ફંક્શન
-function configureGithubToken() {
-    const current = localStorage.getItem('live_ipo_github_token') || '';
-    const input = prompt(
-        '🔑 GitHub Personal Access Token (PAT) સેટિંગ્સ:\n\nજો તમારે પોતાનો કસ્ટમ GitHub Token વાપરવો હોય તો અહીં દાખલ કરો:\n(ડિફોલ્ટ ઓટોમેટિક ક્લાઉડ ટોકન પહેલેથી સેટ જ છે)\n\nટોકન દૂર કરવા માટે ખાલી રાખીને OK આપો:',
-        current
-    );
-    if (input === null) return;
+// GitHub Personal Access Token (PAT) સેટ અને વેરિફાઈ કરવા માટેનું ફંક્શન
+async function configureGithubToken(isFromSyncPrompt = false) {
+    const current = getStoredGithubToken();
+    const intro = isFromSyncPrompt
+        ? '⚠️ Live Auto-Sync ચલાવવા માટે GitHub Token જરૂરી છે (ફક્ત ૧ વખત આ બ્રાઉઝરમાં સેટ કરવો પડશે):\n\n'
+        : '🔑 GitHub Personal Access Token (PAT) સેટિંગ્સ:\n\n';
+    const guide =
+        intro +
+        'કેવી રીતે બનાવવો?\n' +
+        '1) GitHub -> Settings -> Developer settings -> Personal access tokens -> Tokens (classic)\n' +
+        '2) "Generate new token (classic)" પર ક્લિક કરી [repo] અને [workflow] બંને ટીક કરો\n' +
+        '3) મળેલો ટોકન (ghp_...) નીચે પેસ્ટ કરીને OK આપો.\n\n' +
+        'ટોકન દૂર કરવા માટે ખાલી રાખીને OK આપો:';
+
+    const input = prompt(guide, current);
+    if (input === null) return false;
+
     const clean = input.trim();
-    if (clean) {
-        localStorage.setItem('live_ipo_github_token', clean);
-        alert('✅ GitHub Token સફળતાપૂર્વક સેવ થઈ ગયો છે!');
-    } else {
-        localStorage.removeItem('live_ipo_github_token');
-        alert('ℹ️ કસ્ટમ GitHub Token દૂર કર્યો છે (ડિફોલ્ટ સિસ્ટમ ટોકન સક્રિય રહેશે).');
+    if (!clean) {
+        localStorage.removeItem(GH_TOKEN_STORAGE_KEY);
+        updateSyncTokenButtonUi(false);
+        alert('ℹ️ GitHub Token દૂર કર્યો છે. Cloud Sync વાપરવા માટે ફરી ટોકન સેટ કરવો પડશે.');
+        return false;
     }
+
+    const check = await validateGithubToken(clean);
+    if (!check.valid) {
+        updateSyncTokenButtonUi(Boolean(current));
+        alert(`❌ Token વેરિફિકેશન નિષ્ફળ (સેવ કરેલ નથી):\n\n${check.message}`);
+        return false;
+    }
+
+    localStorage.setItem(GH_TOKEN_STORAGE_KEY, clean);
+    updateSyncTokenButtonUi(true);
+    if (!isFromSyncPrompt) {
+        alert('✅ GitHub Token વેરિફાઈ અને સેવ થઈ ગયો છે!\nહવે ત્રણેય Auto-Sync બટન ("Auto-Fetch", "Sync", "Auto-Sync Data Now") સીધા કામ કરશે.');
+    }
+    return true;
 }
+window.configureGithubToken = configureGithubToken;
 
 // ફોર્મ સેવ કર્યા પછી તરત જ ઓટો-સિંક કરવા માટેનું ફંક્શન
 window.saveAndSyncIpo = async function(event) {
@@ -1902,26 +2141,13 @@ window.saveAndSyncIpo = async function(event) {
         return;
     }
 
-    const ipoIdInput = document.getElementById('adm_id');
-    const ipoId = ipoIdInput ? ipoIdInput.value.trim().toUpperCase() : null;
+    if (typeof window.saveCurrentFormToCloud !== 'function') {
+        alert('⚠️ Form save helper લોડ થઈ રહ્યું છે — કૃપા કરીને Page Refresh કરો.');
+        return;
+    }
 
-    // ફોર્મ સબમિટ ઇવેન્ટ ફાયર કરો જેથી ડેટા ક્લાઉડમાં સેવ થાય
-    window._isSaveAndSyncTriggered = true;
-    const submitEvent = new Event('submit', { cancelable: true });
-    manageForm.dispatchEvent(submitEvent);
-
-    toggleDrawer(false);
-
-    // સેવ થયા પછી તરત જ તે સિંગલ IPO માટે ઓટો સિંક શરૂ કરો
-    if (ipoId) {
-        setTimeout(async () => {
-            try {
-                await syncSingleIpo(ipoId);
-            } finally {
-                window._isSaveAndSyncTriggered = false;
-            }
-        }, 600);
-    } else {
-        window._isSaveAndSyncTriggered = false;
+    const savedId = await window.saveCurrentFormToCloud({ silent: true, closeDrawer: true });
+    if (savedId) {
+        await window.syncSingleIpo(savedId);
     }
 };

@@ -12,7 +12,7 @@
 
     <!-- JavaScript Links -->
     <script src="script.js?v=2026.11.11.1"></script>
-    <script src="admin.js?v=2026.11.12.1"></script>
+    <script src="admin.js?v=2026.11.12.2"></script>
     <script>
         // જો લોગિન ના કરેલું હોય તો સીધું લોગિન પેજ પર મોકલી દો
         if (localStorage.getItem('live_ipo_admin_logged') !== 'true') {
@@ -716,7 +716,7 @@
                         <span id="syncIcon" style="font-size: 14px;">⚡</span>
                         <span id="syncText">Auto-Sync Data Now</span>
                     </button>
-                    <button type="button" onclick="configureGithubToken()" title="Set GitHub Token for Cloud Sync" style="background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; padding: 9px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;">
+                    <button type="button" id="btnGithubToken" onclick="configureGithubToken()" title="Set GitHub Token for Cloud Sync" style="background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; padding: 9px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.2s;">
                         <span>🔑</span>
                         <span>Token</span>
                     </button>

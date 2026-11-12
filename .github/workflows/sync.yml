@@ -5,6 +5,17 @@ on:
     # દર ૩૦ મિનિટે આ ઓટોમેટિક રન થશે
     - cron: '*/5 * * * *'
   workflow_dispatch: # મેન્યુઅલ રન કરવા માટેનું બટન પણ આપશે
+    inputs:
+      target_ipo_id:
+        description: 'Optional single IPO ID for fast instant sync'
+        required: false
+        default: ''
+        type: string
+      sync_mode:
+        description: 'Sync scope: ipos (fast) or all'
+        required: false
+        default: 'all'
+        type: string
 
 jobs:
   sync:
@@ -19,7 +30,17 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm install axios cheerio
+        run: npm install --no-audit --no-fund axios cheerio
 
       - name: Run sync script
-        run: node sync-cron.js --once
+        env:
+          TARGET_IPO_ID: ${{ github.event.inputs.target_ipo_id || '' }}
+          SYNC_MODE: ${{ github.event.inputs.sync_mode || 'all' }}
+        run: |
+          if [ -n "$TARGET_IPO_ID" ]; then
+            node sync-cron.js --once --ipo="$TARGET_IPO_ID"
+          elif [ "$SYNC_MODE" = "ipos" ]; then
+            node sync-cron.js --once --ipos-only
+          else
+            node sync-cron.js --once
+          fi

@@ -11,7 +11,7 @@ Write-Host ">>> [LiveIPO Auto-Deploy] Starting deployment process for: $repoPath
 
 # Step 1: Terminate any zombie or lingering git processes
 try {
-    $stuckGit = Get-Process -Name git, git-remote-https, git-credential-manager -ErrorAction SilentlyContinue
+    $stuckGit = Get-Process -Name git, git-remote-https, git-credential-manager, git-credential-manager-core -ErrorAction SilentlyContinue
     if ($stuckGit) {
         Write-Host ">>> Terminating $($stuckGit.Count) lingering git process(es)..." -ForegroundColor Yellow
         $stuckGit | Stop-Process -Force -ErrorAction SilentlyContinue
@@ -49,6 +49,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $env:GIT_TERMINAL_PROMPT = "0"
+$env:GCM_INTERACTIVE = "never"
 
 # Check for modifications
 $changes = & git -C "$repoPath" status --porcelain
@@ -72,10 +73,13 @@ if ($changes) {
 
 # Push to origin main (with speed-limit timeout & HTTP/1.1 to prevent silent Windows hangs)
 Write-Host ">>> Pushing to GitHub main branch..." -ForegroundColor Cyan
+$env:GIT_TRACE = "1"
 & git -C "$repoPath" -c http.lowSpeedLimit=100 -c http.lowSpeedTime=20 -c http.version=HTTP/1.1 push --verbose --progress origin main
-if ($LASTEXITCODE -ne 0) {
-    Write-Host ">>> Git push failed with exit code $LASTEXITCODE" -ForegroundColor Red
-    exit $LASTEXITCODE
+$pushExit = $LASTEXITCODE
+Remove-Item Env:\GIT_TRACE -ErrorAction SilentlyContinue
+if ($pushExit -ne 0) {
+    Write-Host ">>> Git push failed with exit code $pushExit" -ForegroundColor Red
+    exit $pushExit
 }
 
 $latestCommit = & git -C "$repoPath" rev-parse --short HEAD

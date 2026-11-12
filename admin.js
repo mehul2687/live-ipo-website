@@ -475,8 +475,7 @@ async function loadAdminDashboard() {
                 <tr class="${statusObj.rowClass}">
                     <td style="text-align: center;"><strong>${ipo.id}</strong></td>
                     <td style="text-align: left; padding-left: 14px;">
-                        <span onclick="editIpo('${ipo.id}')" style="color: #1d4ed8; font-weight: 600; cursor: pointer; text-decoration: underline dotted;" title="Click for Full Edit">${ipo.name}</span><br>
-                        <span style="font-size: 11px; color: #64748b;">Est: ₹${ipo.estPrice || '-'}</span>
+                        <span onclick="editIpo('${ipo.id}')" style="color: #1d4ed8; font-weight: 600; cursor: pointer; text-decoration: none;" title="Click for Full Edit">${ipo.name}</span>
                     </td>
                     <td style="text-align: center;">${typeHtml}</td>
                     <td style="text-align: center;">${formatDateReadable(ipo.openDate)}</td>

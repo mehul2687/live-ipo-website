@@ -1543,18 +1543,15 @@ async function fetchChittorgarhData(chittorgarhKey) {
 }
 
 // ==========================================
-// 8.1 REALISTIC SMART PAGE VIEWS COUNTER
+// 8.1 PAGE VIEWS COUNTER (1 TODAY / 1 TOTAL BASE, 12 AM IST MIDNIGHT ROLLOVER)
 // ==========================================
-const PAGE_VIEWS_STORAGE_KEY = 'live_ipo_page_views_v1';
+const PAGE_VIEWS_STORAGE_KEY = 'live_ipo_page_views_v2';
+const pageViewIncrementedKeys = new Set();
 
-function hashStringForViews(str) {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-        hash = ((hash << 5) - hash) + str.charCodeAt(i);
-        hash |= 0;
-    }
-    return Math.abs(hash);
-}
+// Clean up legacy high-base storage key
+try {
+    localStorage.removeItem('live_ipo_page_views_v1');
+} catch (_) {}
 
 function resolvePageViewKey(explicitKey = null) {
     if (explicitKey) return `ipo_${String(explicitKey).trim().toUpperCase()}`;
@@ -1584,33 +1581,10 @@ function resolvePageViewKey(explicitKey = null) {
     return `page_${clean || 'default'}`;
 }
 
-function getPageViewStats(pageKey) {
+function getPageViewStats(pageKey, shouldIncrement = true) {
     // Current IST date (YYYY-MM-DD)
     const istDateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 
-    // Deterministic base derived from page key & today's date
-    const keyHash = hashStringForViews(pageKey);
-    const dayHash = hashStringForViews(pageKey + '_' + istDateStr);
-
-    let minToday = 1400;
-    let maxToday = 3200;
-
-    if (pageKey === 'page_home') {
-        minToday = 2600;
-        maxToday = 4200;
-    } else if (pageKey.startsWith('ipo_')) {
-        minToday = 1800;
-        maxToday = 3400;
-    } else if (pageKey.includes('allotment') || pageKey.includes('calendar')) {
-        minToday = 2000;
-        maxToday = 3500;
-    }
-
-    const baseToday = minToday + (dayHash % (maxToday - minToday));
-    const totalMultiplier = 2.8 + ((keyHash % 15) / 10);
-    const baseTotal = Math.round(baseToday * totalMultiplier) + (keyHash % 850);
-
-    // Read stored user live increments from localStorage
     let storedData = { date: istDateStr, pages: {} };
     try {
         const raw = localStorage.getItem(PAGE_VIEWS_STORAGE_KEY);
@@ -1622,38 +1596,27 @@ function getPageViewStats(pageKey) {
         }
     } catch (_) {}
 
-    // Check if new day: reset daily deltas if date changed
+    if (!storedData.pages || typeof storedData.pages !== 'object') {
+        storedData.pages = {};
+    }
+
+    // 12:00 AM IST Midnight Reset:
+    // When date changes, reset "today" to 0 for all pages; "total" keeps accumulating!
     if (storedData.date !== istDateStr) {
         storedData.date = istDateStr;
-        if (storedData.pages) {
-            for (const p in storedData.pages) {
-                if (storedData.pages[p]) {
-                    storedData.pages[p].today = 0;
-                }
+        for (const p in storedData.pages) {
+            if (storedData.pages[p] && typeof storedData.pages[p] === 'object') {
+                storedData.pages[p].today = 0;
             }
         }
     }
 
-    if (!storedData.pages) storedData.pages = {};
-    if (!storedData.pages[pageKey]) {
+    // Initialize page entry if not present (starts at 0 before first increment)
+    if (!storedData.pages[pageKey] || typeof storedData.pages[pageKey] !== 'object') {
         storedData.pages[pageKey] = { today: 0, total: 0 };
     }
 
-    // Session debounce: increment once per session (15 minutes expiry)
-    const sessionKey = `pv_seen_${pageKey}`;
-    const now = Date.now();
-    let shouldIncrement = false;
-
-    try {
-        const lastSeen = sessionStorage.getItem(sessionKey);
-        if (!lastSeen || (now - parseInt(lastSeen, 10)) > 15 * 60 * 1000) {
-            shouldIncrement = true;
-            sessionStorage.setItem(sessionKey, String(now));
-        }
-    } catch (_) {
-        shouldIncrement = true;
-    }
-
+    // Increment view count on each visit/page load (starts from 1 today / 1 total)
     if (shouldIncrement) {
         storedData.pages[pageKey].today = (storedData.pages[pageKey].today || 0) + 1;
         storedData.pages[pageKey].total = (storedData.pages[pageKey].total || 0) + 1;
@@ -1662,20 +1625,31 @@ function getPageViewStats(pageKey) {
         } catch (_) {}
     }
 
-    const finalToday = baseToday + (storedData.pages[pageKey].today || 0);
-    const finalTotal = baseTotal + (storedData.pages[pageKey].total || 0);
+    const currentToday = storedData.pages[pageKey].today || 0;
+    const currentTotal = storedData.pages[pageKey].total || 0;
 
     return {
-        today: finalToday,
-        total: finalTotal,
-        todayFormatted: finalToday.toLocaleString('en-IN'),
-        totalFormatted: finalTotal.toLocaleString('en-IN')
+        today: currentToday,
+        total: currentTotal,
+        todayFormatted: currentToday.toLocaleString('en-IN'),
+        totalFormatted: currentTotal.toLocaleString('en-IN')
     };
 }
 
-function initPageViewsCounter(explicitIpoId = null) {
+function initPageViewsCounter(explicitIpoId = null, allowIncrement = true) {
     const pageKey = resolvePageViewKey(explicitIpoId);
-    const stats = getPageViewStats(pageKey);
+
+    // Only increment once per page load for the same page key
+    let shouldIncrement = allowIncrement;
+    if (shouldIncrement) {
+        if (pageViewIncrementedKeys.has(pageKey)) {
+            shouldIncrement = false;
+        } else {
+            pageViewIncrementedKeys.add(pageKey);
+        }
+    }
+
+    const stats = getPageViewStats(pageKey, shouldIncrement);
 
     let container = document.getElementById('pageViewsContainer');
     if (!container) {
@@ -1714,6 +1688,18 @@ function initPageViewsCounter(explicitIpoId = null) {
         </div>
     `;
 }
+
+// Auto-refresh display if user stays on page past midnight 12:00 AM IST
+let lastTrackedIstDate = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+setInterval(() => {
+    try {
+        const currentDate = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+        if (currentDate !== lastTrackedIstDate) {
+            lastTrackedIstDate = currentDate;
+            initPageViewsCounter(null, false);
+        }
+    } catch (_) {}
+}, 30000);
 
 window.initPageViewsCounter = initPageViewsCounter;
 window.getPageViewStats = getPageViewStats;

@@ -1074,6 +1074,9 @@ async function loadDynamicIpoDetails() {
     }
 
     initLiveIpoPriceTracker(ipo, issuePriceVal);
+    try {
+        initPageViewsCounter(ipoId);
+    } catch (_) {}
 }
 
 // ==========================================
@@ -1472,6 +1475,13 @@ window.addEventListener('DOMContentLoaded', async () => {
         localStorage.setItem(DATA_VERSION_KEY, CURRENT_VERSION);
     }
 
+    // Initialize Page Views Counter widget across all pages
+    try {
+        initPageViewsCounter();
+    } catch (pvErr) {
+        console.warn("Page views counter init warning:", pvErr);
+    }
+
     if (document.getElementById('homeTableButton') || document.getElementById('homeTableBody')) {
         await loadHomeIpoTable();
     }
@@ -1531,6 +1541,182 @@ async function fetchChittorgarhData(chittorgarhKey) {
         return null;
     }
 }
+
+// ==========================================
+// 8.1 REALISTIC SMART PAGE VIEWS COUNTER
+// ==========================================
+const PAGE_VIEWS_STORAGE_KEY = 'live_ipo_page_views_v1';
+
+function hashStringForViews(str) {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+    }
+    return Math.abs(hash);
+}
+
+function resolvePageViewKey(explicitKey = null) {
+    if (explicitKey) return `ipo_${String(explicitKey).trim().toUpperCase()}`;
+
+    const pathname = window.location.pathname.toLowerCase();
+    const filename = pathname.substring(pathname.lastIndexOf('/') + 1) || 'index.html';
+
+    if (filename === 'ipo-detail.html' || pathname.includes('ipo-detail')) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+        if (id) {
+            return `ipo_${id.trim().toUpperCase()}`;
+        }
+        return 'page_ipo_detail';
+    }
+
+    if (filename === '' || filename === 'index.html') return 'page_home';
+    if (filename.includes('calendar')) return 'page_calendar';
+    if (filename.includes('allotment')) return 'page_allotment';
+    if (filename.includes('fii-dii')) return 'page_fiidii';
+    if (filename.includes('indices-history')) return 'page_indices_history';
+    if (filename.includes('indices')) return 'page_indices';
+    if (filename.includes('index-stocks')) return 'page_index_stocks';
+    if (filename.includes('demat')) return 'page_demat';
+
+    const clean = filename.replace(/\.html$/i, '').replace(/[^a-z0-9_-]/g, '_');
+    return `page_${clean || 'default'}`;
+}
+
+function getPageViewStats(pageKey) {
+    // Current IST date (YYYY-MM-DD)
+    const istDateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+
+    // Deterministic base derived from page key & today's date
+    const keyHash = hashStringForViews(pageKey);
+    const dayHash = hashStringForViews(pageKey + '_' + istDateStr);
+
+    let minToday = 1400;
+    let maxToday = 3200;
+
+    if (pageKey === 'page_home') {
+        minToday = 2600;
+        maxToday = 4200;
+    } else if (pageKey.startsWith('ipo_')) {
+        minToday = 1800;
+        maxToday = 3400;
+    } else if (pageKey.includes('allotment') || pageKey.includes('calendar')) {
+        minToday = 2000;
+        maxToday = 3500;
+    }
+
+    const baseToday = minToday + (dayHash % (maxToday - minToday));
+    const totalMultiplier = 2.8 + ((keyHash % 15) / 10);
+    const baseTotal = Math.round(baseToday * totalMultiplier) + (keyHash % 850);
+
+    // Read stored user live increments from localStorage
+    let storedData = { date: istDateStr, pages: {} };
+    try {
+        const raw = localStorage.getItem(PAGE_VIEWS_STORAGE_KEY);
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+                storedData = parsed;
+            }
+        }
+    } catch (_) {}
+
+    // Check if new day: reset daily deltas if date changed
+    if (storedData.date !== istDateStr) {
+        storedData.date = istDateStr;
+        if (storedData.pages) {
+            for (const p in storedData.pages) {
+                if (storedData.pages[p]) {
+                    storedData.pages[p].today = 0;
+                }
+            }
+        }
+    }
+
+    if (!storedData.pages) storedData.pages = {};
+    if (!storedData.pages[pageKey]) {
+        storedData.pages[pageKey] = { today: 0, total: 0 };
+    }
+
+    // Session debounce: increment once per session (15 minutes expiry)
+    const sessionKey = `pv_seen_${pageKey}`;
+    const now = Date.now();
+    let shouldIncrement = false;
+
+    try {
+        const lastSeen = sessionStorage.getItem(sessionKey);
+        if (!lastSeen || (now - parseInt(lastSeen, 10)) > 15 * 60 * 1000) {
+            shouldIncrement = true;
+            sessionStorage.setItem(sessionKey, String(now));
+        }
+    } catch (_) {
+        shouldIncrement = true;
+    }
+
+    if (shouldIncrement) {
+        storedData.pages[pageKey].today = (storedData.pages[pageKey].today || 0) + 1;
+        storedData.pages[pageKey].total = (storedData.pages[pageKey].total || 0) + 1;
+        try {
+            localStorage.setItem(PAGE_VIEWS_STORAGE_KEY, JSON.stringify(storedData));
+        } catch (_) {}
+    }
+
+    const finalToday = baseToday + (storedData.pages[pageKey].today || 0);
+    const finalTotal = baseTotal + (storedData.pages[pageKey].total || 0);
+
+    return {
+        today: finalToday,
+        total: finalTotal,
+        todayFormatted: finalToday.toLocaleString('en-IN'),
+        totalFormatted: finalTotal.toLocaleString('en-IN')
+    };
+}
+
+function initPageViewsCounter(explicitIpoId = null) {
+    const pageKey = resolvePageViewKey(explicitIpoId);
+    const stats = getPageViewStats(pageKey);
+
+    let container = document.getElementById('pageViewsContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.className = 'page-views-wrapper';
+        container.id = 'pageViewsContainer';
+
+        const mainEl = document.querySelector('main.main-content') || document.querySelector('main') || document.body;
+        const lastP = mainEl ? mainEl.querySelector('p:last-of-type') : null;
+        if (lastP && lastP.textContent && (lastP.textContent.includes('Privacy Policy') || lastP.textContent.includes('By proceeding') || lastP.textContent.includes('Disclaimer'))) {
+            mainEl.insertBefore(container, lastP);
+        } else if (mainEl) {
+            mainEl.appendChild(container);
+        } else {
+            document.body.appendChild(container);
+        }
+    }
+
+    container.innerHTML = `
+        <div class="page-views-pill" title="Page traffic: ${stats.todayFormatted} views today • ${stats.totalFormatted} all-time">
+            <span class="page-views-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#059669" stroke-width="2.1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="12" cy="12" r="3.4" fill="#059669"/>
+                </svg>
+            </span>
+            <span class="page-views-item">
+                <span class="page-views-count" id="pv_today_count">${stats.todayFormatted}</span>
+                <span class="page-views-label">today</span>
+            </span>
+            <span class="page-views-divider" aria-hidden="true"></span>
+            <span class="page-views-item">
+                <span class="page-views-count" id="pv_total_count">${stats.totalFormatted}</span>
+                <span class="page-views-label">total</span>
+            </span>
+        </div>
+    `;
+}
+
+window.initPageViewsCounter = initPageViewsCounter;
+window.getPageViewStats = getPageViewStats;
 
 // ==========================================
 // GOOGLE SIGN-IN (GOOGLE IDENTITY SERVICES)

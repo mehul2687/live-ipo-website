@@ -1543,14 +1543,18 @@ async function fetchChittorgarhData(chittorgarhKey) {
 }
 
 // ==========================================
-// 8.1 PAGE VIEWS COUNTER (1 TODAY / 1 TOTAL BASE, 12 AM IST MIDNIGHT ROLLOVER)
+// 8.1 GLOBAL SYNCHRONIZED PAGE VIEWS COUNTER
+// Real global traffic counter across all users & devices worldwide.
+// Automatically resets "today" at 12:00 AM IST midnight, while "total" continues forever.
 // ==========================================
-const PAGE_VIEWS_STORAGE_KEY = 'live_ipo_page_views_v2';
-const pageViewIncrementedKeys = new Set();
+const PAGE_VIEWS_STORAGE_KEY = 'live_ipo_page_views_v3';
+const COUNT_API_BASE = 'https://countapi.mileshilliard.com/api/v1';
+const pageViewHitKeysInSession = new Set();
 
-// Clean up legacy high-base storage key
+// Clean up legacy local-only storage keys
 try {
     localStorage.removeItem('live_ipo_page_views_v1');
+    localStorage.removeItem('live_ipo_page_views_v2');
 } catch (_) {}
 
 function resolvePageViewKey(explicitKey = null) {
@@ -1581,75 +1585,136 @@ function resolvePageViewKey(explicitKey = null) {
     return `page_${clean || 'default'}`;
 }
 
-function getPageViewStats(pageKey, shouldIncrement = true) {
-    // Current IST date (YYYY-MM-DD)
-    const istDateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+// Fetch helper with AbortController timeout & graceful error handling
+async function fetchGlobalCount(action, key) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3500);
+    try {
+        const resp = await fetch(`${COUNT_API_BASE}/${action}/${encodeURIComponent(key)}`, {
+            signal: controller.signal
+        });
+        clearTimeout(timeout);
+        if (!resp.ok) return 0;
+        const data = await resp.json();
+        const val = parseInt(data && data.value, 10);
+        return isNaN(val) ? 0 : val;
+    } catch (_) {
+        clearTimeout(timeout);
+        return null;
+    }
+}
 
-    let storedData = { date: istDateStr, pages: {} };
+// Read/write local cached stats to avoid any UI flash
+function getCachedPageViewStats(pageKey) {
+    const istDateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
     try {
         const raw = localStorage.getItem(PAGE_VIEWS_STORAGE_KEY);
         if (raw) {
             const parsed = JSON.parse(raw);
-            if (parsed && typeof parsed === 'object') {
-                storedData = parsed;
+            if (parsed && parsed.date === istDateStr && parsed.pages && parsed.pages[pageKey]) {
+                return parsed.pages[pageKey];
             }
         }
     } catch (_) {}
+    return null;
+}
 
-    if (!storedData.pages || typeof storedData.pages !== 'object') {
-        storedData.pages = {};
-    }
-
-    // 12:00 AM IST Midnight Reset:
-    // When date changes, reset "today" to 0 for all pages; "total" keeps accumulating!
-    if (storedData.date !== istDateStr) {
-        storedData.date = istDateStr;
-        for (const p in storedData.pages) {
-            if (storedData.pages[p] && typeof storedData.pages[p] === 'object') {
-                storedData.pages[p].today = 0;
+function saveCachedPageViewStats(pageKey, todayVal, totalVal) {
+    const istDateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    try {
+        let cache = { date: istDateStr, pages: {} };
+        const raw = localStorage.getItem(PAGE_VIEWS_STORAGE_KEY);
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+                if (parsed.date === istDateStr && parsed.pages) {
+                    cache = parsed;
+                } else if (parsed.pages) {
+                    // Previous day: reset today to 0 for all cached pages
+                    cache.date = istDateStr;
+                    for (const k in parsed.pages) {
+                        cache.pages[k] = { today: 0, total: parsed.pages[k].total || 0 };
+                    }
+                }
             }
         }
-    }
+        cache.pages[pageKey] = {
+            today: Math.max(1, todayVal),
+            total: Math.max(1, totalVal)
+        };
+        localStorage.setItem(PAGE_VIEWS_STORAGE_KEY, JSON.stringify(cache));
+    } catch (_) {}
+}
 
-    // Initialize page entry if not present (starts at 0 before first increment)
-    if (!storedData.pages[pageKey] || typeof storedData.pages[pageKey] !== 'object') {
-        storedData.pages[pageKey] = { today: 0, total: 0 };
-    }
+function updatePageViewDom(todayNum, totalNum) {
+    const todayEl = document.getElementById('pv_today_count');
+    const totalEl = document.getElementById('pv_total_count');
+    const todayStr = Math.max(1, todayNum).toLocaleString('en-IN');
+    const totalStr = Math.max(1, totalNum).toLocaleString('en-IN');
+    if (todayEl) todayEl.innerText = todayStr;
+    if (totalEl) totalEl.innerText = totalStr;
+}
 
-    // Increment view count on each visit/page load (starts from 1 today / 1 total)
-    if (shouldIncrement) {
-        storedData.pages[pageKey].today = (storedData.pages[pageKey].today || 0) + 1;
-        storedData.pages[pageKey].total = (storedData.pages[pageKey].total || 0) + 1;
+async function syncGlobalPageViews(pageKey, allowIncrement = true) {
+    const istDateStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+    const dateNum = istDateStr.replace(/-/g, '');
+    const cleanKey = pageKey.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase();
+
+    const todayApiKey = `liveipo_d_${dateNum}_${cleanKey}`;
+    const totalApiKey = `liveipo_t_${cleanKey}`;
+
+    // Session debounce: ensure we hit only once per page view lifecycle (within 10 seconds)
+    const sessionHitKey = `pv_hit_${cleanKey}_${dateNum}`;
+    const now = Date.now();
+    let action = 'hit';
+
+    if (!allowIncrement || pageViewHitKeysInSession.has(pageKey)) {
+        action = 'get';
+    } else {
         try {
-            localStorage.setItem(PAGE_VIEWS_STORAGE_KEY, JSON.stringify(storedData));
+            const lastHit = sessionStorage.getItem(sessionHitKey);
+            if (lastHit && (now - parseInt(lastHit, 10)) < 10000) {
+                action = 'get';
+            }
         } catch (_) {}
     }
 
-    const currentToday = storedData.pages[pageKey].today || 0;
-    const currentTotal = storedData.pages[pageKey].total || 0;
+    if (action === 'hit') {
+        pageViewHitKeysInSession.add(pageKey);
+        try {
+            sessionStorage.setItem(sessionHitKey, String(now));
+        } catch (_) {}
+    }
 
-    return {
-        today: currentToday,
-        total: currentTotal,
-        todayFormatted: currentToday.toLocaleString('en-IN'),
-        totalFormatted: currentTotal.toLocaleString('en-IN')
-    };
+    // Concurrent global fetch for today and total
+    const [todayRes, totalRes] = await Promise.all([
+        fetchGlobalCount(action, todayApiKey),
+        fetchGlobalCount(action, totalApiKey)
+    ]);
+
+    if (todayRes !== null && totalRes !== null) {
+        let finalToday = Math.max(1, todayRes);
+        let finalTotal = Math.max(1, totalRes);
+        if (finalToday > finalTotal) finalTotal = finalToday;
+
+        saveCachedPageViewStats(pageKey, finalToday, finalTotal);
+        updatePageViewDom(finalToday, finalTotal);
+        return { today: finalToday, total: finalTotal };
+    }
+
+    // Fallback if offline or network blocked
+    const cached = getCachedPageViewStats(pageKey) || { today: 1, total: 1 };
+    updatePageViewDom(cached.today, cached.total);
+    return cached;
 }
 
 function initPageViewsCounter(explicitIpoId = null, allowIncrement = true) {
     const pageKey = resolvePageViewKey(explicitIpoId);
 
-    // Only increment once per page load for the same page key
-    let shouldIncrement = allowIncrement;
-    if (shouldIncrement) {
-        if (pageViewIncrementedKeys.has(pageKey)) {
-            shouldIncrement = false;
-        } else {
-            pageViewIncrementedKeys.add(pageKey);
-        }
-    }
-
-    const stats = getPageViewStats(pageKey, shouldIncrement);
+    // 1. Initial immediate render to prevent layout shift
+    const cached = getCachedPageViewStats(pageKey) || { today: 1, total: 1 };
+    const todayFormatted = Math.max(1, cached.today).toLocaleString('en-IN');
+    const totalFormatted = Math.max(1, cached.total).toLocaleString('en-IN');
 
     let container = document.getElementById('pageViewsContainer');
     if (!container) {
@@ -1669,7 +1734,7 @@ function initPageViewsCounter(explicitIpoId = null, allowIncrement = true) {
     }
 
     container.innerHTML = `
-        <div class="page-views-pill" title="Page traffic: ${stats.todayFormatted} views today • ${stats.totalFormatted} all-time">
+        <div class="page-views-pill" title="Live Global Traffic: Today's visitors and all-time total across all users">
             <span class="page-views-icon" aria-hidden="true">
                 <svg viewBox="0 0 24 24">
                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#059669" stroke-width="2.1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1677,16 +1742,19 @@ function initPageViewsCounter(explicitIpoId = null, allowIncrement = true) {
                 </svg>
             </span>
             <span class="page-views-item">
-                <span class="page-views-count" id="pv_today_count">${stats.todayFormatted}</span>
+                <span class="page-views-count" id="pv_today_count">${todayFormatted}</span>
                 <span class="page-views-label">today</span>
             </span>
             <span class="page-views-divider" aria-hidden="true"></span>
             <span class="page-views-item">
-                <span class="page-views-count" id="pv_total_count">${stats.totalFormatted}</span>
+                <span class="page-views-count" id="pv_total_count">${totalFormatted}</span>
                 <span class="page-views-label">total</span>
             </span>
         </div>
     `;
+
+    // 2. Fetch live global stats from API asynchronously
+    syncGlobalPageViews(pageKey, allowIncrement);
 }
 
 // Auto-refresh display if user stays on page past midnight 12:00 AM IST
@@ -1702,7 +1770,7 @@ setInterval(() => {
 }, 30000);
 
 window.initPageViewsCounter = initPageViewsCounter;
-window.getPageViewStats = getPageViewStats;
+window.syncGlobalPageViews = syncGlobalPageViews;
 
 // ==========================================
 // GOOGLE SIGN-IN (GOOGLE IDENTITY SERVICES)

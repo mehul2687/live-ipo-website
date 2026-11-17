@@ -1595,6 +1595,8 @@ async function fetchGlobalCount(action, key) {
         });
         clearTimeout(timeout);
         if (!resp.ok) return 0;
+        const ct = resp.headers.get("content-type") || "";
+        if (!ct.includes("application/json")) return null;
         const data = await resp.json();
         const val = parseInt(data && data.value, 10);
         return isNaN(val) ? 0 : val;

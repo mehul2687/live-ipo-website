@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Analysis & Technical Chart - Live Indian Stocks | Live IPO</title>
+    <meta name="description"
+        content="Complete stock bifurcation, live technical candlestick chart, valuation metrics, 52-week range, and fundamentals for Indian stocks across NIFTY 50, NIFTY BANK, SENSEX, and more.">
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- External CSS Link -->
+    <link rel="stylesheet" href="style.css?v=2026.11.18.2">
+
+    <!-- Google Identity Services (Google Sign-In) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Global JavaScript Link -->
+    <script src="script.js?v=2026.11.18.2"></script>
+
+    <!-- TradingView Advanced Real-Time Chart Widget -->
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+
+    <style>
+        /* ==========================================================
+           STOCK DETAIL & BIFURCATION MODERN STYLING
+           ========================================================== */
+        .demat-breadcrumb {
+            margin-bottom: 12px;
+            font-size: 12.5px;
+            color: #64748b;
+        }
+
+        .demat-breadcrumb a {
+            color: #64748b;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+
+        .demat-breadcrumb a:hover {
+            color: #0284c7;
+        }
+
+        .demat-breadcrumb .separator {
+            margin: 0 6px;
+            color: #cbd5e1;
+        }
+
+        .demat-breadcrumb .current {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        /* Top Filter / Search Bar */
+        .stock-control-panel {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .control-selectors-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex: 1 1 560px;
+        }
+
+        .selector-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .selector-box label {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+        .styled-select {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 7px 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #1e293b;
+            outline: none;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            max-width: 220px;
+        }
+
+        .styled-select:focus {
+            border-color: #0284c7;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        /* Universal Autocomplete Search */
+        .universal-search-wrap {
+            position: relative;
+            flex: 1 1 240px;
+            min-width: 200px;
+        }
+
+        .universal-search-input {
+            width: 100%;
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 7px 32px 7px 12px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: #1e293b;
+            outline: none;
+            transition: all 0.15s ease;
+        }
+
+        .universal-search-input:focus {
+            border-color: #0284c7;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+        }
+
+        .search-clear-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 13px;
+            display: none;
+        }
+
+        .search-results-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+            max-height: 320px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 9px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background-color 0.1s ease;
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover,
+        .search-result-item.highlighted {
+            background-color: #f0f7ff;
+        }
+
+        .search-item-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .search-item-symbol {
+            font-weight: 700;
+            color: #0284c7;
+            font-size: 13px;
+        }
+
+        .search-item-name {
+            font-size: 11.5px;
+            color: #64748b;
+        }
+
+        .search-item-meta {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .search-item-price {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .search-item-index {
+            font-size: 10px;
+            background: #e2e8f0;
+            color: #475569;
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* Action Buttons */
+        .control-actions-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-toggle-refresh {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            padding: 7px 12px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-toggle-refresh.active {
+            background: #f0fdf4;
+            border-color: #86efac;
+            color: #15803d;
+        }
+
+        .btn-refresh-data {
+            background: #0284c7;
+            color: #ffffff;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(2, 132, 199, 0.2);
+        }
+
+        .btn-refresh-data:hover {
+            background: #0369a1;
+        }
+
+        .btn-moneycontrol-ext {
+            background: #fff1f2;
+            color: #e11d48;
+            border: 1px solid #fecdd3;
+            padding: 7px 13px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s ease;
+        }
+
+        .btn-moneycontrol-ext:hover {
+            background: #ffe4e6;
+            color: #be123c;
+            border-color: #fda4af;
+        }
+
+        /* Hero Stock Overview Card */
+        .stock-hero-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            border-left: 5px solid #0284c7;
+        }
+
+        .stock-hero-left {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .stock-company-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+            letter-spacing: -0.4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .stock-badges-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 2px;
+        }
+
+        .badge-pill {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge-symbol {
+            background: #0284c7;
+            color: #ffffff;
+        }
+
+        .badge-sector {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .badge-index-tag {
+            background: #e0e7ff;
+            color: #4338ca;
+            border: 1px solid #c7d2fe;
+        }
+
+        .badge-mccode {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+
+        .stock-hero-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+            text-align: right;
+        }
+
+        .stock-hero-price {
+            font-size: 32px;
+            font-weight: 850;
+            color: #0f172a;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+
+        .stock-hero-change-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .pill-positive {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        .pill-negative {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .pill-neutral {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stock-hero-status {
+            font-size: 11px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 2px;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 6px rgba(34, 197, 94, 0.8);
+            display: inline-block;
+        }
+
+        /* Price Range Sliders (Moneycontrol Style) */
+        .range-sliders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .range-slider-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .range-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .range-card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .range-bar-wrapper {
+            position: relative;
+            margin: 22px 8px 12px 8px;
+        }
+
+        .range-track {
+            height: 7px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #ef4444 0%, #eab308 50%, #22c55e 100%);
+            width: 100%;
+        }
+
+        .range-marker-pin {
+            position: absolute;
+            top: -24px;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            pointer-events: none;
+            transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .range-marker-label {
+            background: #0f172a;
+            color: #ffffff;
+            font-size: 10.5px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 5px;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .range-marker-arrow {
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 5px solid #0f172a;
+        }
+
+        .range-labels-row {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-top: 6px;
+        }
+
+        .range-lbl-left {
+            text-align: left;
+        }
+
+        .range-lbl-right {
+            text-align: right;
+        }
+
+        .range-val-big {
+            font-size: 14px;
+            font-weight: 750;
+            color: #0f172a;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .range-val-sub {
+            font-size: 10.5px;
+            color: #64748b;
+        }
+
+        /* Technical Chart Section */
+        .chart-section-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .chart-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 750;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+        }
+
+        .chart-meta-note {
+            font-size: 11.5px;
+            color: #64748b;
+        }
+
+        .tv-chart-container-box {
+            height: 540px;
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        /* Bifurcation 4-Cards Grid */
+        .bifurcation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .bifurcation-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .bifurcation-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13.5px;
+            font-weight: 750;
+            color: #0f172a;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
+
+        .stat-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .stat-table tr {
+            border-bottom: 1px solid #f8fafc;
+        }
+
+        .stat-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .stat-table td {
+            padding: 8px 0;
+            font-size: 12.5px;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            text-align: right;
+            font-weight: 700;
+            color: #0f172a;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .val-pos {
+            color: #15803d;
+        }
+
+        .val-neg {
+            color: #b91c1c;
+        }
+
+        /* Peer Stocks Strip */
+        .peers-section-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .peers-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .peers-title {
+            font-size: 14px;
+            font-weight: 750;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .peers-scroll-wrap {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            scrollbar-width: thin;
+        }
+
+        .peer-stock-pill {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 14px;
+            min-width: 150px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .peer-stock-pill:hover,
+        .peer-stock-pill.active {
+            background: #f0f7ff;
+            border-color: #0284c7;
+            transform: translateY(-1px);
+        }
+
+        .peer-sym {
+            font-size: 12.5px;
+            font-weight: 750;
+            color: #0f172a;
+        }
+
+        .peer-price-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11.5px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .peer-ltp {
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .peer-pchg {
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .stock-hero-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .stock-hero-right {
+                align-items: flex-start;
+                text-align: left;
+            }
+
+            .tv-chart-container-box {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+
+<body class="stock-detail-page">
+
+    <!-- Responsive Sidebar Navigation -->
+    <aside class="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            📊 <span>Live IPO</span>
+        </a>
+
+        <ul class="sidebar-menu">
+            <!-- Category 1: IPO Information -->
+            <li class="menu-heading"><span>IPO Section</span></li>
+            <li class="menu-item"><a href="index.html">🏠 <span>Home</span></a></li>
+            <li class="menu-item"><a href="ipo-calendar.html">📅 <span>IPO Calendar</span></a></li>
+            <li class="menu-item"><a href="allotment-checker.html">🔍 <span>Allotment Checker</span></a></li>
+            <li class="menu-item"><a href="ipo-bid.html">📝 <span>IPO Bid</span></a></li>
+            <li class="menu-item"><a href="ipo-form-print.html">🖨️ <span>Form Print</span></a></li>
+
+            <!-- Category 2: Market & Stocks Data -->
+            <li class="menu-heading"><span>Market Data</span></li>
+            <li class="menu-item"><a href="indices.html">📈 <span>Live Indices</span></a></li>
+            <li class="menu-item"><a href="indices-history.html">📅 <span>Indices History</span></a></li>
+            <li class="menu-item"><a href="index-stocks.html">🏢 <span>Index Stocks</span></a></li>
+            <li class="menu-item"><a href="stock-detail.html" class="active">📊 <span>Stock Analysis</span></a></li>
+            <li class="menu-item"><a href="fii-dii-activity.html">📊 <span>FII/DII Activity</span></a></li>
+
+            <!-- Category 3: Account & Website Pages -->
+            <li class="menu-heading"><span>Account & Info</span></li>
+            <li class="menu-item"><a href="my-demat-accounts.html">👥 <span>My Demat Accounts</span></a></li>
+            <li class="menu-item"><a href="profile.html">👤 <span>My Profile</span></a></li>
+            <li class="menu-item"><a href="help-support.html">💬 <span>Help / Support</span></a></li>
+            <li class="menu-item"><a href="privacy-policy.html">🔒 <span>Privacy Policy</span></a></li>
+            <li class="menu-item"><a href="disclaimer.html">⚠️ <span>Disclaimer</span></a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+        <!-- Top User Header Bar with Google Sign-In -->
+        <div class="user-header-bar">
+            <div class="header-welcome-text">
+                <span class="live-pulse"></span>
+                <span>Live IPO Portal</span>
+            </div>
+            <div class="user-auth-section">
+                <div id="googleSignInBtn"></div>
+                <div id="userProfileBadge" class="user-profile-badge" style="display: none;">
+                    <img id="userAvatarImg" src="" alt="User" class="user-avatar-img">
+                    <span id="userNameText" class="user-name-text">User</span>
+                    <button type="button" class="btn-user-logout" onclick="handleUserLogout()" title="Logout">🚪
+                        Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breadcrumb Navigation -->
+        <div class="demat-breadcrumb">
+            <a href="index.html">🏠 Home</a>
+            <span class="separator">/</span>
+            <a href="index-stocks.html">🏢 Index Stocks</a>
+            <span class="separator">/</span>
+            <span class="current" id="breadcrumbStockText">Asian Paints Ltd. (ASIANPAINT)</span>
+        </div>
+
+        <!-- Stock Selector & Universal Search Bar -->
+        <div class="stock-control-panel">
+            <div class="control-selectors-group">
+                <!-- Index Selector Dropdown -->
+                <div class="selector-box">
+                    <label for="indexSelector">Index:</label>
+                    <select id="indexSelector" class="styled-select" onchange="handleIndexChange(this.value)">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <!-- Stock in Index Selector Dropdown -->
+                <div class="selector-box">
+                    <label for="stockSelector">Stock:</label>
+                    <select id="stockSelector" class="styled-select" onchange="handleStockDropdownChange(this.value)">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <!-- Universal Search Autocomplete across 800+ stocks -->
+                <div class="universal-search-wrap">
+                    <input type="text" id="universalSearchInput" class="universal-search-input"
+                        placeholder="🔍 Search any stock by name or symbol..." autocomplete="off">
+                    <button type="button" id="searchClearBtn" class="search-clear-btn" onclick="clearUniversalSearch()"
+                        title="Clear">✕</button>
+                    <div id="searchResultsDropdown" class="search-results-dropdown"></div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="control-actions-group">
+                <button type="button" class="btn-toggle-refresh active" id="btnLiveAutoToggle"
+                    onclick="toggleLiveAutoRefresh()" title="Toggle live price streaming">
+                    <span>⚡</span>
+                    <span id="liveAutoText">Auto: ON</span>
+                </button>
+                <button type="button" class="btn-refresh-data" id="btnRefreshManual" onclick="manualRefreshLiveStock()"
+                    title="Refresh current stock data">
+                    <span>🔄</span>
+                    <span>Refresh</span>
+                </button>
+                <a href="https://www.moneycontrol.com" id="btnMoneycontrol" target="_blank" rel="noopener noreferrer"
+                    class="btn-moneycontrol-ext" title="Open complete quote on Moneycontrol">
+                    <span>🔗 Moneycontrol ↗</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Hero Overview Card -->
+        <div class="stock-hero-card">
+            <div class="stock-hero-left">
+                <h1 class="stock-company-title" id="d_companyName">
+                    Asian Paints Ltd.
+                </h1>
+                <div class="stock-badges-row">
+                    <span class="badge-pill badge-symbol" id="d_symbolBadge">NSE: ASIANPAINT</span>
+                    <span class="badge-pill badge-sector" id="d_sectorBadge">Sector: Consumer Durables</span>
+                    <span class="badge-pill badge-index-tag" id="d_indexBadge">Index: NIFTY 50</span>
+                    <span class="badge-pill badge-mccode" id="d_mcCodeBadge">MC Code: API</span>
+                </div>
+            </div>
+
+            <div class="stock-hero-right">
+                <div class="stock-hero-price" id="d_ltp">₹2,580.30</div>
+                <div class="stock-hero-change-pill pill-positive" id="d_chgPill">
+                    <span id="d_chgVal">+33.90</span>
+                    <span id="d_pchgVal">(+1.35%)</span>
+                </div>
+                <div class="stock-hero-status">
+                    <span class="live-dot" id="d_liveDot"></span>
+                    <span id="d_marketStatusText">Market Live</span>
+                    <span>•</span>
+                    <span id="d_lastUpdatedText">Updated: 18 Nov, 03:59 PM</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Range Sliders (Today's Range & 52-Week Range) -->
+        <div class="range-sliders-grid">
+            <!-- Today's Range -->
+            <div class="range-slider-card">
+                <div class="range-card-header">
+                    <span class="range-card-title">📊 Today's Low / High</span>
+                    <span style="font-size: 11px; color: #64748b; font-weight: 600;">Intraday</span>
+                </div>
+                <div class="range-bar-wrapper">
+                    <div class="range-track"></div>
+                    <div class="range-marker-pin" id="todayRangePin" style="left: 50%;">
+                        <span class="range-marker-label" id="todayPinLtp">₹2,580.30</span>
+                        <span class="range-marker-arrow"></span>
+                    </div>
+                </div>
+                <div class="range-labels-row">
+                    <div class="range-lbl-left">
+                        <div class="range-val-sub">Today's Low</div>
+                        <div class="range-val-big" id="d_todayLow">₹2,562.60</div>
+                    </div>
+                    <div class="range-lbl-right">
+                        <div class="range-val-sub">Today's High</div>
+                        <div class="range-val-big" id="d_todayHigh" style="color: #15803d;">₹2,608.90</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 52-Week Range -->
+            <div class="range-slider-card">
+                <div class="range-card-header">
+                    <span class="range-card-title">📈 52-Week Low / High</span>
+                    <span style="font-size: 11px; color: #64748b; font-weight: 600;">Annual Range</span>
+                </div>
+                <div class="range-bar-wrapper">
+                    <div class="range-track"></div>
+                    <div class="range-marker-pin" id="yearRangePin" style="left: 50%;">
+                        <span class="range-marker-label" id="yearPinLtp">₹2,580.30</span>
+                        <span class="range-marker-arrow"></span>
+                    </div>
+                </div>
+                <div class="range-labels-row">
+                    <div class="range-lbl-left">
+                        <div class="range-val-sub">52-Week Low</div>
+                        <div class="range-val-big" id="d_yearLow">₹2,115.00</div>
+                        <div class="range-val-sub" id="d_yearLowDate">23 Mar 2026</div>
+                    </div>
+                    <div class="range-lbl-right">
+                        <div class="range-val-sub">52-Week High</div>
+                        <div class="range-val-big" id="d_yearHigh" style="color: #15803d;">₹2,985.70</div>
+                        <div class="range-val-sub" id="d_yearHighDate">04 Dec 2025</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Candlestick Chart Box (TradingView) -->
+        <div class="chart-section-card">
+            <div class="chart-header-row">
+                <h2 class="chart-title">
+                    <span>📈</span>
+                    <span>Interactive Technical Chart</span>
+                    <span id="chartSymbolBadge" class="badge-pill badge-symbol"
+                        style="font-size: 11.5px;">NSE:ASIANPAINT</span>
+                </h2>
+                <div class="chart-meta-note">
+                    Real-time Candlesticks • Technical Indicators (RSI, MACD, MA) • Full Timeframes
+                </div>
+            </div>
+
+            <!-- TradingView Chart Container -->
+            <div id="tv_chart_container" class="tv-chart-container-box"></div>
+        </div>
+
+        <!-- Bifurcation Metrics (4-Card Grid) -->
+        <div class="bifurcation-grid">
+            <!-- Card 1: Today's Trading Summary -->
+            <div class="bifurcation-card">
+                <div class="bifurcation-card-header">
+                    <span>⏱️</span>
+                    <span>Today's Trading Details</span>
+                </div>
+                <table class="stat-table">
+                    <tbody>
+                        <tr>
+                            <td class="stat-label">Open Price</td>
+                            <td class="stat-value" id="m_open">₹2,601.10</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">Previous Close</td>
+                            <td class="stat-value" id="m_prevClose">₹2,546.40</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">Day's High</td>
+                            <td class="stat-value val-pos" id="m_high">₹2,608.90</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">Day's Low</td>
+                            <td class="stat-value val-neg" id="m_low">₹2,562.60</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">Volume (Shares)</td>
+                            <td class="stat-value" id="m_volume">7.43 L</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">Total Turnover</td>
+                            <td class="stat-value" id="m_turnover">₹191.68 Cr</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Card 2: 52-Week & Technical Levels -->
+            <div class="bifurcation-card">
+                <div class="bifurcation-card-header">
+                    <span>🎯</span>
+                    <span>Technical & Price Bands</span>
+                </div>
+                <table class="stat-table">
+                    <tbody>
+                        <tr>
+                            <td class="stat-label">52-Week High</td>
+                            <td class="stat-value val-pos" id="m_52High">₹2,985.70</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">52-Week Low</td>
+                            <td class="stat-value val-neg" id="m_52Low">₹2,115.00</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">Upper Circuit (Band)</td>
+                            <td class="stat-value" id="m_upperCircuit">₹2,651.60</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">Lower Circuit (Band)</td>
+                            <td class="stat-value" id="m_lowerCircuit">₹2,497.20</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">50-Day Moving Avg</td>
+                            <td class="stat-value" id="m_50Dma">₹2,419.13</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">200-Day Moving Avg</td>
+                            <td class="stat-value" id="m_200Dma">₹2,505.06</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Card 3: Valuation & Fundamentals (Moneycontrol Metrics) -->
+            <div class="bifurcation-card">
+                <div class="bifurcation-card-header">
+                    <span>💎</span>
+                    <span>Valuation & Fundamentals</span>
+                </div>
+                <table class="stat-table">
+                    <tbody>
+                        <tr>
+                            <td class="stat-label">Market Cap (₹ Cr)</td>
+                            <td class="stat-value" id="m_marketCap">₹2,47,501 Cr</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">P/E Ratio (TTM)</td>
+                            <td class="stat-value" id="m_pe">52.00</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">Industry P/E</td>
+                            <td class="stat-value" id="m_indPe">42.41</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">Book Value (BV ₹)</td>
+                            <td class="stat-value" id="m_bookValue">₹232.07</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">Price to Book (P/B)</td>
+                            <td class="stat-value" id="m_pbRatio">10.82</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">Dividend Yield</td>
+                            <td class="stat-value" id="m_divYield">1.07%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Card 4: Historical Returns / Performance -->
+            <div class="bifurcation-card">
+                <div class="bifurcation-card-header">
+                    <span>🚀</span>
+                    <span>Historical Returns</span>
+                </div>
+                <table class="stat-table">
+                    <tbody>
+                        <tr>
+                            <td class="stat-label">1 Week Return</td>
+                            <td class="stat-value" id="m_ret1w">+1.18%</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">1 Month Return</td>
+                            <td class="stat-value" id="m_ret1m">+10.65%</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">3 Month Return</td>
+                            <td class="stat-value" id="m_ret3m">-1.83%</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">1 Year Return</td>
+                            <td class="stat-value" id="m_ret1y">-11.21%</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">3 Year CAGR</td>
+                            <td class="stat-value" id="m_cagr3y">-6.62%</td>
+                        </tr>
+                        <tr>
+                            <td class="stat-label">5 Year CAGR</td>
+                            <td class="stat-value" id="m_cagr5y">-4.37%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Peer Stocks Strip in Selected Index -->
+        <div class="peers-section-card">
+            <div class="peers-header">
+                <div class="peers-title">
+                    <span>🏢</span>
+                    <span id="peersTitleHeading">Constituent Stocks in NIFTY 50</span>
+                </div>
+                <a href="index-stocks.html" style="font-size: 11.5px; color: #0284c7; text-decoration: none; font-weight: 600;">
+                    View All in Table ↗
+                </a>
+            </div>
+            <div class="peers-scroll-wrap" id="peersScrollContainer">
+                <!-- Peer Stock pills populated dynamically -->
+            </div>
+        </div>
+
+        <!-- Page Views Counter Widget -->
+        <div class="page-views-wrapper" id="pageViewsContainer"></div>
+
+        <p style="font-size: 11.5px; color: #94a3b8; margin-top: 20px;">
+            By proceeding, I agree to <a href="privacy-policy.html"
+                style="color: #2563eb; text-decoration: none;">T&C</a> & <a href="privacy-policy.html"
+                style="color: #2563eb; text-decoration: none;">Privacy Policy</a>
+        </p>
+
+    </main>
+
+    <!-- Page Logic Script -->
+    <script>
+        // ==========================================================
+        // STATE MANAGEMENT
+        // ==========================================================
+        let allIndicesData = null;
+        let allStocksList = [];          // 808 unique stocks for universal search
+        let allStocksMap = new Map();     // symbol -> stock details
+        let currentIndexKey = 'NIFTY 50';
+        let currentSymbol = 'ASIANPAINT';
+        let currentStockObj = null;
+        let isAutoRefreshActive = true;
+        let autoRefreshTimer = null;
+        let currentLiveFeedData = null;
+
+        // Number formatters
+        function formatPrice(val) {
+            const num = parseFloat(val);
+            if (isNaN(num)) return '-';
+            return '₹' + num.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatNumber(val, decimals = 2) {
+            const num = parseFloat(val);
+            if (isNaN(num)) return '-';
+            return num.toLocaleString('en-IN', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+        }
+
+        function formatVolume(val) {
+            const num = parseFloat(val);
+            if (isNaN(num) || num === 0) return '-';
+            if (num >= 10000000) return (num / 10000000).toFixed(2) + ' Cr';
+            if (num >= 100000) return (num / 100000).toFixed(2) + ' L';
+            if (num >= 1000) return (num / 1000).toFixed(1) + ' k';
+            return num.toString();
+        }
+
+        function formatTurnoverCr(totVal, vol, ltp) {
+            const tv = parseFloat(totVal);
+            if (!isNaN(tv) && tv > 0) {
+                return '₹' + (tv / 10000000).toFixed(2) + ' Cr';
+            }
+            const v = parseFloat(vol);
+            const p = parseFloat(ltp);
+            if (!isNaN(v) && !isNaN(p) && v > 0 && p > 0) {
+                return '₹' + ((v * p) / 10000000).toFixed(2) + ' Cr';
+            }
+            return '-';
+        }
+
+        function formatPercent(val) {
+            const num = parseFloat(val);
+            if (isNaN(num)) return '-';
+            const sign = num > 0 ? '+' : '';
+            return sign + num.toFixed(2) + '%';
+        }
+
+        function getQueryParam(name) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get(name);
+        }
+
+        // ==========================================================
+        // DATA INITIALIZATION
+        // ==========================================================
+        async function initPage() {
+            try {
+                const res = await fetch('index-stocks-data.json?t=' + Date.now());
+                if (!res.ok) throw new Error('Failed to load stock data');
+                allIndicesData = await res.json();
+
+                // Process unique stocks map and index lists
+                buildStockIndicesMap();
+
+                // Check URL query parameters
+                const qSymbol = getQueryParam('symbol');
+                const qIndex = getQueryParam('index');
+                const qScId = getQueryParam('scId');
+
+                if (qIndex && allIndicesData.indices[qIndex]) {
+                    currentIndexKey = qIndex;
+                }
+
+                if (qSymbol) {
+                    const cleanSym = qSymbol.toUpperCase().trim();
+                    if (allStocksMap.has(cleanSym)) {
+                        currentSymbol = cleanSym;
+                    }
+                } else if (qScId) {
+                    const match = allStocksList.find(s => s.mcScId === qScId);
+                    if (match && match.symbol) {
+                        currentSymbol = match.symbol;
+                    }
+                }
+
+                // Populate controls
+                populateIndexDropdown();
+                populateStockDropdown();
+                setupUniversalSearch();
+
+                // Render current stock
+                loadStock(currentSymbol, false);
+
+                // Start auto-refresh
+                startAutoRefreshLoop();
+
+            } catch (err) {
+                console.error('Initialization error:', err);
+            }
+        }
+
+        function buildStockIndicesMap() {
+            allStocksList = [];
+            allStocksMap.clear();
+
+            if (!allIndicesData || !allIndicesData.indices) return;
+
+            for (const [idxName, idx] of Object.entries(allIndicesData.indices)) {
+                if (!idx.stocks || !Array.isArray(idx.stocks)) continue;
+
+                for (const s of idx.stocks) {
+                    if (!s.symbol) continue;
+                    const sym = s.symbol.toUpperCase().trim();
+
+                    if (!allStocksMap.has(sym)) {
+                        const stockObj = {
+                            ...s,
+                            symbol: sym,
+                            indices: [idxName]
+                        };
+                        allStocksMap.set(sym, stockObj);
+                        allStocksList.push(stockObj);
+                    } else {
+                        const existing = allStocksMap.get(sym);
+                        if (!existing.indices.includes(idxName)) {
+                            existing.indices.push(idxName);
+                        }
+                    }
+                }
+            }
+
+            // Sort unique list by symbol
+            allStocksList.sort((a, b) => a.symbol.localeCompare(b.symbol));
+        }
+
+        // ==========================================================
+        // POPULATE DROPDOWNS & CONTROLS
+        // ==========================================================
+        function populateIndexDropdown() {
+            const sel = document.getElementById('indexSelector');
+            if (!sel || !allIndicesData || !allIndicesData.indices) return;
+
+            const indices = Object.keys(allIndicesData.indices);
+            sel.innerHTML = indices.map(idx => `
+                <option value="${idx}" ${idx === currentIndexKey ? 'selected' : ''}>${idx}</option>
+            `).join('');
+        }
+
+        function populateStockDropdown() {
+            const sel = document.getElementById('stockSelector');
+            if (!sel || !allIndicesData) return;
+
+            const idxObj = allIndicesData.indices[currentIndexKey];
+            if (!idxObj || !idxObj.stocks) {
+                sel.innerHTML = `<option value="">No stocks</option>`;
+                return;
+            }
+
+            // Sort stocks in this index alphabetically
+            const stocksInIndex = [...idxObj.stocks].sort((a, b) => (a.symbol || '').localeCompare(b.symbol || ''));
+
+            sel.innerHTML = stocksInIndex.map(s => `
+                <option value="${s.symbol}" ${s.symbol === currentSymbol ? 'selected' : ''}>
+                    ${s.symbol} - ${s.name || ''}
+                </option>
+            `).join('');
+        }
+
+        function handleIndexChange(newIndex) {
+            currentIndexKey = newIndex;
+            populateStockDropdown();
+
+            // Select first stock of this index
+            const idxObj = allIndicesData.indices[currentIndexKey];
+            if (idxObj && idxObj.stocks && idxObj.stocks.length > 0) {
+                const firstSym = idxObj.stocks[0].symbol;
+                loadStock(firstSym, true);
+            }
+        }
+
+        function handleStockDropdownChange(newSymbol) {
+            if (!newSymbol) return;
+            loadStock(newSymbol, true);
+        }
+
+        // ==========================================================
+        // UNIVERSAL SEARCH AUTOCOMPLETE (800+ Stocks)
+        // ==========================================================
+        function setupUniversalSearch() {
+            const input = document.getElementById('universalSearchInput');
+            const clearBtn = document.getElementById('searchClearBtn');
+            const dropdown = document.getElementById('searchResultsDropdown');
+
+            if (!input || !dropdown) return;
+
+            input.addEventListener('input', () => {
+                const query = input.value.trim().toLowerCase();
+                if (clearBtn) clearBtn.style.display = query ? 'block' : 'none';
+
+                if (!query) {
+                    dropdown.style.display = 'none';
+                    dropdown.innerHTML = '';
+                    return;
+                }
+
+                // Filter stocks
+                const matches = allStocksList.filter(s =>
+                    (s.symbol && s.symbol.toLowerCase().includes(query)) ||
+                    (s.name && s.name.toLowerCase().includes(query)) ||
+                    (s.mcScId && s.mcScId.toLowerCase() === query)
+                ).slice(0, 12); // Limit to top 12 matches
+
+                if (matches.length === 0) {
+                    dropdown.innerHTML = `<div style="padding: 12px; font-size: 12px; color: #94a3b8; text-align: center;">No stocks found matching "${query}"</div>`;
+                    dropdown.style.display = 'block';
+                    return;
+                }
+
+                dropdown.innerHTML = matches.map(s => `
+                    <div class="search-result-item" onclick="selectStockFromSearch('${s.symbol}')">
+                        <div class="search-item-left">
+                            <span class="search-item-symbol">${s.symbol}</span>
+                            <span class="search-item-name">${s.name || s.symbol}</span>
+                        </div>
+                        <div class="search-item-meta">
+                            <span class="search-item-price">${formatPrice(s.ltp)}</span>
+                            <span class="search-item-index">${s.indices && s.indices[0] ? s.indices[0] : 'Stock'}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                dropdown.style.display = 'block';
+            });
+
+            // Close on click outside
+            document.addEventListener('click', (e) => {
+                if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+
+        function clearUniversalSearch() {
+            const input = document.getElementById('universalSearchInput');
+            const clearBtn = document.getElementById('searchClearBtn');
+            const dropdown = document.getElementById('searchResultsDropdown');
+            if (input) input.value = '';
+            if (clearBtn) clearBtn.style.display = 'none';
+            if (dropdown) dropdown.style.display = 'none';
+        }
+
+        function selectStockFromSearch(symbol) {
+            clearUniversalSearch();
+            loadStock(symbol, true);
+        }
+
+        // ==========================================================
+        // LOAD AND RENDER STOCK
+        // ==========================================================
+        async function loadStock(symbol, updateUrl = true) {
+            if (!symbol) return;
+            currentSymbol = symbol.toUpperCase().trim();
+
+            // Locate stock in map or fallback
+            currentStockObj = allStocksMap.get(currentSymbol);
+            if (!currentStockObj) {
+                console.warn('Stock not found in master map:', currentSymbol);
+                return;
+            }
+
+            // Sync index selector if stock is in another index
+            if (currentStockObj.indices && !currentStockObj.indices.includes(currentIndexKey)) {
+                currentIndexKey = currentStockObj.indices[0];
+                populateIndexDropdown();
+            }
+
+            // Sync stock dropdown value
+            const stockDropdown = document.getElementById('stockSelector');
+            if (stockDropdown) {
+                populateStockDropdown();
+                stockDropdown.value = currentSymbol;
+            }
+
+            // Update Breadcrumb & Document Title
+            document.title = `${currentStockObj.name || currentSymbol} (${currentSymbol}) Live Price, Technical Chart & Valuation | Live IPO`;
+            const breadcrumbEl = document.getElementById('breadcrumbStockText');
+            if (breadcrumbEl) {
+                breadcrumbEl.innerText = `${currentStockObj.name || currentSymbol} (${currentSymbol})`;
+            }
+
+            // Update URL without reload
+            if (updateUrl) {
+                const newUrl = `stock-detail.html?symbol=${encodeURIComponent(currentSymbol)}&index=${encodeURIComponent(currentIndexKey)}&scId=${encodeURIComponent(currentStockObj.mcScId || '')}`;
+                window.history.pushState({ symbol: currentSymbol, index: currentIndexKey }, '', newUrl);
+            }
+
+            // 1. Initial Instant Render with base data from index-stocks-data.json
+            renderBaseStockDetails(currentStockObj);
+
+            // 2. Render TradingView Technical Chart
+            renderTradingViewWidget(currentSymbol);
+
+            // 3. Render Peer Stocks Carousel in this index
+            renderPeerStocksCarousel();
+
+            // 4. Fetch rich live Moneycontrol pricefeed
+            fetchMoneycontrolStockFeed(currentStockObj.mcScId, currentSymbol);
+        }
+
+        function renderBaseStockDetails(stock) {
+            document.getElementById('d_companyName').innerText = stock.name || stock.symbol;
+            document.getElementById('d_symbolBadge').innerText = `NSE: ${stock.symbol}`;
+            document.getElementById('d_sectorBadge').innerText = `Sector: ${stock.sector || 'General'}`;
+            document.getElementById('d_indexBadge').innerText = `Index: ${currentIndexKey}`;
+            document.getElementById('d_mcCodeBadge').innerText = `MC Code: ${stock.mcScId || '-'}`;
+
+            // LTP & Changes
+            const numChg = parseFloat(stock.chg) || 0;
+            const numPchg = parseFloat(stock.percentChange) || 0;
+            const sign = numChg > 0 ? '+' : '';
+
+            document.getElementById('d_ltp').innerText = formatPrice(stock.ltp);
+
+            const chgPill = document.getElementById('d_chgPill');
+            chgPill.className = 'stock-hero-change-pill ' + (numChg > 0 ? 'pill-positive' : (numChg < 0 ? 'pill-negative' : 'pill-neutral'));
+            document.getElementById('d_chgVal').innerText = (numChg > 0 ? '▲ +' : (numChg < 0 ? '▼ ' : '')) + numChg.toFixed(2);
+            document.getElementById('d_pchgVal').innerText = `(${sign}${numPchg.toFixed(2)}%)`;
+
+            // Range values
+            document.getElementById('d_todayLow').innerText = formatPrice(stock.low);
+            document.getElementById('d_todayHigh').innerText = formatPrice(stock.high);
+            document.getElementById('d_yearLow').innerText = formatPrice(stock.yearLow);
+            document.getElementById('d_yearHigh').innerText = formatPrice(stock.yearHigh);
+
+            // Update range slider markers
+            updateRangeSliderMarker('todayRangePin', 'todayPinLtp', stock.ltp, stock.low, stock.high);
+            updateRangeSliderMarker('yearRangePin', 'yearPinLtp', stock.ltp, stock.yearLow, stock.yearHigh);
+
+            // Baseline stats
+            document.getElementById('m_open').innerText = formatPrice(stock.open);
+            document.getElementById('m_high').innerText = formatPrice(stock.high);
+            document.getElementById('m_low').innerText = formatPrice(stock.low);
+            document.getElementById('m_52High').innerText = formatPrice(stock.yearHigh);
+            document.getElementById('m_52Low').innerText = formatPrice(stock.yearLow);
+            document.getElementById('m_volume').innerText = formatVolume(stock.volume);
+
+            // Estimated prev close
+            if (stock.ltp && !isNaN(numChg)) {
+                const prevClose = parseFloat(stock.ltp) - numChg;
+                document.getElementById('m_prevClose').innerText = formatPrice(prevClose);
+            }
+        }
+
+        // ==========================================================
+        // MONEYCONTROL LIVE PRICEFEED & BIFURCATION FETCH
+        // ==========================================================
+        async function fetchMoneycontrolStockFeed(scId, symbol) {
+            if (!scId) return;
+
+            try {
+                // Try NSE first
+                let res = await fetch(`https://priceapi.moneycontrol.com/pricefeed/nse/equitycash/${encodeURIComponent(scId)}`);
+                let json = res.ok ? await res.json() : null;
+
+                // Fallback to BSE if code 201 or no data
+                if (!json || json.code === '201' || !json.data) {
+                    res = await fetch(`https://priceapi.moneycontrol.com/pricefeed/bse/equitycash/${encodeURIComponent(scId)}`);
+                    json = res.ok ? await res.json() : null;
+                }
+
+                if (!json || !json.data) return;
+                const d = json.data;
+                currentLiveFeedData = d;
+
+                // Apply Full Bifurcation Data
+                applyMoneycontrolFeed(d, symbol);
+
+            } catch (err) {
+                console.warn('Moneycontrol feed fetch error:', err);
+            }
+        }
+
+        function applyMoneycontrolFeed(d, symbol) {
+            // Company Name
+            if (d.SC_FULLNM) {
+                document.getElementById('d_companyName').innerText = d.SC_FULLNM;
+            }
+
+            // Sector
+            if (d.SC_SUBSEC || d.newSubsector) {
+                document.getElementById('d_sectorBadge').innerText = `Sector: ${d.SC_SUBSEC || d.newSubsector}`;
+            }
+
+            // Live LTP & Change
+            const ltp = parseFloat(d.pricecurrent);
+            const chg = parseFloat(d.pricechange);
+            const pchg = parseFloat(d.pricepercentchange);
+            const sign = chg > 0 ? '+' : '';
+
+            if (!isNaN(ltp)) {
+                document.getElementById('d_ltp').innerText = formatPrice(ltp);
+            }
+
+            if (!isNaN(chg)) {
+                const chgPill = document.getElementById('d_chgPill');
+                chgPill.className = 'stock-hero-change-pill ' + (chg > 0 ? 'pill-positive' : (chg < 0 ? 'pill-negative' : 'pill-neutral'));
+                document.getElementById('d_chgVal').innerText = (chg > 0 ? '▲ +' : (chg < 0 ? '▼ ' : '')) + chg.toFixed(2);
+                document.getElementById('d_pchgVal').innerText = `(${sign}${pchg.toFixed(2)}%)`;
+            }
+
+            // Today's High, Low, Open, PrevClose
+            if (d.OPN) document.getElementById('m_open').innerText = formatPrice(d.OPN);
+            if (d.HP) {
+                document.getElementById('m_high').innerText = formatPrice(d.HP);
+                document.getElementById('d_todayHigh').innerText = formatPrice(d.HP);
+            }
+            if (d.LP) {
+                document.getElementById('m_low').innerText = formatPrice(d.LP);
+                document.getElementById('d_todayLow').innerText = formatPrice(d.LP);
+            }
+            if (d.P_C || d.referencePrice) {
+                const prev = d.P_C || d.referencePrice;
+                document.getElementById('m_prevClose').innerText = formatPrice(prev);
+            }
+
+            // 52-Week High & Low + Dates
+            if (d['52H']) {
+                document.getElementById('d_yearHigh').innerText = formatPrice(d['52H']);
+                document.getElementById('m_52High').innerText = formatPrice(d['52H']);
+            }
+            if (d['52HDate']) {
+                document.getElementById('d_yearHighDate').innerText = formatDateStr(d['52HDate']);
+            }
+            if (d['52L']) {
+                document.getElementById('d_yearLow').innerText = formatPrice(d['52L']);
+                document.getElementById('m_52Low').innerText = formatPrice(d['52L']);
+            }
+            if (d['52LDate']) {
+                document.getElementById('d_yearLowDate').innerText = formatDateStr(d['52LDate']);
+            }
+
+            // Update Range Slider Pins
+            const curPrice = !isNaN(ltp) ? ltp : (currentStockObj ? currentStockObj.ltp : 0);
+            updateRangeSliderMarker('todayRangePin', 'todayPinLtp', curPrice, d.LP || (currentStockObj ? currentStockObj.low : 0), d.HP || (currentStockObj ? currentStockObj.high : 0));
+            updateRangeSliderMarker('yearRangePin', 'yearPinLtp', curPrice, d['52L'] || (currentStockObj ? currentStockObj.yearLow : 0), d['52H'] || (currentStockObj ? currentStockObj.yearHigh : 0));
+
+            // Volume & Turnover
+            if (d.VOL) document.getElementById('m_volume').innerText = formatVolume(d.VOL);
+            document.getElementById('m_turnover').innerText = formatTurnoverCr(d.TOTTRDVAL, d.VOL, curPrice);
+
+            // Technical Circuits & Averages
+            if (d.upper_circuit_limit) document.getElementById('m_upperCircuit').innerText = formatPrice(d.upper_circuit_limit);
+            if (d.lower_circuit_limit) document.getElementById('m_lowerCircuit').innerText = formatPrice(d.lower_circuit_limit);
+            if (d['50DayAvg']) document.getElementById('m_50Dma').innerText = formatPrice(d['50DayAvg']);
+            if (d['200DayAvg']) document.getElementById('m_200Dma').innerText = formatPrice(d['200DayAvg']);
+
+            // Valuation & Fundamentals
+            if (d.MKTCAP) document.getElementById('m_marketCap').innerText = '₹' + formatNumber(d.MKTCAP, 2) + ' Cr';
+            if (d.PE) document.getElementById('m_pe').innerText = formatNumber(d.PE, 2);
+            if (d.IND_PE) document.getElementById('m_indPe').innerText = formatNumber(d.IND_PE, 2);
+            if (d.BV) document.getElementById('m_bookValue').innerText = formatPrice(d.BV);
+            if (d.PBCONS || d.P_C) document.getElementById('m_pbRatio').innerText = formatNumber(d.PBCONS || (curPrice / parseFloat(d.BV || 1)), 2);
+            if (d.DY || d.DYCONS) document.getElementById('m_divYield').innerText = formatNumber(d.DY || d.DYCONS, 2) + '%';
+
+            // Historical Returns
+            if (d.cl1wPerChange) setStatReturn('m_ret1w', d.cl1wPerChange);
+            if (d.cl1mPerChange) setStatReturn('m_ret1m', d.cl1mPerChange);
+            if (d.cl3mPerChange) setStatReturn('m_ret3m', d.cl3mPerChange);
+            if (d.cl1yPerChange || d.cagr1Y) setStatReturn('m_ret1y', d.cl1yPerChange || d.cagr1Y);
+            if (d.cagr3Y) setStatReturn('m_cagr3y', d.cagr3Y);
+            if (d.cagr5Y) setStatReturn('m_cagr5y', d.cagr5Y);
+
+            // Update Moneycontrol Link
+            const mcBtn = document.getElementById('btnMoneycontrol');
+            if (mcBtn) {
+                if (d.slug) {
+                    mcBtn.href = `https://www.moneycontrol.com/india/stockpricequote/${d.slug}`;
+                } else {
+                    mcBtn.href = `https://www.moneycontrol.com/india/stockpricequote/${encodeURIComponent(symbol)}`;
+                }
+            }
+
+            // Timestamp
+            if (d.DTTIME) {
+                document.getElementById('d_lastUpdatedText').innerText = `Updated: ${d.DTTIME}`;
+            }
+        }
+
+        function setStatReturn(elemId, val) {
+            const el = document.getElementById(elemId);
+            if (!el) return;
+            const num = parseFloat(val);
+            if (isNaN(num)) {
+                el.innerText = '-';
+                el.className = 'stat-value';
+                return;
+            }
+            const sign = num > 0 ? '+' : '';
+            el.innerText = `${sign}${num.toFixed(2)}%`;
+            el.className = 'stat-value ' + (num > 0 ? 'val-pos' : (num < 0 ? 'val-neg' : ''));
+        }
+
+        function formatDateStr(dateStr) {
+            if (!dateStr) return '';
+            // e.g. "2025-12-04" -> "04 Dec 2025"
+            try {
+                const parts = dateStr.split('-');
+                if (parts.length === 3) {
+                    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                    const m = parseInt(parts[1], 10) - 1;
+                    return `${parts[2]} ${months[m]} ${parts[0]}`;
+                }
+            } catch (_) {}
+            return dateStr;
+        }
+
+        // ==========================================================
+        // RANGE SLIDER MARKER POSITIONING
+        // ==========================================================
+        function updateRangeSliderMarker(pinId, labelId, current, low, high) {
+            const pinEl = document.getElementById(pinId);
+            const labelEl = document.getElementById(labelId);
+            if (!pinEl || !labelEl) return;
+
+            const c = parseFloat(current);
+            const l = parseFloat(low);
+            const h = parseFloat(high);
+
+            if (isNaN(c) || isNaN(l) || isNaN(h) || h <= l) {
+                pinEl.style.left = '50%';
+                labelEl.innerText = formatPrice(current);
+                return;
+            }
+
+            const clamped = Math.max(l, Math.min(h, c));
+            const pct = ((clamped - l) / (h - l)) * 100;
+            const safePct = Math.max(2, Math.min(98, pct));
+
+            pinEl.style.left = safePct.toFixed(1) + '%';
+            labelEl.innerText = formatPrice(c);
+        }
+
+        // ==========================================================
+        // TRADINGVIEW TECHNICAL CHART INTEGRATION
+        // ==========================================================
+        function renderTradingViewWidget(symbol) {
+            const container = document.getElementById('tv_chart_container');
+            const symbolBadge = document.getElementById('chartSymbolBadge');
+            if (symbolBadge) symbolBadge.innerText = `NSE:${symbol}`;
+            if (!container) return;
+
+            container.innerHTML = '';
+
+            const widgetId = 'tv_chart_' + Math.random().toString(36).substring(2, 9);
+            const widgetDiv = document.createElement('div');
+            widgetDiv.id = widgetId;
+            widgetDiv.style.width = '100%';
+            widgetDiv.style.height = '100%';
+            container.appendChild(widgetDiv);
+
+            const tvSymbol = 'NSE:' + symbol;
+
+            function createWidget() {
+                if (typeof TradingView === 'undefined') return;
+                new TradingView.widget({
+                    "autosize": true,
+                    "symbol": tvSymbol,
+                    "interval": "D",
+                    "timezone": "Asia/Kolkata",
+                    "theme": "light",
+                    "style": "1",
+                    "locale": "in",
+                    "toolbar_bg": "#f8fafc",
+                    "enable_publishing": false,
+                    "withdateranges": true,
+                    "hide_side_toolbar": false,
+                    "allow_symbol_change": true,
+                    "save_image": true,
+                    "container_id": widgetId
+                });
+            }
+
+            if (typeof TradingView !== 'undefined') {
+                createWidget();
+            } else {
+                const tvScript = document.createElement('script');
+                tvScript.src = 'https://s3.tradingview.com/tv.js';
+                tvScript.onload = createWidget;
+                document.head.appendChild(tvScript);
+            }
+        }
+
+        // ==========================================================
+        // PEER STOCKS CAROUSEL (Current Index)
+        // ==========================================================
+        function renderPeerStocksCarousel() {
+            const container = document.getElementById('peersScrollContainer');
+            const titleEl = document.getElementById('peersTitleHeading');
+            if (titleEl) titleEl.innerText = `Constituent Stocks in ${currentIndexKey}`;
+            if (!container || !allIndicesData) return;
+
+            const idxObj = allIndicesData.indices[currentIndexKey];
+            if (!idxObj || !idxObj.stocks) {
+                container.innerHTML = `<span style="font-size: 12px; color: #94a3b8;">No peer stocks available</span>`;
+                return;
+            }
+
+            const peers = idxObj.stocks;
+            container.innerHTML = peers.map(s => {
+                const isActive = s.symbol === currentSymbol;
+                const numPchg = parseFloat(s.percentChange) || 0;
+                const sign = numPchg > 0 ? '+' : '';
+                const pchgColor = numPchg > 0 ? '#15803d' : (numPchg < 0 ? '#b91c1c' : '#64748b');
+
+                return `
+                    <div class="peer-stock-pill ${isActive ? 'active' : ''}" onclick="loadStock('${s.symbol}', true)">
+                        <div class="peer-sym">${s.symbol}</div>
+                        <div class="peer-price-row">
+                            <span class="peer-ltp">${formatPrice(s.ltp)}</span>
+                            <span class="peer-pchg" style="color: ${pchgColor};">${sign}${numPchg.toFixed(2)}%</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==========================================================
+        // LIVE AUTO-REFRESH & USER ACTIONS
+        // ==========================================================
+        function toggleLiveAutoRefresh() {
+            isAutoRefreshActive = !isAutoRefreshActive;
+            const btn = document.getElementById('btnLiveAutoToggle');
+            const txt = document.getElementById('liveAutoText');
+            if (isAutoRefreshActive) {
+                btn.classList.add('active');
+                txt.innerText = 'Auto: ON';
+                startAutoRefreshLoop();
+            } else {
+                btn.classList.remove('active');
+                txt.innerText = 'Auto: OFF';
+                if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+            }
+        }
+
+        function startAutoRefreshLoop() {
+            if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+            autoRefreshTimer = setInterval(() => {
+                if (isAutoRefreshActive && currentStockObj && currentStockObj.mcScId) {
+                    fetchMoneycontrolStockFeed(currentStockObj.mcScId, currentSymbol);
+                }
+            }, 6000);
+        }
+
+        function manualRefreshLiveStock() {
+            const btn = document.getElementById('btnRefreshManual');
+            btn.innerHTML = '<span>⏳</span><span>Refreshing...</span>';
+            if (currentStockObj && currentStockObj.mcScId) {
+                fetchMoneycontrolStockFeed(currentStockObj.mcScId, currentSymbol).finally(() => {
+                    setTimeout(() => {
+                        btn.innerHTML = '<span>🔄</span><span>Refresh</span>';
+                    }, 500);
+                });
+            } else {
+                btn.innerHTML = '<span>🔄</span><span>Refresh</span>';
+            }
+        }
+
+        // Handle Browser Back / Forward
+        window.addEventListener('popstate', (e) => {
+            if (e.state && e.state.symbol) {
+                loadStock(e.state.symbol, false);
+            }
+        });
+
+        // DOM Ready
+        document.addEventListener('DOMContentLoaded', () => {
+            initPage();
+        });
+    </script>
+</body>
+
+</html>

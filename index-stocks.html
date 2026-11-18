@@ -124,6 +124,51 @@
             transform: translateY(-1px);
         }
 
+        .btn-stock-detail-nav {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-stock-detail-nav:hover {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #0284c7;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
+        }
+
+        .stock-row-clickable {
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+        }
+
+        .stock-row-clickable:hover {
+            background-color: #f0f7ff !important;
+        }
+
+        .stock-symbol-link {
+            color: #0284c7;
+            text-decoration: none;
+            font-weight: 750;
+            display: inline-block;
+            transition: color 0.15s;
+        }
+
+        .stock-symbol-link:hover {
+            color: #0369a1;
+            text-decoration: underline;
+        }
+
         /* ACTIVE INDEX HERO CARD */
         .index-hero-card {
             background: #ffffff;
@@ -626,6 +671,7 @@
             <li class="menu-item"><a href="indices.html">📈 <span>Live Indices</span></a></li>
             <li class="menu-item"><a href="indices-history.html">📅 <span>Indices History</span></a></li>
             <li class="menu-item"><a href="index-stocks.html" class="active">🏢 <span>Index Stocks</span></a></li>
+            <li class="menu-item"><a href="stock-detail.html">📊 <span>Stock Analysis</span></a></li>
             <li class="menu-item"><a href="fii-dii-activity.html">📊 <span>FII/DII Activity</span></a></li>
 
             <!-- Category 3: Account & Website Pages -->
@@ -674,6 +720,11 @@
                 </h1>
 
                 <div class="header-action-group">
+                    <a href="stock-detail.html" class="btn-stock-detail-nav" title="Open Complete Stock Bifurcation & Technical Chart">
+                        <span>📊</span>
+                        <span>Stock Analysis & Charts ↗</span>
+                    </a>
+
                     <button type="button" class="btn-live-toggle active" id="btnLiveToggle" onclick="toggleAutoRefresh()" title="Toggle live auto updates">
                         <span>⚡</span>
                         <span id="liveToggleText">Auto-Refresh: ON</span>
@@ -825,6 +876,9 @@
                 </table>
             </div>
         </div>
+
+        <!-- Page Views Counter Widget -->
+        <div class="page-views-wrapper" id="pageViewsContainer"></div>
 
     </main>
 
@@ -1973,10 +2027,10 @@
                 }
 
                 html += `
-                    <tr id="${rowId}" data-scid="${stock.mcScId || ''}">
+                    <tr id="${rowId}" data-scid="${stock.mcScId || ''}" class="stock-row-clickable" onclick="navigateToStockDetail('${stock.symbol}', '${stock.mcScId || ''}')" title="Click to view full bifurcation & technical chart for ${stock.name || stock.symbol}">
                         <td class="td-name">
                             <div class="stock-name-flex">
-                                <span class="stock-symbol-text" id="sym_${rowId}">${stock.symbol}</span>
+                                <a href="stock-detail.html?symbol=${encodeURIComponent(stock.symbol)}&scId=${encodeURIComponent(stock.mcScId || '')}&index=${encodeURIComponent(activeIndexKey)}" class="stock-symbol-text stock-symbol-link" onclick="event.stopPropagation();">${stock.symbol}</a>
                                 <span class="stock-full-name">${stock.name || stock.symbol}</span>
                             </div>
                         </td>
@@ -1999,6 +2053,12 @@
             });
 
             tbody.innerHTML = html;
+        }
+
+        function navigateToStockDetail(symbol, scId) {
+            if (!symbol) return;
+            const targetUrl = `stock-detail.html?symbol=${encodeURIComponent(symbol)}&scId=${encodeURIComponent(scId || '')}&index=${encodeURIComponent(activeIndexKey || 'NIFTY 50')}`;
+            window.location.href = targetUrl;
         }
 
         function toggleAutoRefresh() {

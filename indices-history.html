@@ -886,12 +886,48 @@
             return vol.toLocaleString('en-IN');
         }
 
+        const LOCAL_HISTORY_CACHE_KEY = 'live_ipo_indices_history_cache_v2';
+
+        function mergeLocalHistoryCache() {
+            try {
+                const raw = localStorage.getItem(LOCAL_HISTORY_CACHE_KEY);
+                if (!raw) return;
+                const cached = JSON.parse(raw);
+                if (!cached || typeof cached !== 'object') return;
+
+                historyData = historyData || { dates: [], dailySnapshots: {} };
+                historyData.dailySnapshots = historyData.dailySnapshots || {};
+                historyData.dates = historyData.dates || [];
+
+                for (const dt in cached) {
+                    if (Array.isArray(cached[dt]) && cached[dt].length > 0) {
+                        if (!historyData.dailySnapshots[dt]) {
+                            historyData.dailySnapshots[dt] = cached[dt];
+                        }
+                        if (!historyData.dates.includes(dt)) {
+                            historyData.dates.push(dt);
+                        }
+                    }
+                }
+
+                historyData.dates.sort((a, b) => {
+                    const [d1, m1, y1] = a.split('-').map(Number);
+                    const [d2, m2, y2] = b.split('-').map(Number);
+                    return new Date(y2, m2 - 1, d2).getTime() - new Date(y1, m1 - 1, d1).getTime();
+                });
+                availableDates = historyData.dates;
+            } catch (_) {}
+        }
+
         async function loadHistoryData() {
             try {
                 const res = await fetch(`indices-history-data.json?t=${Date.now()}`);
                 if (!res.ok) throw new Error('History data not found');
                 historyData = await res.json();
                 availableDates = historyData.dates || [];
+
+                // Merge any locally recorded daily snapshots
+                mergeLocalHistoryCache();
 
                 populateDateDropdown();
                 populateIndexDropdown();
@@ -918,11 +954,20 @@
 
             } catch (err) {
                 console.error('Error loading history data:', err);
-                document.getElementById('historyTableBody').innerHTML = `
-                    <tr><td colspan="10" style="text-align: center; padding: 32px; color: #dc2626;">
-                        ⚠️ Could not load historical indices data. Please try refreshing.
-                    </td></tr>
-                `;
+                // Even if fetch fails, attempt to load from local persistent cache
+                mergeLocalHistoryCache();
+                if (availableDates.length > 0) {
+                    populateDateDropdown();
+                    populateIndexDropdown();
+                    selectedDate = availableDates[0];
+                    renderView();
+                } else {
+                    document.getElementById('historyTableBody').innerHTML = `
+                        <tr><td colspan="10" style="text-align: center; padding: 32px; color: #dc2626;">
+                            ⚠️ Could not load historical indices data. Please try refreshing.
+                        </td></tr>
+                    `;
+                }
             }
         }
 
@@ -1082,6 +1127,15 @@
                         historyData.dates = availableDates;
                         selectedDate = todayKey;
                     }
+
+                    // Save snapshot into browser persistent storage
+                    try {
+                        let cache = {};
+                        const raw = localStorage.getItem(LOCAL_HISTORY_CACHE_KEY);
+                        if (raw) cache = JSON.parse(raw) || {};
+                        cache[todayKey] = liveIndices;
+                        localStorage.setItem(LOCAL_HISTORY_CACHE_KEY, JSON.stringify(cache));
+                    } catch (_) {}
 
                     populateDateDropdown();
                     populateIndexDropdown();

@@ -2,9 +2,9 @@ name: Auto Sync IPO Subscription
 
 on:
   schedule:
-    # દર ૩૦ મિનિટે આ ઓટોમેટિક રન થશે
-    - cron: '*/5 * * * *'
-  workflow_dispatch: # મેન્યુઅલ રન કરવા માટેનું બટન પણ આપશે
+    # Runs automatically every 30 minutes to update IPOs and daily market indices
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
     inputs:
       target_ipo_id:
         description: 'Optional single IPO ID for fast instant sync'
@@ -17,12 +17,21 @@ on:
         default: 'all'
         type: string
 
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-cron
+  cancel-in-progress: false
+
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -43,4 +52,16 @@ jobs:
             node sync-cron.js --once --ipos-only
           else
             node sync-cron.js --once
+          fi
+
+      - name: Commit and push updated market and IPO data
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add indices-data.json indices-history-data.json index-stocks-data.json fii-dii-data.json fii-dii-fno-data.json ipo-data.json
+          if git diff --staged --quiet; then
+            echo "✓ No data changes to commit. Everything up to date."
+          else
+            git commit -m "Auto sync daily market data [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+            git push origin main
           fi

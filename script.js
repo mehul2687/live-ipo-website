@@ -646,7 +646,18 @@ async function loadDynamicIpoDetails() {
     if (logoWrap) {
         const logoVal = ipo.logo ? ipo.logo.trim() : '';
         if (logoVal.startsWith("http://") || logoVal.startsWith("https://") || logoVal.startsWith("data:image/")) {
-            logoWrap.innerHTML = `<img src="${logoVal}" alt="Logo">`;
+            logoWrap.innerHTML = `<img src="${logoVal}" alt="Logo" crossorigin="anonymous">`;
+            if (logoVal.startsWith("data:image/")) {
+                window.__currentIpoLogoBase64 = logoVal;
+            } else if (logoVal.startsWith("http")) {
+                convertImageUrlToBase64(logoVal).then(b64 => {
+                    if (b64) {
+                        window.__currentIpoLogoBase64 = b64;
+                        const img = logoWrap.querySelector('img');
+                        if (img) img.src = b64;
+                    }
+                }).catch(() => {});
+            }
         } else {
             logoWrap.innerText = logoVal || ipo.id || "IPO";
         }
@@ -1328,14 +1339,76 @@ async function initLiveIpoPriceTracker(ipo, issuePrice) {
 }
 
 // ==========================================
-// 7. IMAGE SHARING UTILITIES (html2canvas)
+// 7. IMAGE SHARING UTILITIES (html2canvas & Base64 Proxy)
 // ==========================================
+window.__ipoLogoBase64Cache = window.__ipoLogoBase64Cache || {};
+
+async function convertImageUrlToBase64(url) {
+    if (!url || typeof url !== 'string') return null;
+    if (url.startsWith('data:image/')) return url;
+    if (window.__ipoLogoBase64Cache[url]) return window.__ipoLogoBase64Cache[url];
+
+    const blobToDataUrl = (blob) => new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+    });
+
+    // 1. Direct fetch with CORS mode
+    try {
+        const res = await fetch(url, { mode: 'cors' });
+        if (res.ok) {
+            const blob = await res.blob();
+            const b64 = await blobToDataUrl(blob);
+            if (b64 && b64.startsWith('data:image/')) {
+                window.__ipoLogoBase64Cache[url] = b64;
+                return b64;
+            }
+        }
+    } catch (_) {}
+
+    // 2. High-speed weserv CORS proxy
+    try {
+        const proxyUrl = `https://images.weserv.nl/?url=${encodeURIComponent(url)}`;
+        const res = await fetch(proxyUrl);
+        if (res.ok) {
+            const blob = await res.blob();
+            const b64 = await blobToDataUrl(blob);
+            if (b64 && b64.startsWith('data:image/')) {
+                window.__ipoLogoBase64Cache[url] = b64;
+                return b64;
+            }
+        }
+    } catch (_) {}
+
+    // 3. Allorigins CORS proxy fallback
+    try {
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+        const res = await fetch(proxyUrl);
+        if (res.ok) {
+            const blob = await res.blob();
+            const b64 = await blobToDataUrl(blob);
+            if (b64 && b64.startsWith('data:image/')) {
+                window.__ipoLogoBase64Cache[url] = b64;
+                return b64;
+            }
+        }
+    } catch (_) {}
+
+    return null;
+}
+
 async function shareSectionAsImage(sectionId, fileNamePrefix) {
     const sectionEl = document.getElementById(sectionId);
     if (!sectionEl) return;
 
     const shareBtn = sectionEl.querySelector('.btn-share');
-    if (shareBtn) shareBtn.style.display = 'none';
+    const originalBtnText = shareBtn ? shareBtn.innerText : '';
+    if (shareBtn) {
+        shareBtn.innerText = '⏳ Generating HD...';
+        shareBtn.disabled = true;
+    }
 
     // Hide any existing static footer
     const existingFooters = sectionEl.querySelectorAll('.export-brand-footer');
@@ -1411,18 +1484,78 @@ async function shareSectionAsImage(sectionId, fileNamePrefix) {
     sectionEl.insertBefore(exportHeader, sectionEl.firstChild);
     sectionEl.appendChild(exportFooter);
 
+    // Ensure all images (including IPO Logo) are converted to Base64 so html2canvas renders them without CORS blanks
+    const allImgs = Array.from(sectionEl.querySelectorAll('img'));
+    await Promise.all(allImgs.map(async (img) => {
+        if (img.src && (img.src.startsWith('http://') || img.src.startsWith('https://'))) {
+            try {
+                const b64 = await convertImageUrlToBase64(img.src);
+                if (b64) {
+                    img.setAttribute('data-original-src', img.src);
+                    img.src = b64;
+                }
+            } catch (_) {}
+        }
+    }));
+
+    // Wait for all images in the section to be fully ready
+    await Promise.all(allImgs.map(img => {
+        if (img.complete) return Promise.resolve();
+        return new Promise(resolve => {
+            img.onload = resolve;
+            img.onerror = resolve;
+            setTimeout(resolve, 1500);
+        });
+    }));
+
     try {
+        // Ultra-HD 3x resolution scale for pin-sharp, crisp, and non-blurry output
         const canvas = await html2canvas(sectionEl, {
-            scale: 2,
+            scale: 3,
             backgroundColor: '#ffffff',
             useCORS: true,
-            logging: false
+            allowTaint: false,
+            imageTimeout: 15000,
+            logging: false,
+            onclone: (clonedDoc, clonedEl) => {
+                const cloneBtns = clonedEl.querySelectorAll('.btn-share');
+                cloneBtns.forEach(b => b.style.display = 'none');
+
+                clonedEl.style.webkitFontSmoothing = 'antialiased';
+                clonedEl.style.mozOsxFontSmoothing = 'grayscale';
+                clonedEl.style.textRendering = 'geometricPrecision';
+
+                const clonedLogoWrap = clonedEl.querySelector('#d_logo_wrap');
+                if (clonedLogoWrap) {
+                    const clonedImg = clonedLogoWrap.querySelector('img');
+                    if (clonedImg && window.__currentIpoLogoBase64) {
+                        clonedImg.src = window.__currentIpoLogoBase64;
+                        clonedImg.style.width = '100%';
+                        clonedImg.style.height = '100%';
+                        clonedImg.style.objectFit = 'contain';
+                        clonedImg.style.display = 'block';
+                    }
+                }
+            }
         });
 
         // Clean up temporary DOM elements
         exportHeader.remove();
         exportFooter.remove();
-        if (shareBtn) shareBtn.style.display = '';
+        if (shareBtn) {
+            shareBtn.innerText = originalBtnText;
+            shareBtn.disabled = false;
+            shareBtn.style.display = '';
+        }
+
+        // Restore original image sources if replaced
+        allImgs.forEach(img => {
+            const orig = img.getAttribute('data-original-src');
+            if (orig) {
+                img.src = orig;
+                img.removeAttribute('data-original-src');
+            }
+        });
 
         canvas.toBlob(async (blob) => {
             if (!blob) return;
@@ -1444,14 +1577,24 @@ async function shareSectionAsImage(sectionId, fileNamePrefix) {
                 }
             } else {
                 downloadImageBlob(blob, fileName);
-                alert('✓ Image downloaded successfully!');
             }
         }, 'image/png');
     } catch (error) {
         console.error('Error generating image:', error);
         exportHeader.remove();
         exportFooter.remove();
-        if (shareBtn) shareBtn.style.display = '';
+        if (shareBtn) {
+            shareBtn.innerText = originalBtnText;
+            shareBtn.disabled = false;
+            shareBtn.style.display = '';
+        }
+        allImgs.forEach(img => {
+            const orig = img.getAttribute('data-original-src');
+            if (orig) {
+                img.src = orig;
+                img.removeAttribute('data-original-src');
+            }
+        });
     }
 }
 

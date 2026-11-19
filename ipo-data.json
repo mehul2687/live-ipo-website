@@ -3854,38 +3854,38 @@
     "subShares": [
       {
         "cat": "QIB",
-        "off": 0,
-        "app": 0
+        "off": 112512173,
+        "app": 142113620
       },
       {
         "cat": "NII",
-        "off": 0,
-        "app": 0
+        "off": 84384129,
+        "app": 6699220
       },
       {
         "cat": "B-NII(₹10L+)",
-        "off": 0,
-        "app": 0
+        "off": 56256086,
+        "app": 3072960
       },
       {
         "cat": "S-NII(₹2-10L)",
-        "off": 0,
-        "app": 0
+        "off": 28128043,
+        "app": 3626260
       },
       {
         "cat": "Retail",
-        "off": 0,
-        "app": 0
+        "off": 196896299,
+        "app": 27784020
       },
       {
         "cat": "Employee",
-        "off": 0,
-        "app": 0
+        "off": 33091815,
+        "app": 1759450
       },
       {
         "cat": "Shareholder",
-        "off": 0,
-        "app": 0
+        "off": 66183630,
+        "app": 9967320
       }
     ],
     "subApps": [

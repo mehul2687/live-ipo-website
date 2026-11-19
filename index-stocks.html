@@ -13,13 +13,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <!-- External CSS Link -->
-    <link rel="stylesheet" href="style.css?v=2026.11.18.1">
+    <link rel="stylesheet" href="style.css?v=2026.11.19.1">
 
     <!-- Google Identity Services (Google Sign-In) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <!-- Global JavaScript Link -->
-    <script src="script.js?v=2026.11.18.1"></script>
+    <script src="script.js?v=2026.11.19.1"></script>
 
     <style>
         /* ==========================================================
@@ -1207,7 +1207,7 @@
                     if (master[first2]) return master[first2];
                 }
                 for (const [k, v] of Object.entries(master)) {
-                    if (k.length >= 6 && (cleanRaw.startsWith(k) || k.startsWith(cleanRaw))) {
+                    if (k.length >= 6 && cleanRaw.length >= 6 && (cleanRaw.startsWith(k + ' ') || k.startsWith(cleanRaw + ' '))) {
                         return v;
                     }
                 }

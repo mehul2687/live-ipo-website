@@ -68,7 +68,7 @@ export function resolveStockIdentity(rawName, master = stockMaster) {
             if (master[first2]) return master[first2];
         }
         for (const [k, v] of Object.entries(master)) {
-            if (k.length >= 6 && (cleanRaw.startsWith(k) || k.startsWith(cleanRaw))) {
+            if (k.length >= 6 && cleanRaw.length >= 6 && (cleanRaw.startsWith(k + ' ') || k.startsWith(cleanRaw + ' '))) {
                 return v;
             }
         }

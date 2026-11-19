@@ -97,17 +97,17 @@
   "SBIN": {
     "symbol": "SBIN",
     "name": "State Bank of India",
-    "sector": "Financial Services"
+    "sector": "Banks - Public Sector"
   },
   "STATE BANK OF INDIA": {
     "symbol": "SBIN",
     "name": "State Bank of India",
-    "sector": "Financial Services"
+    "sector": "Banks - Public Sector"
   },
   "STATE BANK": {
     "symbol": "SBIN",
     "name": "State Bank of India",
-    "sector": "Financial Services"
+    "sector": "Banks - Public Sector"
   },
   "LT": {
     "symbol": "LT",
@@ -1942,7 +1942,7 @@
   "ABREL": {
     "symbol": "ABREL",
     "name": "Aditya Birla Real Estate Ltd.",
-    "sector": "Realty"
+    "sector": "Construction - Real Estate"
   },
   "ADITYA BIRLA REAL ESTATE LTD": {
     "symbol": "ABREL",
@@ -4082,7 +4082,7 @@
   "MSUMI": {
     "symbol": "MSUMI",
     "name": "Motherson Sumi Wiring India Ltd.",
-    "sector": "Automobile and Auto Components"
+    "sector": "Auto Ancillaries"
   },
   "MOTHERSON SUMI WIRING INDIA LTD": {
     "symbol": "MSUMI",
@@ -4147,7 +4147,7 @@
   "NMDC STEEL": {
     "symbol": "NSLNISP",
     "name": "NMDC Steel Ltd.",
-    "sector": "Metals & Mining"
+    "sector": "Iron & Steel"
   },
   "NAVA": {
     "symbol": "NAVA",
@@ -4647,7 +4647,7 @@
   "SAILIFE": {
     "symbol": "SAILIFE",
     "name": "Sai Life Sciences Ltd.",
-    "sector": "Healthcare"
+    "sector": "Pharmaceuticals & Drugs"
   },
   "SAI LIFE SCIENCES LTD": {
     "symbol": "SAILIFE",
@@ -5403,5 +5403,140 @@
     "symbol": "ZYDUSWELL",
     "name": "Zydus Wellness Ltd.",
     "sector": "Fast Moving Consumer Goods"
+  },
+  "SBI": {
+    "symbol": "SBIN",
+    "name": "State Bank of India",
+    "sector": "Banks - Public Sector"
+  },
+  "BOI": {
+    "symbol": "BANKINDIA",
+    "name": "Bank of India",
+    "sector": "Banks - Public Sector"
+  },
+  "BANK OF INDIA": {
+    "symbol": "BANKINDIA",
+    "name": "Bank of India",
+    "sector": "Banks - Public Sector"
+  },
+  "BANKINDIA": {
+    "symbol": "BANKINDIA",
+    "name": "Bank of India",
+    "sector": "Banks - Public Sector"
+  },
+  "BM05": {
+    "symbol": "MAHABANK",
+    "name": "Bank of Maharashtra",
+    "sector": "Banks - Public Sector"
+  },
+  "BANK OF MAHARASHTRA": {
+    "symbol": "MAHABANK",
+    "name": "Bank of Maharashtra",
+    "sector": "Banks - Public Sector"
+  },
+  "MAHABANK": {
+    "symbol": "MAHABANK",
+    "name": "Bank of Maharashtra",
+    "sector": "Banks - Public Sector"
+  },
+  "SEI11": {
+    "symbol": "ENRIN",
+    "name": "Siemens Energy India Ltd.",
+    "sector": "Electric Equipment"
+  },
+  "SIEMENS ENERGY": {
+    "symbol": "ENRIN",
+    "name": "Siemens Energy India Ltd.",
+    "sector": "Electric Equipment"
+  },
+  "SIEMENS ENERGY INDIA": {
+    "symbol": "ENRIN",
+    "name": "Siemens Energy India Ltd.",
+    "sector": "Electric Equipment"
+  },
+  "ENRIN": {
+    "symbol": "ENRIN",
+    "name": "Siemens Energy India Ltd.",
+    "sector": "Electric Equipment"
+  },
+  "PFR": {
+    "symbol": "ABFRL",
+    "name": "Aditya Birla Fashion and Retail Ltd.",
+    "sector": "Retail"
+  },
+  "ADITYA BIRLA FASHION": {
+    "symbol": "ABFRL",
+    "name": "Aditya Birla Fashion and Retail Ltd.",
+    "sector": "Retail"
+  },
+  "ABFRL": {
+    "symbol": "ABFRL",
+    "name": "Aditya Birla Fashion and Retail Ltd.",
+    "sector": "Retail"
+  },
+  "CTI": {
+    "symbol": "ABREL",
+    "name": "Aditya Birla Real Estate Ltd.",
+    "sector": "Construction - Real Estate"
+  },
+  "ADITYA BIRLA REAL ESTATE": {
+    "symbol": "ABREL",
+    "name": "Aditya Birla Real Estate Ltd.",
+    "sector": "Construction - Real Estate"
+  },
+  "MSW": {
+    "symbol": "MSUMI",
+    "name": "Motherson Sumi Wiring India Ltd.",
+    "sector": "Auto Ancillaries"
+  },
+  "MOTHERSON SUMI WIRING": {
+    "symbol": "MSUMI",
+    "name": "Motherson Sumi Wiring India Ltd.",
+    "sector": "Auto Ancillaries"
+  },
+  "MSS01": {
+    "symbol": "MOTHERSON",
+    "name": "Samvardhana Motherson International Ltd.",
+    "sector": "Auto Ancillaries"
+  },
+  "SAI": {
+    "symbol": "SAIL",
+    "name": "Steel Authority of India Ltd.",
+    "sector": "Steel - Large"
+  },
+  "STEEL AUTHORITY OF INDIA": {
+    "symbol": "SAIL",
+    "name": "Steel Authority of India Ltd.",
+    "sector": "Steel - Large"
+  },
+  "SAIL": {
+    "symbol": "SAIL",
+    "name": "Steel Authority of India Ltd.",
+    "sector": "Steel - Large"
+  },
+  "SLS02": {
+    "symbol": "SAILIFE",
+    "name": "Sai Life Sciences Ltd.",
+    "sector": "Pharmaceuticals & Drugs"
+  },
+  "SAI LIFE SCIENCES": {
+    "symbol": "SAILIFE",
+    "name": "Sai Life Sciences Ltd.",
+    "sector": "Pharmaceuticals & Drugs"
+  },
+  "NMD01": {
+    "symbol": "NMDC",
+    "name": "NMDC Ltd.",
+    "sector": "Mining & Minerals"
+  },
+  "NMDC": {
+    "symbol": "NMDC",
+    "name": "NMDC Ltd.",
+    "sector": "Mining & Minerals"
+  },
+  "NS16": {
+    "symbol": "NSLNISP",
+    "name": "NMDC Steel Ltd.",
+    "sector": "Iron & Steel"
   }
 }

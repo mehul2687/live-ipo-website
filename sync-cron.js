@@ -1,6 +1,7 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 import dns from "dns";
+import fs from "fs";
 import { fetchAndSaveFiiDiiData } from "./scrape_fii_dii.mjs";
 import { fetchAndSaveFnoData } from "./scrape_fii_fno.mjs";
 import { scrapeIndices } from "./scrape_indices.mjs";
@@ -949,13 +950,43 @@ async function syncAllIposFromChittorgarh(targetIpoId = '') {
         const istTodayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 
         if (targetIpoId) {
-            const matchedKey = Object.keys(dbData).find(k => k.toUpperCase() === targetIpoId.toUpperCase());
+            let matchedKey = Object.keys(dbData).find(k => k.toUpperCase() === targetIpoId.toUpperCase());
+
+            // 1. Prefix initials match (e.g. 'CCP' matches 'CCP285' or 'CCP205')
             if (!matchedKey) {
-                console.warn(`⚠️ Target IPO ID "${targetIpoId}" not found in JSONBin.`);
-                return;
+                const prefix = targetIpoId.replace(/\d+$/, '').toUpperCase();
+                if (prefix && prefix.length >= 2) {
+                    matchedKey = Object.keys(dbData).find(k => k.toUpperCase().startsWith(prefix));
+                }
             }
-            console.log(`🎯 Fast Single-IPO Sync mode for: ${matchedKey}`);
-            updated = await syncSingleIpoRecord(dbData[matchedKey], istTodayStr);
+
+            // 2. Chittorgarh URL match
+            if (!matchedKey) {
+                matchedKey = Object.keys(dbData).find(k => {
+                    const u = (dbData[k].chittorgarhKey || dbData[k].chittorgarh_key || '').toLowerCase();
+                    return u.includes(targetIpoId.toLowerCase());
+                });
+            }
+
+            // 3. Name match
+            if (!matchedKey) {
+                matchedKey = Object.keys(dbData).find(k => {
+                    const n = (dbData[k].name || '').toLowerCase();
+                    return n.includes(targetIpoId.toLowerCase());
+                });
+            }
+
+            if (matchedKey) {
+                console.log(`🎯 Fast Single-IPO Sync mode for: ${matchedKey} (requested: ${targetIpoId})`);
+                updated = await syncSingleIpoRecord(dbData[matchedKey], istTodayStr);
+            } else {
+                console.warn(`⚠️ Target IPO ID "${targetIpoId}" not directly found in JSONBin. Auto-syncing active IPOs as fallback...`);
+                const activeIds = Object.keys(dbData).filter(id => !isIpoHistoricalComplete(dbData[id], istTodayStr));
+                for (const id of activeIds) {
+                    const r = await syncSingleIpoRecord(dbData[id], istTodayStr);
+                    if (r) updated = true;
+                }
+            }
         } else {
             const allIds = Object.keys(dbData).filter(id => !isIpoHistoricalComplete(dbData[id], istTodayStr));
             console.log(`📋 Syncing ${allIds.length}/${Object.keys(dbData).length} active or incomplete IPO(s) in batches of 5...`);
@@ -964,6 +995,14 @@ async function syncAllIposFromChittorgarh(targetIpoId = '') {
                 const results = await Promise.all(batch.map(id => syncSingleIpoRecord(dbData[id], istTodayStr)));
                 if (results.some(Boolean)) updated = true;
             }
+        }
+
+        // Always save ipo-data.json locally so the repo has up-to-date data and git add never fails
+        try {
+            fs.writeFileSync('ipo-data.json', JSON.stringify(dbData, null, 2), 'utf8');
+            console.log("💾 Saved updated ipo-data.json locally.");
+        } catch (e) {
+            console.warn("Could not write local ipo-data.json:", e.message);
         }
 
         if (updated) {

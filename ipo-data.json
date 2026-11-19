@@ -1,0 +1,4283 @@
+{
+  "MD592": {
+    "id": "MD592",
+    "name": "Moneyview IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/moneyview-ipo-logo.jpg",
+    "type": "Mainboard",
+    "about": "Moneyview IPO is a book build issue of ₹1,091.68 crores. The issue is a combination of fresh issue of 22.06 crore shares aggregating to ₹750.00 crores and offer for sale of 10.05 crore shares aggregating to ₹341.68 crores.\n\nMoneyview IPO bidding started from Sep 24, 2026 and ended on Sep 28, 2026. The allotment for Moneyview IPO was finalized on Sep 29, 2026. The shares got listed on NSE and BSE on Oct 1, 2026.\n\nMoneyview IPO is set final issue price at ₹34 per share. The lot size for an application is 441 shares. The minimum amount of investment required by an individual investor (retail) is ₹14,994 (441 shares) (based on upper price).",
+    "priceBand": "32 to 34",
+    "cutOff": 34,
+    "lotRaw": 441,
+    "lotSize": "441 Shares",
+    "faceValue": "₹1 per share",
+    "empDiscount": "Nil",
+    "totalSize": "32₹0,82,435 shares (agg. up to ₹1,091.68 Cr)",
+    "freshIssue": "22,05,88,235 shares (agg. up to ₹750.00 Cr)",
+    "ofs": "10,04,94,200 shares of ₹1 (agg. up to ₹341.68 Cr)",
+    "listingAt": "BSE, NSE",
+    "openDate": "2026-09-24",
+    "closeDate": "2026-09-28",
+    "allotmentDate": "2026-09-29",
+    "listingDate": "2026-10-01",
+    "gmp": "20",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo_subscription/moneyview-ipo/2936/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://kosmic.kfintech.com/ipostatus/",
+    "valuation": {
+      "eps": "₹15.00",
+      "pe": "35.00x",
+      "ronw": "20.00%",
+      "nav": "₹50.00",
+      "ebitdaMargin": "15.00%",
+      "patMargin": "8.00%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 218.34,
+        "app": 20
+      },
+      {
+        "cat": "NII",
+        "off": 163.75,
+        "app": 15
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 109.17,
+        "app": 10
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 54.58,
+        "app": 5
+      },
+      {
+        "cat": "Retail",
+        "off": 382.09,
+        "app": 35
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 14
+      },
+      {
+        "app": "Big HNI",
+        "lot": 67
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "3,519.50",
+        "rev": "1,389.24",
+        "exp": "-",
+        "prf": "171.15"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "5,632.42",
+        "rev": "2,378.53",
+        "exp": "-",
+        "prf": "240.28"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "8,104.85",
+        "rev": "3,404.27",
+        "exp": "-",
+        "prf": "242.71"
+      },
+      "jun26": {
+        "yr": "30 Jun 2025",
+        "ast": "6,404.82",
+        "rev": "702.92",
+        "exp": "-",
+        "prf": "67.15"
+      }
+    },
+    "bseCode": "544953",
+    "nseCode": "MONEYVIEW",
+    "isinCode": "INE0PTN01011",
+    "listingPriceBse": 55.61,
+    "listingPriceNse": 55,
+    "mcScId": "ML17"
+  },
+  "HFP931": {
+    "id": "HFP931",
+    "name": "HD Fire Protect IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/hd-fire-ipo-logo.png",
+    "type": "Mainboard",
+    "about": "HD Fire Protect Limited began its journey in 1990 with the establishment of H.D. Fire Protect Co. What started as a modest setup evolved to meet the growing demands of the fire protection industry. The business was subsequently incorporated as D.H. Fire Protect Pvt. Ltd., and with continued growth and strategic vision, operations were consolidated under HD Fire Protect Pvt. Ltd. Most recently, the company transitioned into HD Fire Protect Limited, marking a new era as a professionally structured entity.",
+    "priceBand": "258 to 271",
+    "cutOff": 271,
+    "lotRaw": 55,
+    "lotSize": "55 Shares",
+    "faceValue": "₹5 per share",
+    "empDiscount": "25",
+    "totalSize": "2,62,84,500 shares (agg. up to ₹712.13 Cr)",
+    "freshIssue": "-",
+    "ofs": "2,62,84,500 shares of ₹5 (agg. up to ₹712.13 Cr)",
+    "listingAt": "BSE, NSE",
+    "openDate": "2026-10-13",
+    "closeDate": "2026-10-15",
+    "allotmentDate": "2026-10-16",
+    "listingDate": "2026-10-21",
+    "gmp": "75",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/hd-fire-protect-ipo/2628/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://kosmic.kfintech.com/ipostatus/",
+    "valuation": {
+      "eps": "₹15.00",
+      "pe": "35.00x",
+      "ronw": "20.00%",
+      "nav": "₹50.00",
+      "ebitdaMargin": "15.00%",
+      "patMargin": "8.00%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 5242673,
+        "app": 1345542605
+      },
+      {
+        "cat": "NII",
+        "off": 3932004,
+        "app": 799003480
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 2621336,
+        "app": 619076590
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 1310668,
+        "app": 179926890
+      },
+      {
+        "cat": "Retail",
+        "off": 9174677,
+        "app": 280331260
+      },
+      {
+        "cat": "Employee",
+        "off": 71138,
+        "app": 1679755
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 14
+      },
+      {
+        "app": "Big HNI",
+        "lot": 68
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "392.63",
+        "rev": "392.02",
+        "exp": "-",
+        "prf": "87.92"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "450.08",
+        "rev": "450.68",
+        "exp": "-",
+        "prf": "109.72"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "432.03",
+        "rev": "505.12",
+        "exp": "-",
+        "prf": "116.79"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "477.60",
+        "rev": "114.07",
+        "exp": "-",
+        "prf": "23.87"
+      }
+    },
+    "bseCode": "544994",
+    "nseCode": "HDFIRE",
+    "isinCode": "INE18AK01028",
+    "listingPriceBse": 334.4,
+    "listingPriceNse": 335,
+    "mcScId": "HFP"
+  },
+  "FCD628": {
+    "id": "FCD628",
+    "name": "Fusion CX IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/fusion-cx-ipo-logo.png",
+    "type": "SME",
+    "about": "Fusion CX IPO is a book build issue of ₹702.00 crores. The issue is a combination of fresh issue of 1.73 crore shares aggregating to ₹500.00 crores and offer for sale of 69.90 lakh shares aggregating to ₹202.00 crores. Fusion CX IPO bidding opened for subscription on Oct 14, 2026 and will close on Oct 16, 2026. The allotment for the Fusion CX IPO is expected to be finalized on Oct 19, 2026. Fusion CX IPO will list on NSE and BSE with a tentative listing date fixed as Oct 22, 2026.\n\nFusion CX IPO is set issue price band at ₹275 to ₹289 per share. The lot size for an application is 51 shares. The minimum amount of investment required by an individual investor (retail) is ₹14,739 (51 shares) (based on upper price).",
+    "priceBand": "275 to 289",
+    "cutOff": 289,
+    "lotRaw": 51,
+    "lotSize": "51 Shares",
+    "faceValue": "₹1 per share",
+    "empDiscount": "0",
+    "totalSize": "2,42,90,656 shares (agg. up to ₹702.00 Cr)",
+    "freshIssue": "1,73,01,038 shares (agg. up to ₹500.00 Cr)",
+    "ofs": "69,89,618 shares of ₹1 (agg. up to ₹202.00 Cr)",
+    "listingAt": "BSE, NSE",
+    "openDate": "2026-10-14",
+    "closeDate": "2026-10-16",
+    "allotmentDate": "2026-10-19",
+    "listingDate": "2026-10-22",
+    "gmp": "33",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/fusion-cx-ipo/2455/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://linkintime.co.in/initial_offer/default.aspx",
+    "valuation": {
+      "eps": "₹15.00",
+      "pe": "35.00x",
+      "ronw": "20.00%",
+      "nav": "₹50.00",
+      "ebitdaMargin": "15.00%",
+      "patMargin": "8.00%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "75%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "10%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 7287197,
+        "app": 30688026
+      },
+      {
+        "cat": "NII",
+        "off": 3643598,
+        "app": 17234736
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 2429066,
+        "app": 11462913
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 1214533,
+        "app": 5771823
+      },
+      {
+        "cat": "Retail",
+        "off": 2429066,
+        "app": 14541273
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 14
+      },
+      {
+        "app": "Big HNI",
+        "lot": 68
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "768.02",
+        "rev": "1,021.53",
+        "exp": "-",
+        "prf": "36.26"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "1,143.25",
+        "rev": "1,352.03",
+        "exp": "-",
+        "prf": "74.31"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "1,385.15",
+        "rev": "1,851.83",
+        "exp": "-",
+        "prf": "169.84"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "1,367.85",
+        "rev": "503.85",
+        "exp": "-",
+        "prf": "55.70"
+      }
+    },
+    "bseCode": "544995",
+    "nseCode": "FUSIONCX",
+    "isinCode": "INE0N2201019",
+    "listingPriceBse": 292,
+    "listingPriceNse": 305,
+    "mcScId": "FCL01"
+  },
+  "JPD590": {
+    "id": "JPD590",
+    "name": "Jio Platforms IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/jio-platform-logo.png",
+    "type": "Mainboard",
+    "about": "te",
+    "priceBand": "1065 to 1119",
+    "cutOff": 1119,
+    "lotRaw": 12,
+    "lotSize": "12 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "₹54.00",
+    "totalSize": "27,00,00,000 shares (agg. up to ₹30₹87.65 Cr)",
+    "freshIssue": "27,00,00,000 shares (agg. up to ₹30₹87.65 Cr)",
+    "ofs": "N/A",
+    "listingAt": "BSE, NSE",
+    "openDate": "2026-10-21",
+    "closeDate": "2026-10-23",
+    "allotmentDate": "2026-10-26",
+    "listingDate": "2026-10-28",
+    "gmp": "264",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/jio-platforms-ipo/3152/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://ipostatus.kfintech.com/",
+    "valuation": {
+      "eps": "33.72",
+      "pe": "33.19",
+      "ronw": "9.42%",
+      "nav": "373.66",
+      "ebitdaMargin": "51.91%",
+      "patMargin": "20.46%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 49007828,
+        "app": 3291006312
+      },
+      {
+        "cat": "NII",
+        "off": 36444568,
+        "app": 509704032
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 24296379,
+        "app": 385803384
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 12148189,
+        "app": 123900648
+      },
+      {
+        "cat": "Retail",
+        "off": 85037326,
+        "app": 234911016
+      },
+      {
+        "cat": "Employee",
+        "off": 4694836,
+        "app": 13682592
+      },
+      {
+        "cat": "Shareholder",
+        "off": 22341376,
+        "app": 169467900
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 15
+      },
+      {
+        "app": "Big HNI",
+        "lot": 75
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "5,39,580.40",
+        "rev": "1,10,175.40",
+        "exp": "-",
+        "prf": "21,434.00"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "5,81,233.80",
+        "rev": "1,29,333.00",
+        "exp": "-",
+        "prf": "26,120.30"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "6,15,594.00",
+        "rev": "1,49,759.10",
+        "exp": "-",
+        "prf": "30,052.70"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "6,22,905.30",
+        "rev": "40,197.90",
+        "exp": "-",
+        "prf": "7,764.10"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "bseCode": "545004",
+    "nseCode": "JPL",
+    "isinCode": "INE0BJO01010",
+    "listingPriceBse": 1358,
+    "listingPriceNse": 1358,
+    "mcScId": "JPL"
+  },
+  "PHD753": {
+    "id": "PHD753",
+    "name": "Paras Healthcare IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/paras-healthcare-logo.jpeg",
+    "type": "Mainboard",
+    "about": "Paras Healthcare IPO is a book build issue of ₹1,450.00 crores. The issue is a combination of fresh issue of 72.15 lakh shares aggregating to ₹500.00 crores and offer for sale of 1.37 crore shares aggregating to ₹950.00 crores.\n\nParas Healthcare IPO opens for subscription on Oct 21, 2026 and closes on Oct 23, 2026. The allotment for the Paras Healthcare IPO is expected to be finalized on Oct 26, 2026. Paras Healthcare IPO will list on NSE and BSE with a tentative listing date fixed as Oct 28, 2026.\n\nParas Healthcare IPO is set issue price band at ₹660 to ₹693 per share. The lot size for an application is 21 shares. The minimum amount of investment required by an individual investor (retail) is ₹14,553 (21 shares) (based on upper price).",
+    "priceBand": "660 to 693",
+    "cutOff": 693,
+    "lotRaw": 21,
+    "lotSize": "21 Shares",
+    "faceValue": "₹1 per share",
+    "empDiscount": "Nil",
+    "totalSize": "2,09,23,520 shares (agg. up to ₹1,450.00 Cr)",
+    "freshIssue": "72₹5,007 shares (agg. up to ₹500.00 Cr)",
+    "ofs": "1,37,08,513 shares of ₹1 (agg. up to ₹950.00 Cr)",
+    "listingAt": "BSE, NSE",
+    "openDate": "2026-10-21",
+    "closeDate": "2026-10-23",
+    "allotmentDate": "2026-10-26",
+    "listingDate": "2026-10-28",
+    "gmp": "",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/paras-healthcare-ipo/2256/",
+    "isAllotmentOut": true,
+    "registrarUrl": "",
+    "valuation": {
+      "eps": "18.37",
+      "pe": "37.72",
+      "ronw": "12.98%",
+      "nav": "39.11",
+      "ebitdaMargin": "20.60%",
+      "patMargin": "2.69%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 6277056,
+        "app": 20381592
+      },
+      {
+        "cat": "NII",
+        "off": 3138528,
+        "app": 2166507
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 2092352,
+        "app": 1289883
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 1046176,
+        "app": 876624
+      },
+      {
+        "cat": "Retail",
+        "off": 2092352,
+        "app": 4395657
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 14
+      },
+      {
+        "app": "Big HNI",
+        "lot": 69
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "1,477.66",
+        "rev": "1,151.02",
+        "exp": "-",
+        "prf": "-15.33"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "1,810.45",
+        "rev": "1,314.21",
+        "exp": "-",
+        "prf": "-57.98"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "2,071.14",
+        "rev": "1,628.78",
+        "exp": "-",
+        "prf": "43.83"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "2,202.88",
+        "rev": "478.75",
+        "exp": "-",
+        "prf": "49.68"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "bseCode": "545005",
+    "nseCode": "PARASHLTH",
+    "isinCode": "INE661T01029",
+    "listingPriceBse": 720,
+    "listingPriceNse": 720,
+    "mcScId": "PHL01"
+  },
+  "SID309": {
+    "id": "SID309",
+    "name": "Shellz India IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/shellz-india-logo.png",
+    "type": "SME",
+    "about": "Incorporated in May 2012, Shellz India Limited is engaged in the manufacturing and marketing of confectionery products and the manufacturing and supply of food and bakery ingredients. Its product portfolio comprises over 300 SKUs across multiple categories, catering to consumers in urban, semi-urban and rural markets.The Company markets its consumer products under two brands, Hugs and Tosca. The Hugs portfolio includes baked treats, choco delights, jellies, and panned and sugar confectionery, primarily positioned at mass-market price points, with most products priced at ₹10 or below. The Tosca brand focuses on the mass-premium segment through differentiated product formats and packaging, with an emphasis on e-commerce and quick-commerce channels. Its portfolio also includes Tosca Oat Choco, an oat and cereal-based bar developed as an alternative to traditional confectionery products.",
+    "priceBand": "170 to 179",
+    "cutOff": 179,
+    "lotRaw": 800,
+    "lotSize": "800 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "33,50,400 shares (agg. up to ₹59.97 Cr)",
+    "freshIssue": "30,20,800 shares (agg. up to ₹54.07 Cr)",
+    "ofs": "N/A",
+    "listingAt": "BSE SME",
+    "openDate": "2026-10-15",
+    "closeDate": "2026-10-19",
+    "allotmentDate": "2026-10-21",
+    "listingDate": "2026-10-23",
+    "gmp": "",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/shellz-india-ipo/2966/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://ipo.bigshareonline.com/ipo_status.html",
+    "valuation": {
+      "eps": "13.52",
+      "pe": "13.24",
+      "ronw": "22.68%",
+      "nav": "67.63",
+      "ebitdaMargin": "15.65%",
+      "patMargin": "6.94%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 604800,
+        "app": 25352000
+      },
+      {
+        "cat": "NII",
+        "off": 453600,
+        "app": 39197600
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 302400,
+        "app": 29761600
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 151200,
+        "app": 9436000
+      },
+      {
+        "cat": "Retail",
+        "off": 1057600,
+        "app": 59323200
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 2
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      },
+      {
+        "app": "Big HNI",
+        "lot": 7
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "147.04",
+        "rev": "162.81",
+        "exp": "-",
+        "prf": "5.25"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "167.36",
+        "rev": "187.39",
+        "exp": "-",
+        "prf": "8.30"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "213.72",
+        "rev": "193.18",
+        "exp": "-",
+        "prf": "13.37"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "229.36",
+        "rev": "47.43",
+        "exp": "-",
+        "prf": "4.08"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": true,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "bseCode": "544998",
+    "isinCode": "INE0Z7301016",
+    "listingPriceBse": 179,
+    "mcScId": "SIL37"
+  },
+  "RES990": {
+    "id": "RES990",
+    "name": "Ravita Engineering Services IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/ravitaengineering_logo.png",
+    "type": "SME",
+    "about": "Incorporated in December 2007, Ravita Engineering Services Limited is an engineering solutions company engaged in Engineering, Procurement, Installation and Commissioning (EPIC) of HVAC systems, central air-conditioning solutions, air flow systems, chiller plants, industrial compressors, cooling equipment and other electromechanical equipment on a turnkey basis. The Company also provides Operations and Maintenance (O&M) services for projects executed by it and systems installed by third-party solution providers.The Company operates across three areas: Onshore, Offshore and Data Center. Its Onshore operations cover commercial, hospitality, corporate and industrial establishments, while its Offshore operations include rigs, platforms and other offshore marine installations.",
+    "priceBand": "105 to 112",
+    "cutOff": 112,
+    "lotRaw": 200,
+    "lotSize": "200 Shares",
+    "faceValue": "₹5 per share",
+    "empDiscount": "Nil",
+    "totalSize": "1,03,62,000 shares (agg. up to ₹116.05 Cr)",
+    "freshIssue": "98,40,000 shares (agg. up to ₹110.21 Cr)",
+    "ofs": "N/A",
+    "listingAt": "NSE SME",
+    "openDate": "2026-10-14",
+    "closeDate": "2026-10-16",
+    "allotmentDate": "2026-10-19",
+    "listingDate": "2026-10-22",
+    "gmp": "",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/ravita-engineering-services-ipo/2959/",
+    "isAllotmentOut": true,
+    "registrarUrl": "",
+    "valuation": {
+      "eps": "10.75",
+      "pe": "10.42",
+      "ronw": "48.90%",
+      "nav": "36.44",
+      "ebitdaMargin": "14.43%",
+      "patMargin": "10.09%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 1969200,
+        "app": 26012400
+      },
+      {
+        "cat": "NII",
+        "off": 1476000,
+        "app": 10951200
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 982800,
+        "app": 8950800
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 493200,
+        "app": 2000400
+      },
+      {
+        "cat": "Retail",
+        "off": 3446400,
+        "app": 12052800
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      },
+      {
+        "app": "Big HNI",
+        "lot": 8
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "9.08",
+        "rev": "13.53",
+        "exp": "-",
+        "prf": "1.51"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "58.24",
+        "rev": "109.30",
+        "exp": "-",
+        "prf": "11.83"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "162.97",
+        "rev": "277.82",
+        "exp": "-",
+        "prf": "28.04"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "207.34",
+        "rev": "97.45",
+        "exp": "-",
+        "prf": "10.13"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "nseCode": "RAVITA",
+    "isinCode": "INE1UEL01023",
+    "listingPriceNse": 112,
+    "mcScId": "RESL"
+  },
+  "BPD250": {
+    "id": "BPD250",
+    "name": "BLS Polymers IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/bls-polymers-logo.png",
+    "type": "Mainboard",
+    "about": "BLS Polymers Limited is a specialist manufacturer of polymer compounds with a storied history of more than two decades. We are a manufacturer of multiple grades of custom formulated polymer compounds, catering to diversified critical industries such as telecommunication, power, railways, water, oil and gas distribution, among others. These polymer compounds are used as an essential raw material for sheathing, jacketing and insulation of wires and cables used in power, telecommunication and railway industries as well as coating of underground oil, gas and water pipelines, in order to provide a protective infrastructure from corrosion and external environmental factors. Our product portfolio is well diversified to offer varied solutions in the wire and cables and infrastructure industry, and included products such as, polyethylene compounds (“HDPE”), medium-density polyethylene compounds (“MDPE”) and linear low-density polyethylene compounds (“LLDPE”), cross-linked polyethylene compounds (“XLPE”), halogen free flame retardant compounds (“HFFR”), polyvinyl chloride compounds (“PVC”), cable filling compounds (“CFC”) and adhesive coating compounds. HDPE, MDPE and LLDPE compounds are used in the wire and cable industry which offer insulation, sheathing and jacketing based on the indicative requirement of the customer. While, XLPE, HFFR, PVC and CFC compounds add qualities such as strength, high voltage insulation and resistance, fire resistance and moisture resistance, as per the application of the end use product.",
+    "priceBand": "142 to 150",
+    "cutOff": 150,
+    "lotRaw": 100,
+    "lotSize": "100 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "1,70,00,000 shares (agg. up to ₹255.00 Cr)",
+    "freshIssue": "1,70,00,000 shares (agg. up to ₹255.00 Cr)",
+    "ofs": "N/A",
+    "listingAt": "BSE, NSE",
+    "openDate": "2026-10-27",
+    "closeDate": "2026-10-29",
+    "allotmentDate": "2026-10-30",
+    "listingDate": "2026-11-03",
+    "gmp": "68",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/bls-polymers-ipo/2559/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://ipostatus.kfintech.com/",
+    "valuation": {
+      "eps": "3.41",
+      "pe": "43.99",
+      "ronw": "28.45%",
+      "nav": "21.08",
+      "ebitdaMargin": "13.33%",
+      "patMargin": "7.73%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 3400000,
+        "app": 680857700
+      },
+      {
+        "cat": "NII",
+        "off": 2550000,
+        "app": 1425967100
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 1700000,
+        "app": 1007815300
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 850000,
+        "app": 418151800
+      },
+      {
+        "cat": "Retail",
+        "off": 5950000,
+        "app": 763725200
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 14
+      },
+      {
+        "app": "Big HNI",
+        "lot": 67
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "168.49",
+        "rev": "301.50",
+        "exp": "-",
+        "prf": "7.52"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "179.14",
+        "rev": "336.70",
+        "exp": "-",
+        "prf": "21.14"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "206.13",
+        "rev": "354.41",
+        "exp": "-",
+        "prf": "27.01"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "231.34",
+        "rev": "107.81",
+        "exp": "-",
+        "prf": "10.23"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "bseCode": "545011",
+    "nseCode": "BLSPOLY",
+    "isinCode": "INE0ZCQ01019",
+    "listingPriceBse": 244.1,
+    "listingPriceNse": 248,
+    "mcScId": "BPL13"
+  },
+  "EIA124": {
+    "id": "EIA124",
+    "name": "EAAA India Alternatives IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/edelweiss-alternatives-corporate-logo.png",
+    "type": "Mainboard",
+    "about": "Incorporated on May 14, 2008, EAAA India Alternatives Limited is an alternative investment management platform focused on India’s real assets and private credit markets. It manages investment funds and provides alternative investment solutions to domestic and global institutional investors, high-net-worth individuals (“HNIs”), ultra-high-net-worth individuals (“UHNIs”) and family offices.The Company operates primarily through two business verticals: Real Assets and Private Credit, along with portfolio management services and other investment solutions. Its Real Assets vertical invests in infrastructure, commercial real estate, perpetual capital and energy transition opportunities through equity, quasi-equity and debt instruments. Its Private Credit vertical provides financing solutions across performing credit, special situations, real estate credit and investment-grade credit. The Company also offers co-investment opportunities through portfolio management services.",
+    "priceBand": "1585 to 1665",
+    "cutOff": 1665,
+    "lotRaw": 9,
+    "lotSize": "9 Shares",
+    "faceValue": "₹5 per share",
+    "empDiscount": "Nil",
+    "totalSize": "72,07,207 shares (agg. up to ₹1,200.00 Cr)",
+    "freshIssue": "N/A",
+    "ofs": "72,07,207 shares of ₹5 (agg. up to ₹1,200.00 Cr)",
+    "listingAt": "BSE, NSE",
+    "openDate": "2026-10-26",
+    "closeDate": "2026-10-28",
+    "allotmentDate": "2026-10-29",
+    "listingDate": "2026-11-02",
+    "gmp": "38",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/eaaa-india-alternatives-ipo/2061/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://in.mpms.mufg.com/Initial_Offer/public-issues.html",
+    "valuation": {
+      "eps": "49.93",
+      "pe": "33.35",
+      "ronw": "25.97%",
+      "nav": "163.69",
+      "ebitdaMargin": "-",
+      "patMargin": "27.52%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 1441443,
+        "app": 19888587
+      },
+      {
+        "cat": "NII",
+        "off": 1081081,
+        "app": 5194899
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 720721,
+        "app": 4475484
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 360360,
+        "app": 719415
+      },
+      {
+        "cat": "Retail",
+        "off": 2522523,
+        "app": 2728053
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 14
+      },
+      {
+        "app": "Big HNI",
+        "lot": 67
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "1,769.66",
+        "rev": "584.25",
+        "exp": "-",
+        "prf": "175.16"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "2,085.07",
+        "rev": "786.54",
+        "exp": "-",
+        "prf": "229.78"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "2,170.28",
+        "rev": "963.76",
+        "exp": "-",
+        "prf": "265.20"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "2,101.84",
+        "rev": "336.13",
+        "exp": "-",
+        "prf": "80.71"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "bseCode": "545008",
+    "nseCode": "EDELALTS",
+    "isinCode": "INE528L01027",
+    "listingPriceBse": 1673,
+    "listingPriceNse": 1675.5,
+    "mcScId": "EIA"
+  },
+  "SET564": {
+    "id": "SET564",
+    "name": "SFC Environmental Technologies IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/sfc-environmental-technologies-limited_logo.png",
+    "type": "Mainboard",
+    "about": "Incorporated in March 2005, SFC Environmental Technologies Limited is an environmental technology company engaged in providing technology, design, engineering, manufacturing, supply, installation and commissioning solutions for wastewater treatment (“WWT”), wastewater recycling and reuse (“WRR”), and solid waste treatment (“SWT”). The Company’s wastewater treatment business is primarily based on its proprietary C-Tech technology, an advanced sequencing batch reactor (“SBR”) process used in sewage treatment plants and industrial effluent treatment. Its solutions include technology packages, equipment, automation systems, installation, commissioning and related services. As of July 31, 2026, the Company had commissioned 728 wastewater treatment installations and its technologies facilitated the treatment of 17,511.11 million litres of wastewater per day. It has also expanded into wastewater recycling and reuse through ultrafiltration (“UF”), closed circuit reverse osmosis (“CCRO”) and membrane bioreactor (“MBR”) technologies, supported by an exclusive supply arrangement with DuPont for selected products in India.",
+    "priceBand": "313 to 330",
+    "cutOff": 330,
+    "lotRaw": 45,
+    "lotSize": "45 Shares",
+    "faceValue": "₹2 per share",
+    "empDiscount": "Nil",
+    "totalSize": "2,02,28,204 shares (agg. up to ₹667.53 Cr)",
+    "freshIssue": "45,45,454 shares (agg. up to ₹150.00 Cr)",
+    "ofs": "1,56,82,750 shares of ₹2 (agg. up to ₹517.53 Cr)",
+    "listingAt": "BSE, NSE",
+    "openDate": "2026-10-27",
+    "closeDate": "2026-10-29",
+    "allotmentDate": "2026-10-30",
+    "listingDate": "2026-11-03",
+    "gmp": "15",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/sfc-environmental-technologies-ipo/2070/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://in.mpms.mufg.com/Initial_Offer/public-issues.html",
+    "valuation": {
+      "eps": "17.15",
+      "pe": "540.98",
+      "ronw": "21.25%",
+      "nav": "86.09",
+      "ebitdaMargin": "29.34%",
+      "patMargin": "19.94%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 4045642,
+        "app": 76107240
+      },
+      {
+        "cat": "NII",
+        "off": 3034231,
+        "app": 38856600
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 2022820,
+        "app": 29315070
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 1011410,
+        "app": 9541530
+      },
+      {
+        "cat": "Retail",
+        "off": 7079871,
+        "app": 19153530
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 14
+      },
+      {
+        "app": "Big HNI",
+        "lot": 68
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "904.94",
+        "rev": "676.74",
+        "exp": "-",
+        "prf": "144.17"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "999.47",
+        "rev": "726.96",
+        "exp": "-",
+        "prf": "152.01"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "1,323.43",
+        "rev": "821.27",
+        "exp": "-",
+        "prf": "160.21"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "1,224.56",
+        "rev": "137.90",
+        "exp": "-",
+        "prf": "1.48"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "bseCode": "545009",
+    "nseCode": "SFCTECH",
+    "isinCode": "INE0PKN01028",
+    "listingPriceBse": 354.05,
+    "listingPriceNse": 355.1,
+    "mcScId": "SETL"
+  },
+  "CED312": {
+    "id": "CED312",
+    "name": "Core4 Engineers IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/core4-engineers-logo.jpg",
+    "type": "SME",
+    "about": "Incorporated in June 2014, Core4 Engineers Limited is an Engineering, Procurement, Construction and Commissioning (“EPCC”) company providing integrated infrastructure solutions across railway infrastructure, power transmission and distribution, and water and wastewater treatment. The Company offers end-to-end project execution capabilities covering design, engineering, procurement, construction, installation, testing, commissioning and operations and maintenance.The Company operates through five business segments: railway electrification and infrastructure, Extra High Tension (“EHT”) transmission and distribution systems, water and wastewater treatment EPCC, automation and Supervisory Control and Data Acquisition (“SCADA”) systems, and supply of High-Tension (“HT”) and Low-Tension (“LT”) distribution panels and related services.",
+    "priceBand": "88 to 93",
+    "cutOff": 93,
+    "lotRaw": 1200,
+    "lotSize": "1200 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "₹55 Cr",
+    "freshIssue": "₹48 Cr",
+    "ofs": "N/A",
+    "listingAt": "BSE",
+    "openDate": "2026-10-23",
+    "closeDate": "2026-10-27",
+    "allotmentDate": "2026-10-28",
+    "listingDate": "2026-10-30",
+    "gmp": "",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/core4-engineers-ipo/2969/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://www.purvashare.com/investor-service/ipo-query",
+    "valuation": {
+      "eps": "11.93",
+      "pe": "7.8",
+      "ronw": "39.81%",
+      "nav": "21.01",
+      "ebitdaMargin": "20.04%",
+      "patMargin": "13.54%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 1040400,
+        "app": 5264400
+      },
+      {
+        "cat": "NII",
+        "off": 777600,
+        "app": 9530400
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 518400,
+        "app": 8358000
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 259200,
+        "app": 1172400
+      },
+      {
+        "cat": "Retail",
+        "off": 1812000,
+        "app": 4936800
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 2
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      },
+      {
+        "app": "Big HNI",
+        "lot": 9
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "31.97",
+        "rev": "33.63",
+        "exp": "-",
+        "prf": "2.89"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "67.12",
+        "rev": "34.60",
+        "exp": "-",
+        "prf": "3.81"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "116.32",
+        "rev": "91.79",
+        "exp": "-",
+        "prf": "12.37"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "145.43",
+        "rev": "45.77",
+        "exp": "-",
+        "prf": "6.17"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": true,
+    "manualLots": true,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "bseCode": "545007",
+    "isinCode": "INE1RY601016",
+    "listingPriceBse": 74.4,
+    "mcScId": "CEL05"
+  },
+  "WID395": {
+    "id": "WID395",
+    "name": "Wiscon Industries IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/wiscon_logo.jpg",
+    "type": "Mainboard",
+    "about": "Incorporated in September 2022, Wiscon Industries Limited is a Delhi-based company engaged in the trading and supply of consumer electronic products across India.\n\nThe company offers a broad range of products, including LED TVs, air coolers, washing machines, and air conditioners under its flagship \"Wiscon\" brand.\n\nIt also sells electric scooters sourced from third-party brands.\n\nWiscon serves both business customers (B2B) and individual consumers (B2C). Its products are distributed through an offline dealer and distributor network as well as its own online platform, allowing the company to reach customers across the country. Sales operations are managed by a dedicated team working from the company's registered office.",
+    "priceBand": "194 to 204",
+    "cutOff": 204,
+    "lotRaw": 600,
+    "lotSize": "600 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "53,92,200 shares (agg. up to ₹110.00 Cr)",
+    "freshIssue": "39,24,000 shares (agg. up to ₹80.05 Cr)",
+    "ofs": "10,78,200 shares of ₹10 (agg. up to ₹22.00 Cr)",
+    "listingAt": "BSE SME",
+    "openDate": "2026-10-27",
+    "closeDate": "2026-10-29",
+    "allotmentDate": "2026-10-30",
+    "listingDate": "2026-11-03",
+    "gmp": "",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/wiscon-industries-ipo/3202/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://maashitla.com/allotment-status/public-issues",
+    "valuation": {
+      "eps": "15.78",
+      "pe": "12.93",
+      "ronw": "66.67%",
+      "nav": "19.53",
+      "ebitdaMargin": "14.27%",
+      "patMargin": "10.36%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 1225800,
+        "app": 2745600
+      },
+      {
+        "cat": "NII",
+        "off": 772200,
+        "app": 481200
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 514800,
+        "app": 349800
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 257400,
+        "app": 131400
+      },
+      {
+        "cat": "Retail",
+        "off": 1778400,
+        "app": 1180800
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      },
+      {
+        "app": "Big HNI",
+        "lot": 9
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "-",
+        "rev": "-",
+        "exp": "-",
+        "prf": "-"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "-",
+        "rev": "-",
+        "exp": "-",
+        "prf": "-"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "90.75",
+        "rev": "197.13",
+        "exp": "-",
+        "prf": "20.41"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "144.79",
+        "rev": "69.85",
+        "exp": "-",
+        "prf": "7.89"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "bseCode": "545010",
+    "isinCode": "INE0NZ501012",
+    "listingPriceBse": 204,
+    "mcScId": "WIL02"
+  },
+  "APD971": {
+    "id": "APD971",
+    "name": "Ajwa Projects IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/ajwa-projects-logo.png",
+    "type": "SME",
+    "about": "Incorporated in 2011, Ajwa Projects is a multi-disciplinary industrial services company delivering end-to-end solutions across fabrication, erection, piping, pressure equipment, prefabricated structures, civil construction, and maintenance. The company specializes in turning project plans into real, functional industrial assets. The company manufacture technological frameworks, industrial buildings, girders, heavy modules, platforms, and crane girders that are critical for plant construction and infrastructure projects. They also fabricate specialised components such as dish ends, crowns, petals, and customised parts, including diesel engine components for railway applications that require a high degree of precision and strict compliance with industry standards.",
+    "priceBand": "203 to 203",
+    "cutOff": 203,
+    "lotRaw": 600,
+    "lotSize": "600 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "18,74,400 shares (agg. up to ₹38 Cr)",
+    "freshIssue": "14,05,200 shares (agg. up to ₹29 Cr)",
+    "ofs": "3,74,400 shares of ₹10 (agg. up to ₹8 Cr)",
+    "listingAt": "BSE",
+    "openDate": "2026-10-28",
+    "closeDate": "2026-10-30",
+    "allotmentDate": "2026-11-02",
+    "listingDate": "2026-11-04",
+    "gmp": "0",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/ajwa-projects-ipo/2761/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://ipostatus.kfintech.com/",
+    "valuation": {
+      "eps": "11.33",
+      "pe": "17.92",
+      "ronw": "36.15%",
+      "nav": "44.28",
+      "ebitdaMargin": "18.66%",
+      "patMargin": "11.20%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "NII",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 2
+      },
+      {
+        "app": "Retail Max",
+        "lot": 3
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "25.00",
+        "rev": "34.38",
+        "exp": "-",
+        "prf": "2.95"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "25.57",
+        "rev": "36.87",
+        "exp": "-",
+        "prf": "3.28"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "36.37",
+        "rev": "48.56",
+        "exp": "-",
+        "prf": "5.42"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "41.97",
+        "rev": "12.44",
+        "exp": "-",
+        "prf": "1.56"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": true,
+    "manualLots": true,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": true,
+    "manualLockAll": false,
+    "bseCode": "545016",
+    "isinCode": "INE1NMO01017",
+    "listingPriceBse": 203,
+    "mcScId": "APL13"
+  },
+  "CRD543": {
+    "id": "CRD543",
+    "name": "Carver Roboweld IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/carver-roboweld-ltd-logo.png",
+    "type": "SME",
+    "about": "Incorporated in August 2009, Carver Roboweld Limited is engaged in the manufacturing of welding consumables, including Metal Cored Wires, Welding Rods and Gauging Electrodes, along with the supply of welding spare parts and accessories. The Company has also expanded its offerings to provide value-added engineering solutions to the forging industry, including forging die regeneration and welding robot rental services.",
+    "priceBand": "76 to 80",
+    "cutOff": 80,
+    "lotRaw": 600,
+    "lotSize": "600 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "35,36,000 shares (agg. up to ₹28.29 Cr)",
+    "freshIssue": "33,58,400 shares (agg. up to ₹26.87 Cr)",
+    "ofs": "N/A",
+    "listingAt": "BSE SME",
+    "openDate": "2026-10-28",
+    "closeDate": "2026-10-30",
+    "allotmentDate": "2026-11-02",
+    "listingDate": "2026-11-04",
+    "gmp": "4",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/carver-roboweld-ipo/3239/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://ipo.bigshareonline.com/IPO_Status.html",
+    "valuation": {
+      "eps": "4.56",
+      "pe": "17.54",
+      "ronw": "8.48%",
+      "nav": "18.42",
+      "ebitdaMargin": "36.90%",
+      "patMargin": "19.37%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 668800,
+        "app": 17609600
+      },
+      {
+        "cat": "NII",
+        "off": 512000,
+        "app": 20681600
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 340800,
+        "app": 16145600
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 171200,
+        "app": 4536000
+      },
+      {
+        "cat": "Retail",
+        "off": 1180800,
+        "app": 22636800
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      },
+      {
+        "app": "Big HNI",
+        "lot": 8
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "21.59",
+        "rev": "21.67",
+        "exp": "-",
+        "prf": "1.01"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "32.69",
+        "rev": "24.97",
+        "exp": "-",
+        "prf": "1.45"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "38.26",
+        "rev": "27.12",
+        "exp": "-",
+        "prf": "3.48"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "39.45",
+        "rev": "7.71",
+        "exp": "-",
+        "prf": "1.49"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "bseCode": "545015",
+    "isinCode": "INE1FY301017",
+    "listingPriceBse": 90,
+    "mcScId": "CRL03"
+  },
+  "AID649": {
+    "id": "AID649",
+    "name": "Antala Industries IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/antala-industries-ltd-logo.png",
+    "type": "SME",
+    "about": "Incorporated in August 2024, Antala Industries Limited is engaged in the manufacturing, processing, printing, laminating and supply of industrial and commercial packaging products. The Company specializes in BOPP bags, BOPP printing rolls, BOPP lamination rolls, PP woven bags and PP woven lamination rolls, serving customers across industries such as food processing, fertilizers, chemicals, cement and seeds. The Company operates an integrated manufacturing facility in Rajkot, Gujarat, with capabilities including extrusion, coating and lamination, rotogravure printing, stitching and finishing.",
+    "priceBand": "63 to 67",
+    "cutOff": 67,
+    "lotRaw": 2000,
+    "lotSize": "2000 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "34,82,000 shares (agg. up to ₹23 Cr)",
+    "freshIssue": "33,06,000 shares (agg. up to ₹22 Cr)",
+    "ofs": "N/A",
+    "listingAt": "BSE",
+    "openDate": "2026-10-29",
+    "closeDate": "2026-11-02",
+    "allotmentDate": "2026-11-03",
+    "listingDate": "2026-11-05",
+    "gmp": "",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/antala-industries-ipo/3221/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://ipo.bigshareonline.com/IPO_Status.html",
+    "valuation": {
+      "eps": "3.48",
+      "pe": "19.25",
+      "ronw": "24.88%",
+      "nav": "20.67",
+      "ebitdaMargin": "12.97%",
+      "patMargin": "8.91%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 36000,
+        "app": 2402000
+      },
+      {
+        "cat": "NII",
+        "off": 510000,
+        "app": 25470000
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 342000,
+        "app": 24076000
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 168000,
+        "app": 1394000
+      },
+      {
+        "cat": "Retail",
+        "off": 2760000,
+        "app": 14420000
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 2
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      },
+      {
+        "app": "Big HNI",
+        "lot": 8
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "5.97",
+        "rev": "12.59",
+        "exp": "-",
+        "prf": "0.89"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "25.47",
+        "rev": "31.98",
+        "exp": "-",
+        "prf": "1.82"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "28.41",
+        "rev": "47.53",
+        "exp": "-",
+        "prf": "4.24"
+      },
+      "jun26": {
+        "yr": "30 Sep 2026",
+        "ast": "34.88",
+        "rev": "30.20",
+        "exp": "-",
+        "prf": "4.19"
+      }
+    },
+    "manualDates": true,
+    "manualIssueInfo": true,
+    "manualLots": true,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "bseCode": "545024",
+    "isinCode": "INE15Z101013",
+    "mcScId": "AIL13",
+    "listingPriceBse": 52.8
+  },
+  "MFJ545": {
+    "id": "MFJ545",
+    "name": "M.K.Sons Fine Jewels IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/mk-sons-fine-jewels-logo.png",
+    "type": "Mainboard",
+    "about": "Incorporated in 2012, M. K. Sons Fine Jewels Ltd. is engaged in the retail sale of gold, diamond, and CZ jewellery through its showroom network across Mumbai and Ahmedabad.\n\nThe company offers rings, necklaces, bangles, earrings, bracelets, Mangalsutras, solitaires, bridal jewellery, and customised jewellery under multiple collections such as Pavitra, Rivaaz, Sitaare, NAQSH, Sunhere, and One & Only.\n\nThe company operates 5 retail showrooms across Maharashtra and Gujarat in high-footfall locations including Bandra, Andheri, Zaveri Bazaar, C.G. Road, and Sindhu Bhavan Road.\n\nIts business model focuses on retail jewellery sales, customer-centric collections, customised jewellery offerings, and diversified designs across multiple price points. The company procures finished jewellery from third-party vendors across Western India.",
+    "priceBand": "153 to 162",
+    "cutOff": 162,
+    "lotRaw": 91,
+    "lotSize": "91 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "1,70,00,000 shares (agg. up to ₹275.40 Cr)",
+    "freshIssue": "1,36,00,000 shares (agg. up to ₹220.32 Cr)",
+    "ofs": "34,00,000 shares of ₹10 (agg. up to ₹55.08 Cr)",
+    "listingAt": "BSE, NSE",
+    "openDate": "2026-10-28",
+    "closeDate": "2026-10-30",
+    "allotmentDate": "2026-11-02",
+    "listingDate": "2026-11-04",
+    "gmp": "10",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/mksons-fine-jewels-ipo/3100/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://ipo.bigshareonline.com/IPO_Status.html",
+    "valuation": {
+      "eps": "10.06",
+      "pe": "16.1",
+      "ronw": "30.83%",
+      "nav": "39.36",
+      "ebitdaMargin": "15.39%",
+      "patMargin": "9.61%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 3400000,
+        "app": 6264349
+      },
+      {
+        "cat": "NII",
+        "off": 2550000,
+        "app": 36011976
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 1700000,
+        "app": 26062400
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 850000,
+        "app": 9949576
+      },
+      {
+        "cat": "Retail",
+        "off": 5950000,
+        "app": 18328310
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 14
+      },
+      {
+        "app": "Big HNI",
+        "lot": 68
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "95.21",
+        "rev": "217.40",
+        "exp": "-",
+        "prf": "8.17"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "219.64",
+        "rev": "351.32",
+        "exp": "-",
+        "prf": "23.26"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "283.21",
+        "rev": "538.86",
+        "exp": "-",
+        "prf": "51.80"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "305.68",
+        "rev": "101.45",
+        "exp": "-",
+        "prf": "15.02"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "bseCode": "545017",
+    "nseCode": "MKJEWELS",
+    "isinCode": "INE2IXO01012",
+    "listingPriceBse": 171.6,
+    "listingPriceNse": 171,
+    "mcScId": "SFJ"
+  },
+  "JED381": {
+    "id": "JED381",
+    "name": "Johnsoncab Electricals IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/chatgpt-image-aug-10-2026-12_16_10-pm.png",
+    "type": "SME",
+    "about": "Incorporated in November 2020, Johnsoncab Electricals Limited is engaged in the manufacturing of low voltage wires and cables up to 1.1 kV, catering to power infrastructure, transmission and distribution, renewable energy, railways and allied industrial applications. The company manufactures and sells its products under the brand name “JOHNSON CABLES” and caters to both private sector customers and government entities.\n\nThe company has a diversified product portfolio comprising control cables, power cables, industrial single and multicore control cables, housing and building wires, welding cables, solar/photovoltaic cables and submersible flat cables. It operates two manufacturing facilities in Mehsana, Gujarat, with a combined installed capacity of 79,950 KMS per annum as of Fiscal 2026. The manufacturing facilities are equipped with machinery for wire drawing, annealing, bunching, insulation, extrusion, testing and packaging.",
+    "priceBand": "190 to 200",
+    "cutOff": 200,
+    "lotRaw": 600,
+    "lotSize": "600 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "28,00,800 shares (agg. up to ₹56.02 Cr)",
+    "freshIssue": "26,59,200 shares (agg. up to ₹53.18 Cr)",
+    "ofs": "N/A",
+    "listingAt": "BSE SME",
+    "openDate": "2026-10-30",
+    "closeDate": "2026-11-03",
+    "allotmentDate": "2026-11-04",
+    "listingDate": "2026-11-06",
+    "gmp": "8",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/johnsoncab-electricals-ipo/3217/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://maashitla.com/allotment-status/public-issues",
+    "valuation": {
+      "eps": "12.69",
+      "pe": "15.76",
+      "ronw": "42.68%",
+      "nav": "40.47",
+      "ebitdaMargin": "11.43%",
+      "patMargin": "6.38%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 531000,
+        "app": 10719000
+      },
+      {
+        "cat": "NII",
+        "off": 399600,
+        "app": 16893000
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 266400,
+        "app": 13454400
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 133200,
+        "app": 3438600
+      },
+      {
+        "cat": "Retail",
+        "off": 933600,
+        "app": 16784400
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 2
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      },
+      {
+        "app": "Big HNI",
+        "lot": 9
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "48.44",
+        "rev": "88.95",
+        "exp": "-",
+        "prf": "2.52"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "64.28",
+        "rev": "140.00",
+        "exp": "-",
+        "prf": "5.46"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "126.64",
+        "rev": "211.34",
+        "exp": "-",
+        "prf": "13.42"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "-",
+        "rev": "-",
+        "exp": "-",
+        "prf": "-"
+      }
+    },
+    "manualDates": true,
+    "manualIssueInfo": false,
+    "manualLots": true,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "bseCode": "545021",
+    "isinCode": "INE1ZSR01011",
+    "listingPriceBse": 238.5,
+    "mcScId": "JEL"
+  },
+  "H(D179": {
+    "id": "H(D179",
+    "name": "HGS (India) IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/hgs-logo.png",
+    "type": "SME",
+    "about": "HGS (India) Limited (HGSI), incorporated in February 1986, manufactures geophones, geophone strings, seismic cables, connectors and accessories used in seismic data collection and geophysical equipment. Established in technical and financial collaboration with Geosource Inc., USA, the company operates under the “HG” brand.\nIts products are used in oil and gas exploration, mineral exploration, defence research, earthquake monitoring, vibration analysis and other geoscience applications. The company also manufactures cables and connectors for resistivity meters and radar equipment.",
+    "priceBand": "114 to 120",
+    "cutOff": 120,
+    "lotRaw": 200,
+    "lotSize": "200 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "28,80,000 shares (agg. up to ���34.56 Cr)",
+    "freshIssue": "21,80,800 shares (agg. up to ₹26.17 Cr)",
+    "ofs": "5,54,000 shares of ₹10 (agg. up to ₹6.65 Cr)",
+    "listingAt": "NSE SME",
+    "openDate": "2026-10-30",
+    "closeDate": "2026-11-03",
+    "allotmentDate": "2026-11-04",
+    "listingDate": "2026-11-06",
+    "gmp": "25",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/hgs-india-ipo/2981/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://ipostatus.kfintech.com/",
+    "valuation": {
+      "eps": "12.29",
+      "pe": "9.76",
+      "ronw": "13.04%",
+      "nav": "104.63",
+      "ebitdaMargin": "37.40%",
+      "patMargin": "25.77%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 547200,
+        "app": 75469200
+      },
+      {
+        "cat": "NII",
+        "off": 414000,
+        "app": 175814400
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 273600,
+        "app": 134928000
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 140400,
+        "app": 40886400
+      },
+      {
+        "cat": "Retail",
+        "off": 960000,
+        "app": 226286400
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      },
+      {
+        "app": "Big HNI",
+        "lot": 7
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "113.70",
+        "rev": "37.93",
+        "exp": "-",
+        "prf": "4.00"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "104.04",
+        "rev": "53.45",
+        "exp": "-",
+        "prf": "10.51"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "110.12",
+        "rev": "48.91",
+        "exp": "-",
+        "prf": "11.64"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "-",
+        "rev": "-",
+        "exp": "-",
+        "prf": "-"
+      }
+    },
+    "manualDates": true,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "nseCode": "HGSINDIALT",
+    "isinCode": "INE813R01012",
+    "listingPriceNse": 160,
+    "mcScId": "HIL01"
+  },
+  "MES257": {
+    "id": "MES257",
+    "name": "Maxwell Engineering Solutions IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/maxwell-engineering-logo.png",
+    "type": "SME",
+    "about": "Incorporated in September 2022, Maxwell Engineering Solutions Limited is a precision engineering company engaged in the manufacturing, trading and servicing of critical components for underwater pelletizing systems. The Company manufactures a range of components for underwater pelletizing systems, including pelletizing die plates, pelletizing blades and knives, blade holders, cutter hubs, tapped driving bushes and other spare parts. Its products cater to polymer compounding, masterbatches, engineering plastics, cable compounds, specialty polymers and plastics recycling industries. The Company also undertakes customised manufacturing based on customer specifications and offers white-label manufacturing, enabling customers to market products under their own brands. Its business operates through three segments: manufacturing, services and trading.",
+    "priceBand": "150 to 158",
+    "cutOff": 158,
+    "lotRaw": 800,
+    "lotSize": "800 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "36,48,000 shares (agg. up to ₹57.64 Cr)",
+    "freshIssue": "34,25,600 shares (agg. up to ₹54.12 Cr)",
+    "ofs": "N/A",
+    "listingAt": "NSE SME",
+    "openDate": "2026-10-30",
+    "closeDate": "2026-11-03",
+    "allotmentDate": "2026-11-04",
+    "listingDate": "2026-11-06",
+    "gmp": "80",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/maxwell-engineering-solutions-ipo/2704/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://ipostatus.kfintech.com/",
+    "valuation": {
+      "eps": "6.68",
+      "pe": "23.65",
+      "ronw": "47.70%",
+      "nav": "24.74",
+      "ebitdaMargin": "51.58%",
+      "patMargin": "40.28%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 683200,
+        "app": 177255200
+      },
+      {
+        "cat": "NII",
+        "off": 518400,
+        "app": 444604800
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 345600,
+        "app": 353972800
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 172800,
+        "app": 90632000
+      },
+      {
+        "cat": "Retail",
+        "off": 1200000,
+        "app": 667310400
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 2
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      },
+      {
+        "app": "Big HNI",
+        "lot": 8
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "8.51",
+        "rev": "10.87",
+        "exp": "-",
+        "prf": "3.16"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "25.31",
+        "rev": "22.59",
+        "exp": "-",
+        "prf": "9.18"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "47.55",
+        "rev": "30.76",
+        "exp": "-",
+        "prf": "11.86"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "-",
+        "rev": "-",
+        "exp": "-",
+        "prf": "-"
+      }
+    },
+    "manualDates": true,
+    "manualIssueInfo": false,
+    "manualLots": true,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "nseCode": "MAXENGS",
+    "isinCode": "INE1W3F01014",
+    "listingPriceNse": 300.2,
+    "mcScId": "MESL"
+  },
+  "VED566": {
+    "id": "VED566",
+    "name": "Vectras Enprocon IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/vectras-enprocon-logo.png",
+    "type": "SME",
+    "about": "Vectras is a fastest growing Engineering, Procurement And Construction(EPC) Company, renowned for delivering innovative, high-quality, and technologically advanced solutions. Vectras was formally established in 2021, marking a strategic evolution in our commitment to engineering excellence. With a strong legacy, we have successfully executed number of projects across India, serving esteemed clients across industries such as Oil & Gas, Infrastructure, Energy, Power etc.",
+    "priceBand": "99 to 105",
+    "cutOff": 105,
+    "lotRaw": 200,
+    "lotSize": "200 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "50,52,000 shares (agg. up to ₹53.05 Cr)",
+    "freshIssue": "38,02,800 shares (agg. up to ₹39.93 Cr)",
+    "ofs": "9,96,000 shares of ₹10 (agg. up to ₹10.46 Cr)",
+    "listingAt": "BSE SME",
+    "openDate": "2026-10-30",
+    "closeDate": "2026-11-03",
+    "allotmentDate": "2026-11-04",
+    "listingDate": "2026-11-06",
+    "gmp": "",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/vectras-enprocon-ipo/2740/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://in.mpms.mufg.com/Initial_Offer/public-issues.html",
+    "valuation": {
+      "eps": "9.55",
+      "pe": "10.99",
+      "ronw": "51.39%",
+      "nav": "25.17",
+      "ebitdaMargin": "20.04%",
+      "patMargin": "12.88%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 960000,
+        "app": 1806000
+      },
+      {
+        "cat": "NII",
+        "off": 720000,
+        "app": 4813200
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 482400,
+        "app": 3591600
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 237600,
+        "app": 1221600
+      },
+      {
+        "cat": "Retail",
+        "off": 1680000,
+        "app": 7483200
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 2
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      },
+      {
+        "app": "Big HNI",
+        "lot": 8
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "21.47",
+        "rev": "54.37",
+        "exp": "-",
+        "prf": "5.81"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "46.50",
+        "rev": "80.53",
+        "exp": "-",
+        "prf": "10.17"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "74.94",
+        "rev": "119.90",
+        "exp": "-",
+        "prf": "15.43"
+      },
+      "jun26": {
+        "yr": "30 Sep 2026",
+        "ast": "90.91",
+        "rev": "72.20",
+        "exp": "-",
+        "prf": "9.10"
+      }
+    },
+    "manualDates": true,
+    "manualIssueInfo": false,
+    "manualLots": true,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "bseCode": "545020",
+    "isinCode": "INE1FD201014",
+    "listingPriceBse": 106,
+    "mcScId": "VEL03"
+  },
+  "VPF154": {
+    "id": "VPF154",
+    "name": "Vedant Poly Fabs IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/vedant-poly-fabs-logo.png",
+    "type": "SME",
+    "about": "test",
+    "priceBand": "88 to 94",
+    "cutOff": 94,
+    "lotRaw": 200,
+    "lotSize": "200 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "60,30,000 shares (agg. up to ₹56.68 Cr)",
+    "freshIssue": "51,21,600 shares (agg. up to ₹48.14 Cr)",
+    "ofs": "6,03,600 shares of ₹10 (agg. up to ₹5.67 Cr)",
+    "listingAt": "NSE SME",
+    "openDate": "2026-11-02",
+    "closeDate": "2026-11-04",
+    "allotmentDate": "2026-11-05",
+    "listingDate": "2026-11-09",
+    "gmp": "5",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/vedant-poly-fabs-ipo/3143/",
+    "isAllotmentOut": true,
+    "registrarUrl": "https://ipo.bigshareonline.com/IPO_Status.html",
+    "valuation": {
+      "eps": "6.90",
+      "pe": "13.62",
+      "ronw": "25.95%",
+      "nav": "28.70",
+      "ebitdaMargin": "16.50%",
+      "patMargin": "9.52%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 68400,
+        "app": 68400
+      },
+      {
+        "cat": "NII",
+        "off": 2260800,
+        "app": 3127200
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 1507200,
+        "app": 1692000
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 753600,
+        "app": 1435200
+      },
+      {
+        "cat": "Retail",
+        "off": 3396000,
+        "app": 7668000
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      },
+      {
+        "app": "Big HNI",
+        "lot": 9
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "18.88",
+        "rev": "49.73",
+        "exp": "-",
+        "prf": "0.64"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "55.40",
+        "rev": "81.58",
+        "exp": "-",
+        "prf": "4,56,060.00"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "97.80",
+        "rev": "115.31",
+        "exp": "-",
+        "prf": "10.97"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "100.88",
+        "rev": "30.49",
+        "exp": "-",
+        "prf": "3.48"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualLockAll": false,
+    "nseCode": "VPFL",
+    "isinCode": "INE2RWX01016",
+    "listingPriceNse": 94,
+    "mcScId": "VPFL76704"
+  },
+  "IPO251": {
+    "id": "IPO251",
+    "name": "Bombay Coated And Special Steels IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/bombay-coated-special-steels-logo.png",
+    "type": "Mainboard",
+    "about": "Incorporated in December 2019, Bombay Coated and Special Steels Limited is a steel processing centre engaged in converting steel coils into value-added processed steel products for Original Equipment Manufacturers (“OEMs”) and Original Design Manufacturers (“ODMs”). The Company specialises in precision slitting, cut-to-length processing, shearing and embossing of steel coils to manufacture slit coils, embossed slit coils, blanks, embossed blanks and sheared blanks. Its products serve multiple end-use industries, including home and commercial appliances, automotive and auto components, electrical equipment, pharmaceutical cleanroom infrastructure, ventilation systems and general engineering. In addition to processing steel coils, the Company provides logistics and inventory management services and supports customers through just-in-time delivery solutions.",
+    "priceBand": "78 to 82",
+    "cutOff": 82,
+    "lotRaw": 182,
+    "lotSize": "182 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "2,23,24,120 shares (agg. up to ₹183.06 Cr)",
+    "freshIssue": "2,23,24,120 shares (agg. up to ₹183.06 Cr)",
+    "ofs": "N/A",
+    "listingAt": "BSE, NSE",
+    "bseCode": "545018",
+    "nseCode": "BCSSL",
+    "isinCode": "INE0XFY01011",
+    "mcScId": "BCSSL",
+    "listingPriceNse": 91,
+    "listingPriceBse": 92.02,
+    "openDate": "2026-10-29",
+    "closeDate": "2026-11-02",
+    "allotmentDate": "2026-11-03",
+    "listingDate": "2026-11-05",
+    "gmp": "",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/bombay-coated-and-special-steels-ipo/2671/",
+    "isAllotmentOut": true,
+    "registrarUrl": "",
+    "valuation": {
+      "eps": "9.60",
+      "pe": "8.54",
+      "ronw": "25.12%",
+      "nav": "30.41",
+      "ebitdaMargin": "6.80%",
+      "patMargin": "2.41%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 4564512,
+        "app": 170330524
+      },
+      {
+        "cat": "NII",
+        "off": 3348603,
+        "app": 557333868
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 2232402,
+        "app": 430709916
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 1116201,
+        "app": 126623952
+      },
+      {
+        "cat": "Retail",
+        "off": 7813409,
+        "app": 277080804
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 14
+      },
+      {
+        "app": "Big HNI",
+        "lot": 68
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "350.21",
+        "rev": "765.41",
+        "exp": "-",
+        "prf": "21.14"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "458.21",
+        "rev": "1,058.65",
+        "exp": "-",
+        "prf": "28.67"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "571.47",
+        "rev": "1,269.83",
+        "exp": "-",
+        "prf": "30.54"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "526.11",
+        "rev": "397.55",
+        "exp": "-",
+        "prf": "15.08"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualListingInfo": false,
+    "manualLockAll": false
+  },
+  "CCP285": {
+    "id": "CCP285",
+    "name": "Crystal Crop Protection IPO Details",
+    "logo": "https://www.crystalcropprotection.com/images/logos/logo.png",
+    "type": "Mainboard",
+    "about": " Crystal Crop Protection Limited  Established in 1994, we are a crop solutions company with agrochemicals and seeds at the core of our offerings. Our diversified portfolio includes (i) products for crop protection such as herbicides, fungicides, insecticides and natural crop solutions such as bio-stimulants, bio-protectants, plant growth regulators, liquid fertilizers and micro nutrients; and (ii) seeds such as for field crops, vegetable crops and flowers. Our offerings are customized for Indian farmers through research and development (“R&D”) including by collaborations with various multinational companies, delivering relevant solutions that aim to enhance farm economics, yield, productivity and profitability. We operate on a fully integrated model, that integrates robust synthesis R&D in crop protection products and natural crop solutions as well as robust seeds breeding program, with backward-integrated technology enabled manufacturing and pan-India distribution, with a farmer-centric approach.  We have dedicated and strategic focus on R&D, which we consider integral to our ability to offer quality crop protection products and natural crop solutions and seeds for various crops. Our R&D teams focus on (i) developing novel formulations, based on our analysis of existing gaps in the industry and prevailing needs of our customers; and (ii) extensive breeding programs, leading to creation of renowned brands for our business verticals. Our robust seeds breeding programs, anchored by an extensive germplasm bank, using conventional and modern tools, deliver seeds which are locally adapted, high yielding, stress tolerant hybrids and varieties. Over the years, we have established ourselves as a progressive force in the Indian seed industry, actively engaging in strategic collaborations and technology partnerships to drive innovation and sustainable growth. We have signed several key agreements aimed at enhancing crop performance, farmer profitability and industry advancement.",
+    "priceBand": "259 to 272",
+    "cutOff": 272,
+    "lotRaw": 55,
+    "lotSize": "55 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "₹25.00",
+    "totalSize": "1,67,54,274 shares (agg. up to ₹455.49 Cr)",
+    "freshIssue": "1,30,51,580 shares (agg. up to ₹354.77 Cr)",
+    "ofs": "37,02,694 shares of ₹10 (agg. up to ₹100.71 Cr)",
+    "listingAt": "BSE, NSE",
+    "bseCode": "",
+    "nseCode": "",
+    "isinCode": "",
+    "mcScId": "",
+    "listingPriceNse": null,
+    "listingPriceBse": null,
+    "openDate": "2026-11-18",
+    "closeDate": "2026-11-20",
+    "allotmentDate": "2026-11-23",
+    "listingDate": "2026-11-26",
+    "gmp": "18",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/crystal-crop-protection-ipo/2813/",
+    "isAllotmentOut": false,
+    "registrarUrl": "https://in.mpms.mufg.com/Initial_Offer/public-issues.html",
+    "valuation": {
+      "eps": "33.29",
+      "pe": "8.17",
+      "ronw": "7.46%",
+      "nav": "125.53",
+      "ebitdaMargin": "11.72%",
+      "patMargin": "4.33%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 3332473,
+        "app": 7439795
+      },
+      {
+        "cat": "NII",
+        "off": 2499354,
+        "app": 8932000
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 1666236,
+        "app": 5375920
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 833118,
+        "app": 3556080
+      },
+      {
+        "cat": "Retail",
+        "off": 5831827,
+        "app": 19279975
+      },
+      {
+        "cat": "Employee",
+        "off": 101215,
+        "app": 517935
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 14
+      },
+      {
+        "app": "Big HNI",
+        "lot": 67
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "2,541.92",
+        "rev": "2,271.71",
+        "exp": "-",
+        "prf": "87.24"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "3,542.90",
+        "rev": "2,731.94",
+        "exp": "-",
+        "prf": "118.39"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "3,927.24",
+        "rev": "3,180.98",
+        "exp": "-",
+        "prf": "144.91"
+      },
+      "jun26": {
+        "yr": "30 Sep 2025",
+        "ast": "3,859.23",
+        "rev": "1,995.86",
+        "exp": "-",
+        "prf": "153.51"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualListingInfo": false,
+    "manualLockAll": false
+  },
+  "WRD524": {
+    "id": "WRD524",
+    "name": "Watrana Rentals IPO Details",
+    "logo": "https://watranarentals.com/assets/images/watrana-logo.png",
+    "type": "SME",
+    "about": "",
+    "priceBand": "232 to 245",
+    "cutOff": 245,
+    "lotRaw": 600,
+    "lotSize": "600 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "49,02,000 shares (agg. up to ₹120.10 Cr)",
+    "freshIssue": "46,50,000 shares (agg. up to ₹113.93 Cr)",
+    "ofs": "N/A",
+    "listingAt": "NSE SME",
+    "bseCode": "",
+    "nseCode": "",
+    "isinCode": "",
+    "mcScId": "",
+    "listingPriceNse": null,
+    "listingPriceBse": null,
+    "openDate": "2026-11-19",
+    "closeDate": "2026-11-23",
+    "allotmentDate": "2026-11-25",
+    "listingDate": "2026-11-27",
+    "gmp": "48",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/watrana-rentals-ipo/2503/",
+    "isAllotmentOut": false,
+    "registrarUrl": "",
+    "valuation": {
+      "eps": "18.80",
+      "pe": "13.03",
+      "ronw": "29.13%",
+      "nav": "85.47",
+      "ebitdaMargin": "30.76%",
+      "patMargin": "13.80%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "NII",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 2
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      },
+      {
+        "app": "Big HNI",
+        "lot": 7
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "147.69",
+        "rev": "130.23",
+        "exp": "-",
+        "prf": "18.05"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "201.82",
+        "rev": "179.66",
+        "exp": "-",
+        "prf": "24.43"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "287.07",
+        "rev": "211.69",
+        "exp": "-",
+        "prf": "29.16"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "301.71",
+        "rev": "53.62",
+        "exp": "-",
+        "prf": "7.68"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": true,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualListingInfo": false,
+    "manualLockAll": false
+  },
+  "MCD464": {
+    "id": "MCD464",
+    "name": "Mahanadi Coalfields IPO Details",
+    "logo": "https://sharmajobs.com/wp-content/uploads/2018/09/MCL-300x170.jpg",
+    "type": "Mainboard",
+    "about": "Incorporated in April 1992, Mahanadi Coalfields Limited is India’s largest coal producer in terms of production, primarily engaged in the mining and production of non-coking coal. The Company operates mainly in the Talcher and Ib Valley coalfields in Odisha and produces various grades of coal, including washed and beneficiated coal, catering primarily to the power sector as well as industries such as cement, sponge iron, steel, aluminium and paper.  The Company is a wholly owned subsidiary of Coal India Limited and was established to enhance coal production and meet India’s growing energy requirements. Its operations include a network of opencast and underground mines, supported by coal handling plants, rapid loading systems, silos and coal evacuation infrastructure. As of June 30, 2026, the Company operated 17 mines, including 14 opencast mines and three underground mines.",
+    "priceBand": "129 to 136",
+    "cutOff": 136,
+    "lotRaw": 110,
+    "lotSize": "110 Shares",
+    "faceValue": "₹2 per share",
+    "empDiscount": "₹6.00",
+    "totalSize": "66,18,36,300 shares (agg. up to ₹8,981.12 Cr)",
+    "freshIssue": "N/A",
+    "ofs": "66,18,36,300 shares of ₹2 (agg. up to ₹8,981.12 Cr)",
+    "listingAt": "BSE, NSE",
+    "bseCode": "",
+    "nseCode": "",
+    "isinCode": "",
+    "mcScId": "",
+    "listingPriceNse": null,
+    "listingPriceBse": null,
+    "openDate": "2026-11-19",
+    "closeDate": "2026-11-23",
+    "allotmentDate": "2026-11-25",
+    "listingDate": "2026-11-27",
+    "gmp": "3",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/mahanadi-coalfields-ipo/3247/",
+    "isAllotmentOut": false,
+    "registrarUrl": "https://ipostatus.kfintech.com/",
+    "valuation": {
+      "eps": "14.50",
+      "pe": "9.22",
+      "ronw": "53.87%",
+      "nav": "32.29",
+      "ebitdaMargin": "47.45%",
+      "patMargin": "31.56%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "NII",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 14
+      },
+      {
+        "app": "Big HNI",
+        "lot": 67
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "50,687.79",
+        "rev": "33,590.34",
+        "exp": "-",
+        "prf": "11,841.55"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "53,590.53",
+        "rev": "33,028.65",
+        "exp": "-",
+        "prf": "10,825.12"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "55,358.27",
+        "rev": "33,899.28",
+        "exp": "-",
+        "prf": "10,698.12"
+      },
+      "jun26": {
+        "yr": "30 Sep 2026",
+        "ast": "57,711.68",
+        "rev": "17,107.83",
+        "exp": "-",
+        "prf": "4,880.66"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualListingInfo": false,
+    "manualLockAll": false
+  },
+  "SSG256": {
+    "id": "SSG256",
+    "name": "Shree Siddhivinayak Greentech Industries IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/shree-siddhivinayak-greentech-industries-ltdlogo.png",
+    "type": "SME",
+    "about": "Shree Siddhivinayak Greentech Industries Limited. is a progressive agro-processing company committed to creating sustainable value across the agricultural supply chain. Established in 2022 in Maharashtra, the company focuses on processing sugarcane into high-quality Jaggery, Jaggery-based products and Khandsari sugar while ensuring fair trade practices for farmers and reliable quality for consumers.  The company has built a strong operational framework that integrates modern processing technologies, ethical sourcing practices, and a farmer-centric procurement model. Through this approach, Siddhivinayak Greentech bridges the gap between agricultural producers and modern markets.",
+    "priceBand": "130 to 142",
+    "cutOff": 142,
+    "lotRaw": 26,
+    "lotSize": "26 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "65,96,000 shares (agg. up to ₹93.66 Cr)",
+    "freshIssue": "62,66,000 shares (agg. up to ₹88.98 Cr)",
+    "ofs": "N/A",
+    "listingAt": "NSE SME",
+    "bseCode": "",
+    "nseCode": "",
+    "isinCode": "",
+    "mcScId": "",
+    "listingPriceNse": null,
+    "listingPriceBse": null,
+    "openDate": "2026-11-25",
+    "closeDate": "2026-11-27",
+    "allotmentDate": "2026-11-30",
+    "listingDate": "2026-12-02",
+    "gmp": "",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/shree-siddhivinayak-greentech-industries-ipo/3195/",
+    "isAllotmentOut": false,
+    "registrarUrl": "",
+    "valuation": {
+      "eps": "5.48",
+      "pe": "25.91",
+      "ronw": "46.24%",
+      "nav": "20.47",
+      "ebitdaMargin": "27.19%",
+      "patMargin": "15.40%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "NII",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      },
+      {
+        "app": "Big HNI",
+        "lot": 8
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "114.78",
+        "rev": "36.90",
+        "exp": "-",
+        "prf": "3.08"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "115.22",
+        "rev": "61.13",
+        "exp": "-",
+        "prf": "5.50"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "145.86",
+        "rev": "78.32",
+        "exp": "-",
+        "prf": "11.59"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "-",
+        "rev": "-",
+        "exp": "-",
+        "prf": "-"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualListingInfo": false,
+    "manualLockAll": false
+  },
+  "CCP205": {
+    "id": "CCP205",
+    "name": "Crystal Crop Protection IPO Details",
+    "logo": "https://www.crystalcropprotection.com/images/logos/logo.png",
+    "type": "Mainboard",
+    "about": " Crystal Crop Protection Limited  Established in 1994, we are a crop solutions company with agrochemicals and seeds at the core of our offerings. Our diversified portfolio includes (i) products for crop protection such as herbicides, fungicides, insecticides and natural crop solutions such as bio-stimulants, bio-protectants, plant growth regulators, liquid fertilizers and micro nutrients; and (ii) seeds such as for field crops, vegetable crops and flowers. Our offerings are customized for Indian farmers through research and development (“R&D”) including by collaborations with various multinational companies, delivering relevant solutions that aim to enhance farm economics, yield, productivity and profitability. We operate on a fully integrated model, that integrates robust synthesis R&D in crop protection products and natural crop solutions as well as robust seeds breeding program, with backward-integrated technology enabled manufacturing and pan-India distribution, with a farmer-centric approach.  We have dedicated and strategic focus on R&D, which we consider integral to our ability to offer quality crop protection products and natural crop solutions and seeds for various crops. Our R&D teams focus on (i) developing novel formulations, based on our analysis of existing gaps in the industry and prevailing needs of our customers; and (ii) extensive breeding programs, leading to creation of renowned brands for our business verticals. Our robust seeds breeding programs, anchored by an extensive germplasm bank, using conventional and modern tools, deliver seeds which are locally adapted, high yielding, stress tolerant hybrids and varieties. Over the years, we have established ourselves as a progressive force in the Indian seed industry, actively engaging in strategic collaborations and technology partnerships to drive innovation and sustainable growth. We have signed several key agreements aimed at enhancing crop performance, farmer profitability and industry advancement.",
+    "priceBand": "259 to 272",
+    "cutOff": 272,
+    "lotRaw": 55,
+    "lotSize": "55 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "₹25.00",
+    "totalSize": "1,67,54,274 shares (agg. up to ₹455.49 Cr)",
+    "freshIssue": "1,30,51,580 shares (agg. up to ₹354.77 Cr)",
+    "ofs": "37,02,694 shares of ₹10 (agg. up to ₹100.71 Cr)",
+    "listingAt": "BSE, NSE",
+    "bseCode": "",
+    "nseCode": "",
+    "isinCode": "",
+    "mcScId": "",
+    "listingPriceNse": null,
+    "listingPriceBse": null,
+    "openDate": "2026-11-18",
+    "closeDate": "2026-11-20",
+    "allotmentDate": "2026-11-23",
+    "listingDate": "2026-11-26",
+    "gmp": "18",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/crystal-crop-protection-ipo/2813/",
+    "isAllotmentOut": false,
+    "registrarUrl": "https://in.mpms.mufg.com/Initial_Offer/public-issues.html",
+    "valuation": {
+      "eps": "33.29",
+      "pe": "8.17",
+      "ronw": "7.46%",
+      "nav": "125.53",
+      "ebitdaMargin": "11.72%",
+      "patMargin": "4.33%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 3332473,
+        "app": 7439795
+      },
+      {
+        "cat": "NII",
+        "off": 2499354,
+        "app": 8940580
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 1666236,
+        "app": 5375920
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 833118,
+        "app": 3564660
+      },
+      {
+        "cat": "Retail",
+        "off": 5831827,
+        "app": 19297135
+      },
+      {
+        "cat": "Employee",
+        "off": 101215,
+        "app": 518100
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 14
+      },
+      {
+        "app": "Big HNI",
+        "lot": 67
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "2,541.92",
+        "rev": "2,271.71",
+        "exp": "-",
+        "prf": "87.24"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "3,542.90",
+        "rev": "2,731.94",
+        "exp": "-",
+        "prf": "118.39"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "3,927.24",
+        "rev": "3,180.98",
+        "exp": "-",
+        "prf": "144.91"
+      },
+      "jun26": {
+        "yr": "30 Sep 2025",
+        "ast": "3,859.23",
+        "rev": "1,995.86",
+        "exp": "-",
+        "prf": "153.51"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualListingInfo": false,
+    "manualLockAll": false
+  }
+}

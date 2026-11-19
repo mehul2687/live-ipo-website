@@ -1931,6 +1931,17 @@ async function runUnifiedCloudSync({ ipoId = '', syncMode = 'all', onStatus = nu
                         run
                     };
                 }
+
+                // ડબલ-ચેક: જો રનરમાં કોઈ ગિટ પુશ વોર્નિંગ આવી હોય છતાં JSONBin માં ડેટા અપડેટ થઈ ગયો હોય
+                const freshCheck = await fetchAdminDataFromCloud();
+                if (freshCheck && ipoId && freshCheck[ipoId]) {
+                    const freshIpo = freshCheck[ipoId];
+                    if (freshIpo.lastUpdated && freshIpo.lastUpdated !== preUpdatedAt) {
+                        notify('✅ Cloud Sync પૂર્ણ થયું!', 'success');
+                        return { ok: true, allData: freshCheck, ipo: freshIpo, run };
+                    }
+                }
+
                 throw new Error(`GitHub Cloud Sync નિષ્ફળ ગયો (${run.conclusion}). Logs: ${run.html_url}`);
             } else if (run.status === 'in_progress') {
                 notify(`🚀 Chittorgarh પરથી લાઈવ ડેટા સ્ક્રૅપ થઈ રહ્યો છે... (${elapsedSec}s)`, 'running');
@@ -2082,7 +2093,18 @@ window.fetchAndAutoFillFromChittorgarh = async function() {
 // ==========================================
 window.syncSingleIpo = async function(ipoId) {
     let dbData = await fetchAdminDataFromCloud();
-    const ipo = dbData[ipoId];
+    let ipo = dbData[ipoId];
+    if (!ipo) {
+        // Fallback: જો લોકલસ્ટોરેજમાં હોય તો ક્લાઉડ પર પણ સેવ કરી લો
+        try {
+            const local = JSON.parse(localStorage.getItem('live_ipo_master_cloud_data') || '{}');
+            if (local[ipoId]) {
+                ipo = local[ipoId];
+                dbData[ipoId] = ipo;
+                await saveAdminDataToCloud(dbData);
+            }
+        } catch (_) {}
+    }
     if (!ipo) {
         alert("⚠️ આ IPO નો રેકોર્ડ મળ્યો નથી.");
         return;

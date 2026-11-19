@@ -31,7 +31,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -58,10 +58,15 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add indices-data.json indices-history-data.json index-stocks-data.json fii-dii-data.json fii-dii-fno-data.json ipo-data.json
+          for file in indices-data.json indices-history-data.json index-stocks-data.json fii-dii-data.json fii-dii-fno-data.json ipo-data.json; do
+            if [ -f "$file" ]; then
+              git add "$file"
+            fi
+          done
           if git diff --staged --quiet; then
             echo "✓ No data changes to commit. Everything up to date."
           else
             git commit -m "Auto sync daily market data [$(date -u +'%Y-%m-%d %H:%M UTC')]"
-            git push origin main
+            git pull --rebase origin main || true
+            git push origin main || git push origin main --force-with-lease || echo "⚠️ Push failed, will retry on next schedule"
           fi

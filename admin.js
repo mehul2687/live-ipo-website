@@ -181,8 +181,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 about: document.getElementById('adm_about').value,
                 priceBand: combinedPriceBand,
                 cutOff: parseFloat(document.getElementById('adm_cutOff').value) || 0,
-                lotRaw: parseInt(document.getElementById('adm_lotRaw').value) || 26,
-                lotSize: (document.getElementById('adm_lotRaw').value || 26) + " Shares",
+                lotRaw: parseInt(document.getElementById('adm_lotRaw').value) || existingIpo.lotRaw || (document.getElementById('adm_type')?.value === 'SME' ? 1000 : 1),
+                lotSize: (parseInt(document.getElementById('adm_lotRaw').value) || existingIpo.lotRaw || (document.getElementById('adm_type')?.value === 'SME' ? 1000 : 1)) + " Shares",
                 faceValue: document.getElementById('adm_faceValue').value || "₹10 per share",
                 empDiscount: document.getElementById('adm_empDiscount').value || "Nil",
                 totalSize: document.getElementById('adm_totalSize').value || "N/A",
@@ -1316,11 +1316,15 @@ function parseChittorgarhHtml(html, pageUrl) {
                         }
                     }
 
-                    if (k === 'lot size' && !issue.lotRaw) {
-                        const match = v.match(/(\d+)\s*Shares?/i);
+                    if ((k.includes('lot size') || k.includes('market lot') || k === 'lot') && !issue.lotRaw) {
+                        const cleanV = v.replace(/,/g, '').trim();
+                        const match = cleanV.match(/(\d+)\s*(?:equity\s*)?shares?/i) || cleanV.match(/\b(\d+)\b/);
                         if (match) {
-                            issue.lotRaw = parseInt(match[1]);
-                            issue.lotSize = `${match[1]} Shares`;
+                            const parsedLot = parseInt(match[1]);
+                            if (parsedLot > 0) {
+                                issue.lotRaw = parsedLot;
+                                issue.lotSize = `${parsedLot} Shares`;
+                            }
                         }
                     }
 
@@ -1480,20 +1484,34 @@ function parseChittorgarhHtml(html, pageUrl) {
                     if (cells.length >= 2) {
                         const appName = cells[0];
                         const lotNum = parseInt(cells[1].replace(/,/g, ''));
+                        const sharesNum = cells[2] ? parseInt(cells[2].replace(/,/g, '').replace(/[^0-9]/g, '')) : 0;
                         if (appName && !isNaN(lotNum) && lotNum > 0) {
-                            lotRows.push({ app: appName, lot: lotNum });
+                            lotRows.push({ app: appName, lot: lotNum, shares: sharesNum });
                         }
                     }
                 });
             }
         });
 
+        // Fallback lotRaw from lotRows if missing in details table
+        if (!issue.lotRaw && lotRows.length > 0) {
+            const retailRow = lotRows.find(r => {
+                const n = r.app.toLowerCase();
+                return (n.includes('retail') || n.includes('individual') || n.includes('rii') || n.includes('(ind)')) && (n.includes('min') || !n.includes('max'));
+            });
+            if (retailRow && retailRow.lot > 0 && retailRow.shares > 0) {
+                const perLot = Math.round(retailRow.shares / retailRow.lot);
+                issue.lotRaw = perLot;
+                issue.lotSize = `${perLot} Shares`;
+            }
+        }
+
         let customLots = null;
         if (lotRows.length > 0) {
             let retailLot = 1, shniLot = 14, bhniLot = 68;
             lotRows.forEach(r => {
                 const n = r.app.toLowerCase();
-                if (n.includes('retail') && (n.includes('min') || !n.includes('max'))) {
+                if ((n.includes('retail') || n.includes('individual') || n.includes('rii') || n.includes('(ind)')) && (n.includes('min') || !n.includes('max'))) {
                     retailLot = r.lot;
                 } else if ((n.includes('small') || n.includes('s-hni') || n.includes('s-nii')) && (n.includes('min') || !n.includes('max'))) {
                     shniLot = r.lot;

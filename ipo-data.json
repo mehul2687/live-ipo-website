@@ -4127,8 +4127,8 @@
     "about": "Incorporated in June 2022, Shree Siddhivinayak Greentech Industries Limited is an integrated agro-processing company engaged in the manufacturing of Jaggery Powder, Khandsari Sugar, jaggery-based value-added food products, and sugarcane by-products. The company also operates a Cane Seed nursery, enabling backward integration in sugarcane cultivation. It serves both B2B customers through jaggery powder, Khandsari sugar, and by-products, and B2C customers through its \"Feel Guddy\" branded jaggery-based premix products, including Jaggery Tea, Jaggery Coffee, Instant Rice Kheer, Jaggery Laddoo, and Jaggery Lapsi.  The company follows an integrated sugarcane processing model, utilizing sugarcane to manufacture primary products while efficiently monetizing by-products such as bagasse, molasses, press mud, and ash. With backward integration into sugarcane seed cultivation, captive processing facilities, and a focus on sustainable and zero-waste manufacturing, the company has established a diversified product portfolio catering to both industrial and retail markets.",
     "priceBand": "130 to 142",
     "cutOff": 142,
-    "lotRaw": 26,
-    "lotSize": "26 Shares",
+    "lotRaw": 1000,
+    "lotSize": "1000 Shares",
     "faceValue": "₹10 per share",
     "empDiscount": "Nil",
     "totalSize": "65,96,000 shares (agg. up to ₹93.66 Cr)",
@@ -4230,7 +4230,7 @@
     "customLots": [
       {
         "app": "Retail Min",
-        "lot": 1
+        "lot": 2
       },
       {
         "app": "Small HNI",

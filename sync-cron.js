@@ -257,11 +257,15 @@ async function get_Chittorgarh_details_data(key) {
                     }
 
                     // Lot Size
-                    if (k === 'lot size' && !issue.lotRaw) {
-                        const match = v.match(/(\d+)\s*Shares?/i);
+                    if ((k.includes('lot size') || k.includes('market lot') || k === 'lot') && !issue.lotRaw) {
+                        const cleanV = v.replace(/,/g, '').trim();
+                        const match = cleanV.match(/(\d+)\s*(?:equity\s*)?shares?/i) || cleanV.match(/\b(\d+)\b/);
                         if (match) {
-                            issue.lotRaw = parseInt(match[1]);
-                            issue.lotSize = `${match[1]} Shares`;
+                            const parsedLot = parseInt(match[1]);
+                            if (parsedLot > 0) {
+                                issue.lotRaw = parsedLot;
+                                issue.lotSize = `${parsedLot} Shares`;
+                            }
                         }
                     }
 
@@ -452,13 +456,27 @@ async function get_Chittorgarh_details_data(key) {
                     if (cells.length >= 2) {
                         const appName = cells[0];
                         const lotNum = parseInt(cells[1].replace(/,/g, ''));
+                        const sharesNum = cells[2] ? parseInt(cells[2].replace(/,/g, '').replace(/[^0-9]/g, '')) : 0;
                         if (appName && !isNaN(lotNum) && lotNum > 0) {
-                            lotRows.push({ app: appName, lot: lotNum });
+                            lotRows.push({ app: appName, lot: lotNum, shares: sharesNum });
                         }
                     }
                 });
             }
         });
+
+        // Fallback lotRaw from lotRows if missing in details table
+        if (!issue.lotRaw && lotRows.length > 0) {
+            const retailRow = lotRows.find(r => {
+                const n = r.app.toLowerCase();
+                return (n.includes('retail') || n.includes('individual') || n.includes('rii') || n.includes('(ind)')) && (n.includes('min') || !n.includes('max'));
+            });
+            if (retailRow && retailRow.lot > 0 && retailRow.shares > 0) {
+                const perLot = Math.round(retailRow.shares / retailRow.lot);
+                issue.lotRaw = perLot;
+                issue.lotSize = `${perLot} Shares`;
+            }
+        }
 
         let customLots = null;
         if (lotRows.length > 0) {
@@ -468,7 +486,7 @@ async function get_Chittorgarh_details_data(key) {
 
             lotRows.forEach(r => {
                 const n = r.app.toLowerCase();
-                if (n.includes('retail') && (n.includes('min') || !n.includes('max'))) {
+                if ((n.includes('retail') || n.includes('individual') || n.includes('rii') || n.includes('(ind)')) && (n.includes('min') || !n.includes('max'))) {
                     retailLot = r.lot;
                 } else if ((n.includes('small') || n.includes('s-hni') || n.includes('s-nii')) && (n.includes('min') || !n.includes('max'))) {
                     shniLot = r.lot;

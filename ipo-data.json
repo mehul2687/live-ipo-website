@@ -3958,167 +3958,6 @@
     "manualListingInfo": false,
     "manualLockAll": false
   },
-  "SSG256": {
-    "id": "SSG256",
-    "name": "Shree Siddhivinayak Greentech Industries IPO Details",
-    "logo": "https://www.chittorgarh.net/images/ipo/shree-siddhivinayak-greentech-industries-ltdlogo.png",
-    "type": "SME",
-    "about": "Shree Siddhivinayak Greentech Industries Limited. is a progressive agro-processing company committed to creating sustainable value across the agricultural supply chain. Established in 2022 in Maharashtra, the company focuses on processing sugarcane into high-quality Jaggery, Jaggery-based products and Khandsari sugar while ensuring fair trade practices for farmers and reliable quality for consumers.  The company has built a strong operational framework that integrates modern processing technologies, ethical sourcing practices, and a farmer-centric procurement model. Through this approach, Siddhivinayak Greentech bridges the gap between agricultural producers and modern markets.",
-    "priceBand": "130 to 142",
-    "cutOff": 142,
-    "lotRaw": 1000,
-    "lotSize": "1000 Shares",
-    "faceValue": "₹10 per share",
-    "empDiscount": "Nil",
-    "totalSize": "65,96,000 shares (agg. up to ₹93.66 Cr)",
-    "freshIssue": "62,66,000 shares (agg. up to ₹88.98 Cr)",
-    "ofs": "N/A",
-    "listingAt": "NSE",
-    "bseCode": "",
-    "nseCode": "",
-    "isinCode": "",
-    "mcScId": "",
-    "listingPriceNse": null,
-    "listingPriceBse": null,
-    "openDate": "2026-11-25",
-    "closeDate": "2026-11-27",
-    "allotmentDate": "2026-11-30",
-    "listingDate": "2026-12-02",
-    "gmp": "",
-    "estPrice": "",
-    "bookProfit": "",
-    "chittorgarhKey": "https://www.chittorgarh.com/ipo/shree-siddhivinayak-greentech-industries-ipo/3195/",
-    "isAllotmentOut": false,
-    "registrarUrl": "",
-    "valuation": {
-      "eps": "5.48",
-      "pe": "25.91",
-      "ronw": "46.24%",
-      "nav": "20.47",
-      "ebitdaMargin": "27.19%",
-      "patMargin": "15.40%"
-    },
-    "reservation": [
-      {
-        "category": "QIB",
-        "percentage": "50%"
-      },
-      {
-        "category": "NII (HNI)",
-        "percentage": "15%"
-      },
-      {
-        "category": "Retail",
-        "percentage": "35%"
-      }
-    ],
-    "subShares": [
-      {
-        "cat": "QIB",
-        "off": 0,
-        "app": 0
-      },
-      {
-        "cat": "NII",
-        "off": 0,
-        "app": 0
-      },
-      {
-        "cat": "B-NII(₹10L+)",
-        "off": 0,
-        "app": 0
-      },
-      {
-        "cat": "S-NII(₹2-10L)",
-        "off": 0,
-        "app": 0
-      },
-      {
-        "cat": "Retail",
-        "off": 0,
-        "app": 0
-      },
-      {
-        "cat": "Employee",
-        "off": 0,
-        "app": 0
-      },
-      {
-        "cat": "Shareholder",
-        "off": 0,
-        "app": 0
-      }
-    ],
-    "subApps": [
-      {
-        "cat": "B-NII(₹10L+)",
-        "off": 0,
-        "app": 0
-      },
-      {
-        "cat": "S-NII(₹2-10L)",
-        "off": 0,
-        "app": 0
-      },
-      {
-        "cat": "Retail",
-        "off": 0,
-        "app": 0
-      }
-    ],
-    "customLots": [
-      {
-        "app": "Retail Min",
-        "lot": 1
-      },
-      {
-        "app": "Small HNI",
-        "lot": 3
-      },
-      {
-        "app": "Big HNI",
-        "lot": 8
-      }
-    ],
-    "fin": {
-      "fy24": {
-        "yr": "FY-2024",
-        "ast": "114.78",
-        "rev": "36.90",
-        "exp": "-",
-        "prf": "3.08"
-      },
-      "fy25": {
-        "yr": "FY-2025",
-        "ast": "115.22",
-        "rev": "61.13",
-        "exp": "-",
-        "prf": "5.50"
-      },
-      "fy26": {
-        "yr": "FY-2026",
-        "ast": "145.86",
-        "rev": "78.32",
-        "exp": "-",
-        "prf": "11.59"
-      },
-      "jun26": {
-        "yr": "30 Jun 2026",
-        "ast": "-",
-        "rev": "-",
-        "exp": "-",
-        "prf": "-"
-      }
-    },
-    "manualDates": false,
-    "manualIssueInfo": true,
-    "manualLots": false,
-    "manualFin": false,
-    "manualValuation": false,
-    "manualSub": false,
-    "manualListingInfo": false,
-    "manualLockAll": false
-  },
   "FFH378": {
     "id": "FFH378",
     "name": "Foodlink F&B Holdings (India) IPO Details",
@@ -4269,6 +4108,167 @@
         "rev": "222.18",
         "exp": "-",
         "prf": "-16.15"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualListingInfo": false,
+    "manualLockAll": false
+  },
+  "SSG668": {
+    "id": "SSG668",
+    "name": "Shree Siddhivinayak Greentech Industries IPO Details",
+    "logo": "https://www.chittorgarh.net/images/ipo/shree-siddhivinayak-greentech-industries-ltdlogo.png",
+    "type": "SME",
+    "about": "Incorporated in June 2022, Shree Siddhivinayak Greentech Industries Limited is an integrated agro-processing company engaged in the manufacturing of Jaggery Powder, Khandsari Sugar, jaggery-based value-added food products, and sugarcane by-products. The company also operates a Cane Seed nursery, enabling backward integration in sugarcane cultivation. It serves both B2B customers through jaggery powder, Khandsari sugar, and by-products, and B2C customers through its \"Feel Guddy\" branded jaggery-based premix products, including Jaggery Tea, Jaggery Coffee, Instant Rice Kheer, Jaggery Laddoo, and Jaggery Lapsi.  The company follows an integrated sugarcane processing model, utilizing sugarcane to manufacture primary products while efficiently monetizing by-products such as bagasse, molasses, press mud, and ash. With backward integration into sugarcane seed cultivation, captive processing facilities, and a focus on sustainable and zero-waste manufacturing, the company has established a diversified product portfolio catering to both industrial and retail markets.",
+    "priceBand": "130 to 142",
+    "cutOff": 142,
+    "lotRaw": 26,
+    "lotSize": "26 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "65,96,000 shares (agg. up to ₹93.66 Cr)",
+    "freshIssue": "62,66,000 shares (agg. up to ₹88.98 Cr)",
+    "ofs": "N/A",
+    "listingAt": "NSE SME",
+    "bseCode": "",
+    "nseCode": "",
+    "isinCode": "",
+    "mcScId": "",
+    "listingPriceNse": null,
+    "listingPriceBse": null,
+    "openDate": "2026-11-25",
+    "closeDate": "2026-11-27",
+    "allotmentDate": "2026-11-30",
+    "listingDate": "2026-12-02",
+    "gmp": "",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/shree-siddhivinayak-greentech-industries-ipo/3195/",
+    "isAllotmentOut": false,
+    "registrarUrl": "https://www.masserv.com/opt.asp",
+    "valuation": {
+      "eps": "5.48",
+      "pe": "25.91",
+      "ronw": "46.24%",
+      "nav": "20.47",
+      "ebitdaMargin": "27.19%",
+      "patMargin": "15.40%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "NII",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      },
+      {
+        "app": "Big HNI",
+        "lot": 8
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "114.78",
+        "rev": "36.90",
+        "exp": "-",
+        "prf": "3.08"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "115.22",
+        "rev": "61.13",
+        "exp": "-",
+        "prf": "5.50"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "145.86",
+        "rev": "78.32",
+        "exp": "-",
+        "prf": "11.59"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "-",
+        "rev": "-",
+        "exp": "-",
+        "prf": "-"
       }
     },
     "manualDates": false,

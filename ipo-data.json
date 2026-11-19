@@ -3693,28 +3693,28 @@
     "subShares": [
       {
         "cat": "QIB",
-        "off": 0,
+        "off": 936000,
         "app": 0
       },
       {
         "cat": "NII",
-        "off": 0,
-        "app": 0
+        "off": 698400,
+        "app": 3959400
       },
       {
         "cat": "B-NII(₹10L+)",
-        "off": 0,
-        "app": 0
+        "off": 465600,
+        "app": 3111600
       },
       {
         "cat": "S-NII(₹2-10L)",
-        "off": 0,
-        "app": 0
+        "off": 232800,
+        "app": 847800
       },
       {
         "cat": "Retail",
-        "off": 0,
-        "app": 0
+        "off": 1629600,
+        "app": 8378400
       },
       {
         "cat": "Employee",

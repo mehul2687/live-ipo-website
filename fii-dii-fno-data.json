@@ -1,20 +1,44 @@
 {
-  "updatedAt": "2026-11-19T13:49:10.039Z",
+  "updatedAt": "2026-11-20T03:40:54.353Z",
   "source": "Moneycontrol Futures & Options (Permanent Cumulative Storage)",
   "currency": "₹ in Crores",
   "summary": {
-    "latestDate": "18-11-2026",
-    "latestFutNet": "-987.26",
-    "latestOptNet": "-12,026.99",
-    "latestTotalNet": "-13,014.25",
-    "rawLatestFutNet": -987.26,
-    "rawLatestOptNet": -12026.99,
-    "rawLatestTotalNet": -13014.25,
-    "totalRecordedDays": 38,
-    "indexClose": "25,227.95",
-    "indexChangePer": "-0.63"
+    "latestDate": "19-11-2026",
+    "latestFutNet": "507.20",
+    "latestOptNet": "7,983.14",
+    "latestTotalNet": "8,490.34",
+    "rawLatestFutNet": 507.2,
+    "rawLatestOptNet": 7983.14,
+    "rawLatestTotalNet": 8490.34,
+    "totalRecordedDays": 39,
+    "indexClose": "25,514.30",
+    "indexChangePer": "1.14"
   },
   "daily": [
+    {
+      "date": "19-11-2026",
+      "isoDate": "2026-11-19",
+      "year": "2026",
+      "month": "2026-11",
+      "monthName": "19 Nov",
+      "futBuy": "8,915.33",
+      "futSell": "8,408.13",
+      "futNet": "507.20",
+      "optBuy": "10,56,075.59",
+      "optSell": "10,48,092.45",
+      "optNet": "7,983.14",
+      "totalNet": "8,490.34",
+      "rawFutBuy": 8915.33,
+      "rawFutSell": 8408.13,
+      "rawFutNet": 507.2,
+      "rawOptBuy": 1056075.59,
+      "rawOptSell": 1048092.45,
+      "rawOptNet": 7983.14,
+      "rawTotalNet": 8490.34,
+      "indexClose": "25,514.30",
+      "indexPrevClose": "25,227.95",
+      "indexChangePer": "1.14"
+    },
     {
       "date": "18-11-2026",
       "isoDate": "2026-11-18",
@@ -931,17 +955,17 @@
   "monthly": [
     {
       "date": "Nov 2026",
-      "futBuy": "66,568.19",
-      "futSell": "39,150.91",
-      "futNet": "27,417.28",
-      "optBuy": "2,35,73,650.16",
-      "optSell": "2,35,50,416.69",
-      "optNet": "23,233.47",
-      "totalNet": "50,650.75",
-      "rawFutNet": 27417.28,
-      "rawOptNet": 23233.47,
-      "rawTotalNet": 50650.75,
-      "tradingDays": 13
+      "futBuy": "75,483.52",
+      "futSell": "47,559.04",
+      "futNet": "27,924.48",
+      "optBuy": "2,46,29,725.75",
+      "optSell": "2,45,98,509.14",
+      "optNet": "31,216.61",
+      "totalNet": "59,141.09",
+      "rawFutNet": 27924.48,
+      "rawOptNet": 31216.61,
+      "rawTotalNet": 59141.09,
+      "tradingDays": 14
     },
     {
       "date": "Oct 2026",
@@ -975,17 +999,17 @@
   "yearly": [
     {
       "date": "FY 2026",
-      "futBuy": "1,94,044.12",
-      "futSell": "1,78,455.86",
-      "futNet": "15,588.26",
-      "optBuy": "6,12,21,891.28",
-      "optSell": "6,12,64,461.13",
-      "optNet": "-42,569.85",
-      "totalNet": "-26,981.59",
-      "rawFutNet": 15588.260000000006,
-      "rawOptNet": -42569.85,
-      "rawTotalNet": -26981.589999999997,
-      "tradingDays": 38
+      "futBuy": "2,02,959.45",
+      "futSell": "1,86,863.99",
+      "futNet": "16,095.46",
+      "optBuy": "6,22,77,966.87",
+      "optSell": "6,23,12,553.58",
+      "optNet": "-34,586.71",
+      "totalNet": "-18,491.25",
+      "rawFutNet": 16095.460000000006,
+      "rawOptNet": -34586.710000000014,
+      "rawTotalNet": -18491.249999999993,
+      "tradingDays": 39
     }
   ]
 }

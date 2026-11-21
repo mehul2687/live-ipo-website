@@ -1,8 +1,9 @@
 {
-  "lastUpdated": "2026-11-21T17:45:47.089Z",
-  "lastUpdatedDisplay": "21 Nov 2026, 11:15 pm",
-  "totalDates": 17,
+  "lastUpdated": "2026-11-21T22:59:56.891Z",
+  "lastUpdatedDisplay": "22 Nov 2026, 4:29 am",
+  "totalDates": 18,
   "dates": [
+    "22-11-2026",
     "21-11-2026",
     "20-11-2026",
     "19-11-2026",
@@ -29649,6 +29650,22 @@
         "low": 16642.7,
         "yearHigh": 16875.85,
         "yearLow": 14102.2,
+        "volume": 0
+      }
+    ],
+    "22-11-2026": [
+      {
+        "name": "INDIA VIX",
+        "exchange": "NSE",
+        "category": "Key Indices",
+        "close": 17.32,
+        "chg": 1.21,
+        "percentChange": 7.5109,
+        "open": 16.11,
+        "high": 17.56,
+        "low": 15.03,
+        "yearHigh": 28.9,
+        "yearLow": 8.72,
         "volume": 0
       }
     ]

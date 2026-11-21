@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-11-20T20:59:31.458Z",
-  "lastUpdatedDisplay": "21 Nov 2026, 2:29 am",
+  "lastUpdated": "2026-11-21T02:08:19.765Z",
+  "lastUpdatedDisplay": "21 Nov 2026, 7:38 am",
   "marketStatus": "CLOSED",
   "indices": {
     "NIFTY 50": {
@@ -36834,9 +36834,9 @@
       "low": 113428.92,
       "yearHigh": 123353.65,
       "yearLow": 73866.86,
-      "advances": 72,
-      "declines": 80,
-      "totalStocks": 152,
+      "advances": 70,
+      "declines": 74,
+      "totalStocks": 144,
       "stocks": [
         {
           "mcScId": "ATSL",
@@ -37529,21 +37529,6 @@
           "volume": 8000
         },
         {
-          "mcScId": "GCT",
-          "symbol": "GAME CHANGERS",
-          "name": "Game Changers Ltd.",
-          "sector": "Textiles Apparel",
-          "ltp": 84.99,
-          "chg": 0.49,
-          "percentChange": 0.5799,
-          "open": 85,
-          "high": 85,
-          "low": 83,
-          "yearHigh": 161.95,
-          "yearLow": 78,
-          "volume": 3600
-        },
-        {
           "mcScId": "GOLIL",
           "symbol": "GLOBAL OCEAN",
           "name": "Global Ocean Ltd.",
@@ -37962,21 +37947,6 @@
           "yearHigh": 44.66,
           "yearLow": 22.05,
           "volume": 2000
-        },
-        {
-          "mcScId": "MLL02",
-          "symbol": "MAHAMAYA LIFE",
-          "name": "Mahamaya Life Ltd.",
-          "sector": "Pesticides Agrochemicals",
-          "ltp": 147.6,
-          "chg": -14.5,
-          "percentChange": -8.9451,
-          "open": 162.3,
-          "high": 162.3,
-          "low": 147,
-          "yearHigh": 205.05,
-          "yearLow": 111.2,
-          "volume": 172800
         },
         {
           "mcScId": "MSIL",
@@ -38534,21 +38504,6 @@
           "volume": 61200
         },
         {
-          "mcScId": "SSL20",
-          "symbol": "SAFECURE SER",
-          "name": "Safecure Ser Ltd.",
-          "sector": "Misc Commercial Services",
-          "ltp": 19.5,
-          "chg": -1,
-          "percentChange": -4.878,
-          "open": 19.8,
-          "high": 19.81,
-          "low": 19.5,
-          "yearHigh": 46.5,
-          "yearLow": 18.65,
-          "volume": 10800
-        },
-        {
           "mcScId": "SCD02",
           "symbol": "SAFETY CONTROLS",
           "name": "Safety Controls Ltd.",
@@ -38654,21 +38609,6 @@
           "volume": 60000
         },
         {
-          "mcScId": "STL12",
-          "symbol": "SHINING TOOLS",
-          "name": "Shining Tools Ltd.",
-          "sector": "Engineering Industrial Equipments",
-          "ltp": 278.1,
-          "chg": 13.2,
-          "percentChange": 4.983,
-          "open": 278.1,
-          "high": 278.1,
-          "low": 277.9,
-          "yearHigh": 278.1,
-          "yearLow": 38.43,
-          "volume": 37200
-        },
-        {
           "mcScId": "SAL10",
           "symbol": "SHIVCHEM AGRO",
           "name": "Shivchem Agro Ltd.",
@@ -38682,21 +38622,6 @@
           "yearHigh": 62,
           "yearLow": 21.67,
           "volume": 4000
-        },
-        {
-          "mcScId": "SDL04",
-          "symbol": "SHLOKKA DYES",
-          "name": "Shlokka Dyes Ltd.",
-          "sector": "Dyes Pigments",
-          "ltp": 42.51,
-          "chg": -1.02,
-          "percentChange": -2.3432,
-          "open": 43.53,
-          "high": 43.53,
-          "low": 42.05,
-          "yearHigh": 73.9,
-          "yearLow": 21.1,
-          "volume": 9600
         },
         {
           "mcScId": "SBMTL",
@@ -38729,21 +38654,6 @@
           "volume": 12000
         },
         {
-          "mcScId": "SIL29",
-          "symbol": "SIHORA IND",
-          "name": "Sihora Ind Ltd.",
-          "sector": "Textiles Apparel",
-          "ltp": 59.7,
-          "chg": -0.35,
-          "percentChange": -0.5828,
-          "open": 60,
-          "high": 60,
-          "low": 59.7,
-          "yearHigh": 65,
-          "yearLow": 50,
-          "volume": 4000
-        },
-        {
           "mcScId": "SPRL",
           "symbol": "SILVERSTORM PAR",
           "name": "Silverstorm Par Ltd.",
@@ -38757,21 +38667,6 @@
           "yearHigh": 138.9,
           "yearLow": 108,
           "volume": 49000
-        },
-        {
-          "mcScId": "SMAL",
-          "symbol": "SK MINERALS",
-          "name": "SK Minerals Ltd.",
-          "sector": "Speciality Chemicals",
-          "ltp": 406,
-          "chg": -4.1,
-          "percentChange": -0.9998,
-          "open": 415,
-          "high": 419,
-          "low": 403,
-          "yearHigh": 507,
-          "yearLow": 102.05,
-          "volume": 20250
         },
         {
           "mcScId": "SJL",
@@ -39072,21 +38967,6 @@
           "yearHigh": 279.85,
           "yearLow": 194,
           "volume": 109200
-        },
-        {
-          "mcScId": "WCSL",
-          "symbol": "WORKMATES CORE",
-          "name": "Workmates Core Ltd.",
-          "sector": "It Services Consulting",
-          "ltp": 367.7,
-          "chg": -18.25,
-          "percentChange": -4.7286,
-          "open": 382.95,
-          "high": 389,
-          "low": 366.75,
-          "yearHigh": 514,
-          "yearLow": 264,
-          "volume": 9000
         },
         {
           "mcScId": "YFL01",

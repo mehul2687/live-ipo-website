@@ -1,18 +1,40 @@
 {
-  "updatedAt": "2026-11-20T12:42:48.487Z",
+  "updatedAt": "2026-11-21T02:07:59.518Z",
   "source": "Moneycontrol Cash Market (Permanent Cumulative Storage)",
   "currency": "₹ in Crores",
   "summary": {
-    "latestDate": "19-11-2026",
-    "latestFiiNet": "7,411.41",
-    "latestDiiNet": "-1,356.57",
-    "latestTotalNet": "6,054.84",
-    "rawLatestFiiNet": 7411.41,
-    "rawLatestDiiNet": -1356.57,
-    "rawLatestTotalNet": 6054.84,
-    "totalRecordedDays": 39
+    "latestDate": "20-11-2026",
+    "latestFiiNet": "10,308.42",
+    "latestDiiNet": "-4,859.80",
+    "latestTotalNet": "5,448.62",
+    "rawLatestFiiNet": 10308.42,
+    "rawLatestDiiNet": -4859.8,
+    "rawLatestTotalNet": 5448.62,
+    "totalRecordedDays": 40
   },
   "daily": [
+    {
+      "date": "20-11-2026",
+      "isoDate": "2026-11-20",
+      "year": "2026",
+      "month": "2026-11",
+      "monthName": "20 Nov",
+      "fiiBuy": "23,596.40",
+      "fiiSell": "13,287.98",
+      "fiiNet": "10,308.42",
+      "diiBuy": "18,492.63",
+      "diiSell": "23,352.43",
+      "diiNet": "-4,859.80",
+      "totalNet": "5,448.62",
+      "rawFiiBuy": 23596.4,
+      "rawFiiSell": 13287.98,
+      "rawFiiNet": 10308.42,
+      "rawDiiBuy": 18492.63,
+      "rawDiiSell": 23352.43,
+      "rawDiiNet": -4859.8,
+      "rawTotalNet": 5448.62,
+      "niftyClose": "25,800.60"
+    },
     {
       "date": "19-11-2026",
       "isoDate": "2026-11-19",
@@ -875,17 +897,17 @@
   "monthly": [
     {
       "date": "Nov 2026",
-      "fiiBuy": "2,84,582.29",
-      "fiiSell": "1,82,941.57",
-      "fiiNet": "1,01,640.72",
-      "diiBuy": "2,07,668.94",
-      "diiSell": "2,64,596.17",
-      "diiNet": "-56,927.23",
-      "totalNet": "44,713.49",
-      "rawFiiNet": 101640.72,
-      "rawDiiNet": -56927.23,
-      "rawTotalNet": 44713.490000000005,
-      "tradingDays": 14
+      "fiiBuy": "3,08,178.69",
+      "fiiSell": "1,96,229.55",
+      "fiiNet": "1,11,949.14",
+      "diiBuy": "2,26,161.57",
+      "diiSell": "2,87,948.60",
+      "diiNet": "-61,787.03",
+      "totalNet": "50,162.11",
+      "rawFiiNet": 111949.13999999998,
+      "rawDiiNet": -61787.02999999999,
+      "rawTotalNet": 50162.11,
+      "tradingDays": 15
     },
     {
       "date": "Oct 2026",
@@ -919,17 +941,17 @@
   "yearly": [
     {
       "date": "FY 2026",
-      "fiiBuy": "6,50,456.58",
-      "fiiSell": "6,28,180.71",
-      "fiiNet": "22,275.87",
-      "diiBuy": "6,86,307.88",
-      "diiSell": "6,50,462.19",
-      "diiNet": "35,845.69",
-      "totalNet": "58,121.56",
-      "rawFiiNet": 22275.869999999988,
-      "rawDiiNet": 35845.69,
-      "rawTotalNet": 58121.560000000005,
-      "tradingDays": 39
+      "fiiBuy": "6,74,052.98",
+      "fiiSell": "6,41,468.69",
+      "fiiNet": "32,584.29",
+      "diiBuy": "7,04,800.51",
+      "diiSell": "6,73,814.62",
+      "diiNet": "30,985.89",
+      "totalNet": "63,570.18",
+      "rawFiiNet": 32584.28999999997,
+      "rawDiiNet": 30985.890000000014,
+      "rawTotalNet": 63570.179999999986,
+      "tradingDays": 40
     }
   ]
 }

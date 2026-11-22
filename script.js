@@ -393,9 +393,9 @@ async function loadHomeIpoTable(filterType = currentHomeFilter) {
             
             let logoHtml = '';
             if (logoVal.startsWith("http://") || logoVal.startsWith("https://") || logoVal.startsWith("data:image/")) {
-                logoHtml = `<div style="background: #ffffff; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden;"><img src="${logoVal}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;"></div>`;
+                logoHtml = `<div style="background: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: 1px solid #e2e8f0; overflow: hidden; margin: 0 auto;"><img src="${logoVal}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;"></div>`;
             } else {
-                logoHtml = `<div style="background: #ffffff; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #e2e8f0; font-weight: bold; color: #1e3a8a; font-size: 10px;">${logoVal || ipo.id}</div>`;
+                logoHtml = `<div style="background: #ffffff; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; border: 1px solid #e2e8f0; font-weight: bold; color: #1e3a8a; font-size: 9.5px; margin: 0 auto;">${logoVal || ipo.id}</div>`;
             }
 
             const statusObj = getIpoStatus(ipo.openDate, ipo.closeDate, ipo.allotmentDate, ipo.listingDate, ipo.isAllotmentOut);
@@ -408,9 +408,9 @@ async function loadHomeIpoTable(filterType = currentHomeFilter) {
             let homeAllotmentHtml = '';
             if (ipo.isAllotmentOut === true || (allotDate && today >= allotDate)) {
                 const regLink = ipo.registrarUrl || (ipo.regWeb ? `https://${ipo.regWeb}` : '#');
-                homeAllotmentHtml = `<a href="${regLink}" target="_blank" onclick="event.stopPropagation();" style="background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 5px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 600; display: inline-block;">🔍 Check Allotment</a>`;
+                homeAllotmentHtml = `<a href="${regLink}" target="_blank" onclick="event.stopPropagation();" style="background-color: #16a34a; color: #ffffff; text-decoration: none; padding: 3.5px 8px; border-radius: 5px; font-size: 10.5px; font-weight: 600; display: inline-block;">🔍 Check</a>`;
             } else {
-                homeAllotmentHtml = `<span style="color: #c2410c; background-color: #ffedd5; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">Waiting</span>`;
+                homeAllotmentHtml = `<span style="color: #c2410c; background-color: #ffedd5; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700;">Waiting</span>`;
             }
 
             let totalOff = 0, totalApp = 0;
@@ -426,25 +426,25 @@ async function loadHomeIpoTable(filterType = currentHomeFilter) {
 
             tableBody.innerHTML += `
                 <tr class="${statusObj.rowClass}" onclick="window.location.href='ipo-detail.html?id=${ipo.id}'">
-                    <td style="padding: 12px; text-align: center;">${logoHtml}</td>
-                    <td class="ipo-name-cell" style="text-align: left; padding: 12px 16px;">
+                    <td style="padding: 6px 8px; text-align: center;">${logoHtml}</td>
+                    <td class="ipo-name-cell" style="text-align: left; padding: 6px 12px;">
                         <a href="ipo-detail.html?id=${ipo.id}" onclick="event.stopPropagation();" style="text-decoration: none; text-align: left;">
-                            <strong style="color: #1d4ed8; display: block; cursor: pointer; text-align: left; margin-bottom: 3px;">${ipo.name}</strong>
+                            <strong style="color: #1d4ed8; display: block; cursor: pointer; text-align: left; margin-bottom: 2px; font-size: 12.5px;">${ipo.name}</strong>
                         </a>
-                        <span style="background: #f1f5f9; color: #475569; padding: 2px 6px; border-radius: 4px; font-size: 11px; display: inline-block;">${ipo.type || 'Mainboard'}</span>
+                        <span style="background: #f1f5f9; color: #475569; padding: 1px 5px; border-radius: 4px; font-size: 10px; display: inline-block;">${ipo.type || 'Mainboard'}</span>
                     </td>
-                    <td style="text-align: center;">${formatDateReadable(ipo.openDate)}</td>
-                    <td style="text-align: center;">${formatDateReadable(ipo.closeDate)}</td>
-                    <td style="text-align: center;">${formatDateReadable(ipo.allotmentDate)}</td>
-                    <td style="text-align: center;">${formatDateReadable(ipo.listingDate)}</td>
-                    <td style="text-align: center; font-weight: bold;">₹${ipo.priceBand}</td>
-                    <td style="text-align: center;">${ipo.lotSize}</td>
-                    <td style="text-align: center;">
+                    <td style="text-align: center; padding: 6px 8px; font-size: 12px;">${formatDateReadable(ipo.openDate)}</td>
+                    <td style="text-align: center; padding: 6px 8px; font-size: 12px;">${formatDateReadable(ipo.closeDate)}</td>
+                    <td style="text-align: center; padding: 6px 8px; font-size: 12px;">${formatDateReadable(ipo.allotmentDate)}</td>
+                    <td style="text-align: center; padding: 6px 8px; font-size: 12px;">${formatDateReadable(ipo.listingDate)}</td>
+                    <td style="text-align: center; font-weight: bold; padding: 6px 8px; font-size: 12px;">₹${ipo.priceBand}</td>
+                    <td style="text-align: center; padding: 6px 8px; font-size: 12px;">${ipo.lotSize}</td>
+                    <td style="text-align: center; padding: 6px 8px;">
                         ${formatGmpBadge(ipo.gmp)}
                     </td>
-                    <td style="text-align: center; font-weight: 600; color: #1e293b;">${overallSubTimes}</td>
-                    <td style="text-align: center;">${homeAllotmentHtml}</td>
-                    <td style="text-align: center;">
+                    <td style="text-align: center; font-weight: 600; color: #1e293b; padding: 6px 8px; font-size: 12px;">${overallSubTimes}</td>
+                    <td style="text-align: center; padding: 6px 8px;">${homeAllotmentHtml}</td>
+                    <td style="text-align: center; padding: 6px 8px;">
                         <span class="${statusObj.class}">${statusObj.text}</span>
                     </td>
                 </tr>

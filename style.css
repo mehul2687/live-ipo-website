@@ -1,20 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 /* ==========================================================
-   1. GLOBAL STYLES & RESETS
+   1. GLOBAL STYLES & RESETS (Crisp Typography & Space Management)
    ========================================================== */
+:root {
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+html {
+    font-size: 13px;
+    -webkit-text-size-adjust: 100%;
 }
 
 body {
     display: flex;
     min-height: 100vh;
     background-color: #f4f7f6;
-    color: #2d3748;
+    color: #0f172a;
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.45;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
+}
+
+/* Make all tabular numbers and financial metrics razor-sharp */
+table, .stat-value, .metric-value, .price, .badge, .pill, .gmp-badge, .chg-val, 
+.level-box .lvl-val, .rsi-big-number, .score-val, .sub-tag, .ma-val-col {
+    font-feature-settings: "tnum" 1, "cv05" 1;
+    font-variant-numeric: tabular-nums;
 }
 
 
@@ -22,7 +46,7 @@ body {
    2. COMMON SIDEBAR NAVIGATION (Dark Navy Blue)
    ========================================================== */
 .sidebar {
-    width: 260px;
+    width: 245px;
     background-color: #0d1b2a;
     color: #ffffff;
     position: fixed;
@@ -38,15 +62,16 @@ body {
 }
 
 .sidebar-brand {
-    padding: 22px 20px;
-    font-size: 20px;
-    font-weight: bold;
+    padding: 15px 16px;
+    font-size: 17.5px;
+    font-weight: 800;
     color: #ffffff;
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    gap: 9px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    letter-spacing: -0.3px;
 }
 
 .sidebar-brand span {
@@ -55,10 +80,10 @@ body {
 
 .sidebar-menu {
     list-style: none;
-    padding: 15px 12px;
+    padding: 8px 6px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 2px;
     flex: 1;
 }
 
@@ -69,14 +94,14 @@ body {
 .menu-item a {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 11px 14px;
+    gap: 9px;
+    padding: 7px 11px;
     color: #94a3b8;
     text-decoration: none;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
-    border-radius: 8px;
-    transition: all 0.2s ease;
+    border-radius: 6px;
+    transition: all 0.15s ease;
 }
 
 .menu-item a:hover {
@@ -92,8 +117,8 @@ body {
 
 /* Sidebar Section Categories / Headers */
 .menu-heading {
-    padding: 12px 14px 4px 14px;
-    font-size: 11px;
+    padding: 8px 11px 2px 11px;
+    font-size: 9.5px;
     font-weight: 700;
     color: #64748b;
     text-transform: uppercase;
@@ -116,9 +141,9 @@ body {
    3. DETAIL PAGE STYLES (style.css)
    ========================================================== */
 .main-content {
-    margin-left: 260px;
+    margin-left: 245px;
     flex: 1;
-    padding: 20px 25px;
+    padding: 12px 16px;
     overflow-x: hidden;
     background-color: #f8fafc;
 }
@@ -424,7 +449,7 @@ body {
 }
 
 .card-detail-header h3 {
-    font-size: 15px;
+    font-size: 14px;
     color: #0f172a;
     font-weight: 700;
     display: flex;
@@ -450,9 +475,9 @@ body {
 
 .table-data td,
 .table-data th {
-    padding: 9px 12px;
+    padding: 6.5px 10px;
     border-bottom: 1px solid #f1f5f9;
-    font-size: 13px;
+    font-size: 12px;
 }
 
 .table-data th {
@@ -483,9 +508,9 @@ body {
 
 .structured-table th,
 .structured-table td {
-    padding: 8px 10px;
+    padding: 7px 9px;
     border: 1px solid #e2e8f0;
-    font-size: 13px;
+    font-size: 12px;
     text-align: center;
 }
 
@@ -537,26 +562,27 @@ body.home-page {
 }
 
 .home-page .hero-card {
-    padding: 24px 28px;
+    padding: 14px 18px;
 }
 
 .home-page .hero-card h1 {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 6px;
+    font-size: 19px;
+    font-weight: 800;
+    margin-bottom: 3px;
+    letter-spacing: -0.3px;
 }
 
 .home-page .filter-buttons {
-    margin-top: 18px;
+    margin-top: 10px;
     display: flex;
-    gap: 10px;
+    gap: 6px;
 }
 
 .home-page .filter-btn {
-    padding: 7px 16px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 5px;
+    font-size: 11.5px;
+    font-weight: 600;
     cursor: pointer;
     text-decoration: none;
     border: 1px solid #cbd5e1;
@@ -575,12 +601,21 @@ body.home-page {
 }
 
 .home-page .structured-table th {
-    padding: 14px 16px;
+    padding: 8px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    background: #f8fafc;
     border-bottom: 2px solid #e2e8f0;
+    color: #475569;
+    white-space: nowrap;
 }
 
 .home-page .structured-table td {
-    padding: 16px;
+    padding: 7px 10px;
+    font-size: 12px;
+    color: #0f172a;
 }
 
 .home-page .structured-table td.ipo-name-cell,
@@ -882,11 +917,11 @@ body.home-page {
     justify-content: space-between;
     align-items: center;
     background: #ffffff;
-    padding: 10px 18px;
-    border-radius: 10px;
+    padding: 7px 14px;
+    border-radius: 8px;
     border: 1px solid #e2e8f0;
-    margin-bottom: 14px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .header-welcome-text {

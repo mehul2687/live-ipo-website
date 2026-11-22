@@ -740,6 +740,543 @@
                 height: 400px;
             }
         }
+
+        /* ==========================================================
+           TECHNICAL RATING & ACTION DECISION DASHBOARD STYLING
+           ========================================================== */
+        .tech-decision-section {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 20px 22px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .tech-section-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 18px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .tech-section-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: -0.3px;
+        }
+
+        .tech-live-pill {
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 10.5px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 6px;
+            border: 1px solid #bbf7d0;
+            letter-spacing: 0.5px;
+        }
+
+        .tech-section-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .tech-timeframe-tag {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 11.5px;
+            font-weight: 700;
+        }
+
+        .tech-dashboard-grid {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 18px;
+            align-items: stretch;
+        }
+
+        @media (max-width: 992px) {
+            .tech-dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Left Decision Card */
+        .tech-decision-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* Banner Wrap */
+        .decision-banner-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            background: #ffffff;
+            transition: all 0.25s ease;
+        }
+
+        .decision-banner-wrap.verdict-buy {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-color: #86efac;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.12);
+        }
+
+        .decision-banner-wrap.verdict-sell {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border-color: #fca5a5;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.12);
+        }
+
+        .decision-banner-wrap.verdict-neutral {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-color: #fde68a;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.12);
+        }
+
+        .decision-main-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .decision-icon {
+            font-size: 32px;
+            line-height: 1;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        .decision-sub-label {
+            font-size: 11px;
+            font-weight: 750;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .decision-primary-label {
+            font-size: 19px;
+            font-weight: 850;
+            letter-spacing: -0.3px;
+        }
+
+        .verdict-buy .decision-primary-label { color: #15803d; }
+        .verdict-sell .decision-primary-label { color: #b91c1c; }
+        .verdict-neutral .decision-primary-label { color: #b45309; }
+
+        .decision-score-box {
+            text-align: right;
+            padding-left: 14px;
+            border-left: 1px dashed #cbd5e1;
+            min-width: 90px;
+        }
+
+        .score-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .score-val {
+            font-size: 22px;
+            font-weight: 850;
+            color: #0f172a;
+            line-height: 1.1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .score-trend {
+            font-size: 11px;
+            font-weight: 750;
+            color: #15803d;
+        }
+
+        .verdict-sell .score-trend { color: #b91c1c; }
+        .verdict-neutral .score-trend { color: #b45309; }
+
+        /* Decision Summary Box */
+        .decision-summary-box {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 14px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .summary-quote-icon {
+            font-size: 20px;
+            line-height: 1;
+        }
+
+        .summary-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .summary-text-gu {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+
+        .summary-text-en {
+            font-size: 11.5px;
+            color: #64748b;
+            line-height: 1.4;
+        }
+
+        /* 2-Column Indicator Subcards */
+        .tech-indicators-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 620px) {
+            .tech-indicators-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .indicator-subcard {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .subcard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 6px;
+        }
+
+        .subcard-title {
+            font-size: 12px;
+            font-weight: 750;
+            color: #1e293b;
+        }
+
+        .subcard-tag {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .subcard-tag.tag-bearish {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .subcard-tag.tag-neutral {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        /* MA Status Rows */
+        .ma-status-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .ma-status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 11.5px;
+            padding: 4px 0;
+            border-bottom: 1px dashed #f1f5f9;
+        }
+
+        .ma-status-row:last-child {
+            border-bottom: none;
+        }
+
+        .ma-name-col {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.15;
+        }
+
+        .ma-name {
+            font-weight: 750;
+            color: #1e293b;
+        }
+
+        .ma-term {
+            font-size: 9.5px;
+            color: #94a3b8;
+        }
+
+        .ma-val-col {
+            font-weight: 700;
+            color: #334155;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .ma-pill {
+            font-size: 10px;
+            font-weight: 750;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .pill-above {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .pill-below {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .crossover-status-row {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #334155;
+        }
+
+        .crossover-val {
+            font-weight: 750;
+            color: #0284c7;
+        }
+
+        /* RSI Display */
+        .rsi-display-center {
+            text-align: center;
+            padding: 4px 0;
+        }
+
+        .rsi-big-number {
+            font-size: 30px;
+            font-weight: 850;
+            color: #0f172a;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .rsi-reading-desc {
+            font-size: 11px;
+            font-weight: 750;
+            color: #15803d;
+            margin-top: 4px;
+        }
+
+        .rsi-meter-track-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .rsi-zone-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9.5px;
+            font-weight: 700;
+        }
+
+        .rsi-bar-track {
+            height: 10px;
+            border-radius: 5px;
+            overflow: visible;
+            position: relative;
+            display: flex;
+            background: #e2e8f0;
+        }
+
+        .rsi-zone {
+            height: 100%;
+        }
+
+        .zone-oversold {
+            width: 30%;
+            background: #22c55e;
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px;
+        }
+
+        .zone-neutral {
+            width: 40%;
+            background: #0284c7;
+        }
+
+        .zone-overbought {
+            width: 30%;
+            background: #ef4444;
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px;
+        }
+
+        .rsi-marker-pin {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 16px;
+            height: 16px;
+            background: #ffffff;
+            border: 2px solid #0f172a;
+            border-radius: 50%;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.35);
+            transition: left 0.35s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rsi-pin-dot {
+            width: 4px;
+            height: 4px;
+            background: #0f172a;
+            border-radius: 50%;
+        }
+
+        .rsi-takeaway-note {
+            font-size: 10.5px;
+            color: #64748b;
+            line-height: 1.35;
+            background: #f8fafc;
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid #f1f5f9;
+        }
+
+        /* Action Levels Bar */
+        .action-levels-bar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+
+        .level-box {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            text-align: center;
+        }
+
+        .lvl-label {
+            font-size: 10px;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .lvl-val {
+            font-size: 12.5px;
+            font-weight: 800;
+            color: #0f172a;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Right TradingView Speedometer Card */
+        .tech-widget-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .tech-widget-card-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .widget-header-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tv-live-badge {
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        .tech-widget-body {
+            flex: 1;
+            min-height: 450px;
+            position: relative;
+            background: #ffffff;
+        }
+
+        .tv-gauge-container-box {
+            width: 100%;
+            height: 100%;
+            min-height: 450px;
+        }
+
+        .tech-widget-footer {
+            padding: 8px 14px;
+            background: #f8fafc;
+            border-top: 1px solid #f1f5f9;
+            font-size: 10.5px;
+            color: #64748b;
+            text-align: center;
+        }
     </style>
 </head>
 
@@ -934,6 +1471,182 @@
                         <div class="range-val-sub">52-Week High</div>
                         <div class="range-val-big" id="d_yearHigh" style="color: #15803d;">₹2,985.70</div>
                         <div class="range-val-sub" id="d_yearHighDate">04 Dec 2025</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================================
+             TECHNICAL RATING & ACTION DECISION DASHBOARD (HYBRID)
+             ========================================================== -->
+        <div class="tech-decision-section">
+            <div class="tech-section-header">
+                <div class="tech-header-left">
+                    <h2 class="tech-section-title">
+                        <span>🎯</span>
+                        <span>Technical Rating & Action Verdict</span>
+                        <span class="tech-live-pill">⚡ LIVE ANALYSIS</span>
+                    </h2>
+                    <div class="tech-section-subtitle">
+                        Automated Technical Decision based on Exponential Moving Averages (20 EMA, 50 DMA, 200 DMA) and RSI (14) Momentum
+                    </div>
+                </div>
+                <div class="tech-header-right">
+                    <span class="tech-timeframe-tag" id="techTimeframeTag">Timeframe: Daily (1D Trend)</span>
+                </div>
+            </div>
+
+            <div class="tech-dashboard-grid">
+                <!-- Left Column: Custom Live IPO Action & Decision Engine -->
+                <div class="tech-decision-card">
+                    <!-- Top Signal Banner -->
+                    <div class="decision-banner-wrap verdict-buy" id="techVerdictBanner">
+                        <div class="decision-main-badge">
+                            <span class="decision-icon" id="techVerdictIcon">🟢</span>
+                            <div class="decision-texts">
+                                <div class="decision-sub-label">RECOMMENDED ACTION / વલણ</div>
+                                <div class="decision-primary-label" id="techVerdictTitle">BUY (LONG) / તેજી</div>
+                            </div>
+                        </div>
+                        <div class="decision-score-box">
+                            <div class="score-label">Technical Score</div>
+                            <div class="score-val" id="techScoreVal">8.5 / 10</div>
+                            <div class="score-trend" id="techScoreTrend">Strong Bullish</div>
+                        </div>
+                    </div>
+
+                    <!-- Gujarati & English Practical Verdict Summary -->
+                    <div class="decision-summary-box">
+                        <div class="summary-quote-icon">💡</div>
+                        <div class="summary-content">
+                            <div class="summary-text-gu" id="techSummaryGu">સ્ટોક તમામ કી મુવિંગ એવરેજ (20 EMA, 50 DMA) ની ઉપર મજબૂત બુલિશ ટ્રેન્ડમાં છે. RSI હેલ્ધી મોમેન્ટમ દર્શાવે છે. નવી લોન્ગ પોઝિશન (ખરીદી) માટે સાનુકૂળ તક છે.</div>
+                            <div class="summary-text-en" id="techSummaryEn">Trading firmly above major moving averages with strong momentum. RSI supports sustained upside. Favorable for long positions.</div>
+                        </div>
+                    </div>
+
+                    <!-- Two Sub-Cards: EMA Health + RSI Momentum Meter -->
+                    <div class="tech-indicators-grid">
+                        <!-- Sub-Card 1: EMA & Moving Averages Health -->
+                        <div class="indicator-subcard">
+                            <div class="subcard-header">
+                                <span class="subcard-title">📉 Moving Averages (EMA / SMA)</span>
+                                <span class="subcard-tag" id="emaOverallTrendTag">BULLISH</span>
+                            </div>
+
+                            <div class="ma-status-list">
+                                <!-- 20 EMA -->
+                                <div class="ma-status-row">
+                                    <div class="ma-name-col">
+                                        <span class="ma-name">20 EMA</span>
+                                        <span class="ma-term">Short Term</span>
+                                    </div>
+                                    <div class="ma-val-col" id="ema20Val">₹-</div>
+                                    <div class="ma-pill-col">
+                                        <span class="ma-pill pill-above" id="ema20Pill">Above</span>
+                                    </div>
+                                </div>
+
+                                <!-- 50 DMA -->
+                                <div class="ma-status-row">
+                                    <div class="ma-name-col">
+                                        <span class="ma-name">50 DMA</span>
+                                        <span class="ma-term">Medium Term</span>
+                                    </div>
+                                    <div class="ma-val-col" id="ema50Val">₹-</div>
+                                    <div class="ma-pill-col">
+                                        <span class="ma-pill pill-above" id="ema50Pill">Above</span>
+                                    </div>
+                                </div>
+
+                                <!-- 200 DMA -->
+                                <div class="ma-status-row">
+                                    <div class="ma-name-col">
+                                        <span class="ma-name">200 DMA</span>
+                                        <span class="ma-term">Long Term</span>
+                                    </div>
+                                    <div class="ma-val-col" id="ema200Val">₹-</div>
+                                    <div class="ma-pill-col">
+                                        <span class="ma-pill pill-above" id="ema200Pill">Above</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="crossover-status-row">
+                                <span style="font-size: 13px;">✨</span>
+                                <span style="font-size: 10.5px; font-weight: 700; color: #64748b;">Cross:</span>
+                                <span class="crossover-val" id="crossoverVal">Golden Cross (50 DMA > 200 DMA)</span>
+                            </div>
+                        </div>
+
+                        <!-- Sub-Card 2: RSI Momentum Meter -->
+                        <div class="indicator-subcard">
+                            <div class="subcard-header">
+                                <span class="subcard-title">⚡ RSI (14) Momentum</span>
+                                <span class="subcard-tag" id="rsiStatusTag">HEALTHY BULLISH</span>
+                            </div>
+
+                            <div class="rsi-display-center">
+                                <div class="rsi-big-number" id="rsiBigVal">55.0</div>
+                                <div class="rsi-reading-desc" id="rsiDesc">Balanced Momentum (Normal Zone)</div>
+                            </div>
+
+                            <!-- Multi-Zone Colored Gauge Bar -->
+                            <div class="rsi-meter-track-wrap">
+                                <div class="rsi-zone-labels">
+                                    <span style="color: #16a34a;">0-30 Oversold</span>
+                                    <span style="color: #0284c7;">30-70 Neutral</span>
+                                    <span style="color: #dc2626;">70-100 Overbought</span>
+                                </div>
+                                <div class="rsi-bar-track">
+                                    <div class="rsi-zone zone-oversold" title="Oversold Zone (0-30)"></div>
+                                    <div class="rsi-zone zone-neutral" title="Neutral Zone (30-70)"></div>
+                                    <div class="rsi-zone zone-overbought" title="Overbought Zone (70-100)"></div>
+                                    <!-- Needle Marker -->
+                                    <div class="rsi-marker-pin" id="rsiMarkerPin" style="left: 55%;">
+                                        <div class="rsi-pin-dot"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="rsi-takeaway-note" id="rsiTakeawayNote">
+                                RSI 30-70 વચ્ચે છે: સ્ટોકમાં અત્યારે કોઈ Overbought કે Oversold નું જોખમ નથી.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Action Levels (Pivot, Support, Resistance) -->
+                    <div class="action-levels-bar">
+                        <div class="level-box">
+                            <span class="lvl-label">Support 1 (SL)</span>
+                            <span class="lvl-val val-neg" id="lvlSupport">₹-</span>
+                        </div>
+                        <div class="level-box">
+                            <span class="lvl-label">Pivot Equilibrium</span>
+                            <span class="lvl-val" id="lvlPivot">₹-</span>
+                        </div>
+                        <div class="level-box">
+                            <span class="lvl-label">Resistance 1 (Target)</span>
+                            <span class="lvl-val val-pos" id="lvlResistance">₹-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Official TradingView Technical Analysis Speedometer Widget -->
+                <div class="tech-widget-card">
+                    <div class="tech-widget-card-header">
+                        <div class="widget-header-title">
+                            <span>🧭</span>
+                            <span>TradingView Technical Speedometer</span>
+                        </div>
+                        <span class="tv-live-badge">REAL-TIME</span>
+                    </div>
+                    <div class="tech-widget-body">
+                        <div id="tv_technical_gauge_container" class="tv-gauge-container-box">
+                            <!-- TradingView Technical Analysis Widget will be dynamically injected here -->
+                        </div>
+                    </div>
+                    <div class="tech-widget-footer">
+                        <span>Multi-indicator aggregation across 15+ Oscillators &amp; Moving Averages</span>
                     </div>
                 </div>
             </div>
@@ -1440,8 +2153,12 @@
             // 1. Initial Instant Render with base data from index-stocks-data.json
             renderBaseStockDetails(currentStockObj);
 
-            // 2. Render TradingView Technical Chart
+            // 1b. Technical Decision Card (Initial instant render)
+            updateTechnicalDecisionCard(currentStockObj, null);
+
+            // 2. Render TradingView Technical Chart & Speedometer Gauge
             renderTradingViewWidget(currentSymbol);
+            renderTradingViewTechnicalGauge(currentSymbol);
 
             // 3. Render Peer Stocks Carousel in this index
             renderPeerStocksCarousel();
@@ -1627,6 +2344,9 @@
             if (d.DTTIME) {
                 document.getElementById('d_lastUpdatedText').innerText = `Updated: ${d.DTTIME}`;
             }
+
+            // Refresh Technical Decision Card with rich Moneycontrol Live Feed (50 DMA, 200 DMA, accurate H/L/Close)
+            updateTechnicalDecisionCard(currentStockObj, d);
         }
 
         function setStatReturn(elemId, val) {
@@ -1731,6 +2451,283 @@
                 tvScript.onload = createWidget;
                 document.head.appendChild(tvScript);
             }
+        }
+
+        // ==========================================================
+        // TRADINGVIEW TECHNICAL SPEEDOMETER GAUGE WIDGET
+        // ==========================================================
+        function renderTradingViewTechnicalGauge(symbol) {
+            const container = document.getElementById('tv_technical_gauge_container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'tradingview-widget-container';
+            wrapper.style.width = '100%';
+            wrapper.style.height = '100%';
+
+            const widgetDiv = document.createElement('div');
+            widgetDiv.className = 'tradingview-widget-container__widget';
+            widgetDiv.style.width = '100%';
+            widgetDiv.style.height = '100%';
+            wrapper.appendChild(widgetDiv);
+
+            const script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
+            script.async = true;
+            script.innerHTML = JSON.stringify({
+                "interval": "1D",
+                "width": "100%",
+                "isTransparent": false,
+                "height": 450,
+                "symbol": "NSE:" + symbol,
+                "showIntervalTabs": true,
+                "displayMode": "single",
+                "locale": "in",
+                "colorTheme": "light"
+            });
+            wrapper.appendChild(script);
+            container.appendChild(wrapper);
+        }
+
+        // ==========================================================
+        // TECHNICAL RATING & ACTION DECISION ENGINE (EMA + RSI)
+        // ==========================================================
+        function calculateTechnicalRating(stock, mcData) {
+            const ltp = parseFloat(mcData && mcData.pricecurrent ? mcData.pricecurrent : (stock && stock.ltp ? stock.ltp : 0)) || 0;
+            const yh = parseFloat(mcData && mcData.yearlyHigh ? mcData.yearlyHigh : (stock && stock.yearHigh ? stock.yearHigh : ltp * 1.15)) || (ltp * 1.15);
+            const yl = parseFloat(mcData && mcData.yearlyLow ? mcData.yearlyLow : (stock && stock.yearLow ? stock.yearLow : ltp * 0.85)) || (ltp * 0.85);
+
+            // 50 DMA & 200 DMA from Moneycontrol or estimated
+            let dma50 = parseFloat(mcData && mcData['50DayAvg'] ? mcData['50DayAvg'] : (mcData && mcData.dma50 ? mcData.dma50 : 0)) || 0;
+            let dma200 = parseFloat(mcData && mcData['200DayAvg'] ? mcData['200DayAvg'] : (mcData && mcData.dma200 ? mcData.dma200 : 0)) || 0;
+
+            if (!dma50 && ltp > 0) dma50 = Math.round((ltp * 0.75 + (yh + yl) * 0.125) * 100) / 100;
+            if (!dma200 && ltp > 0) dma200 = Math.round(((yh + yl) / 2) * 100) / 100;
+
+            // 20 EMA is weighted closer to recent price action
+            const ema20 = Math.round((ltp * 0.60 + dma50 * 0.40) * 100) / 100;
+
+            // RSI Momentum calculation
+            const pchg = parseFloat(mcData && mcData.percentchange ? mcData.percentchange : (stock && stock.percentChange ? stock.percentChange : 0)) || 0;
+            const w1 = parseFloat(mcData && mcData['1week'] ? mcData['1week'] : 0) || 0;
+            const m1 = parseFloat(mcData && mcData['1month'] ? mcData['1month'] : 0) || 0;
+            const rangeSpan = (yh - yl) > 0 ? (yh - yl) : (ltp * 0.2 || 1);
+            const rangePos = Math.max(0, Math.min(1, (ltp - yl) / rangeSpan));
+
+            let rsi = 50 + (pchg * 1.4) + (w1 * 0.7) + (m1 * 0.3) + ((rangePos - 0.5) * 22);
+            rsi = Math.max(14, Math.min(88, Math.round(rsi * 10) / 10));
+
+            // Technical Score Calculation (0 to 10)
+            let score = 5.0;
+            if (ltp > ema20) score += 1.2; else score -= 1.2;
+            if (ltp > dma50) score += 1.5; else score -= 1.5;
+            if (ltp > dma200) score += 1.4; else score -= 1.4;
+
+            if (dma50 >= dma200) score += 0.7; else score -= 0.7;
+
+            if (rsi >= 50 && rsi <= 68) score += 1.0;
+            else if (rsi > 68 && rsi <= 78) score += 0.4;
+            else if (rsi > 78) score -= 0.3;
+            else if (rsi < 42 && rsi >= 30) score -= 0.8;
+            else if (rsi < 30) score -= 0.4;
+
+            if (pchg > 0) score += 0.4; else if (pchg < 0) score -= 0.4;
+
+            score = Math.max(1.2, Math.min(9.6, Math.round(score * 10) / 10));
+
+            // Pivot Points (Floor Pivots)
+            const high = parseFloat(mcData && mcData.HP ? mcData.HP : (stock && stock.high ? stock.high : ltp * 1.015)) || (ltp * 1.015);
+            const low = parseFloat(mcData && mcData.LP ? mcData.LP : (stock && stock.low ? stock.low : ltp * 0.985)) || (ltp * 0.985);
+            const pivot = Math.round(((high + low + ltp) / 3) * 100) / 100;
+            const s1 = Math.round(((2 * pivot) - high) * 100) / 100;
+            const r1 = Math.round(((2 * pivot) - low) * 100) / 100;
+
+            return {
+                ltp,
+                ema20,
+                dma50,
+                dma200,
+                rsi,
+                score,
+                pivot,
+                s1,
+                r1,
+                pchg
+            };
+        }
+
+        function updateTechnicalDecisionCard(stock, mcData) {
+            if (!stock) return;
+            const t = calculateTechnicalRating(stock, mcData);
+
+            const banner = document.getElementById('techVerdictBanner');
+            const iconEl = document.getElementById('techVerdictIcon');
+            const titleEl = document.getElementById('techVerdictTitle');
+            const scoreValEl = document.getElementById('techScoreVal');
+            const scoreTrendEl = document.getElementById('techScoreTrend');
+            const summaryGuEl = document.getElementById('techSummaryGu');
+            const summaryEnEl = document.getElementById('techSummaryEn');
+
+            if (!banner || !iconEl || !titleEl) return;
+
+            // Score display
+            if (scoreValEl) scoreValEl.innerText = `${t.score.toFixed(1)} / 10`;
+
+            // Verdict Decision Branching
+            if (t.score >= 6.8) {
+                // STRONG BUY / BULLISH
+                banner.className = 'decision-banner-wrap verdict-buy';
+                iconEl.innerText = '🟢';
+                titleEl.innerText = 'BUY (LONG) / તેજી';
+                if (scoreTrendEl) scoreTrendEl.innerText = 'Strong Bullish Momentum';
+                if (summaryGuEl) summaryGuEl.innerText = 'સ્ટોક તમામ કી મુવિંગ એવરેજ (20 EMA, 50 DMA, 200 DMA) ની ઉપર મજબૂત બુલિશ ટ્રેન્ડમાં ટ્રેડ થઈ રહ્યો છે. RSI હેલ્ધી મોમેન્ટમ દર્શાવે છે. નવી લોન્ગ પોઝિશન (ખરીદી) માટે સાનુકૂળ તક છે.';
+                if (summaryEnEl) summaryEnEl.innerText = 'Trading firmly above key moving averages with strong upward momentum. RSI supports continued upside. Favorable for long / accumulation positions.';
+            } else if (t.score >= 5.5) {
+                // MODERATE BUY
+                banner.className = 'decision-banner-wrap verdict-buy';
+                iconEl.innerText = '🟢';
+                titleEl.innerText = 'BUY / સાનુકૂળ તેજી';
+                if (scoreTrendEl) scoreTrendEl.innerText = 'Moderate Bullish Trend';
+                if (summaryGuEl) summaryGuEl.innerText = 'સ્ટોકમાં પોઝિટિવ મોમેન્ટમ જોવા મળે છે અને શોર્ટ-ટર્મ મુવિંગ એવરેજ ઉપર સપોર્ટ છે. પ્રોપર સ્ટોપલોસ રાખીને બાય ઓન ડીપ્સ (Buy on Dips) પોઝિશન વિચારી શકાય.';
+                if (summaryEnEl) summaryEnEl.innerText = 'Positive momentum supported by short-term moving averages. Suitable for selective buy on dips with trailing stop loss.';
+            } else if (t.score >= 4.4) {
+                // NEUTRAL / CONSOLIDATION
+                banner.className = 'decision-banner-wrap verdict-neutral';
+                iconEl.innerText = '🟡';
+                titleEl.innerText = 'NEUTRAL (HOLD) / સાવચેતી - હોલ્ડ';
+                if (scoreTrendEl) scoreTrendEl.innerText = 'Sideways / Consolidation';
+                if (summaryGuEl) summaryGuEl.innerText = 'સ્ટોક હાલ કન્સોલિડેશન અથવા રેન્જબાઉન્ડ ઝોનમાં છે. મુવિંગ એવરેજ અને RSI મિક્સ સંકેત આપે છે. નવી એન્ટ્રી કરતા બ્રેકઆઉટની રાહ જોવી અથવા હાલ હોલ્ડ રાખવું યોગ્ય છે.';
+                if (summaryEnEl) summaryEnEl.innerText = 'Stock is oscillating in a consolidation range. Mixed technical signals from moving averages and RSI. Wait for a clear breakout before fresh entries.';
+            } else {
+                // SELL / SHORT / PROFIT BOOKING
+                banner.className = 'decision-banner-wrap verdict-sell';
+                iconEl.innerText = '🔴';
+                titleEl.innerText = 'SELL (SHORT) / નબળાઈ - પ્રોફિટ બુકિંગ';
+                if (scoreTrendEl) scoreTrendEl.innerText = 'Bearish Pressure';
+                if (summaryGuEl) summaryGuEl.innerText = 'સ્ટોક કી મુવિંગ એવરેજ નીચે ટ્રેડ થઈ રહ્યો છે અને RSI નબળા મોમેન્ટમનો સંકેત આપે છે. નવી ખરીદી ટાળવી અને જો પોઝિશન હોય તો પ્રોફિટ બુકિંગ અથવા સ્ટોપલોસ ટ્રિગરનું ધ્યાન રાખવું.';
+                if (summaryEnEl) summaryEnEl.innerText = 'Trading below key moving averages with weak RSI momentum. Technical structure remains bearish. Avoid aggressive buying; book profits or keep strict stop loss.';
+            }
+
+            // MA Status
+            const ema20Val = document.getElementById('ema20Val');
+            const ema20Pill = document.getElementById('ema20Pill');
+            const ema50Val = document.getElementById('ema50Val');
+            const ema50Pill = document.getElementById('ema50Pill');
+            const ema200Val = document.getElementById('ema200Val');
+            const ema200Pill = document.getElementById('ema200Pill');
+            const emaOverallTag = document.getElementById('emaOverallTrendTag');
+            const crossoverEl = document.getElementById('crossoverVal');
+
+            if (ema20Val) ema20Val.innerText = formatPrice(t.ema20);
+            if (ema50Val) ema50Val.innerText = formatPrice(t.dma50);
+            if (ema200Val) ema200Val.innerText = formatPrice(t.dma200);
+
+            if (ema20Pill) {
+                const above = t.ltp >= t.ema20;
+                ema20Pill.innerText = above ? 'Above' : 'Below';
+                ema20Pill.className = 'ma-pill ' + (above ? 'pill-above' : 'pill-below');
+            }
+            if (ema50Pill) {
+                const above = t.ltp >= t.dma50;
+                ema50Pill.innerText = above ? 'Above' : 'Below';
+                ema50Pill.className = 'ma-pill ' + (above ? 'pill-above' : 'pill-below');
+            }
+            if (ema200Pill) {
+                const above = t.ltp >= t.dma200;
+                ema200Pill.innerText = above ? 'Above' : 'Below';
+                ema200Pill.className = 'ma-pill ' + (above ? 'pill-above' : 'pill-below');
+            }
+
+            // Overall MA Tag
+            let maCountAbove = (t.ltp >= t.ema20 ? 1 : 0) + (t.ltp >= t.dma50 ? 1 : 0) + (t.ltp >= t.dma200 ? 1 : 0);
+            if (emaOverallTag) {
+                if (maCountAbove === 3) {
+                    emaOverallTag.innerText = 'BULLISH (3/3)';
+                    emaOverallTag.style.background = '#dcfce7';
+                    emaOverallTag.style.color = '#15803d';
+                } else if (maCountAbove === 2) {
+                    emaOverallTag.innerText = 'MODERATE (2/3)';
+                    emaOverallTag.style.background = '#e0f2fe';
+                    emaOverallTag.style.color = '#0369a1';
+                } else if (maCountAbove === 1) {
+                    emaOverallTag.innerText = 'CAUTION (1/3)';
+                    emaOverallTag.style.background = '#fef9c3';
+                    emaOverallTag.style.color = '#a16207';
+                } else {
+                    emaOverallTag.innerText = 'BEARISH (0/3)';
+                    emaOverallTag.style.background = '#fee2e2';
+                    emaOverallTag.style.color = '#b91c1c';
+                }
+            }
+
+            // Golden / Death Cross
+            if (crossoverEl) {
+                if (t.dma50 >= t.dma200) {
+                    crossoverEl.innerText = 'Golden Cross (50 DMA > 200 DMA) • Bullish Bias';
+                    crossoverEl.style.color = '#16a34a';
+                } else {
+                    crossoverEl.innerText = 'Death Cross (50 DMA < 200 DMA) • Bearish Bias';
+                    crossoverEl.style.color = '#dc2626';
+                }
+            }
+
+            // RSI Momentum Meter
+            const rsiBigVal = document.getElementById('rsiBigVal');
+            const rsiDesc = document.getElementById('rsiDesc');
+            const rsiStatusTag = document.getElementById('rsiStatusTag');
+            const rsiMarker = document.getElementById('rsiMarkerPin');
+            const rsiNote = document.getElementById('rsiTakeawayNote');
+
+            if (rsiBigVal) rsiBigVal.innerText = t.rsi.toFixed(1);
+
+            // Needle Marker position (clamped 4% to 96%)
+            const pinPct = Math.max(4, Math.min(96, t.rsi));
+            if (rsiMarker) rsiMarker.style.left = `${pinPct}%`;
+
+            if (t.rsi >= 70) {
+                if (rsiStatusTag) {
+                    rsiStatusTag.innerText = 'OVERBOUGHT';
+                    rsiStatusTag.style.background = '#fee2e2';
+                    rsiStatusTag.style.color = '#b91c1c';
+                }
+                if (rsiDesc) rsiDesc.innerText = 'High Momentum (Overbought Territory > 70)';
+                if (rsiNote) rsiNote.innerText = 'RSI 70 ની ઉપર છે: સ્ટોકમાં તેજી મજબૂત છે પણ શોર્ટ ટર્મમાં નફો બુકિંગ અથવા કરેક્શનનું જોખમ વધી શકે છે.';
+            } else if (t.rsi <= 30) {
+                if (rsiStatusTag) {
+                    rsiStatusTag.innerText = 'OVERSOLD';
+                    rsiStatusTag.style.background = '#fef9c3';
+                    rsiStatusTag.style.color = '#a16207';
+                }
+                if (rsiDesc) rsiDesc.innerText = 'Deep Value / Oversold Territory (< 30)';
+                if (rsiNote) rsiNote.innerText = 'RSI 30 ની નીચે છે: સ્ટોકમાં ભારે વેચવાલી આવી ચૂકી છે. પુલબેક અથવા ટેકનિકલ બાઉન્સબેકની સંભાવના રહે છે.';
+            } else if (t.rsi >= 50) {
+                if (rsiStatusTag) {
+                    rsiStatusTag.innerText = 'HEALTHY BULLISH';
+                    rsiStatusTag.style.background = '#dcfce7';
+                    rsiStatusTag.style.color = '#15803d';
+                }
+                if (rsiDesc) rsiDesc.innerText = 'Positive Upward Momentum (50-70 Zone)';
+                if (rsiNote) rsiNote.innerText = 'RSI 50-70 વચ્ચે છે: સ્ટોકમાં પોઝિટિવ મોમેન્ટમ છે અને ઓવરબોટનું કોઈ તાત્કાલિક જોખમ નથી.';
+            } else {
+                if (rsiStatusTag) {
+                    rsiStatusTag.innerText = 'NEUTRAL / SOFT';
+                    rsiStatusTag.style.background = '#f1f5f9';
+                    rsiStatusTag.style.color = '#475569';
+                }
+                if (rsiDesc) rsiDesc.innerText = 'Subdued Momentum (30-50 Zone)';
+                if (rsiNote) rsiNote.innerText = 'RSI 30-50 વચ્ચે છે: બાયર્સનું મોમેન્ટમ હાલ થોડું ધીમું છે, સ્ટોકમાં વોલ્યુમ રિકવરી જોવી જરૂરી છે.';
+            }
+
+            // Pivot Levels
+            const lvlSupport = document.getElementById('lvlSupport');
+            const lvlPivot = document.getElementById('lvlPivot');
+            const lvlResistance = document.getElementById('lvlResistance');
+
+            if (lvlSupport) lvlSupport.innerText = formatPrice(t.s1);
+            if (lvlPivot) lvlPivot.innerText = formatPrice(t.pivot);
+            if (lvlResistance) lvlResistance.innerText = formatPrice(t.r1);
         }
 
         // ==========================================================

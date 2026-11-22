@@ -940,17 +940,11 @@
             gap: 4px;
         }
 
-        .summary-text-gu {
-            font-size: 13px;
-            font-weight: 700;
-            color: #1e293b;
-            line-height: 1.5;
-        }
-
         .summary-text-en {
-            font-size: 11.5px;
-            color: #64748b;
-            line-height: 1.4;
+            font-size: 13.5px;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.55;
         }
 
         /* 2-Column Indicator Subcards */
@@ -1504,8 +1498,8 @@
                         <div class="decision-main-badge">
                             <span class="decision-icon" id="techVerdictIcon">🟢</span>
                             <div class="decision-texts">
-                                <div class="decision-sub-label">RECOMMENDED ACTION / વલણ</div>
-                                <div class="decision-primary-label" id="techVerdictTitle">BUY (LONG) / તેજી</div>
+                                <div class="decision-sub-label">RECOMMENDED ACTION</div>
+                                <div class="decision-primary-label" id="techVerdictTitle">BUY (LONG)</div>
                             </div>
                         </div>
                         <div class="decision-score-box">
@@ -1515,12 +1509,11 @@
                         </div>
                     </div>
 
-                    <!-- Gujarati & English Practical Verdict Summary -->
+                    <!-- Practical Verdict Summary -->
                     <div class="decision-summary-box">
                         <div class="summary-quote-icon">💡</div>
                         <div class="summary-content">
-                            <div class="summary-text-gu" id="techSummaryGu">સ્ટોક તમામ કી મુવિંગ એવરેજ (20 EMA, 50 DMA) ની ઉપર મજબૂત બુલિશ ટ્રેન્ડમાં છે. RSI હેલ્ધી મોમેન્ટમ દર્શાવે છે. નવી લોન્ગ પોઝિશન (ખરીદી) માટે સાનુકૂળ તક છે.</div>
-                            <div class="summary-text-en" id="techSummaryEn">Trading firmly above major moving averages with strong momentum. RSI supports sustained upside. Favorable for long positions.</div>
+                            <div class="summary-text-en" id="techSummaryEn">Trading firmly above key moving averages with strong upward momentum. RSI supports sustained upside. Favorable for long / accumulation positions.</div>
                         </div>
                     </div>
 
@@ -1609,7 +1602,7 @@
                             </div>
 
                             <div class="rsi-takeaway-note" id="rsiTakeawayNote">
-                                RSI 30-70 વચ્ચે છે: સ્ટોકમાં અત્યારે કોઈ Overbought કે Oversold નું જોખમ નથી.
+                                RSI is in the 30-70 normal range: Balanced momentum with no immediate overbought or oversold risks.
                             </div>
                         </div>
                     </div>
@@ -2567,7 +2560,6 @@
             const titleEl = document.getElementById('techVerdictTitle');
             const scoreValEl = document.getElementById('techScoreVal');
             const scoreTrendEl = document.getElementById('techScoreTrend');
-            const summaryGuEl = document.getElementById('techSummaryGu');
             const summaryEnEl = document.getElementById('techSummaryEn');
 
             if (!banner || !iconEl || !titleEl) return;
@@ -2580,34 +2572,30 @@
                 // STRONG BUY / BULLISH
                 banner.className = 'decision-banner-wrap verdict-buy';
                 iconEl.innerText = '🟢';
-                titleEl.innerText = 'BUY (LONG) / તેજી';
+                titleEl.innerText = 'STRONG BUY (LONG)';
                 if (scoreTrendEl) scoreTrendEl.innerText = 'Strong Bullish Momentum';
-                if (summaryGuEl) summaryGuEl.innerText = 'સ્ટોક તમામ કી મુવિંગ એવરેજ (20 EMA, 50 DMA, 200 DMA) ની ઉપર મજબૂત બુલિશ ટ્રેન્ડમાં ટ્રેડ થઈ રહ્યો છે. RSI હેલ્ધી મોમેન્ટમ દર્શાવે છે. નવી લોન્ગ પોઝિશન (ખરીદી) માટે સાનુકૂળ તક છે.';
-                if (summaryEnEl) summaryEnEl.innerText = 'Trading firmly above key moving averages with strong upward momentum. RSI supports continued upside. Favorable for long / accumulation positions.';
+                if (summaryEnEl) summaryEnEl.innerText = 'Trading firmly above key moving averages (20 EMA, 50 DMA, 200 DMA) with strong upward momentum. RSI indicates healthy buying strength. Highly favorable for fresh long positions and trend continuation.';
             } else if (t.score >= 5.5) {
                 // MODERATE BUY
                 banner.className = 'decision-banner-wrap verdict-buy';
                 iconEl.innerText = '🟢';
-                titleEl.innerText = 'BUY / સાનુકૂળ તેજી';
+                titleEl.innerText = 'BUY (ACCUMULATE)';
                 if (scoreTrendEl) scoreTrendEl.innerText = 'Moderate Bullish Trend';
-                if (summaryGuEl) summaryGuEl.innerText = 'સ્ટોકમાં પોઝિટિવ મોમેન્ટમ જોવા મળે છે અને શોર્ટ-ટર્મ મુવિંગ એવરેજ ઉપર સપોર્ટ છે. પ્રોપર સ્ટોપલોસ રાખીને બાય ઓન ડીપ્સ (Buy on Dips) પોઝિશન વિચારી શકાય.';
-                if (summaryEnEl) summaryEnEl.innerText = 'Positive momentum supported by short-term moving averages. Suitable for selective buy on dips with trailing stop loss.';
+                if (summaryEnEl) summaryEnEl.innerText = 'Positive momentum supported by short-term moving averages. Suitable for selective buying on dips with a disciplined trailing stop loss.';
             } else if (t.score >= 4.4) {
                 // NEUTRAL / CONSOLIDATION
                 banner.className = 'decision-banner-wrap verdict-neutral';
                 iconEl.innerText = '🟡';
-                titleEl.innerText = 'NEUTRAL (HOLD) / સાવચેતી - હોલ્ડ';
+                titleEl.innerText = 'NEUTRAL (HOLD)';
                 if (scoreTrendEl) scoreTrendEl.innerText = 'Sideways / Consolidation';
-                if (summaryGuEl) summaryGuEl.innerText = 'સ્ટોક હાલ કન્સોલિડેશન અથવા રેન્જબાઉન્ડ ઝોનમાં છે. મુવિંગ એવરેજ અને RSI મિક્સ સંકેત આપે છે. નવી એન્ટ્રી કરતા બ્રેકઆઉટની રાહ જોવી અથવા હાલ હોલ્ડ રાખવું યોગ્ય છે.';
-                if (summaryEnEl) summaryEnEl.innerText = 'Stock is oscillating in a consolidation range. Mixed technical signals from moving averages and RSI. Wait for a clear breakout before fresh entries.';
+                if (summaryEnEl) summaryEnEl.innerText = 'Stock is consolidating in a rangebound channel. Mixed signals from moving averages and RSI momentum. Wait for a decisive breakout before initiating fresh positions.';
             } else {
                 // SELL / SHORT / PROFIT BOOKING
                 banner.className = 'decision-banner-wrap verdict-sell';
                 iconEl.innerText = '🔴';
-                titleEl.innerText = 'SELL (SHORT) / નબળાઈ - પ્રોફિટ બુકિંગ';
+                titleEl.innerText = 'SELL (SHORT / EXIT)';
                 if (scoreTrendEl) scoreTrendEl.innerText = 'Bearish Pressure';
-                if (summaryGuEl) summaryGuEl.innerText = 'સ્ટોક કી મુવિંગ એવરેજ નીચે ટ્રેડ થઈ રહ્યો છે અને RSI નબળા મોમેન્ટમનો સંકેત આપે છે. નવી ખરીદી ટાળવી અને જો પોઝિશન હોય તો પ્રોફિટ બુકિંગ અથવા સ્ટોપલોસ ટ્રિગરનું ધ્યાન રાખવું.';
-                if (summaryEnEl) summaryEnEl.innerText = 'Trading below key moving averages with weak RSI momentum. Technical structure remains bearish. Avoid aggressive buying; book profits or keep strict stop loss.';
+                if (summaryEnEl) summaryEnEl.innerText = 'Trading below key moving averages with weak RSI momentum. Technical structure remains under bearish pressure. Avoid aggressive buying; consider booking profits or tightening stop losses.';
             }
 
             // MA Status
@@ -2693,7 +2681,7 @@
                     rsiStatusTag.style.color = '#b91c1c';
                 }
                 if (rsiDesc) rsiDesc.innerText = 'High Momentum (Overbought Territory > 70)';
-                if (rsiNote) rsiNote.innerText = 'RSI 70 ની ઉપર છે: સ્ટોકમાં તેજી મજબૂત છે પણ શોર્ટ ટર્મમાં નફો બુકિંગ અથવા કરેક્શનનું જોખમ વધી શકે છે.';
+                if (rsiNote) rsiNote.innerText = 'RSI is above 70: Strong bullish momentum, but entering overbought territory. Elevated risk of short-term consolidation or profit taking.';
             } else if (t.rsi <= 30) {
                 if (rsiStatusTag) {
                     rsiStatusTag.innerText = 'OVERSOLD';
@@ -2701,7 +2689,7 @@
                     rsiStatusTag.style.color = '#a16207';
                 }
                 if (rsiDesc) rsiDesc.innerText = 'Deep Value / Oversold Territory (< 30)';
-                if (rsiNote) rsiNote.innerText = 'RSI 30 ની નીચે છે: સ્ટોકમાં ભારે વેચવાલી આવી ચૂકી છે. પુલબેક અથવા ટેકનિકલ બાઉન્સબેકની સંભાવના રહે છે.';
+                if (rsiNote) rsiNote.innerText = 'RSI is below 30: Deep oversold territory after sustained selling pressure. Potential for technical pullback or bounce back.';
             } else if (t.rsi >= 50) {
                 if (rsiStatusTag) {
                     rsiStatusTag.innerText = 'HEALTHY BULLISH';
@@ -2709,7 +2697,7 @@
                     rsiStatusTag.style.color = '#15803d';
                 }
                 if (rsiDesc) rsiDesc.innerText = 'Positive Upward Momentum (50-70 Zone)';
-                if (rsiNote) rsiNote.innerText = 'RSI 50-70 વચ્ચે છે: સ્ટોકમાં પોઝિટિવ મોમેન્ટમ છે અને ઓવરબોટનું કોઈ તાત્કાલિક જોખમ નથી.';
+                if (rsiNote) rsiNote.innerText = 'RSI is in the 50-70 zone: Positive upward momentum with no immediate overbought risks. Favorable for trend continuation.';
             } else {
                 if (rsiStatusTag) {
                     rsiStatusTag.innerText = 'NEUTRAL / SOFT';
@@ -2717,7 +2705,7 @@
                     rsiStatusTag.style.color = '#475569';
                 }
                 if (rsiDesc) rsiDesc.innerText = 'Subdued Momentum (30-50 Zone)';
-                if (rsiNote) rsiNote.innerText = 'RSI 30-50 વચ્ચે છે: બાયર્સનું મોમેન્ટમ હાલ થોડું ધીમું છે, સ્ટોકમાં વોલ્યુમ રિકવરી જોવી જરૂરી છે.';
+                if (rsiNote) rsiNote.innerText = 'RSI is in the 30-50 zone: Subdued buying momentum. Waiting for volume confirmation to signal trend reversal.';
             }
 
             // Pivot Levels

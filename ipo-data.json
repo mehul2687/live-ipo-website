@@ -3518,15 +3518,18 @@
     "reservation": [
       {
         "category": "QIB",
-        "percentage": "50%"
+        "percentage": "50.00%",
+        "shares": "83,31,181"
       },
       {
         "category": "NII (HNI)",
-        "percentage": "15%"
+        "percentage": "15.00%",
+        "shares": "24,99,354"
       },
       {
         "category": "Retail",
-        "percentage": "35%"
+        "percentage": "35.00%",
+        "shares": "58,31,827"
       }
     ],
     "subShares": [
@@ -3843,52 +3846,55 @@
     "reservation": [
       {
         "category": "QIB",
-        "percentage": "50%"
+        "percentage": "50.00%",
+        "shares": "28,12,80,428"
       },
       {
         "category": "NII (HNI)",
-        "percentage": "15%"
+        "percentage": "15.00%",
+        "shares": "8,43,84,129"
       },
       {
         "category": "Retail",
-        "percentage": "35%"
+        "percentage": "35.00%",
+        "shares": "19,68,96,299"
       }
     ],
     "subShares": [
       {
         "cat": "QIB",
         "off": 112512173,
-        "app": 296588380
+        "app": 556811640
       },
       {
         "cat": "NII",
         "off": 84384129,
-        "app": 32056750
+        "app": 55766810
       },
       {
         "cat": "B-NII(₹10L+)",
         "off": 56256086,
-        "app": 18001830
+        "app": 34773090
       },
       {
         "cat": "S-NII(₹2-10L)",
         "off": 28128043,
-        "app": 14054920
+        "app": 20993720
       },
       {
         "cat": "Retail",
         "off": 196896299,
-        "app": 74655130
+        "app": 93953310
       },
       {
         "cat": "Employee",
         "off": 33091815,
-        "app": 5236000
+        "app": 7271330
       },
       {
         "cat": "Shareholder",
         "off": 66183630,
-        "app": 29561070
+        "app": 37388230
       }
     ],
     "subApps": [
@@ -4004,15 +4010,18 @@
     "reservation": [
       {
         "category": "QIB",
-        "percentage": "50%"
+        "percentage": "1.05%",
+        "shares": "66,000"
       },
       {
         "category": "NII (HNI)",
-        "percentage": "15%"
+        "percentage": "49.47%",
+        "shares": "31,00,000"
       },
       {
         "category": "Retail",
-        "percentage": "35%"
+        "percentage": "49.47%",
+        "shares": "31,00,000"
       }
     ],
     "subShares": [
@@ -4165,15 +4174,18 @@
     "reservation": [
       {
         "category": "QIB",
-        "percentage": "50%"
+        "percentage": "49.35%",
+        "shares": "14,06,400"
       },
       {
         "category": "NII (HNI)",
-        "percentage": "15%"
+        "percentage": "15.16%",
+        "shares": "4,32,000"
       },
       {
         "category": "Retail",
-        "percentage": "35%"
+        "percentage": "35.49%",
+        "shares": "10,11,200"
       }
     ],
     "subShares": [
@@ -4326,7 +4338,7 @@
     "reservation": [
       {
         "category": "QIB",
-        "percentage": "50%"
+        "percentage": "75%"
       },
       {
         "category": "NII (HNI)",
@@ -4334,7 +4346,7 @@
       },
       {
         "category": "Retail",
-        "percentage": "35%"
+        "percentage": "10%"
       }
     ],
     "subShares": [

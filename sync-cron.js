@@ -367,32 +367,56 @@ async function get_Chittorgarh_details_data(key) {
         }
 
         // 2. Financial Information Table Scraping
-        let headerRow = null;
-        let assetRow = null;
-        let revRow = null;
-        let expRow = null;
-        let prfRow = null;
+        let bestFinCandidate = null;
 
         $('table').each((_, table) => {
-            const text = $(table).text();
-            if (text.includes('Period Ended') && (text.includes('Assets') || text.includes('Total Income') || text.includes('Profit After Tax'))) {
+            const tableText = $(table).text().toLowerCase();
+            if (tableText.includes('period ended') && (tableText.includes('asset') || tableText.includes('income') || tableText.includes('revenue') || tableText.includes('profit'))) {
+                let tHeader = null;
+                let tAsset = null;
+                let tRev = null;
+                let tExp = null;
+                let tPrf = null;
+
                 $(table).find('tr').each((_, tr) => {
                     const cells = $(tr).find('th, td').map((_, c) => $(c).text().trim().replace(/\s+/g, ' ')).get();
                     if (cells.length > 1) {
                         const label = cells[0].toLowerCase();
-                        if (label.includes('period ended')) headerRow = cells;
-                        else if (label.includes('asset')) assetRow = cells;
-                        else if (label.includes('total income') || label.includes('total revenue') || label.includes('revenue')) {
-                            if (!revRow) revRow = cells;
-                        }
-                        else if (label.includes('expense')) expRow = cells;
-                        else if (label.includes('profit after tax') || label.includes('pat') || label.includes('net profit')) {
-                            if (!prfRow) prfRow = cells;
+                        if (label.includes('period ended')) {
+                            if (!tHeader) tHeader = cells;
+                        } else if (label.includes('asset')) {
+                            if (!tAsset) tAsset = cells;
+                        } else if (label.includes('total income') || label.includes('total revenue') || (label.includes('revenue') && !label.includes('from operations'))) {
+                            if (!tRev) tRev = cells;
+                        } else if (label.includes('total expense') || label.includes('expense')) {
+                            if (!tExp) tExp = cells;
+                        } else if (label.includes('profit after tax') || label.includes('pat') || label.includes('net profit')) {
+                            if (!tPrf) tPrf = cells;
                         }
                     }
                 });
+
+                if (tHeader && (tAsset || tRev || tPrf)) {
+                    const periodCount = tHeader.length - 1;
+                    if (!bestFinCandidate || periodCount > bestFinCandidate.periodCount) {
+                        bestFinCandidate = {
+                            tHeader,
+                            tAsset,
+                            tRev,
+                            tExp,
+                            tPrf,
+                            periodCount
+                        };
+                    }
+                }
             }
         });
+
+        let headerRow = bestFinCandidate ? bestFinCandidate.tHeader : null;
+        let assetRow = bestFinCandidate ? bestFinCandidate.tAsset : null;
+        let revRow = bestFinCandidate ? bestFinCandidate.tRev : null;
+        let expRow = bestFinCandidate ? bestFinCandidate.tExp : null;
+        let prfRow = bestFinCandidate ? bestFinCandidate.tPrf : null;
 
         let fin = null;
         if (headerRow) {
@@ -1025,28 +1049,14 @@ async function syncSingleIpoRecord(ipo, istTodayStr) {
 
             // Update Company Financials
             if (!ipo.manualFin && detailData.fin) {
-                const hasExisting = ipo.fin && Object.values(ipo.fin).some(f => f && f.ast && f.ast !== '-');
-                if (!hasExisting) {
-                    ipo.fin = detailData.fin;
-                    updated = true;
-                    console.log(`  ✓ Updated Financials (full) for ${ipo.name}`);
-                } else {
-                    let filledAny = false;
-                    ['fy24', 'fy25', 'fy26', 'jun26'].forEach(fy => {
-                        if (detailData.fin[fy] && detailData.fin[fy].ast !== '-') {
-                            if (!ipo.fin[fy] || ipo.fin[fy].ast === '-' || ipo.fin[fy].ast === '') {
-                                ipo.fin[fy] = detailData.fin[fy];
-                                filledAny = true;
-                            }
-                        }
-                    });
-                    if (ipo.fin && ipo.fin.fy23) {
-                        delete ipo.fin.fy23;
-                        filledAny = true;
-                    }
-                    if (filledAny) {
+                const detailHasData = Object.values(detailData.fin).some(f => f && f.ast && f.ast !== '-');
+                if (detailHasData) {
+                    const detailCount = Object.values(detailData.fin).filter(f => f && f.ast && f.ast !== '-').length;
+                    const existingCount = ipo.fin ? Object.values(ipo.fin).filter(f => f && f.ast && f.ast !== '-').length : 0;
+                    if (detailCount >= existingCount || JSON.stringify(ipo.fin) !== JSON.stringify(detailData.fin)) {
+                        ipo.fin = detailData.fin;
                         updated = true;
-                        console.log(`  ✓ Merged missing Financials for ${ipo.name}`);
+                        console.log(`  ✓ Updated Financials for ${ipo.name}`);
                     }
                 }
             } else if (ipo.manualFin) {

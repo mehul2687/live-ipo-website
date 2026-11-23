@@ -1396,33 +1396,57 @@ function parseChittorgarhHtml(html, pageUrl) {
         }
 
         // Parse Financials
-        let headerRow = null;
-        let assetRow = null;
-        let revRow = null;
-        let expRow = null;
-        let prfRow = null;
+        let bestFinCandidate = null;
 
         tables.forEach(table => {
-            const text = table.textContent || '';
-            if (text.includes('Period Ended') && (text.includes('Assets') || text.includes('Total Income') || text.includes('Profit After Tax'))) {
+            const text = (table.textContent || '').toLowerCase();
+            if (text.includes('period ended') && (text.includes('asset') || text.includes('income') || text.includes('revenue') || text.includes('profit'))) {
+                let tHeader = null;
+                let tAsset = null;
+                let tRev = null;
+                let tExp = null;
+                let tPrf = null;
+
                 const rows = table.querySelectorAll('tr');
                 rows.forEach(tr => {
                     const cells = Array.from(tr.querySelectorAll('th, td')).map(c => c.textContent.trim().replace(/\s+/g, ' '));
                     if (cells.length > 1) {
                         const label = cells[0].toLowerCase();
-                        if (label.includes('period ended')) headerRow = cells;
-                        else if (label.includes('asset')) assetRow = cells;
-                        else if (label.includes('total income') || label.includes('total revenue') || label.includes('revenue')) {
-                            if (!revRow) revRow = cells;
-                        }
-                        else if (label.includes('expense')) expRow = cells;
-                        else if (label.includes('profit after tax') || label.includes('pat') || label.includes('net profit')) {
-                            if (!prfRow) prfRow = cells;
+                        if (label.includes('period ended')) {
+                            if (!tHeader) tHeader = cells;
+                        } else if (label.includes('asset')) {
+                            if (!tAsset) tAsset = cells;
+                        } else if (label.includes('total income') || label.includes('total revenue') || (label.includes('revenue') && !label.includes('from operations'))) {
+                            if (!tRev) tRev = cells;
+                        } else if (label.includes('total expense') || label.includes('expense')) {
+                            if (!tExp) tExp = cells;
+                        } else if (label.includes('profit after tax') || label.includes('pat') || label.includes('net profit')) {
+                            if (!tPrf) tPrf = cells;
                         }
                     }
                 });
+
+                if (tHeader && (tAsset || tRev || tPrf)) {
+                    const periodCount = tHeader.length - 1;
+                    if (!bestFinCandidate || periodCount > bestFinCandidate.periodCount) {
+                        bestFinCandidate = {
+                            tHeader,
+                            tAsset,
+                            tRev,
+                            tExp,
+                            tPrf,
+                            periodCount
+                        };
+                    }
+                }
             }
         });
+
+        let headerRow = bestFinCandidate ? bestFinCandidate.tHeader : null;
+        let assetRow = bestFinCandidate ? bestFinCandidate.tAsset : null;
+        let revRow = bestFinCandidate ? bestFinCandidate.tRev : null;
+        let expRow = bestFinCandidate ? bestFinCandidate.tExp : null;
+        let prfRow = bestFinCandidate ? bestFinCandidate.tPrf : null;
 
         let fin = null;
         if (headerRow) {

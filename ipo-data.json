@@ -4440,5 +4440,166 @@
     "manualSub": false,
     "manualListingInfo": false,
     "manualLockAll": false
+  },
+  "MRD855": {
+    "id": "MRD855",
+    "name": "Matangi Rubber IPO Details",
+    "logo": "https://matangirubber.com/wp-content/themes/matangi/assets/img/logo.png",
+    "type": "Mainboard",
+    "about": "Incorporated on June 23, 2004 , Matangi Rubber Limited is engaged in the manufacturing of tyres, tyre flaps, tyre tubes and rubber compounds. It primarily caters to the two-wheeler and three-wheeler tyre segments, while its tyre flaps and tubes are used in commercial vehicles such as trucks, buses and heavy utility vehicles. The Company operates through three business models: manufacturing and selling, contract manufacturing and job work services. Under its manufacturing and selling model, it manufactures and sells tyre tubes under its own brand. Its contract manufacturing activities primarily involve producing customised tyre flaps bearing clients’ logos, while its job work services involve processing raw materials supplied by customers into tyres, tyre flaps and tubes in return for conversion charges. The Company also manufactures rubber compounds used in the production of other rubber products.",
+    "priceBand": "163 to 172",
+    "cutOff": 172,
+    "lotRaw": 87,
+    "lotSize": "87 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "72,76,981 shares (agg. up to ₹125.16 Cr)",
+    "freshIssue": "57,61,831 shares (agg. up to ₹99.10 Cr)",
+    "ofs": "15,15,150 shares of ₹10 (agg. up to ₹26.06 Cr)",
+    "listingAt": "BSE, NSE",
+    "bseCode": "",
+    "nseCode": "",
+    "isinCode": "",
+    "mcScId": "",
+    "listingPriceNse": null,
+    "listingPriceBse": null,
+    "openDate": "2026-12-01",
+    "closeDate": "2026-12-03",
+    "allotmentDate": "2026-12-04",
+    "listingDate": "2026-12-08",
+    "gmp": "",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/matangi-rubber-ipo/3136/",
+    "isAllotmentOut": false,
+    "registrarUrl": "",
+    "valuation": {
+      "eps": "8.97",
+      "pe": "19.18",
+      "ronw": "20.98%",
+      "nav": "60.65",
+      "ebitdaMargin": "27.02%",
+      "patMargin": "16.89%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "NII",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 14
+      },
+      {
+        "app": "Big HNI",
+        "lot": 67
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "120.12",
+        "rev": "47.93",
+        "exp": "-",
+        "prf": "6.42"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "-",
+        "rev": "-",
+        "exp": "-",
+        "prf": "-"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "-",
+        "rev": "-",
+        "exp": "-",
+        "prf": "-"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "-",
+        "rev": "-",
+        "exp": "-",
+        "prf": "-"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualListingInfo": false,
+    "manualLockAll": false
   }
 }

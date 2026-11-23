@@ -219,9 +219,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 
                 // રિઝર્વેશન પર્સન્ટેજ ડેટા સેવ કરવા માટે
                 reservation: [
-                    { category: "QIB", percentage: (document.getElementById('res_qib')?.value || '50') + "%" },
-                    { category: "NII (HNI)", percentage: (document.getElementById('res_nii')?.value || '15') + "%" },
-                    { category: "Retail", percentage: (document.getElementById('res_retail')?.value || '35') + "%" }
+                    { category: "QIB", percentage: (document.getElementById('res_qib')?.value || '50') + "%", ...(existingIpo?.reservation?.[0]?.shares ? { shares: existingIpo.reservation[0].shares } : {}) },
+                    { category: "NII (HNI)", percentage: (document.getElementById('res_nii')?.value || '15') + "%", ...(existingIpo?.reservation?.[1]?.shares ? { shares: existingIpo.reservation[1].shares } : {}) },
+                    { category: "Retail", percentage: (document.getElementById('res_retail')?.value || '35') + "%", ...(existingIpo?.reservation?.[2]?.shares ? { shares: existingIpo.reservation[2].shares } : {}) }
                 ],
                 
                 // સબસ્ક્રિપ્શન શેર ડેટા સેવ કરવા માટે
@@ -1544,6 +1544,86 @@ function parseChittorgarhHtml(html, pageUrl) {
             });
         });
 
+        // Parse Reservation Quota
+        let resQib = null, resNii = null, resRetail = null;
+        tables.forEach(table => {
+            let isResTable = false;
+            let netCol = -1, totalCol = -1, sharesCol = -1;
+            const rows = table.querySelectorAll('tr');
+            rows.forEach(tr => {
+                const cells = Array.from(tr.querySelectorAll('th, td')).map(c => c.textContent.trim().replace(/\s+/g, ' '));
+                if (cells.length >= 2) {
+                    const rowStr = cells.join(' ').toLowerCase();
+                    if (rowStr.includes('investor category') || rowStr.includes('issue reservation')) {
+                        isResTable = true;
+                        cells.forEach((c, idx) => {
+                            const low = c.toLowerCase();
+                            if (low === 'shares' || low.includes('shares')) {
+                                if (sharesCol === -1) sharesCol = idx;
+                            } else if (low.includes('% of net issue') || low.includes('net issue') || low.includes('net offer')) {
+                                netCol = idx;
+                            } else if (low.includes('% of total issue') || low.includes('total issue') || low.includes('% of issue') || low.includes('% of offer')) {
+                                totalCol = idx;
+                            }
+                        });
+                    }
+                }
+            });
+
+            if (isResTable) {
+                rows.forEach(tr => {
+                    const cells = Array.from(tr.querySelectorAll('th, td')).map(c => c.textContent.trim().replace(/\s+/g, ' '));
+                    if (cells.length >= 2) {
+                        const firstCell = cells[0].trim();
+                        const cat = firstCell.toLowerCase();
+                        const isSub = /^[\-\u2010-\u2015\u2212•]/.test(firstCell) || cat.includes('anchor') || cat.includes('bnii') || cat.includes('snii') || cat.includes('market maker');
+
+                        const getQuota = (rCells) => {
+                            let pct = null, shares = null;
+                            if (sharesCol !== -1 && rCells[sharesCol]) {
+                                const clean = rCells[sharesCol].replace(/,/g, '').trim();
+                                if (/^\d+$/.test(clean) && parseInt(clean) > 0) shares = parseInt(clean).toLocaleString('en-IN');
+                            }
+                            if (netCol !== -1 && rCells[netCol]) {
+                                const m = rCells[netCol].match(/(\d+(?:\.\d+)?)\s*%/);
+                                if (m) pct = m[1] + '%';
+                            }
+                            if (!pct && totalCol !== -1 && rCells[totalCol]) {
+                                const m = rCells[totalCol].match(/(\d+(?:\.\d+)?)\s*%/);
+                                if (m) pct = m[1] + '%';
+                            }
+                            if (!pct) {
+                                for (let i = rCells.length - 1; i >= 1; i--) {
+                                    const m = rCells[i].match(/(\d+(?:\.\d+)?)\s*%/);
+                                    if (m) { pct = m[1] + '%'; break; }
+                                }
+                            }
+                            return { pct, shares };
+                        };
+
+                        if (!isSub) {
+                            if (cat === 'qib' || cat.startsWith('qib ') || cat.startsWith('qib(') || cat.includes('qualified institutional')) {
+                                if (!resQib) resQib = getQuota(cells);
+                            } else if (cat.startsWith('nii') || cat.includes('non-institutional') || cat.includes('non institutional') || cat.startsWith('hni')) {
+                                if (!resNii) resNii = getQuota(cells);
+                            } else if (cat.startsWith('retail') || cat.startsWith('rii') || cat.includes('individual investor')) {
+                                if (!resRetail) resRetail = getQuota(cells);
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        let reservation = null;
+        if (resQib?.pct || resNii?.pct || resRetail?.pct) {
+            reservation = [
+                { category: "QIB", percentage: resQib?.pct || "50%", ...(resQib?.shares ? { shares: resQib.shares } : {}) },
+                { category: "NII (HNI)", percentage: resNii?.pct || "15%", ...(resNii?.shares ? { shares: resNii.shares } : {}) },
+                { category: "Retail", percentage: resRetail?.pct || "35%", ...(resRetail?.shares ? { shares: resRetail.shares } : {}) }
+            ];
+        }
+
         return {
             name,
             type,
@@ -1551,7 +1631,8 @@ function parseChittorgarhHtml(html, pageUrl) {
             issue: Object.keys(issue).length > 0 ? issue : null,
             fin,
             customLots,
-            valuation: Object.keys(valuation).length > 0 ? valuation : null
+            valuation: Object.keys(valuation).length > 0 ? valuation : null,
+            reservation
         };
     } catch (err) {
         console.error("DOMParser Chittorgarh Error:", err);

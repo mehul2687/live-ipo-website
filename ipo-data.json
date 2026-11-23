@@ -3679,15 +3679,18 @@
     "reservation": [
       {
         "category": "QIB",
-        "percentage": "50%"
+        "percentage": "49.94%",
+        "shares": "23,22,000"
       },
       {
         "category": "NII (HNI)",
-        "percentage": "15%"
+        "percentage": "15.02%",
+        "shares": "6,98,400"
       },
       {
         "category": "Retail",
-        "percentage": "35%"
+        "percentage": "35.05%",
+        "shares": "16,29,600"
       }
     ],
     "subShares": [

@@ -526,6 +526,133 @@ async function get_Chittorgarh_details_data(key) {
             });
         });
 
+        // 5. Reservation Quota Scraping (QIB, NII, Retail)
+        let qibObj = null;
+        let niiObj = null;
+        let retailObj = null;
+
+        $('table').each((_, table) => {
+            let isReservationTable = false;
+            let netIssueColIdx = -1;
+            let totalIssueColIdx = -1;
+            let sharesColIdx = -1;
+
+            $(table).find('tr').each((_, tr) => {
+                const cells = $(tr).find('th, td').map((_, c) => $(c).text().trim().replace(/\s+/g, ' ')).get();
+                if (cells.length >= 2) {
+                    const rowStr = cells.join(' ').toLowerCase();
+                    if (rowStr.includes('investor category') || rowStr.includes('issue reservation')) {
+                        isReservationTable = true;
+                        cells.forEach((c, idx) => {
+                            const low = c.toLowerCase();
+                            if (low === 'shares' || low.includes('shares')) {
+                                if (sharesColIdx === -1) sharesColIdx = idx;
+                            } else if (low.includes('% of net issue') || low.includes('net issue') || low.includes('net offer')) {
+                                netIssueColIdx = idx;
+                            } else if (low.includes('% of total issue') || low.includes('total issue') || low.includes('% of issue') || low.includes('% of offer')) {
+                                totalIssueColIdx = idx;
+                            }
+                        });
+                    }
+                }
+            });
+
+            if (isReservationTable) {
+                $(table).find('tr').each((_, tr) => {
+                    const cells = $(tr).find('th, td').map((_, c) => $(c).text().trim().replace(/\s+/g, ' ')).get();
+                    if (cells.length >= 2) {
+                        const firstCell = cells[0].trim();
+                        const catName = firstCell.toLowerCase();
+                        const isSubRow = /^[\-\u2010-\u2015\u2212•]/.test(firstCell) ||
+                            catName.includes('anchor') ||
+                            catName.includes('bnii') ||
+                            catName.includes('snii') ||
+                            catName.includes('market maker') ||
+                            catName.includes('employee') ||
+                            catName.includes('shareholder');
+
+                        const extractPctAndShares = (rowCells) => {
+                            let pct = null;
+                            let shares = null;
+                            if (sharesColIdx !== -1 && rowCells[sharesColIdx]) {
+                                const clean = rowCells[sharesColIdx].replace(/,/g, '').trim();
+                                if (/^\d+$/.test(clean) && parseInt(clean) > 0) {
+                                    shares = parseInt(clean).toLocaleString('en-IN');
+                                }
+                            }
+                            if (netIssueColIdx !== -1 && rowCells[netIssueColIdx]) {
+                                const m = rowCells[netIssueColIdx].match(/(\d+(?:\.\d+)?)\s*%/);
+                                if (m) pct = m[1] + '%';
+                            }
+                            if (!pct && totalIssueColIdx !== -1 && rowCells[totalIssueColIdx]) {
+                                const m = rowCells[totalIssueColIdx].match(/(\d+(?:\.\d+)?)\s*%/);
+                                if (m) pct = m[1] + '%';
+                            }
+                            if (!pct) {
+                                for (let i = rowCells.length - 1; i >= 1; i--) {
+                                    const m = rowCells[i].match(/(\d+(?:\.\d+)?)\s*%/);
+                                    if (m) { pct = m[1] + '%'; break; }
+                                }
+                            }
+                            return { pct, shares };
+                        };
+
+                        if (!isSubRow) {
+                            if (catName === 'qib' || catName.startsWith('qib ') || catName.startsWith('qib(') || catName.includes('qualified institutional')) {
+                                if (!qibObj) qibObj = extractPctAndShares(cells);
+                            } else if (catName.startsWith('nii') || catName.includes('non-institutional') || catName.includes('non institutional') || catName.startsWith('hni')) {
+                                if (!niiObj) niiObj = extractPctAndShares(cells);
+                            } else if (catName.startsWith('retail') || catName.startsWith('rii') || catName.includes('individual investor')) {
+                                if (!retailObj) retailObj = extractPctAndShares(cells);
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        // Strategy 2 fallback: Explanatory paragraph scan
+        if (!qibObj?.pct || !niiObj?.pct || !retailObj?.pct) {
+            $('p, div').each((_, el) => {
+                const text = $(el).text().trim().replace(/\s+/g, ' ');
+                if (text.includes('Of the Net offer') || (text.includes('allocated to') && (text.includes('QIB') || text.includes('NII') || text.includes('RII')))) {
+                    if (!qibObj?.pct) {
+                        const m = text.match(/([\d,]+)?\s*\(?(\d+(?:\.\d+)?)\s*%\)?\s*(?:are\s+)?allocated to QIB/i) || text.match(/QIB[^\d]*\(?\s*(\d+(?:\.\d+)?)\s*%/i);
+                        if (m) {
+                            const shares = m[1] && /^\d[\d,]*$/.test(m[1].trim()) ? m[1].trim() : (qibObj?.shares || null);
+                            const pct = (m[2] || m[1]) + '%';
+                            qibObj = { ...(qibObj || {}), pct, ...(shares ? { shares } : {}) };
+                        }
+                    }
+                    if (!niiObj?.pct) {
+                        const m = text.match(/([\d,]+)?\s*\(?(\d+(?:\.\d+)?)\s*%\)?\s*(?:are\s+)?allocated to NII/i) || text.match(/NII[^\d]*\(?\s*(\d+(?:\.\d+)?)\s*%/i);
+                        if (m) {
+                            const shares = m[1] && /^\d[\d,]*$/.test(m[1].trim()) ? m[1].trim() : (niiObj?.shares || null);
+                            const pct = (m[2] || m[1]) + '%';
+                            niiObj = { ...(niiObj || {}), pct, ...(shares ? { shares } : {}) };
+                        }
+                    }
+                    if (!retailObj?.pct) {
+                        const m = text.match(/([\d,]+)?\s*\(?(\d+(?:\.\d+)?)\s*%\)?\s*(?:are\s+)?allocated to (?:RII|Retail)/i) || text.match(/(?:Retail|RII)[^\d]*\(?\s*(\d+(?:\.\d+)?)\s*%/i);
+                        if (m) {
+                            const shares = m[1] && /^\d[\d,]*$/.test(m[1].trim()) ? m[1].trim() : (retailObj?.shares || null);
+                            const pct = (m[2] || m[1]) + '%';
+                            retailObj = { ...(retailObj || {}), pct, ...(shares ? { shares } : {}) };
+                        }
+                    }
+                }
+            });
+        }
+
+        let reservation = null;
+        if (qibObj?.pct || niiObj?.pct || retailObj?.pct) {
+            reservation = [
+                { category: "QIB", percentage: qibObj?.pct || "50%", ...(qibObj?.shares ? { shares: qibObj.shares } : {}) },
+                { category: "NII (HNI)", percentage: niiObj?.pct || "15%", ...(niiObj?.shares ? { shares: niiObj.shares } : {}) },
+                { category: "Retail", percentage: retailObj?.pct || "35%", ...(retailObj?.shares ? { shares: retailObj.shares } : {}) }
+            ];
+        }
+
         const h1Text = ($('h1').first().text() || '').trim();
         let detectedName = '';
         if (h1Text) {
@@ -543,7 +670,8 @@ async function get_Chittorgarh_details_data(key) {
             issue: Object.keys(issue).length > 0 ? issue : null,
             fin,
             customLots,
-            valuation: Object.keys(val).length > 0 ? val : null
+            valuation: Object.keys(val).length > 0 ? val : null,
+            reservation
         };
     } catch (err) {
         console.error("Chittorgarh Detail Scraping Error:", err.message);
@@ -941,6 +1069,24 @@ async function syncSingleIpoRecord(ipo, istTodayStr) {
                 }
             } else if (ipo.manualValuation) {
                 console.log(`  🔒 Valuation manually locked for ${ipo.name} (Kept custom data)`);
+            }
+
+            // Update Reservation Quota
+            if (!ipo.manualReservation && detailData.reservation) {
+                const isDefault = !ipo.reservation || (
+                    ipo.reservation.length === 3 &&
+                    ipo.reservation[0].percentage === "50%" &&
+                    ipo.reservation[1].percentage === "15%" &&
+                    ipo.reservation[2].percentage === "35%" &&
+                    !ipo.reservation[0].shares
+                );
+                if (isDefault || JSON.stringify(ipo.reservation) !== JSON.stringify(detailData.reservation)) {
+                    ipo.reservation = detailData.reservation;
+                    updated = true;
+                    console.log(`  ✓ Updated Reservation Quota for ${ipo.name}:`, JSON.stringify(detailData.reservation));
+                }
+            } else if (ipo.manualReservation) {
+                console.log(`  🔒 Reservation Quota manually locked for ${ipo.name} (Kept custom data)`);
             }
         }
     }

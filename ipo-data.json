@@ -4118,5 +4118,166 @@
     "manualSub": false,
     "manualListingInfo": false,
     "manualLockAll": false
+  },
+  "AJP633": {
+    "id": "AJP633",
+    "name": "A J Packaging IPO Details",
+    "logo": "https://ajpack.net/wp-content/uploads/2026/05/AJ-Logo.png",
+    "type": "SME",
+    "about": "A J packaging specializes in manufacturing a diverse range of metal tin cans in multiple shapes such as oval, rectangular, and round, with capacities ranging from 50 grams to 500 grams and 50 ml to 5000 ml. The company offers an extensive product portfolio that includes printed, lacquered, embossed, uniquely shaped, and fully customizable metal cans. These products are designed to meet the packaging requirements of various solid, powdered, and liquid goods.  With manufacturing facilities strategically located in Hyderabad (Telangana), Ghaziabad (Uttar Pradesh), and Khandala (Maharashtra), it efficiently serves leading FMCG brands and the paint industry across both domestic and international markets.",
+    "priceBand": "175 to 180",
+    "cutOff": 180,
+    "lotRaw": 800,
+    "lotSize": "800 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "30,00,000 shares (agg. up to ₹54.00 Cr)",
+    "freshIssue": "25,99,600 shares (agg. up to ₹46.79 Cr)",
+    "ofs": "2,50,000 shares of ₹10 (agg. up to ₹4.50 Cr)",
+    "listingAt": "NSE SME",
+    "bseCode": "",
+    "nseCode": "",
+    "isinCode": "",
+    "mcScId": "",
+    "listingPriceNse": null,
+    "listingPriceBse": null,
+    "openDate": "2026-12-01",
+    "closeDate": "2026-12-03",
+    "allotmentDate": "2026-12-04",
+    "listingDate": "2026-12-08",
+    "gmp": "",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/a-j-packaging-ipo/2978/",
+    "isAllotmentOut": false,
+    "registrarUrl": "",
+    "valuation": {
+      "eps": "-",
+      "pe": "-",
+      "ronw": "13.71%",
+      "nav": "50.58",
+      "ebitdaMargin": "11.07%",
+      "patMargin": "2.65%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "NII",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 2
+      },
+      {
+        "app": "Small HNI",
+        "lot": 3
+      },
+      {
+        "app": "Big HNI",
+        "lot": 7
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "-",
+        "rev": "-",
+        "exp": "-",
+        "prf": "-"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "-",
+        "rev": "-",
+        "exp": "-",
+        "prf": "-"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "-",
+        "rev": "-",
+        "exp": "-",
+        "prf": "-"
+      },
+      "jun26": {
+        "yr": "30 Sep 2025",
+        "ast": "170.48",
+        "rev": "193.94",
+        "exp": "-",
+        "prf": "5.12"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualListingInfo": false,
+    "manualLockAll": false
   }
 }

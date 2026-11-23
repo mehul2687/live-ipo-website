@@ -4279,5 +4279,166 @@
     "manualSub": false,
     "manualListingInfo": false,
     "manualLockAll": false
+  },
+  "FFH959": {
+    "id": "FFH959",
+    "name": "Foodlink F&B Holdings (India) IPO Details",
+    "logo": "https://www.foodlink.global/images/foodlink_logo.png",
+    "type": "Mainboard",
+    "about": "Incorporated in 2003, Foodlink F&B Holdings (India) Ltd. is a food and beverage services company engaged in providing premium catering services and operating casual dining restaurants and cloud kitchens. Headquartered in Mumbai, Foodlink caters to weddings, social celebrations, corporate events and other large-scale gatherings. Its restaurant portfolio includes brands such as China Bistro, India Bistro, Glocal and Art of Dum. The company also operates through its international subsidiary in the UAE, expanding its presence in the global food and hospitality industry.",
+    "priceBand": "181 to 191",
+    "cutOff": 191,
+    "lotRaw": 78,
+    "lotSize": "78 Shares",
+    "faceValue": "₹2 per share",
+    "empDiscount": "Nil",
+    "totalSize": "1,88,87,738 shares (agg. up to ₹360.76 Cr)",
+    "freshIssue": "1,00,52,356 shares (agg. up to ₹192.00 Cr)",
+    "ofs": "88,35,382 shares of ₹2 (agg. up to ₹168.76 Cr)",
+    "listingAt": "BSE, NSE",
+    "bseCode": "",
+    "nseCode": "",
+    "isinCode": "",
+    "mcScId": "",
+    "listingPriceNse": null,
+    "listingPriceBse": null,
+    "openDate": "2026-11-26",
+    "closeDate": "2026-11-30",
+    "allotmentDate": "2026-12-01",
+    "listingDate": "2026-12-03",
+    "gmp": "",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/foodlink-fb-ipo/2493/",
+    "isAllotmentOut": false,
+    "registrarUrl": "",
+    "valuation": {
+      "eps": "-ve",
+      "pe": "-ve",
+      "ronw": "17.35%",
+      "nav": "44.00",
+      "ebitdaMargin": "13.82%",
+      "patMargin": "5.09%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "NII",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 14
+      },
+      {
+        "app": "Big HNI",
+        "lot": 68
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "268.13",
+        "rev": "380.17",
+        "exp": "-",
+        "prf": "-15.35"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "318.59",
+        "rev": "455.40",
+        "exp": "-",
+        "prf": "14.26"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "454.32",
+        "rev": "572.26",
+        "exp": "-",
+        "prf": "29.11"
+      },
+      "jun26": {
+        "yr": "30 Sep 2026",
+        "ast": "443.99",
+        "rev": "222.18",
+        "exp": "-",
+        "prf": "-16.15"
+      }
+    },
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualListingInfo": false,
+    "manualLockAll": false
   }
 }

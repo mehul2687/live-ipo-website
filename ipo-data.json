@@ -2561,15 +2561,18 @@
     "reservation": [
       {
         "category": "QIB",
-        "percentage": "50%"
+        "percentage": "49.86%",
+        "shares": "13,26,000"
       },
       {
         "category": "NII (HNI)",
-        "percentage": "15%"
+        "percentage": "15.03%",
+        "shares": "3,99,600"
       },
       {
         "category": "Retail",
-        "percentage": "35%"
+        "percentage": "35.11%",
+        "shares": "9,33,600"
       }
     ],
     "subShares": [
@@ -3505,7 +3508,7 @@
     "estPrice": "",
     "bookProfit": "",
     "chittorgarhKey": "https://www.chittorgarh.com/ipo/crystal-crop-protection-ipo/2813/",
-    "isAllotmentOut": false,
+    "isAllotmentOut": true,
     "registrarUrl": "https://in.mpms.mufg.com/Initial_Offer/public-issues.html",
     "valuation": {
       "eps": "33.29",

@@ -20,7 +20,6 @@ const ALLOWED_ORIGINS = [
 
 const CAPTCHA_GATED_REGISTRARS = new Set([
   "CAMEO",
-  "PURVA",
   "INTEGRATED",
   "MAS",
   "BEETALFC",
@@ -303,6 +302,13 @@ async function fetchRegistrarCompanies(regId) {
     return parseSelectOptions(html, /<select[^>]*name\s*=\s*["']company["'][\s\S]*?<\/select>/i);
   }
 
+  if (regId === "PURVA") {
+    const res = await fetch("https://www.purvashare.com/investor-service/ipo-query", { headers: DEFAULT_HEADERS });
+    if (!res.ok) throw new Error(`Purva HTTP ${res.status}`);
+    const html = await res.text();
+    return parseSelectOptions(html, /<select[^>]*name\s*=\s*["']company_id["'][\s\S]*?<\/select>/i);
+  }
+
   return [];
 }
 
@@ -311,17 +317,33 @@ function extractXmlTag(xml, tag) {
   return m ? decodeHtmlEntities(m[1]) : "";
 }
 
-function extractSetCookieHeader(headers) {
+function extractSetCookieList(headers) {
   if (typeof headers.getSetCookie === "function") {
-    return headers.getSetCookie().map(c => c.split(";")[0]).join("; ");
+    return headers.getSetCookie();
   }
   const raw = headers.get("set-cookie") || "";
-  if (!raw) return "";
-  return raw
-    .split(/,(?=[^;]+=[^;]+)/)
-    .map(c => c.split(";")[0].trim())
-    .filter(Boolean)
-    .join("; ");
+  if (!raw) return [];
+  return raw.split(/,(?=[^;]+=[^;]+)/).map(s => s.trim()).filter(Boolean);
+}
+
+function mergeCookiesIntoJar(jar, headers) {
+  extractSetCookieList(headers).forEach(c => {
+    const eq = c.indexOf("=");
+    const semi = c.indexOf(";");
+    if (eq > 0) {
+      const k = c.slice(0, eq).trim();
+      const v = c.slice(eq + 1, semi > eq ? semi : undefined).trim();
+      if (k && v) jar[k] = v;
+    }
+  });
+}
+
+function serializeCookieJar(jar) {
+  return Object.entries(jar).map(([k, v]) => `${k}=${v}`).join("; ");
+}
+
+function extractSetCookieHeader(headers) {
+  return extractSetCookieList(headers).map(c => c.split(";")[0].trim()).filter(Boolean).join("; ");
 }
 
 async function queryRegistrarSinglePan(regId, companyItem, pan) {
@@ -667,6 +689,123 @@ async function queryRegistrarSinglePan(regId, companyItem, pan) {
     };
   }
 
+  // 7. PURVA SHAREGISTRY (purvashare.com — Django CSRF + PRG Cookie Flow, No Captcha)
+  if (regId === "PURVA") {
+    const purvaUrl = "https://www.purvashare.com/investor-service/ipo-query";
+    const jar = {};
+
+    const gRes = await fetch(purvaUrl, {
+      method: "GET",
+      headers: {
+        ...DEFAULT_HEADERS,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      }
+    });
+    if (!gRes.ok) throw new Error(`Purva GET HTTP ${gRes.status}`);
+    mergeCookiesIntoJar(jar, gRes.headers);
+    const html1 = await gRes.text();
+
+    const csrfMatch = html1.match(/name\s*=\s*["']csrfmiddlewaretoken["'][^>]*value\s*=\s*["']([^"']+)["']/i)
+      || html1.match(/value\s*=\s*["']([^"']+)["'][^>]*name\s*=\s*["']csrfmiddlewaretoken["']/i);
+    const csrfToken = csrfMatch ? csrfMatch[1] : "";
+    if (!csrfToken) throw new Error("Purva CSRF token missing");
+
+    const formBody = new URLSearchParams({
+      csrfmiddlewaretoken: csrfToken,
+      company_id: String(companyItem.code),
+      applicationNumber: "",
+      panNumber: pan
+    });
+
+    const pRes = await fetch(purvaUrl, {
+      method: "POST",
+      headers: {
+        ...DEFAULT_HEADERS,
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Origin": "https://www.purvashare.com",
+        "Referer": purvaUrl,
+        ...(serializeCookieJar(jar) ? { "Cookie": serializeCookieJar(jar) } : {})
+      },
+      body: formBody.toString(),
+      redirect: "manual"
+    });
+    mergeCookiesIntoJar(jar, pRes.headers);
+
+    let resultHtml = "";
+    if (pRes.status >= 300 && pRes.status < 400) {
+      const loc = pRes.headers.get("location") || purvaUrl;
+      const nextUrl = loc.startsWith("http") ? loc : `https://www.purvashare.com${loc.startsWith("/") ? "" : "/"}${loc}`;
+      const rRes = await fetch(nextUrl, {
+        method: "GET",
+        headers: {
+          ...DEFAULT_HEADERS,
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Referer": purvaUrl,
+          ...(serializeCookieJar(jar) ? { "Cookie": serializeCookieJar(jar) } : {})
+        }
+      });
+      if (!rRes.ok) throw new Error(`Purva result GET HTTP ${rRes.status}`);
+      resultHtml = await rRes.text();
+    } else if (pRes.ok) {
+      resultHtml = await pRes.text();
+    } else {
+      throw new Error(`Purva POST HTTP ${pRes.status}`);
+    }
+
+    // Strip styles and scripts before text inspection
+    const strippedHtml = resultHtml
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<script[\s\S]*?<\/script>/gi, " ");
+
+    const msgMatch = strippedHtml.match(/<div[^>]*class\s*=\s*["'][^"']*notification-message[^"']*["'][^>]*>([\s\S]*?)<\/div>/i);
+    const notifText = msgMatch ? decodeHtmlEntities(msgMatch[1]) : "";
+    const mainMatch = strippedHtml.match(/<main[\s\S]*?<\/main>/i);
+    const mainNoForm = (mainMatch ? mainMatch[0] : strippedHtml).replace(/<form[\s\S]*?<\/form>/gi, " ");
+    const cleanMainText = decodeHtmlEntities(mainNoForm);
+    const combinedText = `${notifText} ${cleanMainText}`.trim();
+
+    if (/no record found|record not found|please re-check/i.test(combinedText)) {
+      return {
+        status: "NO_RECORD",
+        sharesAllotted: 0,
+        resultText: "Bid 1: NO RECORD FOUND"
+      };
+    }
+
+    if (/no shares? allotted|not allotted/i.test(combinedText)) {
+      return {
+        status: "NO_SHARES",
+        sharesAllotted: 0,
+        resultText: "Bid 1: No shares allotted"
+      };
+    }
+
+    const allottedMatch = combinedText.match(/(?:Shares\s*Allotted|Allotted\s*Shares|Allotment\s*Status\s*[:\-]?|Allotted)\D{0,25}(\d[\d,]*)/i)
+      || combinedText.match(/(\d[\d,]*)\s*shares?\s*allotted/i);
+    if (allottedMatch) {
+      const shares = parseInt(allottedMatch[1].replace(/,/g, ""), 10) || 0;
+      if (shares > 0) {
+        return {
+          status: "ALLOTTED",
+          sharesAllotted: shares,
+          resultText: `Bid 1: ${shares} shares allotted`
+        };
+      }
+      return {
+        status: "NO_SHARES",
+        sharesAllotted: 0,
+        resultText: "Bid 1: No shares allotted"
+      };
+    }
+
+    return {
+      status: "PORTAL_CHECK_REQUIRED",
+      sharesAllotted: 0,
+      resultText: notifText || "Check directly on Purva Sharegistry portal"
+    };
+  }
+
   throw new Error(`Unsupported automated registrar: ${regId}`);
 }
 
@@ -695,6 +834,7 @@ export default {
         requiresPin: Boolean((env.ADMIN_KEY || "").trim()),
         allotmentProxy: true,
         kfinAuto: true,
+        purvaAuto: true,
         repo: OWNER_REPO
       }, 200, origin);
     }

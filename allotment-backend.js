@@ -257,7 +257,7 @@ export async function scrapeActiveRegistrarIpos() {
 }
 
 const CAPTCHA_GATED_REGS = new Set([
-    "CAMEO", "PURVA", "INTEGRATED", "MAS", "BEETALFC", "ALANKIT", "ANKIT", "ACCURATE", "MUDRA"
+    "CAMEO", "INTEGRATED", "MAS", "BEETALFC", "ALANKIT", "ANKIT", "ACCURATE", "MUDRA"
 ]);
 
 function normalizeLocalRegId(registrarId, registrarUrl) {
@@ -393,6 +393,17 @@ export async function fetchCompaniesForRegistrar(regId) {
             const code = $(el).val()?.trim();
             const name = $(el).text()?.trim();
             if (code && name && !/select/i.test(name)) list.push({ code, name });
+        });
+        return list;
+    }
+    if (regId === "PURVA") {
+        const res = await axios.get("https://www.purvashare.com/investor-service/ipo-query", { headers: httpHeaders, timeout: 10000 });
+        const $ = cheerio.load(res.data);
+        const list = [];
+        $('select[name="company_id"] option').each((_, el) => {
+            const code = $(el).val()?.trim();
+            const name = $(el).text()?.trim();
+            if (code && name && !/choose|select/i.test(name)) list.push({ code, name });
         });
         return list;
     }
@@ -723,6 +734,84 @@ export async function checkSinglePanOnRegistrar(registrarId, companyCode, pan, o
                 return { status: "ALLOTTED", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: totalAllotted, sharesApplied: totalApplied, holderName, resultText: rows.length > 1 ? bidParts.join(" | ") : `Bid 1: ${totalAllotted} shares allotted`, isWinner: true };
             }
             return { status: "NO_SHARES", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, sharesApplied: totalApplied, holderName, resultText: totalApplied > 0 ? `Applied (${totalApplied}) — No shares allotted` : "Bid 1: No shares allotted", isWinner: false };
+        }
+    }
+
+    // ------------------------------------------------------
+    // G. PURVA SHAREGISTRY (Django CSRF + PRG Cookie Flow)
+    // ------------------------------------------------------
+    if (regId === "PURVA") {
+        const purvaUrl = "https://www.purvashare.com/investor-service/ipo-query";
+        const jar = {};
+        const addJar = (hdrs) => {
+            (hdrs["set-cookie"] || []).forEach(c => {
+                const eq = c.indexOf("="), semi = c.indexOf(";");
+                if (eq > 0) {
+                    const k = c.slice(0, eq).trim();
+                    const v = c.slice(eq + 1, semi > eq ? semi : undefined).trim();
+                    if (k && v) jar[k] = v;
+                }
+            });
+        };
+        const getJarStr = () => Object.entries(jar).map(([k, v]) => `${k}=${v}`).join("; ");
+
+        const gRes = await axios.get(purvaUrl, { headers: httpHeaders, timeout: 10000 });
+        addJar(gRes.headers);
+        const $g = cheerio.load(gRes.data);
+        const csrf = $g('input[name="csrfmiddlewaretoken"]').val() || "";
+
+        const params = new URLSearchParams({
+            csrfmiddlewaretoken: csrf,
+            company_id: String(resolvedCode),
+            applicationNumber: "",
+            panNumber: cleanPan
+        });
+
+        const pRes = await axios.post(purvaUrl, params.toString(), {
+            headers: {
+                ...httpHeaders,
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Origin": "https://www.purvashare.com",
+                "Referer": purvaUrl,
+                ...(getJarStr() ? { "Cookie": getJarStr() } : {})
+            },
+            timeout: 10000,
+            maxRedirects: 0,
+            validateStatus: () => true
+        });
+        addJar(pRes.headers);
+
+        let resultHtml = "";
+        if (pRes.status >= 300 && pRes.status < 400) {
+            const loc = pRes.headers.location || purvaUrl;
+            const nextUrl = loc.startsWith("http") ? loc : `https://www.purvashare.com${loc.startsWith("/") ? "" : "/"}${loc}`;
+            const rRes = await axios.get(nextUrl, {
+                headers: { ...httpHeaders, "Referer": purvaUrl, ...(getJarStr() ? { "Cookie": getJarStr() } : {}) },
+                timeout: 10000
+            });
+            resultHtml = rRes.data;
+        } else {
+            resultHtml = String(pRes.data || "");
+        }
+
+        const $r = cheerio.load(resultHtml);
+        $r("style, script, form").remove();
+        const notifText = $r(".notification-message").text().replace(/\s+/g, " ").trim();
+        const mainText = $r("main").text().replace(/\s+/g, " ").trim();
+        const combinedText = `${notifText} ${mainText}`.trim();
+
+        if (/no record found|record not found|please re-check/i.test(combinedText)) {
+            return { status: "NO_RECORD", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND", isWinner: false };
+        }
+        if (/no shares? allotted|not allotted/i.test(combinedText)) {
+            return { status: "NO_SHARES", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: No shares allotted", isWinner: false };
+        }
+        const allottedMatch = combinedText.match(/(?:Shares\s*Allotted|Allotted\s*Shares|Allotment\s*Status\s*[:\-]?|Allotted)\D{0,25}(\d[\d,]*)/i)
+            || combinedText.match(/(\d[\d,]*)\s*shares?\s*allotted/i);
+        if (allottedMatch) {
+            const shares = parseInt(allottedMatch[1].replace(/,/g, ""), 10) || 0;
+            if (shares > 0) return { status: "ALLOTTED", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: shares, resultText: `Bid 1: ${shares} shares allotted`, isWinner: true };
+            return { status: "NO_SHARES", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: No shares allotted", isWinner: false };
         }
     }
 

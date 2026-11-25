@@ -257,7 +257,7 @@ export async function scrapeActiveRegistrarIpos() {
 }
 
 const CAPTCHA_GATED_REGS = new Set([
-    "KFIN", "CAMEO", "PURVA", "INTEGRATED", "MAS", "BEETALFC", "ALANKIT", "ANKIT", "ACCURATE", "MUDRA"
+    "CAMEO", "PURVA", "INTEGRATED", "MAS", "BEETALFC", "ALANKIT", "ANKIT", "ACCURATE", "MUDRA"
 ]);
 
 function normalizeLocalRegId(registrarId, registrarUrl) {
@@ -340,6 +340,19 @@ export async function fetchCompaniesForRegistrar(regId) {
             }
         });
         return list;
+    }
+    if (regId === "KFIN") {
+        const indexRes = await axios.get("https://ipostatus.kfintech.com/", { headers: httpHeaders, timeout: 10000 });
+        const jsMatch = String(indexRes.data).match(/static\/js\/(main\.[a-z0-9]+\.js)/i);
+        if (!jsMatch) return [];
+        const jsRes = await axios.get(`https://ipostatus.kfintech.com/static/js/${jsMatch[1]}`, {
+            headers: { ...httpHeaders, "Accept": "*/*", "Referer": "https://ipostatus.kfintech.com/" },
+            timeout: 10000
+        });
+        const listMatch = String(jsRes.data).match(/JSON\.parse\('(\[\{"clientId"[\s\S]*?\])'\)/);
+        if (!listMatch) return [];
+        const arr = JSON.parse(listMatch[1]);
+        return Array.isArray(arr) ? arr.map(x => ({ code: String(x.clientId), name: String(x.name || "") })) : [];
     }
     if (regId === "MUFG") {
         const res = await axios.post("https://in.mpms.mufg.com/Initial_Offer/IPO.aspx/GetDetails", {}, {
@@ -670,6 +683,46 @@ export async function checkSinglePanOnRegistrar(registrarId, companyCode, pan, o
             const shares = parseInt(sharesMatch[1], 10) || 0;
             if (shares > 0) return { status: "ALLOTTED", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: shares, resultText: `Bid 1: ${shares} shares allotted`, isWinner: true };
             return { status: "NO_SHARES", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: No shares allotted", isWinner: false };
+        }
+    }
+
+    // ------------------------------------------------------
+    // F. KFINTECH OFFICIAL AWS QUERY API
+    // ------------------------------------------------------
+    if (regId === "KFIN") {
+        const res = await axios.get("https://0uz601ms56.execute-api.ap-south-1.amazonaws.com/prod/api/query?type=pan", {
+            headers: {
+                ...httpHeaders,
+                "Origin": "https://ipostatus.kfintech.com",
+                "Referer": "https://ipostatus.kfintech.com/",
+                "reqparam": cleanPan,
+                "client_id": String(resolvedCode)
+            },
+            timeout: 8000,
+            validateStatus: () => true
+        });
+        if (res.status === 404) {
+            return { status: "NO_RECORD", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND", isWinner: false };
+        }
+        if (res.status === 200 && Array.isArray(res.data?.data)) {
+            const rows = res.data.data;
+            if (rows.length === 0) {
+                return { status: "NO_RECORD", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND", isWinner: false };
+            }
+            let totalAllotted = 0, totalApplied = 0, holderName = "";
+            const bidParts = [];
+            rows.forEach((rec, idx) => {
+                const allot = parseInt(String(rec.All_Shares || "0").replace(/,/g, ""), 10) || 0;
+                const app = parseInt(String(rec.App_Shares || "0").replace(/,/g, ""), 10) || 0;
+                if (!holderName && rec.Name) holderName = String(rec.Name).trim();
+                totalAllotted += allot;
+                totalApplied += app;
+                if (rows.length > 1) bidParts.push(allot > 0 ? `Bid ${idx + 1}: ${allot} shares allotted` : `Bid ${idx + 1}: No shares`);
+            });
+            if (totalAllotted > 0) {
+                return { status: "ALLOTTED", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: totalAllotted, sharesApplied: totalApplied, holderName, resultText: rows.length > 1 ? bidParts.join(" | ") : `Bid 1: ${totalAllotted} shares allotted`, isWinner: true };
+            }
+            return { status: "NO_SHARES", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, sharesApplied: totalApplied, holderName, resultText: totalApplied > 0 ? `Applied (${totalApplied}) — No shares allotted` : "Bid 1: No shares allotted", isWinner: false };
         }
     }
 

@@ -19,7 +19,6 @@ const ALLOWED_ORIGINS = [
 ];
 
 const CAPTCHA_GATED_REGISTRARS = new Set([
-  "KFIN",
   "CAMEO",
   "PURVA",
   "INTEGRATED",
@@ -229,6 +228,29 @@ async function fetchRegistrarCompanies(regId) {
     if (!res.ok) throw new Error(`Bigshare HTTP ${res.status}`);
     const html = await res.text();
     return parseSelectOptions(html, /<select[^>]*id\s*=\s*["']ddlCompany["'][\s\S]*?<\/select>/i);
+  }
+
+  if (regId === "KFIN") {
+    const indexRes = await fetch("https://ipostatus.kfintech.com/", { headers: DEFAULT_HEADERS });
+    if (!indexRes.ok) throw new Error(`KFintech HTTP ${indexRes.status}`);
+    const indexHtml = await indexRes.text();
+    const jsMatch = indexHtml.match(/static\/js\/(main\.[a-z0-9]+\.js)/i);
+    if (!jsMatch) throw new Error("KFintech app bundle reference not found");
+
+    const jsRes = await fetch(`https://ipostatus.kfintech.com/static/js/${jsMatch[1]}`, {
+      headers: {
+        ...DEFAULT_HEADERS,
+        "Accept": "*/*",
+        "Referer": "https://ipostatus.kfintech.com/"
+      }
+    });
+    if (!jsRes.ok) throw new Error(`KFintech JS bundle HTTP ${jsRes.status}`);
+    const jsText = await jsRes.text();
+
+    const listMatch = jsText.match(/JSON\.parse\('(\[\{"clientId"[\s\S]*?\])'\)/);
+    if (!listMatch) return [];
+    const arr = JSON.parse(listMatch[1]);
+    return Array.isArray(arr) ? arr.map(item => ({ code: String(item.clientId), name: String(item.name || "") })) : [];
   }
 
   if (regId === "MUFG") {
@@ -578,6 +600,73 @@ async function queryRegistrarSinglePan(regId, companyItem, pan) {
     return { status: "PORTAL_CHECK_REQUIRED", sharesAllotted: 0, resultText: "Check directly on Satellite portal" };
   }
 
+  // 6. KFINTECH (ipostatus.kfintech.com — Official AWS Prod Query API)
+  if (regId === "KFIN") {
+    const res = await fetch("https://0uz601ms56.execute-api.ap-south-1.amazonaws.com/prod/api/query?type=pan", {
+      method: "GET",
+      headers: {
+        ...DEFAULT_HEADERS,
+        "Origin": "https://ipostatus.kfintech.com",
+        "Referer": "https://ipostatus.kfintech.com/",
+        "reqparam": pan,
+        "client_id": String(companyItem.code)
+      }
+    });
+
+    if (res.status === 404) {
+      return {
+        status: "NO_RECORD",
+        sharesAllotted: 0,
+        resultText: "Bid 1: NO RECORD FOUND"
+      };
+    }
+
+    if (!res.ok) throw new Error(`KFintech API HTTP ${res.status}`);
+    const json = await res.json();
+    const rows = Array.isArray(json?.data) ? json.data : [];
+    if (rows.length === 0) {
+      return {
+        status: "NO_RECORD",
+        sharesAllotted: 0,
+        resultText: "Bid 1: NO RECORD FOUND"
+      };
+    }
+
+    let totalAllotted = 0;
+    let totalApplied = 0;
+    let holderName = "";
+    const bidParts = [];
+
+    rows.forEach((rec, idx) => {
+      const allot = parseInt(String(rec.All_Shares || "0").replace(/,/g, ""), 10) || 0;
+      const app = parseInt(String(rec.App_Shares || "0").replace(/,/g, ""), 10) || 0;
+      if (!holderName && rec.Name) holderName = String(rec.Name).trim();
+      totalAllotted += allot;
+      totalApplied += app;
+      if (rows.length > 1) {
+        bidParts.push(allot > 0 ? `Bid ${idx + 1}: ${allot} shares allotted` : `Bid ${idx + 1}: No shares`);
+      }
+    });
+
+    if (totalAllotted > 0) {
+      return {
+        status: "ALLOTTED",
+        sharesAllotted: totalAllotted,
+        sharesApplied: totalApplied,
+        holderName,
+        resultText: rows.length > 1 ? bidParts.join(" | ") : `Bid 1: ${totalAllotted} shares allotted`
+      };
+    }
+
+    return {
+      status: "NO_SHARES",
+      sharesAllotted: 0,
+      sharesApplied: totalApplied,
+      holderName,
+      resultText: totalApplied > 0 ? `Applied (${totalApplied}) — No shares allotted` : "Bid 1: No shares allotted"
+    };
+  }
+
   throw new Error(`Unsupported automated registrar: ${regId}`);
 }
 
@@ -605,6 +694,7 @@ export default {
         hasToken: Boolean(token),
         requiresPin: Boolean((env.ADMIN_KEY || "").trim()),
         allotmentProxy: true,
+        kfinAuto: true,
         repo: OWNER_REPO
       }, 200, origin);
     }

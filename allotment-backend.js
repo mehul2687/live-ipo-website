@@ -188,27 +188,67 @@ export async function scrapeActiveRegistrarIpos() {
         console.warn("⚠️ Skyline scrape error:", err.message);
     }
 
-    // C. Add Common Active Link Intime IPOs
-    activeIpos.unshift(
-        {
-            id: "LINKINTIME_VAIBHAV_2",
-            code: "VAIBHAV",
-            name: "VAIBHAV VYAPAAR LIMITED (Server 2)",
-            rawName: "VAIBHAV VYAPAAR LIMITED",
-            registrarId: "LINKINTIME",
-            registrarName: "Link-Intime India Private Ltd (Server 2)",
-            allotmentUrl: "https://linkintime.co.in/Initial_Offer/public-issues.html"
-        },
-        {
-            id: "LINKINTIME_VAIBHAV_1",
-            code: "VAIBHAV",
-            name: "VAIBHAV VYAPAAR LIMITED (Server 1)",
-            rawName: "VAIBHAV VYAPAAR LIMITED",
-            registrarId: "LINKINTIME",
-            registrarName: "Link-Intime India Private Ltd (Server 1)",
-            allotmentUrl: "https://linkintime.co.in/Initial_Offer/public-issues.html"
+    // C. Scrape MUFG Intime (formerly Link Intime)
+    try {
+        console.log("Fetching MUFG Intime active IPOs...");
+        const mufgRes = await axios.post("https://in.mpms.mufg.com/Initial_Offer/IPO.aspx/GetDetails", {}, {
+            headers: {
+                ...httpHeaders,
+                "Content-Type": "application/json; charset=utf-8",
+                "Referer": "https://in.mpms.mufg.com/Initial_Offer/public-issues.html"
+            },
+            timeout: 10000
+        });
+        const xml = String(mufgRes.data?.d || "");
+        const $xml = cheerio.load(xml, { xmlMode: true });
+        let mufgCount = 0;
+        $xml("Table").each((_, tbl) => {
+            const code = $xml(tbl).find("company_id").text().trim();
+            const name = $xml(tbl).find("companyname").text().trim();
+            if (code && name) {
+                activeIpos.push({
+                    id: `MUFG_${code}`,
+                    code: code,
+                    name: name.toLowerCase().includes("ipo") ? name : `${name} - IPO`,
+                    rawName: name,
+                    registrarId: "MUFG",
+                    registrarName: "MUFG Intime India Private Limited",
+                    allotmentUrl: "https://in.mpms.mufg.com/Initial_Offer/public-issues.html"
+                });
+                mufgCount++;
+            }
+        });
+        console.log(`✓ MUFG Intime: Found ${mufgCount} active IPOs.`);
+    } catch (err) {
+        console.warn("⚠️ MUFG Intime scrape error:", err.message);
+    }
+
+    // D. Scrape Maashitla Securities
+    try {
+        console.log("Fetching Maashitla active IPOs...");
+        const mRes = await axios.get("https://api.maashitla.com/api/public-issue/companies", {
+            headers: httpHeaders,
+            timeout: 8000
+        });
+        if (Array.isArray(mRes.data)) {
+            mRes.data.forEach(item => {
+                if (item?.company_name) {
+                    activeIpos.push({
+                        id: `MAASHITLA_${item.company_id || item.company_name}`,
+                        code: item.company_name,
+                        name: `${item.company_name} - IPO`,
+                        rawName: item.company_name,
+                        registrarId: "MAASHITLA",
+                        registrarName: "Maashitla Securities Private Limited",
+                        allotmentUrl: "https://maashitla.com/allotment-status/public-issues"
+                    });
+                }
+            });
+            console.log(`✓ Maashitla: Found ${mRes.data.length} active IPOs.`);
         }
-    );
+    } catch (err) {
+        console.warn("⚠️ Maashitla scrape error:", err.message);
+    }
 
     // Save to JSON file
     fs.writeFileSync(ACTIVE_IPOS_FILE, JSON.stringify(activeIpos, null, 2), "utf8");
@@ -216,12 +256,142 @@ export async function scrapeActiveRegistrarIpos() {
     return activeIpos;
 }
 
+const CAPTCHA_GATED_REGS = new Set([
+    "KFIN", "CAMEO", "PURVA", "INTEGRATED", "MAS", "BEETALFC", "ALANKIT", "ANKIT", "ACCURATE", "MUDRA"
+]);
+
+function normalizeLocalRegId(registrarId, registrarUrl) {
+    const combined = `${registrarId || ""} ${registrarUrl || ""}`.toUpperCase();
+    if (combined.includes("BIGSHARE")) return "BIGSHARE";
+    if (combined.includes("MPMS.MUFG") || combined.includes("MUFG") || combined.includes("LINKINTIME")) return "MUFG";
+    if (combined.includes("MAASHITLA")) return "MAASHITLA";
+    if (combined.includes("SKYLINERTA") || combined.includes("SKYLINE")) return "SKYLINE";
+    if (combined.includes("SATELLITECORPORATE") || combined.includes("SATELLITE")) return "SATELLITE";
+    if (combined.includes("KFIN") || combined.includes("KOSMIC") || combined.includes("KPRISM")) return "KFIN";
+    if (combined.includes("CAMEO")) return "CAMEO";
+    if (combined.includes("PURVA")) return "PURVA";
+    if (combined.includes("MASSERV") || /\bMAS\b/.test(combined)) return "MAS";
+    if (combined.includes("BEETAL")) return "BEETALFC";
+    if (combined.includes("INTEGRATED")) return "INTEGRATED";
+    if (combined.includes("ALANKIT")) return "ALANKIT";
+    if (combined.includes("ANKIT")) return "ANKIT";
+    if (combined.includes("ACCURATE")) return "ACCURATE";
+    if (combined.includes("MUDRA")) return "MUDRA";
+    return "UNKNOWN";
+}
+
+function normCompanyStr(name) {
+    return String(name || "")
+        .toLowerCase()
+        .replace(/&/g, " and ")
+        .replace(/\./g, " ")
+        .replace(/\b(ipo\s*details|ipo|fpo|limited|ltd|private|pvt|india|the|server\s*\d+)\b/gi, " ")
+        .replace(/[^a-z0-9\s]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function matchCompanyObj(list, targetName, explicitCode) {
+    if (!Array.isArray(list) || list.length === 0) return null;
+    if (explicitCode) {
+        const hit = list.find(c => String(c.code).trim() === String(explicitCode).trim());
+        if (hit) return hit;
+    }
+    const normT = normCompanyStr(targetName);
+    if (!normT) return null;
+    for (const c of list) {
+        if (normCompanyStr(c.name) === normT) return c;
+    }
+    const compactT = normT.replace(/\s+/g, "");
+    for (const c of list) {
+        if (normCompanyStr(c.name).replace(/\s+/g, "") === compactT) return c;
+    }
+    if (compactT.length >= 5) {
+        for (const c of list) {
+            const cc = normCompanyStr(c.name).replace(/\s+/g, "");
+            if (cc.length >= 5 && (cc.includes(compactT) || compactT.includes(cc))) return c;
+        }
+    }
+    const tTokens = normT.split(" ").filter(t => t.length > 1);
+    if (tTokens.length > 0) {
+        let best = null, bestScore = 0;
+        for (const c of list) {
+            const cTokens = normCompanyStr(c.name).split(" ").filter(t => t.length > 1);
+            if (!cTokens.length) continue;
+            const common = tTokens.filter(t => cTokens.includes(t)).length;
+            const score = common / Math.max(tTokens.length, cTokens.length);
+            if (score > bestScore) { bestScore = score; best = c; }
+        }
+        if (best && bestScore >= 0.65) return best;
+    }
+    return null;
+}
+
+export async function fetchCompaniesForRegistrar(regId) {
+    if (regId === "BIGSHARE") {
+        const res = await axios.get("https://ipo.bigshareonline.com/IPO_Status.html", { headers: httpHeaders, timeout: 10000 });
+        const $ = cheerio.load(res.data);
+        const list = [];
+        $("select#ddlCompany option").each((_, el) => {
+            const code = $(el).val()?.trim();
+            const name = $(el).text()?.trim();
+            if (code && !code.includes("--") && code !== "0" && name && !/--?\s*select/i.test(name)) {
+                list.push({ code, name });
+            }
+        });
+        return list;
+    }
+    if (regId === "MUFG") {
+        const res = await axios.post("https://in.mpms.mufg.com/Initial_Offer/IPO.aspx/GetDetails", {}, {
+            headers: { ...httpHeaders, "Content-Type": "application/json; charset=utf-8", "Referer": "https://in.mpms.mufg.com/Initial_Offer/public-issues.html" },
+            timeout: 10000
+        });
+        const $xml = cheerio.load(String(res.data?.d || ""), { xmlMode: true });
+        const list = [];
+        $xml("Table").each((_, tbl) => {
+            const code = $xml(tbl).find("company_id").text().trim();
+            const name = $xml(tbl).find("companyname").text().trim();
+            if (code && name) list.push({ code, name });
+        });
+        return list;
+    }
+    if (regId === "MAASHITLA") {
+        const res = await axios.get("https://api.maashitla.com/api/public-issue/companies", { headers: httpHeaders, timeout: 8000 });
+        return Array.isArray(res.data) ? res.data.map(x => ({ code: x.company_name, companyId: x.company_id, name: x.company_name })) : [];
+    }
+    if (regId === "SKYLINE") {
+        const res = await axios.get("https://www.skylinerta.com/ipo.php", { headers: httpHeaders, timeout: 10000 });
+        const $ = cheerio.load(res.data);
+        const list = [];
+        $('select[name="company"] option').each((_, el) => {
+            const code = $(el).val()?.trim();
+            const name = $(el).text()?.trim();
+            if (code && !code.includes("--") && code !== "0" && name && !/select/i.test(name)) {
+                list.push({ code, name });
+            }
+        });
+        return list;
+    }
+    if (regId === "SATELLITE") {
+        const res = await axios.get("https://www.satellitecorporate.com/ipo-query.php", { headers: httpHeaders, timeout: 10000 });
+        const $ = cheerio.load(res.data);
+        const list = [];
+        $('select[name="company"] option').each((_, el) => {
+            const code = $(el).val()?.trim();
+            const name = $(el).text()?.trim();
+            if (code && name && !/select/i.test(name)) list.push({ code, name });
+        });
+        return list;
+    }
+    return [];
+}
+
 // ==========================================================
 // 2. CHECK ALLOTMENT STATUS FOR A SINGLE PAN ON REGISTRAR
 // ==========================================================
-export async function checkSinglePanOnRegistrar(registrarId, companyCode, pan) {
+export async function checkSinglePanOnRegistrar(registrarId, companyCode, pan, options = {}) {
     const cleanPan = (pan || "").trim().toUpperCase();
-    if (!cleanPan || cleanPan.length !== 10) {
+    if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(cleanPan)) {
         return {
             status: "INVALID_PAN",
             resultText: "Invalid PAN Number",
@@ -229,130 +399,287 @@ export async function checkSinglePanOnRegistrar(registrarId, companyCode, pan) {
         };
     }
 
-    const regId = (registrarId || "").toUpperCase();
+    const regId = normalizeLocalRegId(registrarId, options.registrarUrl);
+    if (CAPTCHA_GATED_REGS.has(regId)) {
+        return {
+            status: "CAPTCHA_REQUIRED",
+            registrarId: regId,
+            sharesAllotted: 0,
+            resultText: "Captcha required on official registrar portal",
+            isWinner: false
+        };
+    }
+    if (regId === "UNKNOWN") {
+        return {
+            status: "PORTAL_CHECK_REQUIRED",
+            registrarId: regId,
+            sharesAllotted: 0,
+            resultText: "Check directly on official registrar portal",
+            isWinner: false
+        };
+    }
+
+    let resolvedCode = options.resolvedCode || "";
+    let resolvedName = options.companyName || "";
+    if (!resolvedCode) {
+        try {
+            const activeList = await fetchCompaniesForRegistrar(regId);
+            const matched = matchCompanyObj(activeList, options.companyName || companyCode, companyCode);
+            if (!matched) {
+                return {
+                    status: "IPO_ARCHIVED",
+                    registrarId: regId,
+                    sharesAllotted: 0,
+                    resultText: "IPO not in registrar's live dropdown (archived or awaiting upload)",
+                    isWinner: false
+                };
+            }
+            resolvedCode = matched.code;
+            resolvedName = matched.name;
+        } catch (err) {
+            console.warn(`Company list resolve error for ${regId}:`, err.message);
+            if (!companyCode) throw err;
+            resolvedCode = companyCode;
+        }
+    }
 
     // ------------------------------------------------------
     // A. BIGSHARE SERVICES REAL API
     // ------------------------------------------------------
-    if (regId.includes("BIGSHARE")) {
-        try {
-            const payload = {
-                Applicationno: "",
-                Company: String(companyCode || ""),
-                SelectionType: "PN",
-                PanNo: cleanPan,
-                txtcsdl: "",
-                txtDPID: "",
-                txtClId: "",
-                ddlType: "1",
-                lang: "en"
-            };
+    if (regId === "BIGSHARE") {
+        const res = await axios.post("https://ipo.bigshareonline.com/Data.aspx/FetchIpodetails", {
+            Applicationno: "",
+            Company: String(resolvedCode),
+            SelectionType: "PN",
+            PanNo: cleanPan,
+            txtcsdl: "",
+            txtDPID: "",
+            txtClId: "",
+            ddlType: "1",
+            lang: "en"
+        }, {
+            headers: {
+                ...httpHeaders,
+                "Content-Type": "application/json; charset=utf-8",
+                "Referer": "https://ipo.bigshareonline.com/IPO_Status.html",
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            timeout: 8000
+        });
 
-            const res = await axios.post("https://ipo.bigshareonline.com/Data.aspx/FetchIpodetails", payload, {
-                headers: {
-                    ...httpHeaders,
-                    "Content-Type": "application/json; charset=utf-8",
-                    "Referer": "https://ipo.bigshareonline.com/IPO_Status.html",
-                    "X-Requested-With": "XMLHttpRequest"
-                },
-                timeout: 8000
-            });
-
-            const d = res.data?.d;
-            if (d) {
-                if (d.Status === "FOUND") {
-                    const allotted = parseInt(d.ALLOTED || "0", 10);
-                    const applied = parseInt(d.APPLIED || "0", 10);
-                    const holderName = d.Name || "";
-
-                    if (allotted > 0) {
-                        return {
-                            status: "ALLOTTED",
-                            sharesAllotted: allotted,
-                            sharesApplied: applied,
-                            holderName: holderName,
-                            resultText: `Bid 1: ${allotted} shares allotted`,
-                            isWinner: true
-                        };
-                    } else {
-                        return {
-                            status: "NO_SHARES",
-                            sharesAllotted: 0,
-                            sharesApplied: applied,
-                            holderName: holderName,
-                            resultText: "Bid 1: No shares allotted",
-                            isWinner: false
-                        };
+        const d = res.data?.d;
+        if (d) {
+            if (d.Status === "FOUND") {
+                const records = Array.isArray(d.Records) && d.Records.length > 0 ? d.Records : [d];
+                let totalAllotted = 0;
+                let totalApplied = 0;
+                const bidParts = [];
+                records.forEach((rec, idx) => {
+                    const alloted = parseInt(String(rec.ALLOTED || rec.Alloted || "0").replace(/,/g, ""), 10) || 0;
+                    const applied = parseInt(String(rec.APPLIED || rec.Applied || "0").replace(/,/g, ""), 10) || 0;
+                    totalAllotted += alloted;
+                    totalApplied += applied;
+                    if (records.length > 1) {
+                        bidParts.push(alloted > 0 ? `Bid ${idx + 1}: ${alloted} shares allotted` : `Bid ${idx + 1}: No shares`);
                     }
-                } else if (d.Status === "NOTFOUND") {
-                    return {
-                        status: "NO_RECORD",
-                        sharesAllotted: 0,
-                        resultText: "Bid 1: NO RECORD FOUND",
-                        isWinner: false
-                    };
-                }
-            }
-        } catch (err) {
-            console.warn(`Bigshare query error for ${cleanPan}:`, err.message);
-        }
-    }
-
-    // ------------------------------------------------------
-    // B. SKYLINE REAL SCRAPER
-    // ------------------------------------------------------
-    if (regId.includes("SKYLINE")) {
-        try {
-            const postData = `company=${encodeURIComponent(companyCode)}&pan=${encodeURIComponent(cleanPan)}`;
-            const res = await axios.post("https://www.skylinerta.com/ipo.php", postData, {
-                headers: {
-                    ...httpHeaders,
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                timeout: 8000
-            });
-
-            const $ = cheerio.load(res.data);
-            const bodyText = $("body").text();
-
-            if (bodyText.includes("Allotted") || bodyText.includes("Shares")) {
-                const allottedMatch = bodyText.match(/Allotted\s*[:\-]?\s*(\d+)/i);
-                const shares = allottedMatch ? parseInt(allottedMatch[1], 10) : 0;
-                if (shares > 0) {
+                });
+                if (totalAllotted > 0) {
                     return {
                         status: "ALLOTTED",
-                        sharesAllotted: shares,
-                        resultText: `Bid 1: ${shares} shares allotted`,
+                        registrarId: regId,
+                        resolvedCode,
+                        resolvedName,
+                        sharesAllotted: totalAllotted,
+                        sharesApplied: totalApplied,
+                        holderName: d.Name || "",
+                        resultText: records.length > 1 ? bidParts.join(" | ") : `Bid 1: ${totalAllotted} shares allotted`,
                         isWinner: true
                     };
-                } else {
-                    return {
-                        status: "NO_SHARES",
-                        sharesAllotted: 0,
-                        resultText: "Bid 1: No shares allotted",
-                        isWinner: false
-                    };
                 }
-            } else if (bodyText.includes("No Record") || bodyText.includes("Not Found")) {
                 return {
-                    status: "NO_RECORD",
+                    status: "NO_SHARES",
+                    registrarId: regId,
+                    resolvedCode,
+                    resolvedName,
                     sharesAllotted: 0,
-                    resultText: "Bid 1: NO RECORD FOUND",
+                    sharesApplied: totalApplied,
+                    holderName: d.Name || "",
+                    resultText: totalApplied > 0 ? `Applied (${totalApplied}) — No shares allotted` : "Bid 1: No shares allotted",
                     isWinner: false
                 };
             }
-        } catch (err) {
-            console.warn(`Skyline query error for ${cleanPan}:`, err.message);
+            return {
+                status: "NO_RECORD",
+                registrarId: regId,
+                resolvedCode,
+                resolvedName,
+                sharesAllotted: 0,
+                resultText: "Bid 1: NO RECORD FOUND",
+                isWinner: false
+            };
         }
     }
 
     // ------------------------------------------------------
-    // C. GENERAL / FALLBACK HANDLER
+    // B. MUFG INTIME (Link Intime) REAL API
     // ------------------------------------------------------
+    if (regId === "MUFG") {
+        const res = await axios.post("https://in.mpms.mufg.com/Initial_Offer/IPO.aspx/SearchOnPan", {
+            clientid: String(resolvedCode),
+            PAN: cleanPan,
+            IFSC: "",
+            CHKVAL: "1",
+            token: ""
+        }, {
+            headers: {
+                ...httpHeaders,
+                "Content-Type": "application/json; charset=utf-8",
+                "Referer": "https://in.mpms.mufg.com/Initial_Offer/public-issues.html",
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            timeout: 8000
+        });
+
+        const $xml = cheerio.load(String(res.data?.d || ""), { xmlMode: true });
+        const tables = $xml("Table");
+        if (tables.length === 0) {
+            return {
+                status: "NO_RECORD",
+                registrarId: regId,
+                resolvedCode,
+                resolvedName,
+                sharesAllotted: 0,
+                resultText: "Bid 1: NO RECORD FOUND",
+                isWinner: false
+            };
+        }
+
+        let totalAllotted = 0;
+        let totalApplied = 0;
+        let holderName = "";
+        const bidParts = [];
+
+        tables.each((idx, tbl) => {
+            const allot = parseInt($xml(tbl).find("ALLOT").text().replace(/,/g, ""), 10) || 0;
+            const shares = parseInt($xml(tbl).find("SHARES").text().replace(/,/g, ""), 10) || 0;
+            const n = $xml(tbl).find("NAME1").text().trim();
+            if (!holderName && n) holderName = n;
+            totalAllotted += allot;
+            totalApplied += shares;
+            if (tables.length > 1) {
+                bidParts.push(allot > 0 ? `Bid ${idx + 1}: ${allot} shares allotted` : `Bid ${idx + 1}: No shares`);
+            }
+        });
+
+        if (totalAllotted > 0) {
+            return {
+                status: "ALLOTTED",
+                registrarId: regId,
+                resolvedCode,
+                resolvedName,
+                sharesAllotted: totalAllotted,
+                sharesApplied: totalApplied,
+                holderName,
+                resultText: tables.length > 1 ? bidParts.join(" | ") : `Bid 1: ${totalAllotted} shares allotted`,
+                isWinner: true
+            };
+        }
+
+        return {
+            status: "NO_SHARES",
+            registrarId: regId,
+            resolvedCode,
+            resolvedName,
+            sharesAllotted: 0,
+            sharesApplied: totalApplied,
+            holderName,
+            resultText: totalApplied > 0 ? `Applied (${totalApplied}) — No shares allotted` : "Bid 1: No shares allotted",
+            isWinner: false
+        };
+    }
+
+    // ------------------------------------------------------
+    // C. MAASHITLA SECURITIES REAL API
+    // ------------------------------------------------------
+    if (regId === "MAASHITLA") {
+        const res = await axios.get(`https://api.maashitla.com/api/public-issue/search?company_name=${encodeURIComponent(resolvedCode)}&pan=${encodeURIComponent(cleanPan)}`, {
+            headers: httpHeaders,
+            timeout: 8000,
+            validateStatus: () => true
+        });
+        if (res.status === 404) {
+            return { status: "NO_RECORD", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND", isWinner: false };
+        }
+        if (res.status === 200 && res.data) {
+            const allotted = parseInt(String(res.data.shares_allotted ?? "0").replace(/,/g, ""), 10) || 0;
+            const applied = parseInt(String(res.data.shares_applied ?? "0").replace(/,/g, ""), 10) || 0;
+            if (allotted > 0) {
+                return { status: "ALLOTTED", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: allotted, sharesApplied: applied, holderName: res.data.name || "", resultText: `Bid 1: ${allotted} shares allotted`, isWinner: true };
+            }
+            return { status: "NO_SHARES", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, sharesApplied: applied, holderName: res.data.name || "", resultText: applied > 0 ? `Applied (${applied}) — No shares allotted` : "Bid 1: No shares allotted", isWinner: false };
+        }
+    }
+
+    // ------------------------------------------------------
+    // D. SKYLINE REAL SCRAPER (2-Step CSRF)
+    // ------------------------------------------------------
+    if (regId === "SKYLINE") {
+        const s1 = await axios.post("https://www.skylinerta.com/display_application.php", `company=${encodeURIComponent(resolvedCode)}`, {
+            headers: { ...httpHeaders, "Content-Type": "application/x-www-form-urlencoded", "Referer": "https://www.skylinerta.com/ipo.php" },
+            timeout: 8000
+        });
+        const cookies = (s1.headers["set-cookie"] || []).map(c => c.split(";")[0]).join("; ");
+        const $1 = cheerio.load(s1.data);
+        const csrf = $1('input[name="csrf_token"]').val() || "";
+
+        const s2 = await axios.post("https://www.skylinerta.com/display_application.php",
+            `csrf_token=${encodeURIComponent(csrf)}&company=${encodeURIComponent(resolvedCode)}&action=search&client_id=&application_no=&pan=${encodeURIComponent(cleanPan)}`, {
+            headers: { ...httpHeaders, "Content-Type": "application/x-www-form-urlencoded", "Referer": "https://www.skylinerta.com/display_application.php", ...(cookies ? { "Cookie": cookies } : {}) },
+            timeout: 8000
+        });
+        const $2 = cheerio.load(s2.data);
+        const bodyText = $2("body").text().replace(/\s+/g, " ");
+        if (/no record found|could not find any application|not found/i.test(bodyText)) {
+            return { status: "NO_RECORD", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND", isWinner: false };
+        }
+        const allottedMatch = bodyText.match(/(?:Shares\s*Allotted|Allotted\s*Shares|Allotted)\s*[:\-]?\s*(\d[\d,]*)/i);
+        if (allottedMatch) {
+            const shares = parseInt(allottedMatch[1].replace(/,/g, ""), 10) || 0;
+            if (shares > 0) {
+                return { status: "ALLOTTED", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: shares, resultText: `Bid 1: ${shares} shares allotted`, isWinner: true };
+            }
+            return { status: "NO_SHARES", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: No shares allotted", isWinner: false };
+        }
+        return { status: "PORTAL_CHECK_REQUIRED", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Check directly on Skyline portal", isWinner: false };
+    }
+
+    // ------------------------------------------------------
+    // E. SATELLITE REAL SCRAPER
+    // ------------------------------------------------------
+    if (regId === "SATELLITE") {
+        const res = await axios.get(`https://www.satellitecorporate.com/mainAjax.php?action=search_applicant&data_search=pan_no&company=${encodeURIComponent(resolvedCode)}&search_no=${encodeURIComponent(cleanPan)}`, {
+            headers: { ...httpHeaders, "Referer": "https://www.satellitecorporate.com/ipo-query.php", "X-Requested-With": "XMLHttpRequest" },
+            timeout: 8000
+        });
+        const flatText = typeof res.data === "string" ? res.data : JSON.stringify(res.data);
+        if (/no record|not found|invalid/i.test(flatText) && !/allotted\s*["':=]+\s*[1-9]/i.test(flatText)) {
+            return { status: "NO_RECORD", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND", isWinner: false };
+        }
+        const sharesMatch = flatText.match(/(?:allotted|allot_shares|alloted)\D{0,15}(\d+)/i);
+        if (sharesMatch) {
+            const shares = parseInt(sharesMatch[1], 10) || 0;
+            if (shares > 0) return { status: "ALLOTTED", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: shares, resultText: `Bid 1: ${shares} shares allotted`, isWinner: true };
+            return { status: "NO_SHARES", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: No shares allotted", isWinner: false };
+        }
+    }
+
     return {
-        status: "NO_RECORD",
+        status: "PORTAL_CHECK_REQUIRED",
+        registrarId: regId,
+        resolvedCode,
+        resolvedName,
         sharesAllotted: 0,
-        resultText: "Bid 1: NO RECORD FOUND",
+        resultText: "Check directly on official registrar portal",
         isWinner: false
     };
 }
@@ -474,16 +801,66 @@ export function startServer() {
         if (parsedUrl.pathname === "/api/check-single") {
             const registrarId = parsedUrl.searchParams.get("registrar");
             const companyCode = parsedUrl.searchParams.get("company");
+            const companyName = parsedUrl.searchParams.get("companyName") || "";
+            const registrarUrl = parsedUrl.searchParams.get("registrarUrl") || "";
+            const resolvedCode = parsedUrl.searchParams.get("resolvedCode") || "";
             const pan = parsedUrl.searchParams.get("pan");
 
             try {
-                const answer = await checkSinglePanOnRegistrar(registrarId, companyCode, pan);
+                const answer = await checkSinglePanOnRegistrar(registrarId, companyCode, pan, {
+                    companyName,
+                    registrarUrl,
+                    resolvedCode
+                });
                 res.writeHead(200, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({ success: true, ...answer }));
+                res.end(JSON.stringify({ ok: true, success: true, ...answer }));
             } catch (err) {
                 res.writeHead(500, { "Content-Type": "application/json" });
-                res.end(JSON.stringify({ success: false, error: err.message }));
+                res.end(JSON.stringify({ ok: false, success: false, error: err.message }));
             }
+            return;
+        }
+
+        // Route 4B: GET /api/allotment-companies (Cloudflare Worker parity)
+        if (parsedUrl.pathname === "/api/allotment-companies") {
+            const regParam = parsedUrl.searchParams.get("registrar") || "";
+            const urlParam = parsedUrl.searchParams.get("url") || "";
+            const regId = normalizeLocalRegId(regParam, urlParam);
+            if (CAPTCHA_GATED_REGS.has(regId) || regId === "UNKNOWN") {
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ ok: true, registrarId: regId, autoSupported: false, captchaRequired: CAPTCHA_GATED_REGS.has(regId), companies: [] }));
+                return;
+            }
+            try {
+                const companies = await fetchCompaniesForRegistrar(regId);
+                res.writeHead(200, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ ok: true, registrarId: regId, autoSupported: true, captchaRequired: false, companies }));
+            } catch (err) {
+                res.writeHead(502, { "Content-Type": "application/json" });
+                res.end(JSON.stringify({ ok: false, registrarId: regId, error: err.message }));
+            }
+            return;
+        }
+
+        // Route 4C: POST /api/allotment-check (Cloudflare Worker parity)
+        if (parsedUrl.pathname === "/api/allotment-check" && req.method === "POST") {
+            let body = "";
+            req.on("data", chunk => body += chunk);
+            req.on("end", async () => {
+                try {
+                    const parsed = JSON.parse(body || "{}");
+                    const answer = await checkSinglePanOnRegistrar(parsed.registrarId, parsed.companyCode, parsed.pan, {
+                        companyName: parsed.companyName,
+                        registrarUrl: parsed.registrarUrl,
+                        resolvedCode: parsed.resolvedCode
+                    });
+                    res.writeHead(200, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({ ok: true, success: true, ...answer }));
+                } catch (err) {
+                    res.writeHead(500, { "Content-Type": "application/json" });
+                    res.end(JSON.stringify({ ok: false, success: false, error: err.message }));
+                }
+            });
             return;
         }
 

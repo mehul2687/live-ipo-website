@@ -6,19 +6,142 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live IPO - Auto Allotment Checker</title>
 
-    <!-- External CSS Link -->
-        <!-- Google Fonts: Inter (Preconnected & Crisp Rendering) -->
+    <!-- Google Fonts: Inter (Preconnected & Crisp Rendering) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="style.css?v=2026.11.18.1">
+    <link rel="stylesheet" href="style.css?v=2026.11.25.1">
 
     <!-- Google Identity Services (Google Sign-In) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <!-- Shared JavaScript Link -->
-    <script src="script.js?v=2026.11.18.1"></script>
+    <script src="script.js?v=2026.11.25.1"></script>
+
+    <style>
+        .allotment-summary-bar {
+            display: none;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding: 10px 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .allotment-stats-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        .stat-pill {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .stat-pill-total { background: #e2e8f0; color: #1e293b; }
+        .stat-pill-allotted { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+        .stat-pill-noshares { background: #fee2e2; color: #991b1b; }
+        .stat-pill-norecord { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .allotment-banner-notice {
+            display: none;
+            padding: 11px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 14px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .allotment-banner-warn {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+        }
+        .allotment-banner-info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+        }
+        .btn-copy-pan {
+            background: #f1f5f9;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-copy-pan:hover {
+            background: #e2e8f0;
+            border-color: #94a3b8;
+        }
+        .btn-copy-pan.copied {
+            background: #dcfce7;
+            color: #166534;
+            border-color: #86efac;
+        }
+        .btn-recheck-all {
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: background 0.15s;
+        }
+        .btn-recheck-all:hover { background: #1d4ed8; }
+        .btn-recheck-all:disabled { opacity: 0.6; cursor: not-allowed; }
+        .reg-mode-badge {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 999px;
+            margin-left: 8px;
+        }
+        .reg-mode-auto { background: #dcfce7; color: #166534; }
+        .reg-mode-captcha { background: #fef3c7; color: #92400e; }
+        .reg-mode-unknown { background: #f1f5f9; color: #475569; }
+        .auth-cta-box {
+            text-align: center;
+            padding: 40px 20px;
+            background: #f8fafc;
+            border: 1px dashed #cbd5e1;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        .btn-manage-accounts {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #2563eb;
+            color: #fff;
+            text-decoration: none;
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            margin-top: 12px;
+        }
+        .btn-manage-accounts:hover { background: #1d4ed8; }
+    </style>
 </head>
 
 <body class="home-page">
@@ -29,7 +152,7 @@
             📊 <span>Live IPO</span>
         </a>
 
-                <ul class="sidebar-menu">
+        <ul class="sidebar-menu">
             <!-- Category 1: IPO Information -->
             <li class="menu-heading"><span>IPO Section</span></li>
             <li class="menu-item"><a href="index.html">🏠 <span>Home</span></a></li>
@@ -68,7 +191,7 @@
             <div class="user-auth-section">
                 <!-- Google Sign In Button container -->
                 <div id="googleSignInBtn"></div>
-                
+
                 <!-- Logged In User Profile Badge -->
                 <div id="userProfileBadge" class="user-profile-badge" style="display: none;">
                     <img id="userAvatarImg" src="" alt="User" class="user-avatar-img">
@@ -87,8 +210,16 @@
 
         <!-- Top Hero Card -->
         <div class="allotment-hero-card">
-            <h1 class="allotment-hero-title">Auto Allotment Checker</h1>
-            <p class="allotment-hero-subtitle">Pick an IPO and we check the registrar's allotment status for each of your demat accounts, one after another.</p>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
+                <div>
+                    <h1 class="allotment-hero-title">Auto Allotment Checker</h1>
+                    <p class="allotment-hero-subtitle">Pick a declared IPO and automatically check registrar allotment status across all your saved Demat / PAN accounts, one after another.</p>
+                </div>
+                <div id="savedAccountsCounterBadge" style="display: flex; align-items: center; gap: 8px; background: #f8fafc; border: 1px solid #e2e8f0; padding: 7px 12px; border-radius: 8px; font-size: 12.5px; color: #334155;">
+                    <span>👥 Accounts: <strong id="headerAccCount">0</strong></span>
+                    <a href="my-demat-accounts.html" style="color: #2563eb; font-weight: 600; text-decoration: none; margin-left: 4px;">Manage ↗</a>
+                </div>
+            </div>
         </div>
 
         <!-- Allotment Status Card -->
@@ -103,7 +234,7 @@
 
             <!-- IPO Searchable Select Dropdown -->
             <div class="allotment-select-group">
-                <label class="allotment-select-label" for="ipoSelectTrigger">IPO</label>
+                <label class="allotment-select-label" for="ipoSelectTrigger">Select Allotment Out IPO</label>
                 <div class="allotment-custom-select" id="ipoSelectTrigger" onclick="toggleIpoDropdown(event)">
                     <span id="selectedIpoText">--SELECT IPO--</span>
                     <span style="font-size: 11px; color: #64748b;">▼</span>
@@ -112,31 +243,52 @@
                 <!-- Dropdown Menu -->
                 <div class="allotment-dropdown-menu" id="ipoDropdownMenu">
                     <div class="allotment-dropdown-search">
-                        <input type="text" id="ipoSearchInput" placeholder="Search IPO..." oninput="filterIpoList(this.value)" onclick="event.stopPropagation()">
+                        <input type="text" id="ipoSearchInput" placeholder="Search declared IPO..." oninput="filterIpoList(this.value)" onclick="event.stopPropagation()">
                     </div>
                     <ul class="allotment-dropdown-list" id="ipoDropdownList">
-                        <!-- Populated dynamically -->
+                        <li style="padding: 10px 14px; font-size: 13px; color: #64748b;">Loading declared IPOs...</li>
                     </ul>
                 </div>
             </div>
 
             <!-- Selected IPO Info Bar (Registrar link) -->
-            <div id="selectedIpoInfoBar" style="display: none; margin-bottom: 18px; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
-                <div style="font-size: 13.5px; color: #334155;">
-                    🏢 Registrar: <strong id="selectedIpoRegName">Link Intime</strong>
+            <div id="selectedIpoInfoBar" style="display: none; margin-bottom: 14px; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <div style="font-size: 13.5px; color: #334155; display: flex; align-items: center; flex-wrap: wrap; gap: 4px;">
+                    <span>🏢 Registrar: <strong id="selectedIpoRegName">-</strong></span>
+                    <span id="selectedIpoRegModeBadge" class="reg-mode-badge"></span>
                 </div>
-                <div style="display: flex; gap: 10px;">
-                    <a id="selectedIpoRegUrl" href="#" target="_blank" style="font-size: 12.5px; color: #2563eb; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
-                        🔗 Open Registrar Portal ↗
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <a id="selectedIpoRegUrl" href="#" target="_blank" rel="noopener noreferrer" style="font-size: 12.5px; color: #2563eb; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                        🔗 Open Official Registrar Portal ↗
                     </a>
                 </div>
             </div>
 
-            <!-- STATE A: EMPTY STATE (Before selecting an IPO) -->
+            <!-- Dynamic Notice Banner (Captcha / Archived / Proxy Setup) -->
+            <div id="allotmentNoticeBanner" class="allotment-banner-notice allotment-banner-warn">
+                <div id="allotmentNoticeText"></div>
+                <a id="allotmentNoticeLink" href="#" target="_blank" rel="noopener noreferrer" style="display: none; font-weight: 700; color: inherit; text-decoration: underline;">Open Portal ↗</a>
+            </div>
+
+            <!-- Summary Stats Bar -->
+            <div id="allotmentSummaryBar" class="allotment-summary-bar">
+                <div class="allotment-stats-pills">
+                    <span class="stat-pill stat-pill-total">Checked: <span id="statCheckedCount">0/0</span></span>
+                    <span class="stat-pill stat-pill-allotted">🎉 Allotted: <span id="statAllottedCount">0</span></span>
+                    <span class="stat-pill stat-pill-noshares">Not Allotted: <span id="statNoSharesCount">0</span></span>
+                    <span class="stat-pill stat-pill-norecord">No Record: <span id="statNoRecordCount">0</span></span>
+                </div>
+                <button type="button" class="btn-recheck-all" id="btnRecheckAll" onclick="recheckAllAccounts()">
+                    🔄 Re-check All
+                </button>
+            </div>
+
+            <!-- STATE A: EMPTY / LOGIN / NO-ACCOUNTS STATE -->
             <div class="allotment-empty-state" id="allotmentEmptyState">
                 <div class="allotment-empty-icon">📋</div>
-                <div class="allotment-empty-title">Select an IPO to check allotment for all your accounts.</div>
-                <div class="allotment-empty-subtitle">Results appear row by row as the registrar answers.</div>
+                <div class="allotment-empty-title" id="emptyStateTitle">Select an IPO to check allotment for all your saved accounts.</div>
+                <div class="allotment-empty-subtitle" id="emptyStateSubtitle">Only IPOs marked as "Allotment Out" appear in the dropdown above.</div>
+                <div id="emptyStateAction"></div>
             </div>
 
             <!-- STATE B: RESULTS TABLE -->
@@ -144,10 +296,10 @@
                 <table class="allotment-table" id="allotmentResultsTable">
                     <thead>
                         <tr>
-                            <th style="width: 32%;">NAME</th>
-                            <th style="width: 23%;">PAN</th>
-                            <th style="width: 35%;">ALLOTMENT</th>
-                            <th style="width: 10%; text-align: center;">REFRESH</th>
+                            <th style="width: 30%;">NAME</th>
+                            <th style="width: 22%;">PAN</th>
+                            <th style="width: 34%;">ALLOTMENT</th>
+                            <th style="width: 14%; text-align: center;">ACTIONS</th>
                         </tr>
                     </thead>
                     <tbody id="allotmentTableBody">
@@ -167,58 +319,81 @@
     <!-- AUTO ALLOTMENT CHECKER SCRIPT              -->
     <!-- ========================================== -->
     <script>
-        // State variables
-        let availableIpos = [];
-        let selectedIpo = null;
-        let accountsToCheck = [];
-        let checkQueue = [];
-        let isCheckingActive = false;
+        const ALLOTMENT_WORKER_BASE = "https://liveipo-sync.mehul2687.workers.dev";
+        const DEMAT_BIN_ID = "6ae9de79ac6210605a68ca72";
+        const DEMAT_API_KEY = "$2a$10$Pl5b/ekYZXhRBmQVY6DwieMC10GztytHM9d7CnR0zqmje7BWYj6yC";
 
-        // Sample accounts matching user screenshot 3
-        const defaultSampleAccounts = [
-            { id: "acc_1", name: "BHAGVANBHAI HARIBHAI PATEL", pan: "ABNPP3122C" },
-            { id: "acc_2", name: "NATVARLAL HARSH", pan: "ACEPP0035E" },
-            { id: "acc_3", name: "SHARDABEN BHAGUBHAI PATEL", pan: "APIPP7886C" },
-            { id: "acc_4", name: "MEHUL", pan: "AULPP4530D" },
-            { id: "acc_5", name: "MAFATLAL", pan: "AVEPP3686Q" },
-            { id: "acc_6", name: "RAVI", pan: "AWHPP8548H" },
-            { id: "acc_7", name: "NIKITA", pan: "BKFPP6393D" },
-            { id: "acc_8", name: "DARSHAN", pan: "BYBPJ7517B" }
-        ];
+        const AUTO_SUPPORTED_REGISTRARS = new Set(["BIGSHARE", "MUFG", "MAASHITLA", "SKYLINE", "SATELLITE"]);
+        const CAPTCHA_REGISTRARS = new Set(["KFIN", "CAMEO", "PURVA", "INTEGRATED", "MAS", "BEETALFC", "ALANKIT", "ANKIT", "ACCURATE", "MUDRA"]);
 
         // 16 Master IPO Registrars Directory
         const masterRegistrarsList = [
             { id: "Accurate", name: "Accurate Securities & Registry Private Limited", website: "accuratesecurities.com", url: "https://www.accuratesecurities.com/ipo-details.php" },
             { id: "Alankit", name: "Alankit Assignments Ltd", website: "alankit.com", url: "http://ipo.alankit.com/" },
-            { id: "Ankit Consultancy", name: "Ankit Consultancy Pvt.Ltd", website: "ankitonline.com", url: "https://www.ankitonline.com/PublicIssue/FrmPublicIssue.aspx" },
+            { id: "Ankit", name: "Ankit Consultancy Pvt.Ltd", website: "ankitonline.com", url: "https://www.ankitonline.com/PublicIssue/FrmPublicIssue.aspx" },
             { id: "BEETALFC", name: "Beetal Financial & Computer Services (P) Limited", website: "beetalmail.com", url: "http://www.beetalmail.com/smeipo" },
             { id: "BIGSHARE", name: "Bigshare Services Private Limited", website: "bigshareonline.com", url: "https://ipo.bigshareonline.com/IPO_Status.html" },
             { id: "CAMEO", name: "Cameo Corporate Services Limited", website: "cameoindia.com", url: "https://ipo.cameoindia.com/" },
             { id: "INTEGRATED", name: "Integrated Registry Management Services (P) Limited", website: "integratedregistry.in", url: "https://www.integratedregistry.in/registrarstostatus.aspx" },
-            { id: "KFIN", name: "Kfin Technologies Private Limited", website: "kfintech.com", url: "https://ipostatus.kfintech.com/" },
-            { id: "LINKINTIME", name: "Link-Intime India Private Ltd", website: "linkintime.co.in", url: "https://linkintime.co.in/Initial_Offer/public-issues.html" },
+            { id: "KFIN", name: "KFin Technologies Private Limited", website: "kfintech.com", url: "https://ipostatus.kfintech.com/" },
+            { id: "MUFG", name: "MUFG Intime India (Link Intime)", website: "in.mpms.mufg.com", url: "https://in.mpms.mufg.com/Initial_Offer/public-issues.html" },
             { id: "MAASHITLA", name: "Maashitla Securities Private Limited", website: "maashitla.com", url: "https://maashitla.com/allotment-status/public-issues" },
             { id: "MAS", name: "Mas Services Limited", website: "masserv.com", url: "https://www.masserv.com/opt.asp" },
-            { id: "Mudra RTA", name: "Mudra RTA Ventures Private Limited", website: "mudrarta.com", url: "https://mudrarta.com/ipo.php" },
-            { id: "MUFG", name: "MUFG Intime India Private Limited", website: "in.mpms.mufg.com", url: "https://in.mpms.mufg.com/Initial_Offer/public-issues.html" },
+            { id: "Mudra", name: "Mudra RTA Ventures Private Limited", website: "mudrarta.com", url: "https://mudrarta.com/ipo.php" },
             { id: "PURVA", name: "Purva Sharegistry (India) Private Limited", website: "purvashare.com", url: "https://www.purvashare.com/investor-service/ipo-query" },
             { id: "SATELLITE", name: "Satellite Corporate Services Private Limited", website: "satellitecorporate.com", url: "https://www.satellitecorporate.com/ipo-query.php" },
             { id: "SKYLINE", name: "Skyline Financial Services Private Limited", website: "skylinerta.com", url: "https://www.skylinerta.com/ipo.php" }
         ];
 
-        // Sample active IPOs matching screenshot
-        const defaultDeclaredIpos = [
-            { id: "IPO_HD_FIRE", name: "HD Fire Protect Limited - IPO", regId: "BIGSHARE", regName: "Bigshare Services Private Limited", regUrl: "https://ipo.bigshareonline.com/IPO_Status.html", isAllotmentOut: true },
-            { id: "IPO_VAIBHAV_2", name: "VAIBHAV VYAPAAR LIMITED (Server 2)", regId: "LINKINTIME", regName: "Link-Intime India Private Ltd (Server 2)", regUrl: "https://linkintime.co.in/Initial_Offer/public-issues.html", isAllotmentOut: true },
-            { id: "IPO_VAIBHAV_1", name: "VAIBHAV VYAPAAR LIMITED (Server 1)", regId: "LINKINTIME", regName: "Link-Intime India Private Ltd (Server 1)", regUrl: "https://linkintime.co.in/Initial_Offer/public-issues.html", isAllotmentOut: true },
-            { id: "IPO_PARAMOUNT", name: "PARAMOUNT SYNTEX LIMITED", regId: "SKYLINE", regName: "Skyline Financial Services Private Limited", regUrl: "https://www.skylinerta.com/ipo.php", isAllotmentOut: true }
-        ];
+        // State variables
+        let availableIpos = [];
+        let selectedIpo = null;
+        let accountsToCheck = [];
+        let isUserLoggedIn = false;
+        let tableRowsData = [];
+        let checkRunToken = 0; // Cancels stale async check loops if user switches IPO
+        let resolvedCompanyCode = null;
+        let resolvedCompanyName = null;
+        let activeRegistrarStatus = null; // 'auto' | 'captcha' | 'archived' | 'unknown'
 
-        // Match IPO to its official Registrar
+        function isLocalHostEnv() {
+            const h = (window.location && window.location.hostname) || "";
+            return h === "localhost" || h === "127.0.0.1";
+        }
+
+        // Normalize Registrar Identification (Inspects registrarUrl, allotmentLink, regName, regId)
         function findRegistrarForIpo(ipo) {
-            if (!ipo) return masterRegistrarsList[4]; // Default to Bigshare
+            if (!ipo) return { id: "UNKNOWN", name: "Registrar Not Specified", website: "", url: "" };
 
-            const testStr = `${ipo.regId || ''} ${ipo.regName || ''} ${ipo.regUrl || ''} ${ipo.allotmentLink || ''}`.toUpperCase();
+            const testStr = `${ipo.registrarId || ''} ${ipo.regId || ''} ${ipo.regName || ''} ${ipo.registrarName || ''} ${ipo.registrarUrl || ''} ${ipo.regUrl || ''} ${ipo.allotmentLink || ''}`.toUpperCase();
+
+            if (testStr.includes("BIGSHARE")) {
+                return masterRegistrarsList.find(r => r.id === "BIGSHARE");
+            }
+            if (testStr.includes("MPMS.MUFG") || testStr.includes("MUFG") || testStr.includes("LINKINTIME") || testStr.includes("LINK-INTIME") || testStr.includes("LINK INTIME")) {
+                return masterRegistrarsList.find(r => r.id === "MUFG");
+            }
+            if (testStr.includes("KFIN") || testStr.includes("KOSMIC") || testStr.includes("KPRISM")) {
+                return masterRegistrarsList.find(r => r.id === "KFIN");
+            }
+            if (testStr.includes("MAASHITLA")) {
+                return masterRegistrarsList.find(r => r.id === "MAASHITLA");
+            }
+            if (testStr.includes("SKYLINERTA") || testStr.includes("SKYLINE")) {
+                return masterRegistrarsList.find(r => r.id === "SKYLINE");
+            }
+            if (testStr.includes("PURVA")) {
+                return masterRegistrarsList.find(r => r.id === "PURVA");
+            }
+            if (testStr.includes("CAMEO")) {
+                return masterRegistrarsList.find(r => r.id === "CAMEO");
+            }
+            if (testStr.includes("SATELLITE")) {
+                return masterRegistrarsList.find(r => r.id === "SATELLITE");
+            }
+            if (testStr.includes("MASSERV") || /\bMAS\b/.test(testStr)) {
+                return masterRegistrarsList.find(r => r.id === "MAS");
+            }
 
             for (const reg of masterRegistrarsList) {
                 if (testStr.includes(reg.id.toUpperCase()) || testStr.includes(reg.name.toUpperCase()) || (reg.website && testStr.includes(reg.website.toUpperCase()))) {
@@ -226,156 +401,236 @@
                 }
             }
 
+            const rawUrl = ipo.registrarUrl || ipo.regUrl || ipo.allotmentLink || "";
+            if (!rawUrl) {
+                return { id: "UNKNOWN", name: "Registrar Not Linked Yet", website: "", url: "" };
+            }
             return {
                 id: "CUSTOM",
-                name: ipo.regName || "Official Registrar",
+                name: ipo.regName || ipo.registrarName || "Official Registrar",
                 website: ipo.regWeb || "",
-                url: ipo.regUrl || ipo.allotmentLink || "https://linkintime.co.in/Initial_Offer/public-issues.html"
+                url: rawUrl
             };
         }
 
-        const DEMAT_BIN_ID = "6ae9de79ac6210605a68ca72";
-        const DEMAT_API_KEY = "$2a$10$Pl5b/ekYZXhRBmQVY6DwieMC10GztytHM9d7CnR0zqmje7BWYj6yC";
+        function updateHeaderAccountsBadge() {
+            const el = document.getElementById("headerAccCount");
+            if (el) el.innerText = isUserLoggedIn ? String(accountsToCheck.length) : "Login Required";
+        }
 
-        // Load Accounts (From logged in user Demat accounts or default sample)
-        function loadCurrentAccounts() {
-            const userStr = localStorage.getItem('live_ipo_user');
-            if (userStr) {
+        // Load ONLY Logged-in User's Own Saved Demat Accounts (Strictly Private — No Sample PANs)
+        async function loadCurrentAccounts({ refreshFromCloud = true } = {}) {
+            const userStr = localStorage.getItem("live_ipo_user");
+            if (!userStr) {
+                isUserLoggedIn = false;
+                accountsToCheck = [];
+                updateHeaderAccountsBadge();
+                renderNoAccountsOrLoginPrompt();
+                return;
+            }
+
+            let uKey = "";
+            try {
+                const user = JSON.parse(userStr);
+                uKey = (user?.email || user?.id || "").trim().toLowerCase();
+            } catch (e) {
+                isUserLoggedIn = false;
+                accountsToCheck = [];
+                updateHeaderAccountsBadge();
+                renderNoAccountsOrLoginPrompt();
+                return;
+            }
+
+            if (!uKey) {
+                isUserLoggedIn = false;
+                accountsToCheck = [];
+                updateHeaderAccountsBadge();
+                renderNoAccountsOrLoginPrompt();
+                return;
+            }
+
+            isUserLoggedIn = true;
+            const localKey = `live_ipo_demat_accounts_${encodeURIComponent(uKey)}`;
+            try {
+                const saved = localStorage.getItem(localKey);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed)) {
+                        accountsToCheck = parsed.map(a => ({
+                            id: a.id || `acc_${a.pan}`,
+                            name: a.name || "Account",
+                            pan: (a.pan || "").toUpperCase().trim(),
+                            type: a.type || "CDSL",
+                            clientId: a.clientId || ""
+                        })).filter(a => a.pan);
+                    }
+                }
+            } catch (e) {
+                console.warn("Local account read error:", e);
+            }
+            updateHeaderAccountsBadge();
+
+            if (refreshFromCloud) {
                 try {
-                    const user = JSON.parse(userStr);
-                    if (user && user.email) {
-                        const key = `live_ipo_demat_accounts_${encodeURIComponent(user.email.toLowerCase())}`;
-                        const saved = localStorage.getItem(key);
-                        if (saved) {
-                            const parsed = JSON.parse(saved);
-                            if (Array.isArray(parsed) && parsed.length > 0) {
-                                accountsToCheck = parsed.map(a => ({
-                                    id: a.id,
-                                    name: a.name,
-                                    pan: a.pan,
-                                    type: a.type || 'CDSL',
-                                    clientId: a.clientId || ''
-                                }));
-                                return;
+                    const r = await fetch(`https://api.jsonbin.io/v3/b/${DEMAT_BIN_ID}/latest?t=${Date.now()}`, {
+                        cache: "no-store",
+                        headers: { "X-Master-Key": DEMAT_API_KEY }
+                    });
+                    if (r.ok) {
+                        const res = await r.json();
+                        const cloudAccs = res.record?.users?.[uKey];
+                        if (Array.isArray(cloudAccs)) {
+                            const prevSig = JSON.stringify(accountsToCheck.map(a => a.pan));
+                            accountsToCheck = cloudAccs.map(a => ({
+                                id: a.id || `acc_${a.pan}`,
+                                name: a.name || "Account",
+                                pan: (a.pan || "").toUpperCase().trim(),
+                                type: a.type || "CDSL",
+                                clientId: a.clientId || ""
+                            })).filter(a => a.pan);
+                            localStorage.setItem(localKey, JSON.stringify(cloudAccs));
+                            updateHeaderAccountsBadge();
+
+                            const nextSig = JSON.stringify(accountsToCheck.map(a => a.pan));
+                            if (selectedIpo && prevSig !== nextSig) {
+                                startAutoAllotmentCheck();
+                            } else if (!selectedIpo) {
+                                renderNoAccountsOrLoginPrompt();
                             }
                         }
                     }
                 } catch (e) {
-                    console.error("Account load error:", e);
+                    console.warn("Allotment cloud account sync:", e);
                 }
-            }
-
-            // Fallback to sample accounts from screenshot
-            accountsToCheck = [...defaultSampleAccounts];
-
-            // If user is logged in, attempt background cloud fetch to ensure cross-device accounts load
-            if (userStr) {
-                try {
-                    const u = JSON.parse(userStr);
-                    const uKey = (u.email || u.id || '').trim().toLowerCase();
-                    if (uKey) {
-                        fetch(`https://api.jsonbin.io/v3/b/${DEMAT_BIN_ID}/latest?t=${Date.now()}`, {
-                            cache: 'no-store',
-                            headers: { 'X-Master-Key': DEMAT_API_KEY }
-                        }).then(r => r.json()).then(res => {
-                            const cloudAccs = res.record?.users?.[uKey];
-                            if (Array.isArray(cloudAccs) && cloudAccs.length > 0) {
-                                accountsToCheck = cloudAccs.map(a => ({
-                                    id: a.id,
-                                    name: a.name,
-                                    pan: a.pan,
-                                    type: a.type || 'CDSL',
-                                    clientId: a.clientId || ''
-                                }));
-                                localStorage.setItem(`live_ipo_demat_accounts_${encodeURIComponent(uKey)}`, JSON.stringify(cloudAccs));
-                                renderBatchCards();
-                            }
-                        }).catch(e => console.warn("Allotment cloud sync:", e));
-                    }
-                } catch(e) {}
             }
         }
 
-        // Load declared IPOs from Master Cloud Data & Scraped Active Registrars
+        function renderNoAccountsOrLoginPrompt() {
+            const emptyState = document.getElementById("allotmentEmptyState");
+            const tableCont = document.getElementById("allotmentTableContainer");
+            const summaryBar = document.getElementById("allotmentSummaryBar");
+            const titleEl = document.getElementById("emptyStateTitle");
+            const subEl = document.getElementById("emptyStateSubtitle");
+            const actionEl = document.getElementById("emptyStateAction");
+
+            if (!isUserLoggedIn) {
+                if (tableCont) tableCont.style.display = "none";
+                if (summaryBar) summaryBar.style.display = "none";
+                if (emptyState) emptyState.style.display = "block";
+                if (titleEl) titleEl.innerText = "🔐 Sign in required to view your saved Demat / PAN accounts";
+                if (subEl) subEl.innerText = "Each user's PAN cards are kept strictly private. Login with Google or your account to auto-check allotment.";
+                if (actionEl) {
+                    actionEl.innerHTML = `<a href="my-demat-accounts.html" class="btn-manage-accounts">🔑 Login &amp; Manage Demat Accounts ↗</a>`;
+                }
+                return false;
+            }
+
+            if (accountsToCheck.length === 0) {
+                if (tableCont) tableCont.style.display = "none";
+                if (summaryBar) summaryBar.style.display = "none";
+                if (emptyState) emptyState.style.display = "block";
+                if (titleEl) titleEl.innerText = "No saved Demat / PAN accounts found in your profile";
+                if (subEl) subEl.innerText = "Add your family members' PAN & Demat accounts once, then check all of them in a single click.";
+                if (actionEl) {
+                    actionEl.innerHTML = `<a href="my-demat-accounts.html" class="btn-manage-accounts">➕ Add Demat Accounts ↗</a>`;
+                }
+                return false;
+            }
+
+            if (!selectedIpo) {
+                if (tableCont) tableCont.style.display = "none";
+                if (summaryBar) summaryBar.style.display = "none";
+                if (emptyState) emptyState.style.display = "block";
+                if (titleEl) titleEl.innerText = `Select an IPO above to check allotment for your ${accountsToCheck.length} saved account(s).`;
+                if (subEl) subEl.innerText = "Results appear row by row as the official registrar responds.";
+                if (actionEl) actionEl.innerHTML = "";
+            }
+            return true;
+        }
+
+        function parseSortableDate(ipo) {
+            const dStr = ipo.allotmentDate || ipo.closeDate || ipo.listingDate || ipo.openDate || "";
+            const t = dStr ? Date.parse(dStr) : 0;
+            return isNaN(t) ? 0 : t;
+        }
+
+        // Load ONLY IPOs ticked "Mark Allotment Out" (isAllotmentOut === true) from Live Cloud Data
         async function loadDeclaredIpos() {
             try {
-                const list = [];
-
-                // 1. Load active registrar IPOs scraped from Bigshare, Skyline, Link Intime
-                try {
-                    const resp = await fetch('allotment_active_ipos.json?t=' + Date.now());
-                    if (resp.ok) {
-                        const activeList = await resp.json();
-                        if (Array.isArray(activeList) && activeList.length > 0) {
-                            activeList.forEach(item => list.push(item));
-                        }
-                    }
-                } catch (e) {
-                    console.warn("allotment_active_ipos.json fetch error:", e);
-                }
-
-                // 2. Fetch from Master Cloud Data
                 let cloudData = null;
-                if (typeof getMasterIpoData === 'function') {
+                if (typeof getMasterIpoData === "function") {
                     cloudData = await getMasterIpoData();
                 } else {
-                    const stored = localStorage.getItem('live_ipo_master_cloud_data');
+                    const stored = localStorage.getItem("live_ipo_master_cloud_data");
                     if (stored) cloudData = JSON.parse(stored);
                 }
 
-                if (cloudData && typeof cloudData === 'object') {
+                const list = [];
+                if (cloudData && typeof cloudData === "object") {
                     Object.keys(cloudData).forEach(key => {
                         const ipo = cloudData[key];
-                        if (ipo && (ipo.isAllotmentOut === true || ipo.allotmentLink)) {
-                            const nameWithSuffix = (ipo.name || key).toLowerCase().includes('ipo') ? (ipo.name || key) : (ipo.name || key) + ' - IPO';
-                            if (!list.some(x => x.name.toLowerCase() === nameWithSuffix.toLowerCase())) {
-                                const reg = findRegistrarForIpo(ipo);
-                                list.push({
-                                    id: ipo.id || key,
-                                    code: ipo.bseCode || ipo.nseCode || key,
-                                    name: nameWithSuffix,
-                                    rawName: ipo.name || key,
-                                    registrarId: reg.id,
-                                    registrarName: reg.name,
-                                    allotmentUrl: ipo.allotmentLink || reg.url,
-                                    isAllotmentOut: true
-                                });
-                            }
+                        if (ipo && ipo.isAllotmentOut === true) {
+                            const reg = findRegistrarForIpo(ipo);
+                            const rawName = ipo.name || key;
+                            const cleanTitle = rawName.replace(/\s*IPO\s*Details$/i, " IPO").trim();
+                            const savedUrl = ipo.registrarUrl || ipo.regUrl || ipo.allotmentLink || reg.url || "";
+
+                            list.push({
+                                id: ipo.id || key,
+                                name: cleanTitle,
+                                rawName: rawName,
+                                registrarId: reg.id,
+                                registrarName: reg.name,
+                                registrarUrl: savedUrl || reg.url,
+                                allotmentUrl: reg.url || savedUrl,
+                                sortDate: parseSortableDate(ipo),
+                                closeDate: ipo.closeDate || "",
+                                allotmentDate: ipo.allotmentDate || "",
+                                isAllotmentOut: true
+                            });
                         }
                     });
                 }
 
-                if (list.length === 0) {
-                    defaultDeclaredIpos.forEach(item => list.push(item));
-                }
-
+                // Sort newest allotment / close date first
+                list.sort((a, b) => b.sortDate - a.sortDate);
                 availableIpos = list;
             } catch (err) {
                 console.error("Error loading declared IPOs:", err);
-                availableIpos = [...defaultDeclaredIpos];
+                availableIpos = [];
             }
 
             renderIpoDropdownItems(availableIpos);
         }
 
-        // Render Searchable Dropdown Items
         function renderIpoDropdownItems(list) {
-            const container = document.getElementById('ipoDropdownList');
-            container.innerHTML = '';
+            const container = document.getElementById("ipoDropdownList");
+            if (!container) return;
+            container.innerHTML = "";
 
             if (list.length === 0) {
-                container.innerHTML = `<li style="padding: 10px 14px; font-size: 13px; color: #94a3b8;">No declared IPOs found</li>`;
+                container.innerHTML = `<li style="padding: 12px 14px; font-size: 13px; color: #64748b;">No IPOs currently marked as "Allotment Out" in Admin Panel.</li>`;
                 return;
             }
 
             list.forEach(ipo => {
-                const li = document.createElement('li');
-                li.className = 'allotment-dropdown-item';
+                const li = document.createElement("li");
+                li.className = "allotment-dropdown-item";
                 if (selectedIpo && selectedIpo.id === ipo.id) {
-                    li.classList.add('selected');
+                    li.classList.add("selected");
                 }
-                const regId = ipo.registrarId || 'IPO';
-                li.innerHTML = `<span style="font-size: 11px; font-weight: 700; color: #2563eb; background: #eff6ff; padding: 2px 6px; border-radius: 4px; margin-right: 6px;">[${escapeHtml(regId)}]</span> <span>${escapeHtml(ipo.name)}</span>`;
+                const regId = ipo.registrarId || "IPO";
+                const isAuto = AUTO_SUPPORTED_REGISTRARS.has(regId);
+                const modeTag = isAuto
+                    ? `<span style="font-size: 10px; font-weight: 700; color: #166534; background: #dcfce7; padding: 1px 6px; border-radius: 4px; margin-left: auto;">⚡ Auto</span>`
+                    : (CAPTCHA_REGISTRARS.has(regId)
+                        ? `<span style="font-size: 10px; font-weight: 700; color: #92400e; background: #fef3c7; padding: 1px 6px; border-radius: 4px; margin-left: auto;">🛡️ Portal</span>`
+                        : ``);
+
+                li.style.display = "flex";
+                li.style.alignItems = "center";
+                li.style.gap = "6px";
+                li.innerHTML = `<span style="font-size: 10.5px; font-weight: 700; color: #2563eb; background: #eff6ff; padding: 2px 6px; border-radius: 4px; flex-shrink: 0;">[${escapeHtml(regId)}]</span> <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(ipo.name)}</span> ${modeTag}`;
                 li.onclick = (e) => {
                     e.stopPropagation();
                     selectIpo(ipo);
@@ -384,312 +639,556 @@
             });
         }
 
-        // Filter Dropdown
         function filterIpoList(query) {
-            const q = query.toLowerCase().trim();
-            const filtered = availableIpos.filter(ipo => 
+            const q = (query || "").toLowerCase().trim();
+            const filtered = availableIpos.filter(ipo =>
                 (ipo.name && ipo.name.toLowerCase().includes(q)) ||
                 (ipo.registrarId && ipo.registrarId.toLowerCase().includes(q)) ||
-                (ipo.code && ipo.code.toLowerCase().includes(q))
+                (ipo.registrarName && ipo.registrarName.toLowerCase().includes(q))
             );
             renderIpoDropdownItems(filtered);
         }
 
-        // Toggle Custom Dropdown Menu
         function toggleIpoDropdown(event) {
             event.stopPropagation();
-            const menu = document.getElementById('ipoDropdownMenu');
-            const trigger = document.getElementById('ipoSelectTrigger');
-            const isOpen = menu.style.display === 'block';
+            const menu = document.getElementById("ipoDropdownMenu");
+            const trigger = document.getElementById("ipoSelectTrigger");
+            const isOpen = menu.style.display === "block";
 
             if (isOpen) {
-                menu.style.display = 'none';
-                trigger.classList.remove('active');
+                menu.style.display = "none";
+                trigger.classList.remove("active");
             } else {
-                menu.style.display = 'block';
-                trigger.classList.add('active');
-                const searchInput = document.getElementById('ipoSearchInput');
-                searchInput.value = '';
-                filterIpoList('');
+                menu.style.display = "block";
+                trigger.classList.add("active");
+                const searchInput = document.getElementById("ipoSearchInput");
+                searchInput.value = "";
+                filterIpoList("");
                 setTimeout(() => searchInput.focus(), 100);
             }
         }
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            const menu = document.getElementById('ipoDropdownMenu');
-            const trigger = document.getElementById('ipoSelectTrigger');
-            if (menu && menu.style.display === 'block') {
+        document.addEventListener("click", function (e) {
+            const menu = document.getElementById("ipoDropdownMenu");
+            const trigger = document.getElementById("ipoSelectTrigger");
+            if (menu && menu.style.display === "block") {
                 if (!menu.contains(e.target) && !trigger.contains(e.target)) {
-                    menu.style.display = 'none';
-                    trigger.classList.remove('active');
+                    menu.style.display = "none";
+                    trigger.classList.remove("active");
                 }
             }
         });
 
+        function setNoticeBanner(type, htmlText, linkUrl) {
+            const banner = document.getElementById("allotmentNoticeBanner");
+            const txtEl = document.getElementById("allotmentNoticeText");
+            const linkEl = document.getElementById("allotmentNoticeLink");
+            if (!banner || !txtEl) return;
+
+            if (!htmlText) {
+                banner.style.display = "none";
+                return;
+            }
+            banner.className = "allotment-banner-notice " + (type === "info" ? "allotment-banner-info" : "allotment-banner-warn");
+            txtEl.innerHTML = htmlText;
+            if (linkEl) {
+                if (linkUrl) {
+                    linkEl.href = linkUrl;
+                    linkEl.style.display = "inline-block";
+                } else {
+                    linkEl.style.display = "none";
+                }
+            }
+            banner.style.display = "flex";
+        }
+
+        function updateRegistrarBadge(regId) {
+            const badge = document.getElementById("selectedIpoRegModeBadge");
+            if (!badge) return;
+            if (AUTO_SUPPORTED_REGISTRARS.has(regId)) {
+                badge.className = "reg-mode-badge reg-mode-auto";
+                badge.innerText = "⚡ Auto-Check Supported";
+            } else if (CAPTCHA_REGISTRARS.has(regId)) {
+                badge.className = "reg-mode-badge reg-mode-captcha";
+                badge.innerText = "🛡️ Captcha on Official Portal";
+            } else {
+                badge.className = "reg-mode-badge reg-mode-unknown";
+                badge.innerText = "🔗 Manual Portal Check";
+            }
+        }
+
         // Select IPO
-        function selectIpo(ipo) {
+        async function selectIpo(ipo) {
             selectedIpo = ipo;
-            document.getElementById('selectedIpoText').innerText = ipo.name;
-            document.getElementById('ipoDropdownMenu').style.display = 'none';
-            document.getElementById('ipoSelectTrigger').classList.remove('active');
+            resolvedCompanyCode = null;
+            resolvedCompanyName = null;
+            activeRegistrarStatus = null;
 
-            // Match official registrar from directory
+            document.getElementById("selectedIpoText").innerText = ipo.name;
+            document.getElementById("ipoDropdownMenu").style.display = "none";
+            document.getElementById("ipoSelectTrigger").classList.remove("active");
+
             const reg = findRegistrarForIpo(ipo);
+            const portalUrl = ipo.allotmentUrl || ipo.registrarUrl || reg.url || "";
 
-            // Show registrar info bar
-            const infoBar = document.getElementById('selectedIpoInfoBar');
-            infoBar.style.display = 'flex';
-            document.getElementById('selectedIpoRegName').innerHTML = `${escapeHtml(reg.name)} <span style="font-size: 11.5px; color: #64748b; font-weight: normal; margin-left: 6px;">[${reg.id}]</span>`;
-            const regLink = document.getElementById('selectedIpoRegUrl');
-            regLink.href = reg.url || '#';
-            regLink.title = `Open ${reg.name} Allotment Portal`;
+            // Update info bar
+            const infoBar = document.getElementById("selectedIpoInfoBar");
+            infoBar.style.display = "flex";
+            document.getElementById("selectedIpoRegName").innerHTML = `${escapeHtml(reg.name)} <span style="font-size: 11.5px; color: #64748b; font-weight: normal; margin-left: 4px;">[${escapeHtml(reg.id)}]</span>`;
+            updateRegistrarBadge(reg.id);
 
-            // Show table & hide empty state
-            document.getElementById('allotmentEmptyState').style.display = 'none';
-            document.getElementById('allotmentTableContainer').style.display = 'block';
+            const regLink = document.getElementById("selectedIpoRegUrl");
+            if (portalUrl) {
+                regLink.href = portalUrl;
+                regLink.style.display = "inline-flex";
+                regLink.title = `Open ${reg.name} Allotment Portal`;
+            } else {
+                regLink.style.display = "none";
+            }
 
-            // Refresh accounts list
-            loadCurrentAccounts();
+            setNoticeBanner("", "", "");
 
-            // Start Auto Checking process
+            // Reload accounts before checking
+            await loadCurrentAccounts({ refreshFromCloud: false });
+            if (!renderNoAccountsOrLoginPrompt()) {
+                return;
+            }
+
+            document.getElementById("allotmentEmptyState").style.display = "none";
+            document.getElementById("allotmentTableContainer").style.display = "block";
+            document.getElementById("allotmentSummaryBar").style.display = "flex";
+
             startAutoAllotmentCheck();
         }
 
-        // Build Initial Table Rows
-        let tableRowsData = [];
+        function recheckAllAccounts() {
+            if (!selectedIpo) return;
+            resolvedCompanyCode = null;
+            startAutoAllotmentCheck();
+        }
 
-        function startAutoAllotmentCheck() {
-            // Prepare table rows data
-            tableRowsData = accountsToCheck.map((acc, index) => {
-                return {
+        async function resolveBackendPost(payload) {
+            // 1. Try local Node.js backend ONLY when running on localhost
+            if (isLocalHostEnv()) {
+                try {
+                    const controller = new AbortController();
+                    const tid = setTimeout(() => controller.abort(), 3000);
+                    const localRes = await fetch("http://localhost:3001/api/allotment-check", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                        signal: controller.signal
+                    });
+                    clearTimeout(tid);
+                    if (localRes.ok) {
+                        return await localRes.json();
+                    }
+                } catch (_) {}
+            }
+
+            // 2. Call Live Cloudflare Worker Allotment Proxy
+            const workerRes = await fetch(`${ALLOTMENT_WORKER_BASE}/allotment-check`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (workerRes.status === 404) {
+                return { ok: false, workerOutdated: true, error: "Cloudflare Worker not yet updated with /allotment-check" };
+            }
+            const data = await workerRes.json();
+            return data;
+        }
+
+        async function preResolveRegistrarCompany(ipo) {
+            const regId = (ipo.registrarId || "").toUpperCase();
+            if (!AUTO_SUPPORTED_REGISTRARS.has(regId)) {
+                return { autoSupported: false, captchaRequired: CAPTCHA_REGISTRARS.has(regId) };
+            }
+
+            let companies = null;
+            let workerOutdated = false;
+
+            // Try local backend first if localhost
+            if (isLocalHostEnv()) {
+                try {
+                    const c = new AbortController();
+                    const tid = setTimeout(() => c.abort(), 3000);
+                    const r = await fetch(`http://localhost:3001/api/allotment-companies?registrar=${encodeURIComponent(regId)}&url=${encodeURIComponent(ipo.registrarUrl || "")}`, { signal: c.signal });
+                    clearTimeout(tid);
+                    if (r.ok) {
+                        const j = await r.json();
+                        if (j.ok && Array.isArray(j.companies)) companies = j.companies;
+                    }
+                } catch (_) {}
+            }
+
+            // Try Cloudflare Worker
+            if (!companies) {
+                try {
+                    const r = await fetch(`${ALLOTMENT_WORKER_BASE}/allotment-companies?registrar=${encodeURIComponent(regId)}&url=${encodeURIComponent(ipo.registrarUrl || "")}`);
+                    if (r.status === 404) {
+                        workerOutdated = true;
+                    } else if (r.ok) {
+                        const j = await r.json();
+                        if (j.ok && Array.isArray(j.companies)) companies = j.companies;
+                    }
+                } catch (_) {}
+            }
+
+            if (workerOutdated) {
+                return { autoSupported: false, workerOutdated: true };
+            }
+            if (!companies || companies.length === 0) {
+                return { autoSupported: true, companies: [] };
+            }
+
+            // Match company name in client as well
+            const matched = matchCompanyInBrowser(companies, ipo.rawName || ipo.name);
+            return {
+                autoSupported: true,
+                companies,
+                matched
+            };
+        }
+
+        function normNameClient(str) {
+            return String(str || "")
+                .toLowerCase()
+                .replace(/&/g, " and ")
+                .replace(/\./g, " ")
+                .replace(/\b(ipo\s*details|ipo|fpo|limited|ltd|private|pvt|india|the|server\s*\d+)\b/gi, " ")
+                .replace(/[^a-z0-9\s]/g, " ")
+                .replace(/\s+/g, " ")
+                .trim();
+        }
+
+        function matchCompanyInBrowser(list, targetName) {
+            const normT = normNameClient(targetName);
+            if (!normT) return null;
+            for (const c of list) {
+                if (normNameClient(c.name) === normT) return c;
+            }
+            const compactT = normT.replace(/\s+/g, "");
+            for (const c of list) {
+                if (normNameClient(c.name).replace(/\s+/g, "") === compactT) return c;
+            }
+            if (compactT.length >= 5) {
+                for (const c of list) {
+                    const cc = normNameClient(c.name).replace(/\s+/g, "");
+                    if (cc.length >= 5 && (cc.includes(compactT) || compactT.includes(cc))) return c;
+                }
+            }
+            const tTokens = normT.split(" ").filter(t => t.length > 1);
+            if (tTokens.length > 0) {
+                let best = null, bestScore = 0;
+                for (const c of list) {
+                    const cTokens = normNameClient(c.name).split(" ").filter(t => t.length > 1);
+                    if (!cTokens.length) continue;
+                    const common = tTokens.filter(t => cTokens.includes(t)).length;
+                    const score = common / Math.max(tTokens.length, cTokens.length);
+                    if (score > bestScore) { bestScore = score; best = c; }
+                }
+                if (best && bestScore >= 0.65) return best;
+            }
+            return null;
+        }
+
+        async function startAutoAllotmentCheck() {
+            const currentToken = ++checkRunToken;
+            const ipo = selectedIpo;
+            if (!ipo) return;
+
+            const spinner = document.getElementById("topSpinnerIndicator");
+            const recheckBtn = document.getElementById("btnRecheckAll");
+            if (spinner) spinner.style.display = "inline-block";
+            if (recheckBtn) recheckBtn.disabled = true;
+
+            const regId = (ipo.registrarId || "").toUpperCase();
+            const portalUrl = ipo.allotmentUrl || ipo.registrarUrl || "";
+
+            // Handle CAPTCHA-gated registrars immediately without misleading loading
+            if (CAPTCHA_REGISTRARS.has(regId)) {
+                setNoticeBanner(
+                    "warn",
+                    `🛡️ <strong>${escapeHtml(ipo.registrarName)}</strong> enforces CAPTCHA verification on their official website. Automatic background checking cannot bypass CAPTCHA — click <strong>📋 Copy PAN</strong> below and check directly on their portal:`,
+                    portalUrl
+                );
+                tableRowsData = accountsToCheck.map(acc => ({
                     id: acc.id,
                     name: acc.name,
                     pan: acc.pan,
-                    status: 'pending', // 'checking' | 'allotted' | 'no_shares' | 'no_record' | 'pending'
-                    resultText: '',
+                    status: "captcha_required",
+                    resultText: "Captcha verification required on portal",
                     sharesCount: 0
-                };
-            });
+                }));
+                renderTableRows();
+                updateSummaryCounters();
+                if (spinner) spinner.style.display = "none";
+                if (recheckBtn) recheckBtn.disabled = false;
+                return;
+            }
 
+            if (regId === "UNKNOWN" || !AUTO_SUPPORTED_REGISTRARS.has(regId)) {
+                setNoticeBanner(
+                    "warn",
+                    `🔗 Registrar link is not linked to an auto-checkable RTA for this IPO. Click <strong>📋 Copy PAN</strong> and open the portal directly:`,
+                    portalUrl
+                );
+                tableRowsData = accountsToCheck.map(acc => ({
+                    id: acc.id,
+                    name: acc.name,
+                    pan: acc.pan,
+                    status: "manual_pending",
+                    resultText: "Check manually on official registrar portal",
+                    sharesCount: 0
+                }));
+                renderTableRows();
+                updateSummaryCounters();
+                if (spinner) spinner.style.display = "none";
+                if (recheckBtn) recheckBtn.disabled = false;
+                return;
+            }
+
+            // Initialize rows as pending
+            tableRowsData = accountsToCheck.map(acc => ({
+                id: acc.id,
+                name: acc.name,
+                pan: acc.pan,
+                status: "pending",
+                resultText: "Waiting in queue...",
+                sharesCount: 0
+            }));
             renderTableRows();
-            runSequentialCheck();
+            updateSummaryCounters();
+
+            // Pre-resolve registrar company code once
+            const resolveInfo = await preResolveRegistrarCompany(ipo);
+            if (currentToken !== checkRunToken) return;
+
+            if (resolveInfo.workerOutdated) {
+                setNoticeBanner(
+                    "warn",
+                    `⚠️ <strong>Cloudflare Worker needs update:</strong> Please paste &amp; deploy the latest <code>cloudflare-worker.js</code> in your Cloudflare Dashboard so live checks work on <code>liveipo.in</code>.`,
+                    portalUrl
+                );
+            } else if (Array.isArray(resolveInfo.companies) && resolveInfo.companies.length > 0 && !resolveInfo.matched) {
+                setNoticeBanner(
+                    "warn",
+                    `ℹ️ <strong>${escapeHtml(ipo.name)}</strong> is currently not present in <strong>${escapeHtml(ipo.registrarName)}</strong>'s active dropdown (it may be archived after listing or awaiting allotment upload).`,
+                    portalUrl
+                );
+                tableRowsData.forEach(item => {
+                    item.status = "archived";
+                    item.resultText = "IPO not active in registrar dropdown";
+                });
+                renderTableRows();
+                updateSummaryCounters();
+                if (spinner) spinner.style.display = "none";
+                if (recheckBtn) recheckBtn.disabled = false;
+                return;
+            } else if (resolveInfo.matched) {
+                resolvedCompanyCode = resolveInfo.matched.code;
+                resolvedCompanyName = resolveInfo.matched.name;
+                setNoticeBanner(
+                    "info",
+                    `⚡ Connected to <strong>${escapeHtml(ipo.registrarName)}</strong> — Matched: <strong>${escapeHtml(resolvedCompanyName)}</strong>`,
+                    ""
+                );
+            }
+
+            // Sequential check one by one
+            for (let i = 0; i < tableRowsData.length; i++) {
+                if (currentToken !== checkRunToken) return;
+                const item = tableRowsData[i];
+                item.status = "checking";
+                item.resultText = "Querying registrar...";
+                renderTableRows();
+
+                await queryRegistrarForAccount(item, ipo);
+                if (currentToken !== checkRunToken) return;
+
+                sortAllottedToTop();
+                renderTableRows();
+                updateSummaryCounters();
+
+                if (i < tableRowsData.length - 1) {
+                    await new Promise(r => setTimeout(r, 200));
+                }
+            }
+
+            if (spinner) spinner.style.display = "none";
+            if (recheckBtn) recheckBtn.disabled = false;
         }
 
-        // Sequential Queue Runner ("one after another")
-        function runSequentialCheck() {
-            const spinner = document.getElementById('topSpinnerIndicator');
-            spinner.style.display = 'inline-block';
-            isCheckingActive = true;
+        // Real Live Registrar Lookup (Zero Fake/Mock Fallbacks)
+        async function queryRegistrarForAccount(item, ipo) {
+            const payload = {
+                registrarId: ipo.registrarId || "",
+                registrarUrl: ipo.registrarUrl || ipo.allotmentUrl || "",
+                companyName: ipo.rawName || ipo.name,
+                resolvedCode: resolvedCompanyCode || "",
+                pan: (item.pan || "").toUpperCase()
+            };
 
-            let currentIndex = 0;
+            try {
+                const data = await resolveBackendPost(payload);
 
-            async function checkNext() {
-                if (currentIndex >= tableRowsData.length) {
-                    spinner.style.display = 'none';
-                    isCheckingActive = false;
+                if (data && data.ok) {
+                    if (data.resolvedCode && !resolvedCompanyCode) {
+                        resolvedCompanyCode = data.resolvedCode;
+                        resolvedCompanyName = data.resolvedName || resolvedCompanyName;
+                    }
+
+                    if (data.status === "ALLOTTED") {
+                        item.status = "allotted";
+                        item.sharesCount = data.sharesAllotted || 0;
+                        item.resultText = data.resultText || `Bid 1: ${item.sharesCount} shares allotted`;
+                        return;
+                    }
+                    if (data.status === "NO_SHARES") {
+                        item.status = "no_shares";
+                        item.sharesCount = 0;
+                        item.resultText = data.resultText || "No shares allotted";
+                        return;
+                    }
+                    if (data.status === "NO_RECORD") {
+                        item.status = "no_record";
+                        item.sharesCount = 0;
+                        item.resultText = data.resultText || "Bid 1: NO RECORD FOUND";
+                        return;
+                    }
+                    if (data.status === "IPO_ARCHIVED") {
+                        item.status = "archived";
+                        item.resultText = data.resultText || "IPO archived / not in active dropdown";
+                        return;
+                    }
+                    if (data.status === "CAPTCHA_REQUIRED") {
+                        item.status = "captcha_required";
+                        item.resultText = "Captcha verification required on portal";
+                        return;
+                    }
+                    if (data.status === "PORTAL_CHECK_REQUIRED") {
+                        item.status = "manual_pending";
+                        item.resultText = data.resultText || "Check directly on official portal";
+                        return;
+                    }
+                }
+
+                if (data && data.workerOutdated) {
+                    item.status = "error";
+                    item.resultText = "Cloudflare Worker update pending";
                     return;
                 }
 
-                const item = tableRowsData[currentIndex];
-                item.status = 'checking';
-                renderTableRows();
-
-                // Live query against registrar
-                await queryRegistrarForAccount(item, selectedIpo);
-                
-                // Specific Rule: If allotted, sort and show at the VERY TOP!
-                sortAllottedToTop();
-
-                renderTableRows();
-                currentIndex++;
-                setTimeout(checkNext, 300);
-            }
-
-            checkNext();
-        }
-
-        // Live Registrar Query Function
-        async function queryRegistrarForAccount(item, ipo) {
-            const regId = (ipo.registrarId || '').toUpperCase();
-            const companyCode = ipo.code || '';
-            const pan = (item.pan || '').toUpperCase();
-
-            // 1. Try local Node.js API server if running (port 3001)
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 2000);
-                const resp = await fetch(`http://localhost:3001/api/check-single?registrar=${encodeURIComponent(regId)}&company=${encodeURIComponent(companyCode)}&pan=${encodeURIComponent(pan)}`, {
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-                if (resp.ok) {
-                    const data = await resp.json();
-                    if (data && data.success) {
-                        if (data.status === 'ALLOTTED') {
-                            item.status = 'allotted';
-                            item.sharesCount = data.sharesAllotted;
-                            item.resultText = `Bid 1: ${data.sharesAllotted} shares allotted`;
-                            return;
-                        } else if (data.status === 'NO_SHARES') {
-                            item.status = 'no_shares';
-                            item.resultText = 'Bid 1: No shares allotted';
-                            return;
-                        } else if (data.status === 'NO_RECORD') {
-                            item.status = 'no_record';
-                            item.resultText = 'Bid 1: NO RECORD FOUND';
-                            return;
-                        }
-                    }
-                }
-            } catch (e) {
-                // Local server not running or network abort
-            }
-
-            // 2. Direct Bigshare API call from client if Bigshare
-            if (regId.includes('BIGSHARE') && companyCode) {
-                try {
-                    const payload = {
-                        Applicationno: "",
-                        Company: String(companyCode),
-                        SelectionType: "PN",
-                        PanNo: pan,
-                        txtcsdl: "",
-                        txtDPID: "",
-                        txtClId: "",
-                        ddlType: "1",
-                        lang: "en"
-                    };
-                    const res = await fetch("https://ipo.bigshareonline.com/Data.aspx/FetchIpodetails", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json; charset=utf-8" },
-                        body: JSON.stringify(payload)
-                    });
-                    if (res.ok) {
-                        const json = await res.json();
-                        const d = json?.d;
-                        if (d) {
-                            if (d.Status === 'FOUND') {
-                                const alloted = parseInt(d.ALLOTED || '0', 10);
-                                if (alloted > 0) {
-                                    item.status = 'allotted';
-                                    item.sharesCount = alloted;
-                                    item.resultText = `Bid 1: ${alloted} shares allotted`;
-                                } else {
-                                    item.status = 'no_shares';
-                                    item.resultText = 'Bid 1: No shares allotted';
-                                }
-                                return;
-                            } else if (d.Status === 'NOTFOUND') {
-                                item.status = 'no_record';
-                                item.resultText = 'Bid 1: NO RECORD FOUND';
-                                return;
-                            }
-                        }
-                    }
-                } catch (err) {
-                    // CORS or network error, fallback
-                }
-            }
-
-            // 3. Fallback evaluation
-            const nameUpper = (item.name || '').toUpperCase();
-            if (nameUpper.includes("MAFATLAL") || pan === "AVEPP3686Q") {
-                item.status = 'allotted';
-                item.sharesCount = 770;
-                item.resultText = `Bid 1: 770 shares allotted`;
-            } else if (nameUpper.includes("RAVI") || pan === "AWHPP8548H") {
-                item.status = 'no_record';
-                item.resultText = `Bid 1: NO RECORD FOUND`;
-            } else if (nameUpper.includes("DARSHAN")) {
-                item.status = 'manual_pending';
-                item.resultText = '';
-            } else {
-                item.status = 'no_shares';
-                item.resultText = `Bid 1: No shares allotted`;
+                item.status = "error";
+                item.resultText = (data && data.error) ? `Error: ${data.error}` : "Registrar did not respond";
+            } catch (err) {
+                item.status = "error";
+                item.resultText = "Network/Registrar timeout — click 🔄 to retry";
             }
         }
 
-        // Sort: Any account with allotment moves to the VERY TOP!
         function sortAllottedToTop() {
             tableRowsData.sort((a, b) => {
-                if (a.status === 'allotted' && b.status !== 'allotted') return -1;
-                if (b.status === 'allotted' && a.status !== 'allotted') return 1;
+                if (a.status === "allotted" && b.status !== "allotted") return -1;
+                if (b.status === "allotted" && a.status !== "allotted") return 1;
                 return 0;
             });
         }
 
-        // Render Table Rows
+        function updateSummaryCounters() {
+            const total = tableRowsData.length;
+            const checked = tableRowsData.filter(r => !["pending", "checking"].includes(r.status)).length;
+            const allotted = tableRowsData.filter(r => r.status === "allotted").length;
+            const noShares = tableRowsData.filter(r => r.status === "no_shares").length;
+            const noRecord = tableRowsData.filter(r => r.status === "no_record").length;
+
+            const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+            setTxt("statCheckedCount", `${checked}/${total}`);
+            setTxt("statAllottedCount", String(allotted));
+            setTxt("statNoSharesCount", String(noShares));
+            setTxt("statNoRecordCount", String(noRecord));
+        }
+
         function renderTableRows() {
-            const tbody = document.getElementById('allotmentTableBody');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById("allotmentTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+
+            const portalUrl = (selectedIpo && (selectedIpo.allotmentUrl || selectedIpo.registrarUrl)) || "#";
+            const regName = (selectedIpo && selectedIpo.registrarName) || "Official Registrar";
 
             tableRowsData.forEach(item => {
-                const tr = document.createElement('tr');
+                const tr = document.createElement("tr");
 
-                // Class based on status
-                if (item.status === 'allotted') {
-                    tr.className = 'allotment-row-success';
-                } else if (item.status === 'no_shares') {
-                    tr.className = 'allotment-row-fail';
-                } else if (item.status === 'no_record') {
-                    tr.className = 'allotment-row-norecord';
+                if (item.status === "allotted") {
+                    tr.className = "allotment-row-success";
+                } else if (item.status === "no_shares") {
+                    tr.className = "allotment-row-fail";
+                } else if (item.status === "no_record" || item.status === "archived" || item.status === "error") {
+                    tr.className = "allotment-row-norecord";
                 } else {
-                    tr.className = 'allotment-row-pending';
+                    tr.className = "allotment-row-pending";
                 }
 
-                // Allotment Cell Content
-                let allotmentHtml = '';
-                if (item.status === 'checking') {
-                    allotmentHtml = `<span class="row-spinner">◌</span> <span style="font-size: 13px; color: #64748b; margin-left: 6px;">Checking registrar...</span>`;
-                } else if (item.status === 'manual_pending') {
-                    allotmentHtml = `<button class="btn-check-allotment" onclick="manualCheckRow('${item.id}')">Check Allotment</button>`;
+                let allotmentHtml = "";
+                if (item.status === "checking") {
+                    allotmentHtml = `<span class="row-spinner">◌</span> <span style="font-size: 13px; color: #2563eb; font-weight: 600; margin-left: 6px;">Checking registrar...</span>`;
+                } else if (item.status === "pending") {
+                    allotmentHtml = `<span style="font-size: 13px; color: #94a3b8;">Queued...</span>`;
+                } else if (item.status === "allotted") {
+                    allotmentHtml = `🎉 <strong>${escapeHtml(item.resultText)}</strong>`;
+                } else if (item.status === "captcha_required" || item.status === "manual_pending") {
+                    allotmentHtml = `<span style="font-size: 12.5px; color: #92400e; font-weight: 600;">${escapeHtml(item.resultText)}</span>`;
                 } else {
                     allotmentHtml = escapeHtml(item.resultText);
                 }
 
-                const regObj = findRegistrarForIpo(selectedIpo);
                 tr.innerHTML = `
                     <td style="font-weight: 600;">${escapeHtml(item.name)}</td>
                     <td style="font-family: monospace; font-weight: 700; letter-spacing: 0.5px;">${escapeHtml(item.pan)}</td>
                     <td>${allotmentHtml}</td>
                     <td style="text-align: center; white-space: nowrap;">
-                        <button class="btn-row-refresh" onclick="refreshRow('${item.id}')" title="Re-check this account">🔄</button>
-                        <a href="${regObj.url}" target="_blank" class="btn-row-refresh" style="text-decoration: none; margin-left: 4px; font-size: 11px;" title="Open ${regObj.name} Official Allotment Portal">🔗</a>
+                        <button type="button" class="btn-copy-pan" onclick="copyPanText(this, '${escapeHtml(item.pan)}')" title="Copy PAN">📋 Copy</button>
+                        <button type="button" class="btn-row-refresh" onclick="refreshRow('${escapeHtml(item.id)}')" title="Re-check this account" style="margin-left: 4px;">🔄</button>
+                        <a href="${escapeHtml(portalUrl)}" target="_blank" rel="noopener noreferrer" class="btn-row-refresh" style="text-decoration: none; margin-left: 4px; font-size: 11px;" title="Open ${escapeHtml(regName)} Portal">🔗</a>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // Manual Check Single Row (when "Check Allotment" button is clicked)
-        async function manualCheckRow(id) {
-            const item = tableRowsData.find(x => x.id === id);
-            if (!item) return;
-
-            item.status = 'checking';
-            renderTableRows();
-
-            await queryRegistrarForAccount(item, selectedIpo);
-            sortAllottedToTop();
-            renderTableRows();
+        function copyPanText(btn, pan) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(pan).then(() => {
+                    btn.classList.add("copied");
+                    const old = btn.innerText;
+                    btn.innerText = "✓ Copied";
+                    setTimeout(() => {
+                        btn.classList.remove("copied");
+                        btn.innerText = old;
+                    }, 1500);
+                });
+            }
         }
 
-        // Re-check single row via Refresh button
         async function refreshRow(id) {
             const item = tableRowsData.find(x => x.id === id);
-            if (!item) return;
+            if (!item || !selectedIpo) return;
 
-            item.status = 'checking';
+            item.status = "checking";
+            item.resultText = "Checking registrar...";
             renderTableRows();
 
             await queryRegistrarForAccount(item, selectedIpo);
             sortAllottedToTop();
             renderTableRows();
+            updateSummaryCounters();
         }
 
         function escapeHtml(str) {
-            if (!str) return '';
+            if (!str) return "";
             return String(str)
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
@@ -699,16 +1198,22 @@
         }
 
         // Init on load
-        document.addEventListener('DOMContentLoaded', function() {
-            loadCurrentAccounts();
-            loadDeclaredIpos();
+        document.addEventListener("DOMContentLoaded", async function () {
+            await loadCurrentAccounts({ refreshFromCloud: true });
+            await loadDeclaredIpos();
+            renderNoAccountsOrLoginPrompt();
         });
 
-        // Listen for user login/logout
-        window.addEventListener('live_ipo_auth_changed', function() {
-            loadCurrentAccounts();
-            if (selectedIpo) {
+        // Listen for user login/logout changes across tabs or auth bar
+        window.addEventListener("live_ipo_auth_changed", async function () {
+            await loadCurrentAccounts({ refreshFromCloud: true });
+            if (selectedIpo && accountsToCheck.length > 0) {
+                document.getElementById("allotmentEmptyState").style.display = "none";
+                document.getElementById("allotmentTableContainer").style.display = "block";
+                document.getElementById("allotmentSummaryBar").style.display = "flex";
                 startAutoAllotmentCheck();
+            } else {
+                renderNoAccountsOrLoginPrompt();
             }
         });
     </script>

@@ -4619,5 +4619,126 @@
     "manualSub": false,
     "manualListingInfo": false,
     "manualLockAll": false
+  },
+  "ME(788": {
+    "id": "ME(788",
+    "name": "Monomark Engineering (India) IPO Details",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/monomark-engineering-ipo/2972/",
+    "type": "Mainboard",
+    "subShares": [
+      {
+        "cat": "QIB",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "NII",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Employee",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Shareholder",
+        "off": 0,
+        "app": 0
+      }
+    ],
+    "openDate": "2026-12-02",
+    "closeDate": "2026-12-04",
+    "allotmentDate": "2026-12-07",
+    "listingDate": "2026-12-09",
+    "priceBand": "60 to 65",
+    "cutOff": 65,
+    "lotRaw": 225,
+    "lotSize": "225 Shares",
+    "faceValue": "₹10 per share",
+    "totalSize": "2,70,00,000 shares (agg. up to ₹175.50 Cr)",
+    "freshIssue": "2,70,00,000 shares (agg. up to ₹175.50 Cr)",
+    "listingAt": "BSE, NSE",
+    "customLots": [
+      {
+        "app": "Retail Min",
+        "lot": 1
+      },
+      {
+        "app": "Small HNI",
+        "lot": 14
+      },
+      {
+        "app": "Big HNI",
+        "lot": 69
+      }
+    ],
+    "fin": {
+      "fy24": {
+        "yr": "FY-2024",
+        "ast": "240.81",
+        "rev": "392.14",
+        "exp": "-",
+        "prf": "14.83"
+      },
+      "fy25": {
+        "yr": "FY-2025",
+        "ast": "293.52",
+        "rev": "477.29",
+        "exp": "-",
+        "prf": "18.21"
+      },
+      "fy26": {
+        "yr": "FY-2026",
+        "ast": "342.19",
+        "rev": "564.74",
+        "exp": "-",
+        "prf": "25.90"
+      },
+      "jun26": {
+        "yr": "30 Jun 2026",
+        "ast": "349.30",
+        "rev": "142.82",
+        "exp": "-",
+        "prf": "3.02"
+      }
+    },
+    "valuation": {
+      "ronw": "22.19%",
+      "patMargin": "4.61%",
+      "ebitdaMargin": "8.67%",
+      "nav": "16.91",
+      "eps": "1.26",
+      "pe": "51.59"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ]
   }
 }

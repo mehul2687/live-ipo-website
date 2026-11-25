@@ -4623,8 +4623,57 @@
   "ME(788": {
     "id": "ME(788",
     "name": "Monomark Engineering (India) IPO Details",
-    "chittorgarhKey": "https://www.chittorgarh.com/ipo/monomark-engineering-ipo/2972/",
+    "logo": "ME(788",
     "type": "Mainboard",
+    "about": "",
+    "priceBand": "60 to 65",
+    "cutOff": 65,
+    "lotRaw": 225,
+    "lotSize": "225 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "2,70,00,000 shares (agg. up to ₹175.50 Cr)",
+    "freshIssue": "2,70,00,000 shares (agg. up to ₹175.50 Cr)",
+    "ofs": "N/A",
+    "listingAt": "BSE, NSE",
+    "bseCode": "",
+    "nseCode": "",
+    "isinCode": "",
+    "mcScId": "",
+    "listingPriceNse": null,
+    "listingPriceBse": null,
+    "openDate": "2026-12-02",
+    "closeDate": "2026-12-04",
+    "allotmentDate": "2026-12-07",
+    "listingDate": "2026-12-09",
+    "gmp": "",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/monomark-engineering-ipo/2972/",
+    "isAllotmentOut": false,
+    "registrarUrl": "",
+    "valuation": {
+      "eps": "1.26",
+      "pe": "51.59",
+      "ronw": "22.19%",
+      "nav": "16.91",
+      "ebitdaMargin": "8.67%",
+      "patMargin": "4.61%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "15%"
+      },
+      {
+        "category": "Retail",
+        "percentage": "35%"
+      }
+    ],
     "subShares": [
       {
         "cat": "QIB",
@@ -4662,18 +4711,23 @@
         "app": 0
       }
     ],
-    "openDate": "2026-12-02",
-    "closeDate": "2026-12-04",
-    "allotmentDate": "2026-12-07",
-    "listingDate": "2026-12-09",
-    "priceBand": "60 to 65",
-    "cutOff": 65,
-    "lotRaw": 225,
-    "lotSize": "225 Shares",
-    "faceValue": "₹10 per share",
-    "totalSize": "2,70,00,000 shares (agg. up to ₹175.50 Cr)",
-    "freshIssue": "2,70,00,000 shares (agg. up to ₹175.50 Cr)",
-    "listingAt": "BSE, NSE",
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
     "customLots": [
       {
         "app": "Retail Min",
@@ -4718,27 +4772,13 @@
         "prf": "3.02"
       }
     },
-    "valuation": {
-      "ronw": "22.19%",
-      "patMargin": "4.61%",
-      "ebitdaMargin": "8.67%",
-      "nav": "16.91",
-      "eps": "1.26",
-      "pe": "51.59"
-    },
-    "reservation": [
-      {
-        "category": "QIB",
-        "percentage": "50%"
-      },
-      {
-        "category": "NII (HNI)",
-        "percentage": "15%"
-      },
-      {
-        "category": "Retail",
-        "percentage": "35%"
-      }
-    ]
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualListingInfo": false,
+    "manualLockAll": false
   }
 }

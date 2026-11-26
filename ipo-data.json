@@ -3497,7 +3497,7 @@
     "bseCode": "545031",
     "nseCode": "CRYSTALCP",
     "isinCode": "INE101P01016",
-    "mcScId": "",
+    "mcScId": "CCP02",
     "listingPriceNse": null,
     "listingPriceBse": null,
     "openDate": "2026-11-18",
@@ -3673,7 +3673,7 @@
     "bookProfit": "",
     "chittorgarhKey": "https://www.chittorgarh.com/ipo/watrana-rentals-ipo/2503/",
     "isAllotmentOut": true,
-    "registrarUrl": "",
+    "registrarUrl": "https://maashitla.com/allotment-status/public-issues",
     "valuation": {
       "eps": "18.80",
       "pe": "13.03",

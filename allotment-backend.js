@@ -369,8 +369,34 @@ export async function fetchCompaniesForRegistrar(regId) {
         return list;
     }
     if (regId === "MAASHITLA") {
-        const res = await axios.get("https://api.maashitla.com/api/public-issue/companies", { headers: httpHeaders, timeout: 8000 });
-        return Array.isArray(res.data) ? res.data.map(x => ({ code: x.company_name, companyId: x.company_id, name: x.company_name })) : [];
+        const merged = [];
+        const seen = new Set();
+        try {
+            const dirRes = await axios.get("https://api.maashitla.com/api/company-directory", { headers: httpHeaders, timeout: 8000 });
+            const dirList = Array.isArray(dirRes.data?.companies) ? dirRes.data.companies : [];
+            dirList.forEach(x => {
+                if (x?.company_slug && x?.company_name) {
+                    const k = normCompanyStr(x.company_name);
+                    seen.add(k);
+                    merged.push({ code: String(x.company_slug), name: String(x.company_name), source: "directory" });
+                }
+            });
+        } catch (_) {}
+        try {
+            const legRes = await axios.get("https://api.maashitla.com/api/public-issue/companies", { headers: httpHeaders, timeout: 8000 });
+            if (Array.isArray(legRes.data)) {
+                legRes.data.forEach(x => {
+                    if (x?.company_name) {
+                        const k = normCompanyStr(x.company_name);
+                        if (!seen.has(k)) {
+                            seen.add(k);
+                            merged.push({ code: String(x.company_name), companyId: x.company_id, name: String(x.company_name), source: "legacy" });
+                        }
+                    }
+                });
+            }
+        } catch (_) {}
+        return merged;
     }
     if (regId === "SKYLINE") {
         const res = await axios.get("https://www.skylinerta.com/ipo.php", { headers: httpHeaders, timeout: 10000 });
@@ -626,7 +652,26 @@ export async function checkSinglePanOnRegistrar(registrarId, companyCode, pan, o
     // C. MAASHITLA SECURITIES REAL API
     // ------------------------------------------------------
     if (regId === "MAASHITLA") {
-        const res = await axios.get(`https://api.maashitla.com/api/public-issue/search?company_name=${encodeURIComponent(resolvedCode)}&pan=${encodeURIComponent(cleanPan)}`, {
+        const codeStr = String(resolvedCode || "");
+        const isSlug = !/\s/.test(codeStr) && /^[a-z0-9\-]+$/.test(codeStr);
+        if (isSlug) {
+            const res = await axios.get(`https://pnjbvxj6md.execute-api.ap-south-1.amazonaws.com/prod/check/${encodeURIComponent(codeStr)}?pan=${encodeURIComponent(cleanPan)}`, {
+                headers: { ...httpHeaders, "Origin": "https://maashitla.com", "Referer": "https://maashitla.com/" },
+                timeout: 8000,
+                validateStatus: () => true
+            });
+            if (res.status === 404 || !res.data || res.data.name == null) {
+                return { status: "NO_RECORD", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND", isWinner: false };
+            }
+            const allotted = parseInt(String(res.data.shares_allotted ?? "0").replace(/,/g, ""), 10) || 0;
+            const applied = parseInt(String(res.data.shares_applied ?? "0").replace(/,/g, ""), 10) || 0;
+            if (allotted > 0) {
+                return { status: "ALLOTTED", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: allotted, sharesApplied: applied, holderName: res.data.name || "", resultText: `Bid 1: ${allotted} shares allotted`, isWinner: true };
+            }
+            return { status: "NO_SHARES", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, sharesApplied: applied, holderName: res.data.name || "", resultText: applied > 0 ? `Applied (${applied}) — No shares allotted` : "Bid 1: No shares allotted", isWinner: false };
+        }
+
+        const res = await axios.get(`https://api.maashitla.com/api/public-issue/search?company_name=${encodeURIComponent(codeStr)}&pan=${encodeURIComponent(cleanPan)}`, {
             headers: httpHeaders,
             timeout: 8000,
             validateStatus: () => true

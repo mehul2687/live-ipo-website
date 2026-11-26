@@ -277,15 +277,52 @@ async function fetchRegistrarCompanies(regId) {
   }
 
   if (regId === "MAASHITLA") {
-    const res = await fetch("https://api.maashitla.com/api/public-issue/companies", { headers: DEFAULT_HEADERS });
-    if (!res.ok) throw new Error(`Maashitla HTTP ${res.status}`);
-    const arr = await res.json();
-    if (!Array.isArray(arr)) return [];
-    return arr.map(item => ({
-      code: item.company_name,
-      companyId: item.company_id,
-      name: item.company_name
-    }));
+    const merged = [];
+    const seen = new Set();
+
+    try {
+      const dirRes = await fetch("https://api.maashitla.com/api/company-directory", { headers: DEFAULT_HEADERS });
+      if (dirRes.ok) {
+        const dirJson = await dirRes.json();
+        const dirList = Array.isArray(dirJson?.companies) ? dirJson.companies : [];
+        dirList.forEach(item => {
+          if (item?.company_slug && item?.company_name) {
+            const key = normalizeCompanyName(item.company_name);
+            seen.add(key);
+            merged.push({
+              code: String(item.company_slug),
+              name: String(item.company_name),
+              source: "directory"
+            });
+          }
+        });
+      }
+    } catch (_) {}
+
+    try {
+      const legRes = await fetch("https://api.maashitla.com/api/public-issue/companies", { headers: DEFAULT_HEADERS });
+      if (legRes.ok) {
+        const arr = await legRes.json();
+        if (Array.isArray(arr)) {
+          arr.forEach(item => {
+            if (item?.company_name) {
+              const key = normalizeCompanyName(item.company_name);
+              if (!seen.has(key)) {
+                seen.add(key);
+                merged.push({
+                  code: String(item.company_name),
+                  companyId: item.company_id,
+                  name: String(item.company_name),
+                  source: "legacy"
+                });
+              }
+            }
+          });
+        }
+      }
+    } catch (_) {}
+
+    return merged;
   }
 
   if (regId === "SKYLINE") {
@@ -484,7 +521,35 @@ async function queryRegistrarSinglePan(regId, companyItem, pan) {
 
   // 3. MAASHITLA SECURITIES
   if (regId === "MAASHITLA") {
-    const queryUrl = `https://api.maashitla.com/api/public-issue/search?company_name=${encodeURIComponent(companyItem.code)}&pan=${encodeURIComponent(pan)}`;
+    const codeStr = String(companyItem.code || "");
+    const isDirectorySlug = companyItem.source === "directory" || (!/\s/.test(codeStr) && /^[a-z0-9\-]+$/.test(codeStr));
+
+    if (isDirectorySlug) {
+      const checkUrl = `https://pnjbvxj6md.execute-api.ap-south-1.amazonaws.com/prod/check/${encodeURIComponent(codeStr)}?pan=${encodeURIComponent(pan)}`;
+      const res = await fetch(checkUrl, {
+        headers: {
+          ...DEFAULT_HEADERS,
+          "Origin": "https://maashitla.com",
+          "Referer": "https://maashitla.com/"
+        }
+      });
+      if (res.status === 404) {
+        return { status: "NO_RECORD", sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND" };
+      }
+      if (!res.ok) throw new Error(`Maashitla AWS API HTTP ${res.status}`);
+      const data = await res.json().catch(() => null);
+      if (!data || data.name == null) {
+        return { status: "NO_RECORD", sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND" };
+      }
+      const allotted = parseInt(String(data.shares_allotted ?? "0").replace(/,/g, ""), 10) || 0;
+      const applied = parseInt(String(data.shares_applied ?? "0").replace(/,/g, ""), 10) || 0;
+      if (allotted > 0) {
+        return { status: "ALLOTTED", sharesAllotted: allotted, sharesApplied: applied, holderName: data.name || "", resultText: `Bid 1: ${allotted} shares allotted` };
+      }
+      return { status: "NO_SHARES", sharesAllotted: 0, sharesApplied: applied, holderName: data.name || "", resultText: applied > 0 ? `Applied (${applied}) — No shares allotted` : "Bid 1: No shares allotted" };
+    }
+
+    const queryUrl = `https://api.maashitla.com/api/public-issue/search?company_name=${encodeURIComponent(codeStr)}&pan=${encodeURIComponent(pan)}`;
     const res = await fetch(queryUrl, { headers: DEFAULT_HEADERS });
     if (res.status === 404) {
       return {
@@ -835,6 +900,7 @@ export default {
         allotmentProxy: true,
         kfinAuto: true,
         purvaAuto: true,
+        maashitlaV2: true,
         repo: OWNER_REPO
       }, 200, origin);
     }

@@ -3490,9 +3490,9 @@
     "lotSize": "55 Shares",
     "faceValue": "₹10 per share",
     "empDiscount": "₹25.00",
-    "totalSize": "1,67,54,274 shares (agg. up to ₹455.49 Cr)",
-    "freshIssue": "1,30,51,580 shares (agg. up to ₹354.77 Cr)",
-    "ofs": "37,02,694 shares of ₹10 (agg. up to ₹100.71 Cr)",
+    "totalSize": "1,67,63,577 shares (agg. up to ₹455.72 Cr)",
+    "freshIssue": "1,30,60,883 shares (agg. up to ₹355.06 Cr)",
+    "ofs": "37,02,694 shares of ₹10 (agg. up to ₹100.66 Cr)",
     "listingAt": "BSE, NSE",
     "bseCode": "545031",
     "nseCode": "CRYSTALCP",
@@ -3522,17 +3522,17 @@
       {
         "category": "QIB",
         "percentage": "50.00%",
-        "shares": "83,31,181"
+        "shares": "83,31,180"
       },
       {
         "category": "NII (HNI)",
         "percentage": "15.00%",
-        "shares": "24,99,354"
+        "shares": "24,99,355"
       },
       {
         "category": "Retail",
         "percentage": "35.00%",
-        "shares": "58,31,827"
+        "shares": "58,31,828"
       }
     ],
     "subShares": [
@@ -4036,22 +4036,22 @@
       {
         "cat": "NII",
         "off": 3100000,
-        "app": 1579000
+        "app": 2573000
       },
       {
         "cat": "B-NII(₹10L+)",
         "off": 2067000,
-        "app": 1514000
+        "app": 2096000
       },
       {
         "cat": "S-NII(₹2-10L)",
         "off": 1033000,
-        "app": 65000
+        "app": 477000
       },
       {
         "cat": "Retail",
         "off": 3100000,
-        "app": 704000
+        "app": 5076000
       },
       {
         "cat": "Employee",
@@ -4341,42 +4341,45 @@
     "reservation": [
       {
         "category": "QIB",
-        "percentage": "75%"
+        "percentage": "75.00%",
+        "shares": "1,41,65,804"
       },
       {
         "category": "NII (HNI)",
-        "percentage": "15%"
+        "percentage": "15.00%",
+        "shares": "28,33,161"
       },
       {
         "category": "Retail",
-        "percentage": "10%"
+        "percentage": "10.00%",
+        "shares": "18,88,774"
       }
     ],
     "subShares": [
       {
         "cat": "QIB",
-        "off": 0,
-        "app": 0
+        "off": 5666321,
+        "app": 5666310
       },
       {
         "cat": "NII",
-        "off": 0,
-        "app": 0
+        "off": 2833161,
+        "app": 1159236
       },
       {
         "cat": "B-NII(₹10L+)",
-        "off": 0,
-        "app": 0
+        "off": 1888774,
+        "app": 645918
       },
       {
         "cat": "S-NII(₹2-10L)",
-        "off": 0,
-        "app": 0
+        "off": 944387,
+        "app": 513318
       },
       {
         "cat": "Retail",
-        "off": 0,
-        "app": 0
+        "off": 1888774,
+        "app": 4590300
       },
       {
         "cat": "Employee",

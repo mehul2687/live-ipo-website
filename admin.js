@@ -1066,21 +1066,24 @@ function deleteRegistrar(index) {
     }
 }
 
-// ડિફોલ્ટ રજિસ્ટ્રાર ડેટા (૧૬ માન્યતા પ્રાપ્ત રજિસ્ટ્રાર કંપનીઓ)
+// ડિફોલ્ટ રજિસ્ટ્રાર ડેટા (માન્યતા પ્રાપ્ત રજિસ્ટ્રાર કંપનીઓ અને એક્સચેન્જ)
 const defaultMasterRegistrars = [
-    { id: "Accurate", name: "Accurate Securities & Registry Private Limited", website: "accuratesecurities.com", url: "https://www.accuratesecurities.com/ipo-details.php" },
-    { id: "Alankit", name: "Alankit Assignments Ltd", website: "alankit.com", url: "http://ipo.alankit.com/" },
-    { id: "Ankit Consultancy", name: "Ankit Consultancy Pvt.Ltd", website: "ankitonline.com", url: "https://www.ankitonline.com/PublicIssue/FrmPublicIssue.aspx" },
-    { id: "BEETALFC", name: "Beetal Financial & Computer Services (P) Limited", website: "beetalmail.com", url: "http://www.beetalmail.com/smeipo" },
+    { id: "ABHIPRA", name: "Abhipra Capital Limited", website: "abhipra.com", url: "https://www.abhipra.com/ipo-status" },
+    { id: "ACCURATE", name: "Accurate Securities & Registry Private Limited", website: "accuratesecurities.com", url: "https://www.accuratesecurities.com/ipo-details.php" },
+    { id: "ALANKIT", name: "Alankit Assignments Ltd", website: "alankit.com", url: "https://ipo.alankit.com/" },
+    { id: "ANKIT", name: "Ankit Consultancy Pvt.Ltd", website: "ankitonline.com", url: "https://www.ankitonline.com/PublicIssue/FrmPublicIssue.aspx" },
+    { id: "BEETALFC", name: "Beetal Financial & Computer Services (P) Limited", website: "beetal.in", url: "https://beetal.in/investor-services/#IPO_Allotment_Status" },
     { id: "BIGSHARE", name: "Bigshare Services Private Limited", website: "bigshareonline.com", url: "https://ipo.bigshareonline.com/IPO_Status.html" },
-    { id: "CAMEO", name: "Cameo Corporate Services Limited", website: "cameoindia.com", url: "https://ipo.cameoindia.com/" },
-    { id: "INTEGRATED", name: "Integrated Registry Management Services (P) Limited", website: "integratedregistry.in", url: "https://www.integratedregistry.in/registrarstostatus.aspx" },
+    { id: "BSE", name: "BSE India IPO Status Portal", website: "bseindia.com", url: "https://www.bseindia.com/investors/appli_check" },
+    { id: "CAMEO", name: "Cameo Corporate Services Limited", website: "cameoindia.com", url: "https://ipostatus1.cameoindia.com/" },
+    { id: "INTEGRATED", name: "Integrated Registry Management Services (P) Limited", website: "integratedregistry.in", url: "https://www.integratedregistry.in/IRMS_V2/IPOListing.aspx" },
     { id: "KFIN", name: "Kfin Technologies Private Limited", website: "kfintech.com", url: "https://ipostatus.kfintech.com/" },
     { id: "LINKINTIME", name: "Link-Intime India Private Ltd", website: "linkintime.co.in", url: "https://linkintime.co.in/Initial_Offer/public-issues.html" },
     { id: "MAASHITLA", name: "Maashitla Securities Private Limited", website: "maashitla.com", url: "https://maashitla.com/allotment-status/public-issues" },
     { id: "MAS", name: "Mas Services Limited", website: "masserv.com", url: "https://www.masserv.com/opt.asp" },
-    { id: "Mudra RTA", name: "Mudra RTA Ventures Private Limited", website: "mudrarta.com", url: "https://mudrarta.com/ipo.php" },
+    { id: "MUDRA", name: "Mudra RTA Ventures Private Limited", website: "mudrarta.com", url: "https://mudrarta.com/ipo.php" },
     { id: "MUFG", name: "MUFG Intime India Private Limited", website: "in.mpms.mufg.com", url: "https://in.mpms.mufg.com/Initial_Offer/public-issues.html" },
+    { id: "NSE", name: "NSE India IPO Bid Verification", website: "nseindia.in", url: "https://www.nseindia.in/invest/check-trades-bids-verify-ipo-bids" },
     { id: "PURVA", name: "Purva Sharegistry (India) Private Limited", website: "purvashare.com", url: "https://www.purvashare.com/investor-service/ipo-query" },
     { id: "SATELLITE", name: "Satellite Corporate Services Private Limited", website: "satellitecorporate.com", url: "https://www.satellitecorporate.com/ipo-query.php" },
     { id: "SKYLINE", name: "Skyline Financial Services Private Limited", website: "skylinerta.com", url: "https://www.skylinerta.com/ipo.php" }

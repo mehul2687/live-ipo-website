@@ -68,19 +68,25 @@ export const REGISTRARS = {
         allotmentUrl: "https://ipo.cameoindia.com/"
     },
     ACCURATE: {
-        id: "Accurate",
+        id: "ACCURATE",
         name: "Accurate Securities & Registry Private Limited",
         website: "accuratesecurities.com",
         allotmentUrl: "https://www.accuratesecurities.com/ipo-details.php"
     },
+    ABHIPRA: {
+        id: "ABHIPRA",
+        name: "Abhipra Capital Limited",
+        website: "abhipra.com",
+        allotmentUrl: "https://www.abhipra.com/ipo-status"
+    },
     ALANKIT: {
-        id: "Alankit",
+        id: "ALANKIT",
         name: "Alankit Assignments Ltd",
         website: "alankit.com",
-        allotmentUrl: "http://ipo.alankit.com/"
+        allotmentUrl: "https://ipo.alankit.com/"
     },
     ANKIT: {
-        id: "Ankit Consultancy",
+        id: "ANKIT",
         name: "Ankit Consultancy Pvt.Ltd",
         website: "ankitonline.com",
         allotmentUrl: "https://www.ankitonline.com/PublicIssue/FrmPublicIssue.aspx"
@@ -88,14 +94,26 @@ export const REGISTRARS = {
     BEETALFC: {
         id: "BEETALFC",
         name: "Beetal Financial & Computer Services (P) Limited",
-        website: "beetalmail.com",
-        allotmentUrl: "http://www.beetalmail.com/smeipo"
+        website: "beetal.in",
+        allotmentUrl: "https://beetal.in/investor-services/#IPO_Allotment_Status"
+    },
+    BSE: {
+        id: "BSE",
+        name: "BSE India IPO Status Portal",
+        website: "bseindia.com",
+        allotmentUrl: "https://www.bseindia.com/investors/appli_check"
+    },
+    NSE: {
+        id: "NSE",
+        name: "NSE India IPO Bid Verification",
+        website: "nseindia.in",
+        allotmentUrl: "https://www.nseindia.in/invest/check-trades-bids-verify-ipo-bids"
     },
     INTEGRATED: {
         id: "INTEGRATED",
         name: "Integrated Registry Management Services (P) Limited",
         website: "integratedregistry.in",
-        allotmentUrl: "https://www.integratedregistry.in/registrarstostatus.aspx"
+        allotmentUrl: "https://www.integratedregistry.in/IRMS_V2/IPOListing.aspx"
     },
     MAS: {
         id: "MAS",
@@ -104,7 +122,7 @@ export const REGISTRARS = {
         allotmentUrl: "https://www.masserv.com/opt.asp"
     },
     MUDRARTA: {
-        id: "Mudra RTA",
+        id: "MUDRA",
         name: "Mudra RTA Ventures Private Limited",
         website: "mudrarta.com",
         allotmentUrl: "https://mudrarta.com/ipo.php"
@@ -257,7 +275,7 @@ export async function scrapeActiveRegistrarIpos() {
 }
 
 const CAPTCHA_GATED_REGS = new Set([
-    "CAMEO", "INTEGRATED", "MAS", "BEETALFC", "ALANKIT", "ANKIT", "ACCURATE", "MUDRA"
+    "CAMEO", "INTEGRATED", "BEETALFC", "ALANKIT", "ANKIT", "MUDRA", "NSE", "BSE"
 ]);
 
 function normalizeLocalRegId(registrarId, registrarUrl) {
@@ -268,15 +286,18 @@ function normalizeLocalRegId(registrarId, registrarUrl) {
     if (combined.includes("SKYLINERTA") || combined.includes("SKYLINE")) return "SKYLINE";
     if (combined.includes("SATELLITECORPORATE") || combined.includes("SATELLITE")) return "SATELLITE";
     if (combined.includes("KFIN") || combined.includes("KOSMIC") || combined.includes("KPRISM")) return "KFIN";
-    if (combined.includes("CAMEO")) return "CAMEO";
-    if (combined.includes("PURVA")) return "PURVA";
+    if (combined.includes("ABHIPRA")) return "ABHIPRA";
+    if (combined.includes("ACCURATE")) return "ACCURATE";
     if (combined.includes("MASSERV") || /\bMAS\b/.test(combined)) return "MAS";
+    if (combined.includes("PURVA")) return "PURVA";
+    if (combined.includes("CAMEO")) return "CAMEO";
     if (combined.includes("BEETAL")) return "BEETALFC";
     if (combined.includes("INTEGRATED")) return "INTEGRATED";
     if (combined.includes("ALANKIT")) return "ALANKIT";
     if (combined.includes("ANKIT")) return "ANKIT";
-    if (combined.includes("ACCURATE")) return "ACCURATE";
     if (combined.includes("MUDRA")) return "MUDRA";
+    if (combined.includes("NSEINDIA") || /\bNSE\b/.test(combined)) return "NSE";
+    if (combined.includes("BSEINDIA") || /\bBSE\b/.test(combined)) return "BSE";
     return "UNKNOWN";
 }
 
@@ -433,7 +454,76 @@ export async function fetchCompaniesForRegistrar(regId) {
         });
         return list;
     }
+    if (regId === "ABHIPRA") {
+        try {
+            const apiRes = await axios.get("https://www.abhipra.com/ipo-status-api", {
+                headers: { ...httpHeaders, "Referer": "https://www.abhipra.com/ipo-status" },
+                timeout: 10000
+            });
+            if (apiRes.data?.success && Array.isArray(apiRes.data.companies)) {
+                return apiRes.data.companies
+                    .filter(c => c?.allotmentFileName && c?.issuerCompanyName)
+                    .map(c => ({ code: String(c.allotmentFileName), name: String(c.issuerCompanyName) }));
+            }
+        } catch (_) {}
+        const res = await axios.get("https://www.abhipra.com/ipo-status", { headers: httpHeaders, timeout: 10000 });
+        const $ = cheerio.load(res.data);
+        const list = [];
+        $("select#company-select option").each((_, el) => {
+            const code = $(el).val()?.trim();
+            const name = $(el).text()?.trim();
+            if (code && name && !/select/i.test(name)) list.push({ code, name });
+        });
+        return list;
+    }
+    if (regId === "ACCURATE") {
+        const res = await axios.get("https://www.accuratesecurities.com/ipo-details.php", { headers: httpHeaders, timeout: 10000 });
+        const $ = cheerio.load(res.data);
+        const list = [];
+        $('select[name="company"] option').each((_, el) => {
+            const code = $(el).val()?.trim();
+            const name = $(el).text()?.trim();
+            if (code && name && !/select/i.test(name)) list.push({ code, name });
+        });
+        return list;
+    }
+    if (regId === "MAS") {
+        const res = await axios.get("https://www.masserv.com/opt.asp", { headers: httpHeaders, timeout: 10000 });
+        const html = String(res.data || "").replace(/<!--[\s\S]*?-->/g, " ");
+        const list = [];
+        const seen = new Set();
+        const blockRegex = /IPO\s*[-–:]\s*([^\r\n<]+?)\s*ALLOTMENT\s*STATUS[\s\S]{0,1200}?href\s*=\s*["']?([^"'\s>]*asearch[^"'\s>]*\.asp)["']?/gi;
+        let m;
+        while ((m = blockRegex.exec(html)) !== null) {
+            const name = cheerio.load(m[1]).text().replace(/\s+/g, " ").trim();
+            const searchPage = m[2].replace(/^\/+/, "");
+            const key = `${searchPage}::${normCompanyStr(name)}`;
+            if (name && searchPage && !seen.has(key)) {
+                seen.add(key);
+                list.push({ code: searchPage, name });
+            }
+        }
+        return list;
+    }
     return [];
+}
+
+function summarizeLocalBids(regId, resolvedCode, resolvedName, rows, mapRow) {
+    let totalAllotted = 0, totalApplied = 0, holderName = "";
+    const bidParts = [];
+    rows.forEach((rec, idx) => {
+        const mapped = mapRow(rec);
+        const allot = parseInt(String(mapped.allotted ?? "0").replace(/,/g, ""), 10) || 0;
+        const app = parseInt(String(mapped.applied ?? "0").replace(/,/g, ""), 10) || 0;
+        if (!holderName && mapped.name) holderName = String(mapped.name).trim();
+        totalAllotted += allot;
+        totalApplied += app;
+        if (rows.length > 1) bidParts.push(allot > 0 ? `Bid ${idx + 1}: ${allot} shares allotted` : `Bid ${idx + 1}: No shares`);
+    });
+    if (totalAllotted > 0) {
+        return { status: "ALLOTTED", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: totalAllotted, sharesApplied: totalApplied, holderName, resultText: rows.length > 1 ? bidParts.join(" | ") : `Bid 1: ${totalAllotted} shares allotted`, isWinner: true };
+    }
+    return { status: "NO_SHARES", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, sharesApplied: totalApplied, holderName, resultText: totalApplied > 0 ? `Applied (${totalApplied}) — No shares allotted` : "Bid 1: No shares allotted", isWinner: false };
 }
 
 // ==========================================================
@@ -730,13 +820,25 @@ export async function checkSinglePanOnRegistrar(registrarId, companyCode, pan, o
             headers: { ...httpHeaders, "Referer": "https://www.satellitecorporate.com/ipo-query.php", "X-Requested-With": "XMLHttpRequest" },
             timeout: 8000
         });
+        if (res.data && typeof res.data === "object" && res.data.status === "success") {
+            const details = res.data.applicantDetails;
+            if (!details || (Array.isArray(details) && details.length === 0)) {
+                return { status: "NO_RECORD", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND", isWinner: false };
+            }
+            const rows = Array.isArray(details) ? details : [details];
+            return summarizeLocalBids(regId, resolvedCode, resolvedName, rows, d => ({
+                allotted: d?.shared_allotted ?? d?.shares_allotted ?? d?.allotted_shares ?? d?.allotted ?? 0,
+                applied: d?.shares_applied ?? d?.applied_shares ?? 0,
+                name: d?.applicant_name ?? d?.name ?? ""
+            }));
+        }
         const flatText = typeof res.data === "string" ? res.data : JSON.stringify(res.data);
-        if (/no record|not found|invalid/i.test(flatText) && !/allotted\s*["':=]+\s*[1-9]/i.test(flatText)) {
+        if (/no record|not found|invalid/i.test(flatText) && !/(?:shared_allotted|allotted)\D{0,15}[1-9]/i.test(flatText)) {
             return { status: "NO_RECORD", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND", isWinner: false };
         }
-        const sharesMatch = flatText.match(/(?:allotted|allot_shares|alloted)\D{0,15}(\d+)/i);
+        const sharesMatch = flatText.match(/(?:shared_allotted|shares_allotted|allotted|allot_shares|alloted)\D{0,15}(\d[\d,]*)/i);
         if (sharesMatch) {
-            const shares = parseInt(sharesMatch[1], 10) || 0;
+            const shares = parseInt(sharesMatch[1].replace(/,/g, ""), 10) || 0;
             if (shares > 0) return { status: "ALLOTTED", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: shares, resultText: `Bid 1: ${shares} shares allotted`, isWinner: true };
             return { status: "NO_SHARES", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: No shares allotted", isWinner: false };
         }
@@ -857,6 +959,92 @@ export async function checkSinglePanOnRegistrar(registrarId, companyCode, pan, o
             const shares = parseInt(allottedMatch[1].replace(/,/g, ""), 10) || 0;
             if (shares > 0) return { status: "ALLOTTED", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: shares, resultText: `Bid 1: ${shares} shares allotted`, isWinner: true };
             return { status: "NO_SHARES", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: No shares allotted", isWinner: false };
+        }
+    }
+
+    // ------------------------------------------------------
+    // H. ABHIPRA CAPITAL LIMITED (JSON API, No Captcha)
+    // ------------------------------------------------------
+    if (regId === "ABHIPRA") {
+        const res = await axios.post("https://www.abhipra.com/ipo-status-api", {
+            allotmentFileName: String(resolvedCode),
+            searchType: "pan",
+            searchValue: cleanPan
+        }, {
+            headers: { ...httpHeaders, "Content-Type": "application/json", "Origin": "https://www.abhipra.com", "Referer": "https://www.abhipra.com/ipo-status" },
+            timeout: 10000
+        });
+        if (!res.data?.success) throw new Error(res.data?.error || "Abhipra API error");
+        const rows = Array.isArray(res.data.records) ? res.data.records : [];
+        if (!res.data.found || rows.length === 0) {
+            return { status: "NO_RECORD", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND", isWinner: false };
+        }
+        return summarizeLocalBids(regId, resolvedCode, resolvedName, rows, rec => ({
+            allotted: rec?.sharesAllotted ?? 0,
+            applied: rec?.sharesApplied ?? 0,
+            name: rec?.applicantName ?? ""
+        }));
+    }
+
+    // ------------------------------------------------------
+    // I. ACCURATE SECURITIES (JSON API, No Captcha)
+    // ------------------------------------------------------
+    if (regId === "ACCURATE") {
+        const res = await axios.post("https://beta.accurateai.in/check-allotment", {
+            company: String(resolvedCode || "1"),
+            type: "1",
+            number: cleanPan
+        }, {
+            headers: { ...httpHeaders, "Content-Type": "application/json", "Origin": "https://www.accuratesecurities.com", "Referer": "https://www.accuratesecurities.com/ipo-details.php" },
+            timeout: 10000
+        });
+        const rows = Array.isArray(res.data?.message) ? res.data.message : [];
+        if (String(res.data?.status) !== "true" || rows.length === 0) {
+            return { status: "NO_RECORD", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND", isWinner: false };
+        }
+        return summarizeLocalBids(regId, resolvedCode, resolvedName, rows, rec => ({
+            allotted: rec?.allottedShares ?? 0,
+            applied: rec?.appliedShares ?? 0,
+            name: rec?.clientName ?? ""
+        }));
+    }
+
+    // ------------------------------------------------------
+    // J. MAS SERVICES LTD (Direct ASP Form, No Captcha)
+    // ------------------------------------------------------
+    if (regId === "MAS") {
+        const rawPage = String(resolvedCode || "asearch.asp").replace(/^\/+/, "");
+        const searchPage = /^[\w\-./]+\.asp$/i.test(rawPage) ? rawPage : "asearch.asp";
+        const formUrl = `https://www.masserv.com/${searchPage}`;
+        const gRes = await axios.get(formUrl, { headers: httpHeaders, timeout: 10000 });
+        const cookies = (gRes.headers["set-cookie"] || []).map(c => c.split(";")[0]).join("; ");
+        const formHtml = String(gRes.data || "");
+        const actMatch = formHtml.match(/<form[^>]*action\s*=\s*["']?([^\s"'>]+\.asp)/i);
+        const actionFile = actMatch ? actMatch[1].replace(/^\/+/, "") : (searchPage.includes("ipo_") ? "ipo_search1.asp" : "search1.asp");
+        const postUrl = /^[\w\-./]+\.asp$/i.test(actionFile) ? `https://www.masserv.com/${actionFile}` : "https://www.masserv.com/search1.asp";
+        const pRes = await axios.post(postUrl, new URLSearchParams({ texthn: cleanPan, DtLogin: "Search" }).toString(), {
+            headers: {
+                ...httpHeaders,
+                "Content-Type": "application/x-www-form-urlencoded",
+                "Origin": "https://www.masserv.com",
+                "Referer": formUrl,
+                ...(cookies ? { "Cookie": cookies } : {})
+            },
+            timeout: 10000
+        });
+        const $m = cheerio.load(String(pRes.data || ""));
+        $m("script, style").remove();
+        const cleanText = $m("body").text().replace(/<!--[\s\S]*?-->/g, " ").replace(/\s+/g, " ").trim();
+        if (/pan\s*no\.?\s*entered\s*by\s*you\s*is\s*not\s*correct|no\s*record|not\s*found|invalid\s*pan|please\s*check\s*the\s*pan/i.test(cleanText)) {
+            return { status: "NO_RECORD", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND", isWinner: false };
+        }
+        const allottedMatch = cleanText.match(/(?:Shares\s*Allotted|Allotted\s*Shares|No\.?\s*of\s*Shares\s*Allotted|Alloted)\D{0,30}(\d[\d,]*)/i);
+        if (allottedMatch) {
+            const shares = parseInt(allottedMatch[1].replace(/,/g, ""), 10) || 0;
+            const appliedMatch = cleanText.match(/(?:Shares\s*Applied|Applied\s*Shares)\D{0,30}(\d[\d,]*)/i);
+            const applied = appliedMatch ? parseInt(appliedMatch[1].replace(/,/g, ""), 10) || 0 : 0;
+            if (shares > 0) return { status: "ALLOTTED", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: shares, sharesApplied: applied, resultText: `Bid 1: ${shares} shares allotted`, isWinner: true };
+            return { status: "NO_SHARES", registrarId: regId, resolvedCode, resolvedName, sharesAllotted: 0, sharesApplied: applied, resultText: applied > 0 ? `Applied (${applied}) — No shares allotted` : "Bid 1: No shares allotted", isWinner: false };
         }
     }
 

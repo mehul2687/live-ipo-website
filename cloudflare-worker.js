@@ -21,12 +21,12 @@ const ALLOWED_ORIGINS = [
 const CAPTCHA_GATED_REGISTRARS = new Set([
   "CAMEO",
   "INTEGRATED",
-  "MAS",
   "BEETALFC",
   "ALANKIT",
   "ANKIT",
-  "ACCURATE",
-  "MUDRA"
+  "MUDRA",
+  "NSE",
+  "BSE"
 ]);
 
 const DEFAULT_HEADERS = {
@@ -93,6 +93,7 @@ function githubHeaders(token) {
 
 function decodeHtmlEntities(str) {
   return String(str || "")
+    .replace(/<!--[\s\S]*?-->/g, " ")
     .replace(/&amp;/gi, "&")
     .replace(/&lt;/gi, "<")
     .replace(/&gt;/gi, ">")
@@ -112,15 +113,18 @@ function normalizeRegistrarId(registrarId, registrarUrl) {
   if (combined.includes("SKYLINERTA") || combined.includes("SKYLINE")) return "SKYLINE";
   if (combined.includes("SATELLITECORPORATE") || combined.includes("SATELLITE")) return "SATELLITE";
   if (combined.includes("KFIN") || combined.includes("KOSMIC") || combined.includes("KPRISM")) return "KFIN";
-  if (combined.includes("CAMEO")) return "CAMEO";
-  if (combined.includes("PURVA")) return "PURVA";
+  if (combined.includes("ABHIPRA")) return "ABHIPRA";
+  if (combined.includes("ACCURATE")) return "ACCURATE";
   if (combined.includes("MASSERV") || /\bMAS\b/.test(combined)) return "MAS";
+  if (combined.includes("PURVA")) return "PURVA";
+  if (combined.includes("CAMEO")) return "CAMEO";
   if (combined.includes("BEETAL")) return "BEETALFC";
   if (combined.includes("INTEGRATED")) return "INTEGRATED";
   if (combined.includes("ALANKIT")) return "ALANKIT";
   if (combined.includes("ANKIT")) return "ANKIT";
-  if (combined.includes("ACCURATE")) return "ACCURATE";
   if (combined.includes("MUDRA")) return "MUDRA";
+  if (combined.includes("NSEINDIA") || /\bNSE\b/.test(combined)) return "NSE";
+  if (combined.includes("BSEINDIA") || /\bBSE\b/.test(combined)) return "BSE";
   return "UNKNOWN";
 }
 
@@ -132,9 +136,17 @@ function getRegistrarPortalUrl(regId, fallbackUrl) {
     case "SKYLINE": return "https://www.skylinerta.com/ipo.php";
     case "SATELLITE": return "https://www.satellitecorporate.com/ipo-query.php";
     case "KFIN": return "https://ipostatus.kfintech.com/";
-    case "CAMEO": return "https://ipo.cameoindia.com/";
     case "PURVA": return "https://www.purvashare.com/investor-service/ipo-query";
+    case "ABHIPRA": return "https://www.abhipra.com/ipo-status";
+    case "ACCURATE": return "https://www.accuratesecurities.com/ipo-details.php";
     case "MAS": return "https://www.masserv.com/opt.asp";
+    case "BEETALFC": return "https://beetal.in/investor-services/#IPO_Allotment_Status";
+    case "CAMEO": return "https://ipostatus1.cameoindia.com/";
+    case "ALANKIT": return "https://ipo.alankit.com/";
+    case "INTEGRATED": return "https://www.integratedregistry.in/IRMS_V2/IPOListing.aspx";
+    case "MUDRA": return "https://mudrarta.com/ipo.php";
+    case "NSE": return "https://www.nseindia.in/invest/check-trades-bids-verify-ipo-bids";
+    case "BSE": return "https://www.bseindia.com/investors/appli_check";
     default: return fallbackUrl || "";
   }
 }
@@ -346,7 +358,90 @@ async function fetchRegistrarCompanies(regId) {
     return parseSelectOptions(html, /<select[^>]*name\s*=\s*["']company_id["'][\s\S]*?<\/select>/i);
   }
 
+  if (regId === "ABHIPRA") {
+    try {
+      const apiRes = await fetch("https://www.abhipra.com/ipo-status-api", {
+        headers: { ...DEFAULT_HEADERS, "Referer": "https://www.abhipra.com/ipo-status" }
+      });
+      if (apiRes.ok) {
+        const json = await apiRes.json();
+        if (json?.success && Array.isArray(json.companies)) {
+          return json.companies
+            .filter(c => c?.allotmentFileName && c?.issuerCompanyName)
+            .map(c => ({ code: String(c.allotmentFileName), name: String(c.issuerCompanyName) }));
+        }
+      }
+    } catch (_) {}
+    const res = await fetch("https://www.abhipra.com/ipo-status", { headers: DEFAULT_HEADERS });
+    if (!res.ok) throw new Error(`Abhipra HTTP ${res.status}`);
+    const html = await res.text();
+    return parseSelectOptions(html, /<select[^>]*id\s*=\s*["']company-select["'][\s\S]*?<\/select>/i);
+  }
+
+  if (regId === "ACCURATE") {
+    const res = await fetch("https://www.accuratesecurities.com/ipo-details.php", { headers: DEFAULT_HEADERS });
+    if (!res.ok) throw new Error(`Accurate HTTP ${res.status}`);
+    const html = await res.text();
+    return parseSelectOptions(html, /<select[^>]*name\s*=\s*["']company["'][\s\S]*?<\/select>/i);
+  }
+
+  if (regId === "MAS") {
+    const res = await fetch("https://www.masserv.com/opt.asp", { headers: DEFAULT_HEADERS });
+    if (!res.ok) throw new Error(`MAS HTTP ${res.status}`);
+    const html = (await res.text()).replace(/<!--[\s\S]*?-->/g, " ");
+    const list = [];
+    const seen = new Set();
+    const blockRegex = /IPO\s*[-–:]\s*([^\r\n<]+?)\s*ALLOTMENT\s*STATUS[\s\S]{0,1200}?href\s*=\s*["']?([^"'\s>]*asearch[^"'\s>]*\.asp)["']?/gi;
+    let m;
+    while ((m = blockRegex.exec(html)) !== null) {
+      const name = decodeHtmlEntities(m[1]);
+      const searchPage = m[2].replace(/^\/+/, "");
+      const key = `${searchPage}::${normalizeCompanyName(name)}`;
+      if (name && searchPage && !seen.has(key)) {
+        seen.add(key);
+        list.push({ code: searchPage, name });
+      }
+    }
+    return list;
+  }
+
   return [];
+}
+
+function summarizeBidRows(rows, mapRow) {
+  let totalAllotted = 0;
+  let totalApplied = 0;
+  let holderName = "";
+  const bidParts = [];
+
+  rows.forEach((rec, idx) => {
+    const mapped = mapRow(rec);
+    const allotted = parseInt(String(mapped.allotted ?? "0").replace(/,/g, ""), 10) || 0;
+    const applied = parseInt(String(mapped.applied ?? "0").replace(/,/g, ""), 10) || 0;
+    if (!holderName && mapped.name) holderName = String(mapped.name).trim();
+    totalAllotted += allotted;
+    totalApplied += applied;
+    if (rows.length > 1) {
+      bidParts.push(allotted > 0 ? `Bid ${idx + 1}: ${allotted} shares allotted` : `Bid ${idx + 1}: No shares`);
+    }
+  });
+
+  if (totalAllotted > 0) {
+    return {
+      status: "ALLOTTED",
+      sharesAllotted: totalAllotted,
+      sharesApplied: totalApplied,
+      holderName,
+      resultText: rows.length > 1 ? bidParts.join(" | ") : `Bid 1: ${totalAllotted} shares allotted`
+    };
+  }
+  return {
+    status: "NO_SHARES",
+    sharesAllotted: 0,
+    sharesApplied: totalApplied,
+    holderName,
+    resultText: totalApplied > 0 ? `Applied (${totalApplied}) — No shares allotted` : "Bid 1: No shares allotted"
+  };
 }
 
 function extractXmlTag(xml, tag) {
@@ -667,18 +762,35 @@ async function queryRegistrarSinglePan(regId, companyItem, pan) {
     const text = await res.text();
     let json = null;
     try { json = JSON.parse(text); } catch (_) {}
-    const flatText = decodeHtmlEntities(json ? JSON.stringify(json) : text);
 
-    if (/no record|not found|invalid/i.test(flatText) && !/allotted\s*["':=]+\s*[1-9]/i.test(flatText)) {
+    if (json && json.status === "success") {
+      const details = json.applicantDetails;
+      if (!details || (Array.isArray(details) && details.length === 0)) {
+        return {
+          status: "NO_RECORD",
+          sharesAllotted: 0,
+          resultText: "Bid 1: NO RECORD FOUND"
+        };
+      }
+      const rows = Array.isArray(details) ? details : [details];
+      return summarizeBidRows(rows, d => ({
+        allotted: d?.shared_allotted ?? d?.shares_allotted ?? d?.allotted_shares ?? d?.allotted ?? 0,
+        applied: d?.shares_applied ?? d?.applied_shares ?? 0,
+        name: d?.applicant_name ?? d?.name ?? ""
+      }));
+    }
+
+    const flatText = decodeHtmlEntities(json ? JSON.stringify(json) : text);
+    if (/no record|not found|invalid/i.test(flatText) && !/(?:allotted|shared_allotted)\D{0,15}[1-9]/i.test(flatText)) {
       return {
         status: "NO_RECORD",
         sharesAllotted: 0,
         resultText: "Bid 1: NO RECORD FOUND"
       };
     }
-    const sharesMatch = flatText.match(/(?:allotted|allot_shares|alloted)\D{0,15}(\d+)/i);
+    const sharesMatch = flatText.match(/(?:shared_allotted|shares_allotted|allotted|allot_shares|alloted)\D{0,15}(\d[\d,]*)/i);
     if (sharesMatch) {
-      const shares = parseInt(sharesMatch[1], 10) || 0;
+      const shares = parseInt(sharesMatch[1].replace(/,/g, ""), 10) || 0;
       if (shares > 0) {
         return { status: "ALLOTTED", sharesAllotted: shares, resultText: `Bid 1: ${shares} shares allotted` };
       }
@@ -871,6 +983,116 @@ async function queryRegistrarSinglePan(regId, companyItem, pan) {
     };
   }
 
+  // 8. ABHIPRA CAPITAL LIMITED (abhipra.com/ipo-status — Official JSON API, No Captcha)
+  if (regId === "ABHIPRA") {
+    const res = await fetch("https://www.abhipra.com/ipo-status-api", {
+      method: "POST",
+      headers: {
+        ...DEFAULT_HEADERS,
+        "Content-Type": "application/json",
+        "Origin": "https://www.abhipra.com",
+        "Referer": "https://www.abhipra.com/ipo-status"
+      },
+      body: JSON.stringify({
+        allotmentFileName: String(companyItem.code),
+        searchType: "pan",
+        searchValue: pan
+      })
+    });
+    if (!res.ok) throw new Error(`Abhipra API HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data?.success) throw new Error(data?.error || "Abhipra API error");
+    const rows = Array.isArray(data.records) ? data.records : [];
+    if (!data.found || rows.length === 0) {
+      return { status: "NO_RECORD", sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND" };
+    }
+    return summarizeBidRows(rows, rec => ({
+      allotted: rec?.sharesAllotted ?? 0,
+      applied: rec?.sharesApplied ?? 0,
+      name: rec?.applicantName ?? ""
+    }));
+  }
+
+  // 9. ACCURATE SECURITIES (accuratesecurities.com — Official JSON API, No Captcha)
+  if (regId === "ACCURATE") {
+    const res = await fetch("https://beta.accurateai.in/check-allotment", {
+      method: "POST",
+      headers: {
+        ...DEFAULT_HEADERS,
+        "Content-Type": "application/json",
+        "Origin": "https://www.accuratesecurities.com",
+        "Referer": "https://www.accuratesecurities.com/ipo-details.php"
+      },
+      body: JSON.stringify({
+        company: String(companyItem.code || "1"),
+        type: "1",
+        number: pan
+      })
+    });
+    if (!res.ok) throw new Error(`Accurate API HTTP ${res.status}`);
+    const data = await res.json();
+    const rows = Array.isArray(data?.message) ? data.message : [];
+    if (String(data?.status) !== "true" || rows.length === 0) {
+      return { status: "NO_RECORD", sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND" };
+    }
+    return summarizeBidRows(rows, rec => ({
+      allotted: rec?.allottedShares ?? 0,
+      applied: rec?.appliedShares ?? 0,
+      name: rec?.clientName ?? ""
+    }));
+  }
+
+  // 10. MAS SERVICES LTD (masserv.com/opt.asp — Direct ASP Form Flow, No Captcha)
+  if (regId === "MAS") {
+    const rawPage = String(companyItem.code || "asearch.asp").replace(/^\/+/, "");
+    const searchPage = /^[\w\-./]+\.asp$/i.test(rawPage) ? rawPage : "asearch.asp";
+    const formUrl = `https://www.masserv.com/${searchPage}`;
+    const gRes = await fetch(formUrl, { headers: DEFAULT_HEADERS });
+    if (!gRes.ok) throw new Error(`MAS GET HTTP ${gRes.status}`);
+    const cookieHeader = extractSetCookieHeader(gRes.headers);
+    const formHtml = await gRes.text();
+
+    const actMatch = formHtml.match(/<form[^>]*action\s*=\s*["']?([^\s"'>]+\.asp)/i);
+    const actionFile = actMatch ? actMatch[1].replace(/^\/+/, "") : (searchPage.includes("ipo_") ? "ipo_search1.asp" : "search1.asp");
+    const postUrl = /^[\w\-./]+\.asp$/i.test(actionFile) ? `https://www.masserv.com/${actionFile}` : "https://www.masserv.com/search1.asp";
+
+    const formBody = new URLSearchParams({ texthn: pan, DtLogin: "Search" });
+    const pRes = await fetch(postUrl, {
+      method: "POST",
+      headers: {
+        ...DEFAULT_HEADERS,
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Origin": "https://www.masserv.com",
+        "Referer": formUrl,
+        ...(cookieHeader ? { "Cookie": cookieHeader } : {})
+      },
+      body: formBody.toString()
+    });
+    if (!pRes.ok) throw new Error(`MAS POST HTTP ${pRes.status}`);
+    const resultHtml = (await pRes.text()).replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ");
+    const cleanText = decodeHtmlEntities(resultHtml);
+
+    if (/pan\s*no\.?\s*entered\s*by\s*you\s*is\s*not\s*correct|no\s*record|not\s*found|invalid\s*pan|please\s*check\s*the\s*pan/i.test(cleanText)) {
+      return { status: "NO_RECORD", sharesAllotted: 0, resultText: "Bid 1: NO RECORD FOUND" };
+    }
+    const allottedMatch = cleanText.match(/(?:Shares\s*Allotted|Allotted\s*Shares|No\.?\s*of\s*Shares\s*Allotted|Alloted)\D{0,30}(\d[\d,]*)/i);
+    if (allottedMatch) {
+      const shares = parseInt(allottedMatch[1].replace(/,/g, ""), 10) || 0;
+      const appliedMatch = cleanText.match(/(?:Shares\s*Applied|Applied\s*Shares)\D{0,30}(\d[\d,]*)/i);
+      const applied = appliedMatch ? parseInt(appliedMatch[1].replace(/,/g, ""), 10) || 0 : 0;
+      if (shares > 0) {
+        return { status: "ALLOTTED", sharesAllotted: shares, sharesApplied: applied, resultText: `Bid 1: ${shares} shares allotted` };
+      }
+      return {
+        status: "NO_SHARES",
+        sharesAllotted: 0,
+        sharesApplied: applied,
+        resultText: applied > 0 ? `Applied (${applied}) — No shares allotted` : "Bid 1: No shares allotted"
+      };
+    }
+    return { status: "PORTAL_CHECK_REQUIRED", sharesAllotted: 0, resultText: "Check directly on MAS Services portal" };
+  }
+
   throw new Error(`Unsupported automated registrar: ${regId}`);
 }
 
@@ -901,6 +1123,9 @@ export default {
         kfinAuto: true,
         purvaAuto: true,
         maashitlaV2: true,
+        abhipraAuto: true,
+        accurateAuto: true,
+        masAuto: true,
         repo: OWNER_REPO
       }, 200, origin);
     }

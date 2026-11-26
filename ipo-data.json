@@ -3659,8 +3659,8 @@
     "ofs": "N/A",
     "listingAt": "NSE SME",
     "bseCode": "",
-    "nseCode": "",
-    "isinCode": "",
+    "nseCode": "WATRANA",
+    "isinCode": "INE11NS01011",
     "mcScId": "",
     "listingPriceNse": null,
     "listingPriceBse": null,
@@ -3822,9 +3822,9 @@
     "freshIssue": "N/A",
     "ofs": "66,18,36,300 shares of ₹2 (agg. up to ₹8,981.12 Cr)",
     "listingAt": "BSE, NSE",
-    "bseCode": "",
-    "nseCode": "",
-    "isinCode": "",
+    "bseCode": "545032",
+    "nseCode": "MAHACOAL",
+    "isinCode": "INE03K401026",
     "mcScId": "",
     "listingPriceNse": null,
     "listingPriceBse": null,
@@ -4051,7 +4051,7 @@
       {
         "cat": "Retail",
         "off": 3100000,
-        "app": 5076000
+        "app": 5084000
       },
       {
         "cat": "Employee",
@@ -4379,7 +4379,7 @@
       {
         "cat": "Retail",
         "off": 1888774,
-        "app": 4590300
+        "app": 4603950
       },
       {
         "cat": "Employee",

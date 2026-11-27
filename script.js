@@ -1920,9 +1920,13 @@ window.initPageViewsCounter = initPageViewsCounter;
 window.syncGlobalPageViews = syncGlobalPageViews;
 
 // ==========================================
-// GOOGLE SIGN-IN (GOOGLE IDENTITY SERVICES)
+// USER AUTHENTICATION (GOOGLE + FREE APPLE/ICLOUD & EMAIL)
 // ==========================================
 const GOOGLE_CLIENT_ID = "207372613533-2lvj2glt01tn79f5tnd38kcc6d74h2ch.apps.googleusercontent.com";
+const AUTH_STORE_BIN_ID = "6ae9de79ac6210605a68ca72";
+const AUTH_STORE_API_KEY = "$2a$10$Pl5b/ekYZXhRBmQVY6DwieMC10GztytHM9d7CnR0zqmje7BWYj6yC";
+
+let activeAuthModalMode = 'login';
 
 function parseJwt(token) {
     try {
@@ -1938,6 +1942,75 @@ function parseJwt(token) {
     }
 }
 
+function buildInitialsAvatar(name, provider) {
+    const cleanName = String(name || 'User').trim();
+    const initial = ((cleanName[0] || 'U').toUpperCase()).replace(/[^A-Z0-9]/g, '') || 'U';
+    const bg = provider === 'apple_email' ? '#0f172a' : '#2563eb';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><rect width="64" height="64" rx="32" fill="${bg}"/><text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="Inter,Arial,sans-serif" font-size="28" font-weight="700">${initial}</text></svg>`;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+async function sha256Hex(text) {
+    if (window.crypto && window.crypto.subtle && window.TextEncoder) {
+        const buf = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+        return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    // Lightweight fallback only for insecure LAN HTTP preview environments
+    let h1 = 0x811c9dc5, h2 = 0x9e3779b9;
+    for (let i = 0; i < text.length; i++) {
+        const ch = text.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 0x01000193);
+        h2 = Math.imul(h2 ^ ch, 0x85ebca6b);
+    }
+    return (h1 >>> 0).toString(16).padStart(8, '0') + (h2 >>> 0).toString(16).padStart(8, '0');
+}
+
+function generateSaltHex() {
+    if (window.crypto && window.crypto.getRandomValues) {
+        const arr = new Uint8Array(12);
+        window.crypto.getRandomValues(arr);
+        return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    return Date.now().toString(16) + Math.random().toString(16).slice(2, 10);
+}
+
+function isAppleEmailDomain(email) {
+    return /@(icloud|me|mac)\.com$|@privaterelay\.appleid\.com$/i.test(String(email || '').trim());
+}
+
+function saveUserSession(user) {
+    localStorage.setItem('live_ipo_user', JSON.stringify(user));
+    renderUserAuthState();
+    closeAuthModal();
+    window.dispatchEvent(new CustomEvent('live_ipo_auth_changed', { detail: { user } }));
+}
+
+async function fetchAuthStoreRecord() {
+    const res = await fetch(`https://api.jsonbin.io/v3/b/${AUTH_STORE_BIN_ID}/latest?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: { 'X-Master-Key': AUTH_STORE_API_KEY }
+    });
+    if (!res.ok) throw new Error(`Cloud store HTTP ${res.status}`);
+    const json = await res.json();
+    const record = json.record || { description: "LiveIPO User Demat Accounts Central Store", users: {} };
+    if (!record.users) record.users = {};
+    if (!record.authProfiles) record.authProfiles = {};
+    return record;
+}
+
+async function writeAuthStoreRecord(record) {
+    record.updatedAt = new Date().toISOString();
+    const putRes = await fetch(`https://api.jsonbin.io/v3/b/${AUTH_STORE_BIN_ID}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Master-Key': AUTH_STORE_API_KEY
+        },
+        body: JSON.stringify(record)
+    });
+    if (!putRes.ok) throw new Error(`Cloud save HTTP ${putRes.status}`);
+}
+
 window.handleGoogleSignIn = function(response) {
     if (!response || !response.credential) return;
     const payload = parseJwt(response.credential);
@@ -1945,29 +2018,29 @@ window.handleGoogleSignIn = function(response) {
         const user = {
             id: payload.sub,
             name: payload.name || payload.given_name || "User",
-            email: payload.email,
+            email: (payload.email || "").toLowerCase(),
+            provider: "google",
             avatar: payload.picture || ""
         };
-        localStorage.setItem('live_ipo_user', JSON.stringify(user));
-        renderUserAuthState();
+        saveUserSession(user);
         console.log(`✓ Welcome, ${user.name}! Successfully signed in with Google.`);
-        window.dispatchEvent(new CustomEvent('live_ipo_auth_changed', { detail: { user } }));
     }
 };
 
 window.handleCustomLogin = function(emailOrId, name) {
-    const clean = (emailOrId || '').trim();
+    const clean = (emailOrId || '').trim().toLowerCase();
     if (!clean) return;
+    const provider = isAppleEmailDomain(clean) ? 'apple_email' : 'email';
+    const userName = name || clean.split('@')[0];
     const user = {
-        id: 'user_' + encodeURIComponent(clean.toLowerCase()),
-        name: name || clean.split('@')[0],
-        email: clean.toLowerCase(),
-        avatar: "https://www.gravatar.com/avatar/?d=mp"
+        id: 'user_' + encodeURIComponent(clean),
+        name: userName,
+        email: clean,
+        provider,
+        avatar: buildInitialsAvatar(userName, provider)
     };
-    localStorage.setItem('live_ipo_user', JSON.stringify(user));
-    renderUserAuthState();
+    saveUserSession(user);
     console.log(`✓ Welcome, ${user.name}! Successfully signed in.`);
-    window.dispatchEvent(new CustomEvent('live_ipo_auth_changed', { detail: { user } }));
 };
 
 window.handleUserLogout = function() {
@@ -1979,9 +2052,318 @@ window.handleUserLogout = function() {
     window.dispatchEvent(new CustomEvent('live_ipo_auth_changed', { detail: { user: null } }));
 };
 
+function ensureHeaderAltLoginButton() {
+    const authSection = document.querySelector('.user-auth-section');
+    if (!authSection || document.getElementById('appleEmailLoginBtn')) return;
+
+    const badge = document.getElementById('userProfileBadge');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'appleEmailLoginBtn';
+    btn.className = 'btn-alt-login-pill';
+    btn.title = 'Sign in with Apple iCloud or Email (Free)';
+    btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12 0-.23-.02-.3-.03-.01-.06-.04-.22-.04-.39 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.03.13.05.28.05.43zm4.565 15.71c-.03.07-.463 1.58-1.518 3.12-.945 1.34-1.94 2.71-3.43 2.71-1.517 0-1.9-.88-3.63-.88-1.698 0-2.302.91-3.67.91-1.377 0-2.332-1.26-3.428-2.8-1.287-1.82-2.323-4.63-2.323-7.28 0-4.28 2.797-6.55 5.552-6.55 1.448 0 2.675.95 3.6.95.865 0 2.222-1.01 3.902-1.01.613 0 2.886.06 4.374 2.19-.13.09-2.383 1.37-2.383 4.19 0 3.26 2.854 4.42 2.955 4.45z"/></svg><span>Apple / Email</span>`;
+    btn.addEventListener('click', () => openAuthModal('login', true));
+
+    if (badge) {
+        authSection.insertBefore(btn, badge);
+    } else {
+        authSection.appendChild(btn);
+    }
+}
+
+function ensureAuthModalDom() {
+    if (document.getElementById('liveIpoAuthModal')) return;
+
+    const modal = document.createElement('div');
+    modal.id = 'liveIpoAuthModal';
+    modal.className = 'auth-modal-overlay';
+    modal.innerHTML = `
+        <div class="auth-modal-card" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+            <button type="button" class="auth-modal-close" id="authModalCloseBtn" aria-label="Close">✕</button>
+            <div class="auth-modal-header">
+                <div class="auth-modal-logo">📊 Live IPO</div>
+                <h2 id="authModalTitle">Welcome to Live IPO</h2>
+                <p>Google અથવા Apple (<code>@icloud.com</code>) / અન્ય Email થી ફ્રી લોગિન કરો</p>
+            </div>
+
+            <div class="auth-google-box">
+                <div id="modalGoogleSignInBtn" class="auth-google-mount"></div>
+            </div>
+
+            <div class="auth-modal-divider">
+                <span>અથવા iPhone / Apple ID &amp; Other Email</span>
+            </div>
+
+            <div class="auth-modal-tabs">
+                <button type="button" class="auth-tab-btn active" id="authTabLogin" data-mode="login">Login (લોગિન)</button>
+                <button type="button" class="auth-tab-btn" id="authTabSignup" data-mode="signup">Create Account (નવું એકાઉન્ટ)</button>
+            </div>
+
+            <form id="authModalEmailForm" class="auth-modal-form" novalidate>
+                <div id="authModalNameWrap" class="auth-input-group" style="display: none;">
+                    <label for="authModalName">Full Name (તમારું નામ)</label>
+                    <input type="text" id="authModalName" placeholder="e.g. Mehul Patel" autocomplete="name">
+                </div>
+
+                <div class="auth-input-group">
+                    <label for="authModalEmail">Apple / iCloud કે કોઈપણ Email ID</label>
+                    <input type="email" id="authModalEmail" placeholder="e.g. name@icloud.com અથવા yahoo.com" autocomplete="email" required>
+                    <div class="auth-domain-chips">
+                        <button type="button" class="auth-chip" data-domain="@icloud.com">@icloud.com</button>
+                        <button type="button" class="auth-chip" data-domain="@me.com">@me.com</button>
+                        <button type="button" class="auth-chip" data-domain="@yahoo.com">@yahoo.com</button>
+                    </div>
+                </div>
+
+                <div class="auth-input-group">
+                    <label for="authModalPassword">Password (ઓછામાં ઓછા 4 અક્ષર)</label>
+                    <div class="auth-password-wrap">
+                        <input type="password" id="authModalPassword" placeholder="Enter password" autocomplete="current-password" required>
+                        <button type="button" id="authTogglePasswordBtn" class="auth-eye-btn" title="Show/Hide Password" aria-label="Show Password">👁️</button>
+                    </div>
+                </div>
+
+                <div id="authModalAlert" class="auth-modal-alert" style="display: none;"></div>
+
+                <button type="submit" id="authModalSubmitBtn" class="auth-modal-submit-btn">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.365 1.43c0 1.14-.493 2.27-1.177 3.08-.744.9-1.99 1.57-2.987 1.57-.12 0-.23-.02-.3-.03-.01-.06-.04-.22-.04-.39 0-1.15.572-2.27 1.206-2.98.804-.94 2.142-1.64 3.248-1.68.03.13.05.28.05.43zm4.565 15.71c-.03.07-.463 1.58-1.518 3.12-.945 1.34-1.94 2.71-3.43 2.71-1.517 0-1.9-.88-3.63-.88-1.698 0-2.302.91-3.67.91-1.377 0-2.332-1.26-3.428-2.8-1.287-1.82-2.323-4.63-2.323-7.28 0-4.28 2.797-6.55 5.552-6.55 1.448 0 2.675.95 3.6.95.865 0 2.222-1.01 3.902-1.01.613 0 2.886.06 4.374 2.19-.13.09-2.383 1.37-2.383 4.19 0 3.26 2.854 4.42 2.955 4.45z"/></svg>
+                    <span id="authModalSubmitText">Continue with Email / iCloud</span>
+                </button>
+            </form>
+        </div>
+    `;
+    document.body.appendChild(modal);
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeAuthModal();
+    });
+    document.getElementById('authModalCloseBtn').addEventListener('click', closeAuthModal);
+    document.getElementById('authTabLogin').addEventListener('click', () => setAuthModalMode('login'));
+    document.getElementById('authTabSignup').addEventListener('click', () => setAuthModalMode('signup'));
+
+    document.getElementById('authTogglePasswordBtn').addEventListener('click', () => {
+        const inp = document.getElementById('authModalPassword');
+        if (!inp) return;
+        inp.type = inp.type === 'password' ? 'text' : 'password';
+    });
+
+    modal.querySelectorAll('.auth-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const emailEl = document.getElementById('authModalEmail');
+            const domain = chip.getAttribute('data-domain') || '';
+            if (!emailEl) return;
+            const localPart = emailEl.value.split('@')[0].trim();
+            emailEl.value = localPart ? `${localPart}${domain}` : domain;
+            emailEl.focus();
+            if (!localPart && emailEl.setSelectionRange) {
+                emailEl.setSelectionRange(0, 0);
+            }
+        });
+    });
+
+    document.getElementById('authModalEmailForm').addEventListener('submit', handleEmailPasswordSubmit);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('open')) {
+            closeAuthModal();
+        }
+    });
+}
+
+function showAuthModalAlert(msg, type = 'error') {
+    const el = document.getElementById('authModalAlert');
+    if (!el) return;
+    if (!msg) {
+        el.style.display = 'none';
+        el.innerText = '';
+        return;
+    }
+    el.className = `auth-modal-alert ${type === 'info' ? 'info' : 'error'}`;
+    el.innerText = msg;
+    el.style.display = 'block';
+}
+
+function setAuthModalMode(mode) {
+    activeAuthModalMode = mode === 'signup' ? 'signup' : 'login';
+    const isSignup = activeAuthModalMode === 'signup';
+    const nameWrap = document.getElementById('authModalNameWrap');
+    const passInput = document.getElementById('authModalPassword');
+    const submitText = document.getElementById('authModalSubmitText');
+    const tabLogin = document.getElementById('authTabLogin');
+    const tabSignup = document.getElementById('authTabSignup');
+
+    if (nameWrap) nameWrap.style.display = isSignup ? 'block' : 'none';
+    if (passInput) passInput.autocomplete = isSignup ? 'new-password' : 'current-password';
+    if (submitText) submitText.innerText = isSignup ? 'Create Free Account & Login' : 'Login with Email / iCloud';
+    if (tabLogin) tabLogin.classList.toggle('active', !isSignup);
+    if (tabSignup) tabSignup.classList.toggle('active', isSignup);
+    showAuthModalAlert('', 'error');
+}
+
+window.openAuthModal = function(mode = 'login', focusEmail = false) {
+    ensureAuthModalDom();
+    setAuthModalMode(mode);
+    const modal = document.getElementById('liveIpoAuthModal');
+    if (modal) modal.classList.add('open');
+    renderGoogleSignInButtons();
+    if (focusEmail) {
+        setTimeout(() => {
+            const targetId = mode === 'signup' ? 'authModalName' : 'authModalEmail';
+            document.getElementById(targetId)?.focus();
+        }, 120);
+    }
+};
+
+window.closeAuthModal = function() {
+    const modal = document.getElementById('liveIpoAuthModal');
+    if (modal) modal.classList.remove('open');
+};
+
+async function handleEmailPasswordSubmit(e) {
+    e.preventDefault();
+    showAuthModalAlert('', 'error');
+
+    const nameEl = document.getElementById('authModalName');
+    const emailEl = document.getElementById('authModalEmail');
+    const passEl = document.getElementById('authModalPassword');
+    const submitBtn = document.getElementById('authModalSubmitBtn');
+    const submitTxt = document.getElementById('authModalSubmitText');
+
+    const email = (emailEl?.value || '').trim().toLowerCase();
+    const password = passEl?.value || '';
+    const fullName = (nameEl?.value || '').trim();
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+        showAuthModalAlert('કૃપા કરીને માન્ય Email ID દાખલ કરો (દા.ત. name@icloud.com).');
+        emailEl?.focus();
+        return;
+    }
+    if (password.length < 4) {
+        showAuthModalAlert('કૃપા કરીને ઓછામાં ઓછા 4 અક્ષરનો પાસવર્ડ દાખલ કરો.');
+        passEl?.focus();
+        return;
+    }
+
+    const isSignup = activeAuthModalMode === 'signup';
+    if (isSignup && fullName.length < 2) {
+        showAuthModalAlert('કૃપા કરીને તમારું નામ લખો (ઓછામાં ઓછા 2 અક્ષર).');
+        nameEl?.focus();
+        return;
+    }
+
+    const origText = submitTxt ? submitTxt.innerText : '';
+    if (submitBtn) submitBtn.disabled = true;
+    if (submitTxt) submitTxt.innerText = isSignup ? 'Creating account...' : 'Verifying...';
+
+    try {
+        const record = await fetchAuthStoreRecord();
+        const existing = record.authProfiles[email];
+        const provider = isAppleEmailDomain(email) ? 'apple_email' : 'email';
+
+        if (isSignup) {
+            if (existing) {
+                setAuthModalMode('login');
+                showAuthModalAlert('આ Email પહેલેથી રજિસ્ટર્ડ છે. કૃપા કરીને તમારો પાસવર્ડ નાખીને Login કરો.', 'info');
+                passEl?.focus();
+                return;
+            }
+            const salt = generateSaltHex();
+            const passHash = await sha256Hex(`${salt}:${password}`);
+            record.authProfiles[email] = {
+                name: fullName,
+                email,
+                provider,
+                salt,
+                passHash,
+                createdAt: new Date().toISOString()
+            };
+            await writeAuthStoreRecord(record);
+            saveUserSession({
+                id: 'email_' + encodeURIComponent(email),
+                name: fullName,
+                email,
+                provider,
+                avatar: buildInitialsAvatar(fullName, provider)
+            });
+            return;
+        }
+
+        // Login flow
+        if (!existing) {
+            setAuthModalMode('signup');
+            if (record.users[email]) {
+                showAuthModalAlert('આ Email ના જૂના Demat એકાઉન્ટ્સ મળ્યા છે — તેમને સુરક્ષિત રાખવા Create Account માં તમારો પાસવર્ડ સેટ કરો.', 'info');
+            } else {
+                showAuthModalAlert('આ Email થી કોઈ એકાઉન્ટ મળ્યું નથી. નીચે નામ અને પાસવર્ડ નાખી નવું એકાઉન્ટ બનાવો.', 'info');
+            }
+            nameEl?.focus();
+            return;
+        }
+
+        const attemptHash = await sha256Hex(`${existing.salt}:${password}`);
+        if (attemptHash !== existing.passHash) {
+            showAuthModalAlert('ખોટો પાસવર્ડ! કૃપા કરીને સાચો પાસવર્ડ ફરી દાખલ કરો.');
+            passEl?.focus();
+            return;
+        }
+
+        const displayName = existing.name || email.split('@')[0];
+        saveUserSession({
+            id: 'email_' + encodeURIComponent(email),
+            name: displayName,
+            email,
+            provider: existing.provider || provider,
+            avatar: buildInitialsAvatar(displayName, existing.provider || provider)
+        });
+    } catch (err) {
+        console.error('Auth error:', err);
+        showAuthModalAlert('સર્વર સાથે કનેક્ટ કરવામાં સમસ્યા આવી. કૃપા કરીને ફરી પ્રયાસ કરો.');
+    } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        if (submitTxt) {
+            submitTxt.innerText = activeAuthModalMode === 'signup'
+                ? 'Create Free Account & Login'
+                : 'Login with Email / iCloud';
+        }
+    }
+}
+
+function renderGoogleSignInButtons() {
+    if (!(window.google && google.accounts && google.accounts.id)) return;
+
+    const targets = [
+        {
+            id: 'googleSignInBtn',
+            opts: { type: 'standard', theme: 'outline', size: 'medium', text: 'signin_with', shape: 'pill', logo_alignment: 'left' }
+        },
+        {
+            id: 'modalGoogleSignInBtn',
+            opts: { type: 'standard', theme: 'outline', size: 'large', text: 'continue_with', shape: 'rectangular', logo_alignment: 'center', width: 320 }
+        },
+        {
+            id: 'dematGoogleSignInBtn',
+            opts: { type: 'standard', theme: 'outline', size: 'large', text: 'continue_with', shape: 'rectangular', logo_alignment: 'center', width: 300 }
+        }
+    ];
+
+    targets.forEach(({ id, opts }) => {
+        const el = document.getElementById(id);
+        if (el && el.childElementCount === 0) {
+            try {
+                google.accounts.id.renderButton(el, opts);
+            } catch (e) {
+                console.warn(`GIS renderButton (${id}) skipped:`, e);
+            }
+        }
+    });
+}
+
 function renderUserAuthState() {
+    ensureHeaderAltLoginButton();
+
     const userStr = localStorage.getItem('live_ipo_user');
     const btnContainer = document.getElementById('googleSignInBtn');
+    const altBtn = document.getElementById('appleEmailLoginBtn');
     const badge = document.getElementById('userProfileBadge');
     const avatarImg = document.getElementById('userAvatarImg');
     const nameText = document.getElementById('userNameText');
@@ -1990,8 +2372,9 @@ function renderUserAuthState() {
         try {
             const user = JSON.parse(userStr);
             if (btnContainer) btnContainer.style.display = 'none';
+            if (altBtn) altBtn.style.display = 'none';
             if (badge) badge.style.display = 'inline-flex';
-            if (avatarImg) avatarImg.src = user.avatar || "https://www.gravatar.com/avatar/?d=mp";
+            if (avatarImg) avatarImg.src = user.avatar || buildInitialsAvatar(user.name, user.provider);
             if (nameText) nameText.innerText = user.name || "User";
             return;
         } catch (e) {
@@ -1999,12 +2382,14 @@ function renderUserAuthState() {
         }
     }
 
-    // Not logged in
     if (badge) badge.style.display = 'none';
     if (btnContainer) btnContainer.style.display = 'block';
+    if (altBtn) altBtn.style.display = 'inline-flex';
+    renderGoogleSignInButtons();
 }
 
 function initGoogleSignIn() {
+    ensureAuthModalDom();
     renderUserAuthState();
 
     let attempts = 0;
@@ -2020,20 +2405,7 @@ function initGoogleSignIn() {
                     cancel_on_tap_outside: true
                 });
 
-                const btnEl = document.getElementById("googleSignInBtn");
-                if (btnEl) {
-                    google.accounts.id.renderButton(
-                        btnEl,
-                        {
-                            type: "standard",
-                            theme: "outline",
-                            size: "medium",
-                            text: "signin_with",
-                            shape: "pill",
-                            logo_alignment: "left"
-                        }
-                    );
-                }
+                renderGoogleSignInButtons();
 
                 if (!localStorage.getItem('live_ipo_user')) {
                     google.accounts.id.prompt();

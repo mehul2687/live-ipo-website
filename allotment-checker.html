@@ -14,13 +14,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="style.css?v=2026.11.25.2">
+    <link rel="stylesheet" href="style.css?v=2026.11.27.1">
 
     <!-- Google Identity Services (Google Sign-In) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <!-- Shared JavaScript Link -->
-    <script src="script.js?v=2026.11.25.2"></script>
+    <script src="script.js?v=2026.11.27.1"></script>
 
     <style>
         .allotment-summary-bar {
@@ -553,7 +553,7 @@
                 if (titleEl) titleEl.innerText = "🔐 Sign in required to view your saved Demat / PAN accounts";
                 if (subEl) subEl.innerText = "Each user's PAN cards are kept strictly private. Login with Google or your account to auto-check allotment.";
                 if (actionEl) {
-                    actionEl.innerHTML = `<a href="my-demat-accounts.html" class="btn-manage-accounts">🔑 Login &amp; Manage Demat Accounts ↗</a>`;
+                    actionEl.innerHTML = `<div style="display:flex; flex-wrap:wrap; justify-content:center; gap:10px; margin-top:6px;"><button type="button" class="btn-manage-accounts" style="border:none; cursor:pointer;" onclick="if(window.openAuthModal){openAuthModal('login',true);}else{location.href='my-demat-accounts.html';}">🔐 Login (Google / iCloud / Email)</button><a href="my-demat-accounts.html" class="btn-manage-accounts" style="background:#f1f5f9; color:#1e293b; border:1px solid #cbd5e1;">👥 Manage Demat Accounts ↗</a></div>`;
                 }
                 return false;
             }

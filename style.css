@@ -2077,4 +2077,327 @@ body.ipo-detail-page .card-detail .structured-table td {
     }
 }
 
+/* ==========================================================
+   MULTI-PROVIDER AUTH PILL & LOGIN MODAL (GOOGLE + APPLE/EMAIL)
+   ========================================================== */
+.btn-alt-login-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 32px;
+    padding: 0 12px;
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+
+.btn-alt-login-pill:hover {
+    background: #0f172a;
+    color: #ffffff;
+    border-color: #0f172a;
+}
+
+.auth-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.58);
+    backdrop-filter: blur(3px);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.auth-modal-overlay.open {
+    display: flex;
+}
+
+.auth-modal-card {
+    position: relative;
+    width: 100%;
+    max-width: 410px;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 26px 24px 24px;
+    box-shadow: 0 22px 50px rgba(15, 23, 42, 0.28);
+    border: 1px solid #e2e8f0;
+    animation: authModalFadeIn 0.18s ease-out;
+}
+
+@keyframes authModalFadeIn {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.auth-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.auth-modal-close:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.auth-modal-header {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.auth-modal-logo {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    color: #2563eb;
+    background: #eff6ff;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 8px;
+}
+
+.auth-modal-header h2 {
+    margin: 0 0 6px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.auth-modal-header p {
+    margin: 0;
+    font-size: 12.5px;
+    color: #64748b;
+    line-height: 1.45;
+}
+
+.auth-google-box {
+    display: flex;
+    justify-content: center;
+}
+
+.auth-google-mount {
+    min-height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-modal-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 16px 0 14px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #94a3b8;
+}
+
+.auth-modal-divider::before,
+.auth-modal-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: #e2e8f0;
+}
+
+.auth-modal-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 9px;
+    margin-bottom: 14px;
+}
+
+.auth-tab-btn {
+    border: none;
+    background: transparent;
+    padding: 7px 8px;
+    border-radius: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.auth-tab-btn.active {
+    background: #ffffff;
+    color: #0f172a;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.auth-modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.auth-input-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 5px;
+}
+
+.auth-input-group input {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: #0f172a;
+    background: #ffffff;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.auth-input-group input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.auth-domain-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.auth-chip {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    border-radius: 999px;
+    padding: 2px 9px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.auth-chip:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+
+.auth-password-wrap {
+    position: relative;
+}
+
+.auth-password-wrap input {
+    padding-right: 38px;
+}
+
+.auth-eye-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 4px;
+}
+
+.auth-modal-alert {
+    padding: 9px 11px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.45;
+    font-weight: 600;
+}
+
+.auth-modal-alert.error {
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.auth-modal-alert.info {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+}
+
+.auth-modal-submit-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    background: #0f172a;
+    color: #ffffff;
+    border: none;
+    border-radius: 9px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.auth-modal-submit-btn:hover {
+    background: #1e293b;
+}
+
+.auth-modal-submit-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.btn-demat-provider {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 300px;
+    max-width: 100%;
+    height: 42px;
+    padding: 0 16px;
+    background: #ffffff;
+    color: #0f172a;
+    border: 1px solid #dadce0;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.btn-demat-provider:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+}
+
+@media (max-width: 640px) {
+    .user-auth-section {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+}
+
+
 

@@ -2164,6 +2164,18 @@ body.ipo-detail-page .card-detail .structured-table td {
     margin-bottom: 18px;
 }
 
+.auth-modal-logo-img {
+    height: 44px;
+    width: auto;
+    max-width: 165px;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    margin: 0 auto 10px;
+    display: block;
+}
+
 .auth-modal-logo {
     display: inline-block;
     font-size: 12px;

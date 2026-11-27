@@ -2082,9 +2082,9 @@ function ensureAuthModalDom() {
         <div class="auth-modal-card" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
             <button type="button" class="auth-modal-close" id="authModalCloseBtn" aria-label="Close">✕</button>
             <div class="auth-modal-header">
-                <div class="auth-modal-logo">📊 Live IPO</div>
+                <img src="liveipo-logo.jpg" alt="LiveIPO" class="auth-modal-logo-img">
                 <h2 id="authModalTitle">Welcome to Live IPO</h2>
-                <p>Google અથવા Apple (<code>@icloud.com</code>) / અન્ય Email થી ફ્રી લોગિન કરો</p>
+                <p>Sign in free with Google, Apple (<code>@icloud.com</code>), or any Email</p>
             </div>
 
             <div class="auth-google-box">
@@ -2092,23 +2092,23 @@ function ensureAuthModalDom() {
             </div>
 
             <div class="auth-modal-divider">
-                <span>અથવા iPhone / Apple ID &amp; Other Email</span>
+                <span>or Apple / iCloud &amp; Other Email</span>
             </div>
 
             <div class="auth-modal-tabs">
-                <button type="button" class="auth-tab-btn active" id="authTabLogin" data-mode="login">Login (લોગિન)</button>
-                <button type="button" class="auth-tab-btn" id="authTabSignup" data-mode="signup">Create Account (નવું એકાઉન્ટ)</button>
+                <button type="button" class="auth-tab-btn active" id="authTabLogin" data-mode="login">Login</button>
+                <button type="button" class="auth-tab-btn" id="authTabSignup" data-mode="signup">Create Account</button>
             </div>
 
             <form id="authModalEmailForm" class="auth-modal-form" novalidate>
                 <div id="authModalNameWrap" class="auth-input-group" style="display: none;">
-                    <label for="authModalName">Full Name (તમારું નામ)</label>
-                    <input type="text" id="authModalName" placeholder="e.g. Mehul Patel" autocomplete="name">
+                    <label for="authModalName">Full Name</label>
+                    <input type="text" id="authModalName" name="liveipo_auth_name" placeholder="e.g. Mehul Patel" autocomplete="name">
                 </div>
 
                 <div class="auth-input-group">
-                    <label for="authModalEmail">Apple / iCloud કે કોઈપણ Email ID</label>
-                    <input type="email" id="authModalEmail" placeholder="e.g. name@icloud.com અથવા yahoo.com" autocomplete="email" required>
+                    <label for="authModalEmail">Apple / iCloud or Email ID</label>
+                    <input type="email" id="authModalEmail" name="liveipo_auth_email" placeholder="e.g. name@icloud.com or yahoo.com" autocomplete="email" required>
                     <div class="auth-domain-chips">
                         <button type="button" class="auth-chip" data-domain="@icloud.com">@icloud.com</button>
                         <button type="button" class="auth-chip" data-domain="@me.com">@me.com</button>
@@ -2117,9 +2117,9 @@ function ensureAuthModalDom() {
                 </div>
 
                 <div class="auth-input-group">
-                    <label for="authModalPassword">Password (ઓછામાં ઓછા 4 અક્ષર)</label>
+                    <label for="authModalPassword">Password (min. 4 characters)</label>
                     <div class="auth-password-wrap">
-                        <input type="password" id="authModalPassword" placeholder="Enter password" autocomplete="current-password" required>
+                        <input type="password" id="authModalPassword" name="liveipo_auth_password" placeholder="Enter password" autocomplete="current-password" required>
                         <button type="button" id="authTogglePasswordBtn" class="auth-eye-btn" title="Show/Hide Password" aria-label="Show Password">👁️</button>
                     </div>
                 </div>
@@ -2202,6 +2202,13 @@ function setAuthModalMode(mode) {
 
 window.openAuthModal = function(mode = 'login', focusEmail = false) {
     ensureAuthModalDom();
+    const emailEl = document.getElementById('authModalEmail');
+    const passEl = document.getElementById('authModalPassword');
+    // Clear unintended non-email browser autofill (e.g. saved admin username)
+    if (emailEl && emailEl.value && !emailEl.value.includes('@')) {
+        emailEl.value = '';
+        if (passEl) passEl.value = '';
+    }
     setAuthModalMode(mode);
     const modal = document.getElementById('liveIpoAuthModal');
     if (modal) modal.classList.add('open');
@@ -2234,19 +2241,19 @@ async function handleEmailPasswordSubmit(e) {
     const fullName = (nameEl?.value || '').trim();
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-        showAuthModalAlert('કૃપા કરીને માન્ય Email ID દાખલ કરો (દા.ત. name@icloud.com).');
+        showAuthModalAlert('Please enter a valid Email ID (e.g. name@icloud.com).');
         emailEl?.focus();
         return;
     }
     if (password.length < 4) {
-        showAuthModalAlert('કૃપા કરીને ઓછામાં ઓછા 4 અક્ષરનો પાસવર્ડ દાખલ કરો.');
+        showAuthModalAlert('Please enter a password of at least 4 characters.');
         passEl?.focus();
         return;
     }
 
     const isSignup = activeAuthModalMode === 'signup';
     if (isSignup && fullName.length < 2) {
-        showAuthModalAlert('કૃપા કરીને તમારું નામ લખો (ઓછામાં ઓછા 2 અક્ષર).');
+        showAuthModalAlert('Please enter your full name (at least 2 characters).');
         nameEl?.focus();
         return;
     }
@@ -2263,7 +2270,7 @@ async function handleEmailPasswordSubmit(e) {
         if (isSignup) {
             if (existing) {
                 setAuthModalMode('login');
-                showAuthModalAlert('આ Email પહેલેથી રજિસ્ટર્ડ છે. કૃપા કરીને તમારો પાસવર્ડ નાખીને Login કરો.', 'info');
+                showAuthModalAlert('This email is already registered. Please enter your password to log in.', 'info');
                 passEl?.focus();
                 return;
             }
@@ -2292,9 +2299,9 @@ async function handleEmailPasswordSubmit(e) {
         if (!existing) {
             setAuthModalMode('signup');
             if (record.users[email]) {
-                showAuthModalAlert('આ Email ના જૂના Demat એકાઉન્ટ્સ મળ્યા છે — તેમને સુરક્ષિત રાખવા Create Account માં તમારો પાસવર્ડ સેટ કરો.', 'info');
+                showAuthModalAlert('Existing Demat accounts were found for this email — please set a password under Create Account to secure them.', 'info');
             } else {
-                showAuthModalAlert('આ Email થી કોઈ એકાઉન્ટ મળ્યું નથી. નીચે નામ અને પાસવર્ડ નાખી નવું એકાઉન્ટ બનાવો.', 'info');
+                showAuthModalAlert('No account found for this email. Enter your name and password below to create a free account.', 'info');
             }
             nameEl?.focus();
             return;
@@ -2302,7 +2309,7 @@ async function handleEmailPasswordSubmit(e) {
 
         const attemptHash = await sha256Hex(`${existing.salt}:${password}`);
         if (attemptHash !== existing.passHash) {
-            showAuthModalAlert('ખોટો પાસવર્ડ! કૃપા કરીને સાચો પાસવર્ડ ફરી દાખલ કરો.');
+            showAuthModalAlert('Incorrect password! Please try again.');
             passEl?.focus();
             return;
         }
@@ -2317,7 +2324,7 @@ async function handleEmailPasswordSubmit(e) {
         });
     } catch (err) {
         console.error('Auth error:', err);
-        showAuthModalAlert('સર્વર સાથે કનેક્ટ કરવામાં સમસ્યા આવી. કૃપા કરીને ફરી પ્રયાસ કરો.');
+        showAuthModalAlert('Unable to connect to the server. Please try again.');
     } finally {
         if (submitBtn) submitBtn.disabled = false;
         if (submitTxt) {

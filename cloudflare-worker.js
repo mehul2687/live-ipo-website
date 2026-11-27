@@ -11,6 +11,11 @@
 
 const OWNER_REPO = "mehul2687/live-ipo-website";
 const WORKFLOW_FILE = "sync.yml";
+const JSONBIN_BIN_ID = "6aaf80f9ac6210605ae1bce6";
+const DEFAULT_JSONBIN_KEY = "$2a$10$Pl5b/ekYZXhRBmQVY6DwieMC10GztytHM9d7CnR0zqmje7BWYj6yC";
+const IST_OFFSET_MS = 330 * 60 * 1000;
+const MARKET_OPEN_MINUTES_IST = 9 * 60 + 30;  // 09:30 IST
+const MARKET_CLOSE_MINUTES_IST = 17 * 60 + 30; // 17:30 IST
 
 const ALLOWED_ORIGINS = [
   "https://liveipo.in",
@@ -1096,7 +1101,445 @@ async function queryRegistrarSinglePan(regId, companyItem, pan) {
   throw new Error(`Unsupported automated registrar: ${regId}`);
 }
 
+// ==========================================================
+// SMART MARKET-AWARE SCHEDULE ENGINE (5m Mon-Fri 9:30-17:30 IST)
+// ==========================================================
+
+function getIstClock(now = new Date()) {
+  const ist = new Date(now.getTime() + IST_OFFSET_MS);
+  const yyyy = ist.getUTCFullYear();
+  const mm = String(ist.getUTCMonth() + 1).padStart(2, "0");
+  const dd = String(ist.getUTCDate()).padStart(2, "0");
+  const hh = ist.getUTCHours();
+  const mi = ist.getUTCMinutes();
+  const dayOfWeek = ist.getUTCDay(); // 0=Sun, 1=Mon ... 5=Fri, 6=Sat
+  const minutesOfDay = hh * 60 + mi;
+  const isWeekday = dayOfWeek >= 1 && dayOfWeek <= 5;
+  const isMarketHours = isWeekday && minutesOfDay >= MARKET_OPEN_MINUTES_IST && minutesOfDay <= MARKET_CLOSE_MINUTES_IST;
+
+  return {
+    todayStr: `${yyyy}-${mm}-${dd}`,
+    timeStr: `${String(hh).padStart(2, "0")}:${String(mi).padStart(2, "0")} IST`,
+    dayOfWeek,
+    minutesOfDay,
+    isWeekday,
+    isMarketHours
+  };
+}
+
+function extractChittorgarhIdFromKey(key) {
+  if (!key) return "";
+  const match = String(key).match(/\/(\d+)\/?$/);
+  if (match) return match[1];
+  const anyMatch = String(key).match(/\/(\d+)\//);
+  return anyMatch ? anyMatch[1] : "";
+}
+
+function getChittorgarhSubscriptionUrl(key) {
+  if (!key) return null;
+  let clean = String(key).trim();
+  if (clean.startsWith("http")) {
+    clean = clean.replace("/ipo/", "/ipo_subscription/");
+  } else {
+    if (!clean.startsWith("/")) clean = "/" + clean;
+    if (!clean.startsWith("/ipo_subscription/")) clean = "/ipo_subscription" + clean;
+    clean = "https://www.chittorgarh.com" + clean;
+  }
+  if (!clean.endsWith("/")) clean += "/";
+  return clean;
+}
+
+function parseChittorgarhSubscriptionHtml(html, preferredTableIndex = 0) {
+  if (!html || typeof html !== "string") return null;
+  const tables = html.match(/<table[\s\S]*?<\/table>/gi) || [];
+  if (tables.length === 0) return null;
+
+  // Prefer a table whose header explicitly has Subscription + Shares Bid / Offered (never Allocation "Size (%)")
+  let targetTable = null;
+  let offeredColIdx = 2;
+  let appliedColIdx = 3;
+
+  const inspectTable = tbl => {
+    const firstRowMatch = tbl.match(/<tr[\s\S]*?<\/tr>/i);
+    if (!firstRowMatch) return null;
+    const hCells = (firstRowMatch[0].match(/<t[hd][\s\S]*?<\/t[hd]>/gi) || []).map(c =>
+      decodeHtmlEntities(c).toLowerCase()
+    );
+    const headerJoined = hCells.join(" ");
+    if (!headerJoined.includes("shares bid") && !(headerJoined.includes("subscription") && headerJoined.includes("offered"))) {
+      return null;
+    }
+    const offIdx = hCells.findIndex(h => h.includes("offered"));
+    const appIdx = hCells.findIndex(h => h.includes("bid for") || h.includes("applied"));
+    return {
+      tbl,
+      offIdx: offIdx >= 1 ? offIdx : 2,
+      appIdx: appIdx >= 1 ? appIdx : 3
+    };
+  };
+
+  if (tables[preferredTableIndex]) {
+    const hit = inspectTable(tables[preferredTableIndex]);
+    if (hit) {
+      targetTable = hit.tbl;
+      offeredColIdx = hit.offIdx;
+      appliedColIdx = hit.appIdx;
+    }
+  }
+  if (!targetTable) {
+    for (const tbl of tables) {
+      const hit = inspectTable(tbl);
+      if (hit) {
+        targetTable = hit.tbl;
+        offeredColIdx = hit.offIdx;
+        appliedColIdx = hit.appIdx;
+        break;
+      }
+    }
+  }
+  if (!targetTable) return null;
+
+  const tbodyMatch = targetTable.match(/<tbody[\s\S]*?>([\s\S]*?)<\/tbody>/i);
+  const rowsHtml = (tbodyMatch ? tbodyMatch[1] : targetTable).match(/<tr[\s\S]*?<\/tr>/gi) || [];
+  const results = {};
+
+  for (const rowHtml of rowsHtml) {
+    const cellsHtml = rowHtml.match(/<t[dh][\s\S]*?<\/t[dh]>/gi) || [];
+    if (cellsHtml.length <= Math.max(offeredColIdx, appliedColIdx)) continue;
+
+    const cells = cellsHtml.map((cellHtml, idx) => {
+      let txt = decodeHtmlEntities(cellHtml);
+      if (txt === "[.]" || txt === "-" || txt === "") txt = "";
+      txt = txt.replace(/,/g, "").trim();
+      if (idx <= 0) return txt;
+      if (txt === "" || txt === "-") return null;
+      const num = parseFloat(txt);
+      return Number.isFinite(num) ? num : null;
+    });
+
+    if (!cells[0]) continue;
+    const catName = cells[0].replace(/[\s*]/g, "").toLowerCase();
+    let mappedKey = "";
+
+    if (catName.includes("qib")) {
+      mappedKey = "QIB";
+    } else if (
+      catName.includes("bnii") ||
+      catName.includes("b-nii") ||
+      (catName.includes("10l") && catName.includes(">")) ||
+      (catName.includes("above") && catName.includes("10"))
+    ) {
+      mappedKey = "B-NII";
+    } else if (
+      catName.includes("snii") ||
+      catName.includes("s-nii") ||
+      catName.includes("<") ||
+      catName.includes("below") ||
+      catName.includes("2-10")
+    ) {
+      mappedKey = "S-NII";
+    } else if (
+      (catName.includes("nii") || catName.includes("non-institutional") || catName.includes("noninstitutional")) &&
+      !catName.includes("bnii") &&
+      !catName.includes("snii") &&
+      !catName.includes("b-nii") &&
+      !catName.includes("s-nii")
+    ) {
+      mappedKey = "NII";
+    } else if (catName.includes("retail") || catName.includes("individual") || catName.includes("rii")) {
+      mappedKey = "Retail";
+    } else if (catName.includes("employee") || catName === "emp") {
+      mappedKey = "Employee";
+    } else if (catName.includes("shareholder") || catName.includes("shareholders")) {
+      mappedKey = "Shareholder";
+    }
+
+    if (mappedKey && (cells[offeredColIdx] !== null || cells[appliedColIdx] !== null)) {
+      results[mappedKey] = {
+        off: cells[offeredColIdx] || 0,
+        app: cells[appliedColIdx] || 0
+      };
+    }
+  }
+
+  return Object.keys(results).length > 0 ? results : null;
+}
+
+async function fetchLiveSubscriptionForWorker(chittorgarhKey) {
+  const id = extractChittorgarhIdFromKey(chittorgarhKey);
+  if (!id) return { data: null, blocked: false };
+
+  let blocked = false;
+  try {
+    const r1 = await fetch(`https://www.chittorgarh.net/documents/subscription/${id}/subscriptions.html`, {
+      headers: DEFAULT_HEADERS,
+      signal: AbortSignal.timeout(7000)
+    });
+    if (r1.status === 403 || r1.status === 429) blocked = true;
+    if (r1.ok) {
+      const html1 = await r1.text();
+      const parsed1 = parseChittorgarhSubscriptionHtml(html1, 0);
+      if (parsed1) return { data: parsed1, blocked: false };
+    }
+  } catch (_) {}
+
+  const subUrl = getChittorgarhSubscriptionUrl(chittorgarhKey);
+  if (subUrl) {
+    try {
+      const r2 = await fetch(subUrl, {
+        headers: DEFAULT_HEADERS,
+        signal: AbortSignal.timeout(7000)
+      });
+      if (r2.status === 403 || r2.status === 429) blocked = true;
+      if (r2.ok) {
+        const html2 = await r2.text();
+        if (/just a moment|cf-challenge|attention required/i.test(html2)) {
+          blocked = true;
+        } else {
+          const parsed2 = parseChittorgarhSubscriptionHtml(html2, 1);
+          if (parsed2) return { data: parsed2, blocked: false };
+        }
+      }
+    } catch (_) {}
+  }
+
+  return { data: null, blocked };
+}
+
+function mergeSubscriptionIntoIpo(ipo, liveData) {
+  if (!ipo || !liveData || Object.keys(liveData).length === 0) return false;
+  if (!Array.isArray(ipo.subShares)) ipo.subShares = [];
+
+  const standardCats = ["QIB", "NII", "B-NII(₹10L+)", "S-NII(₹2-10L)", "Retail", "Employee", "Shareholder"];
+  let changed = false;
+
+  standardCats.forEach(catName => {
+    if (!ipo.subShares.some(r => r && r.cat === catName)) {
+      ipo.subShares.push({ cat: catName, off: 0, app: 0 });
+      changed = true;
+    }
+  });
+
+  const catToKey = {
+    "QIB": "QIB",
+    "NII": "NII",
+    "B-NII(₹10L+)": "B-NII",
+    "S-NII(₹2-10L)": "S-NII",
+    "Retail": "Retail",
+    "Employee": "Employee",
+    "Shareholder": "Shareholder"
+  };
+
+  for (const row of ipo.subShares) {
+    const key = catToKey[row.cat];
+    if (!key) continue;
+
+    let newOff = row.off || 0;
+    let newApp = row.app || 0;
+
+    if (key === "B-NII" || key === "S-NII" || key === "Employee" || key === "Shareholder") {
+      newOff = liveData[key] ? (liveData[key].off || 0) : 0;
+      newApp = liveData[key] ? (liveData[key].app || 0) : 0;
+    } else if (liveData[key]) {
+      newOff = liveData[key].off || 0;
+      newApp = liveData[key].app || 0;
+    }
+
+    if ((row.off || 0) !== newOff || (row.app || 0) !== newApp) {
+      row.off = newOff;
+      row.app = newApp;
+      changed = true;
+    }
+  }
+
+  return changed;
+}
+
+function selectActiveMarketIpos(dbData, todayStr) {
+  const liveSubIpos = [];
+  const needsFullSyncIpos = [];
+
+  for (const ipo of Object.values(dbData || {})) {
+    if (!ipo || ipo.manualLockAll || !ipo.chittorgarhKey) continue;
+
+    const open = (ipo.openDate || "").trim();
+    const close = (ipo.closeDate || "").trim();
+    const allot = (ipo.allotmentDate || "").trim();
+    const list = (ipo.listingDate || "").trim();
+
+    const isSubWindow = Boolean(open && close && open <= todayStr && todayStr <= close);
+    const isAllotToday = Boolean(allot && allot === todayStr);
+    const isListToday = Boolean(list && list === todayStr);
+
+    if (isSubWindow && !ipo.manualSub) {
+      liveSubIpos.push(ipo);
+    }
+
+    const missingCore =
+      !ipo.manualIssueInfo &&
+      (!ipo.priceBand ||
+        ipo.priceBand === "₹-" ||
+        !ipo.lotRaw ||
+        ipo.lotRaw <= 1 ||
+        !ipo.registrarUrl);
+
+    const missingListingPrice =
+      !ipo.manualListingInfo && isListToday && !ipo.listingPriceNse && !ipo.listingPriceBse;
+
+    if ((isSubWindow || isAllotToday || isListToday) && (missingCore || missingListingPrice)) {
+      needsFullSyncIpos.push(ipo);
+    }
+  }
+
+  return { liveSubIpos, needsFullSyncIpos };
+}
+
+async function dispatchFastGitHubIpoSyncIfIdle(token, minCooldownMs = 4 * 60 * 1000) {
+  if (!token) return { dispatched: false, reason: "no_github_pat" };
+  try {
+    const runsRes = await fetch(
+      `https://api.github.com/repos/${OWNER_REPO}/actions/workflows/${WORKFLOW_FILE}/runs?per_page=3`,
+      { headers: githubHeaders(token), signal: AbortSignal.timeout(6000) }
+    );
+    if (runsRes.ok) {
+      const runsJson = await runsRes.json();
+      const runs = Array.isArray(runsJson.workflow_runs) ? runsJson.workflow_runs : [];
+      const activeRun = runs.find(r => r.status === "in_progress" || r.status === "queued");
+      if (activeRun) {
+        return { dispatched: false, reason: "workflow_already_running", runId: activeRun.id };
+      }
+      const latestRun = runs[0];
+      if (latestRun && latestRun.created_at) {
+        const ageMs = Date.now() - new Date(latestRun.created_at).getTime();
+        if (ageMs < minCooldownMs) {
+          return { dispatched: false, reason: "recent_run_cooldown" };
+        }
+      }
+    }
+
+    const disRes = await fetch(
+      `https://api.github.com/repos/${OWNER_REPO}/actions/workflows/${WORKFLOW_FILE}/dispatches`,
+      {
+        method: "POST",
+        headers: githubHeaders(token),
+        body: JSON.stringify({ ref: "main", inputs: { sync_mode: "ipos" } }),
+        signal: AbortSignal.timeout(6000)
+      }
+    );
+    return { dispatched: disRes.status === 204 || disRes.ok, status: disRes.status };
+  } catch (err) {
+    return { dispatched: false, reason: err.message };
+  }
+}
+
+async function runSmartScheduledSync(env, { force = false, dryRun = false } = {}) {
+  const clock = getIstClock();
+  if (!force && !clock.isMarketHours) {
+    return {
+      ok: true,
+      skipped: true,
+      reason: "outside_market_hours",
+      clock
+    };
+  }
+
+  const binKey = (env.JSONBIN_KEY || env.ADMIN_API_KEY || "").trim() || DEFAULT_JSONBIN_KEY;
+  const binRes = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest?t=${Date.now()}`, {
+    headers: { "X-Master-Key": binKey },
+    signal: AbortSignal.timeout(7000)
+  });
+
+  if (!binRes.ok) {
+    return {
+      ok: false,
+      reason: `jsonbin_read_http_${binRes.status}`,
+      clock
+    };
+  }
+
+  const binJson = await binRes.json();
+  const envelope = binJson && binJson.record && typeof binJson.record === "object" ? binJson.record : {};
+  const dbData = envelope.ipos || envelope;
+  if (!dbData || typeof dbData !== "object") {
+    return { ok: false, reason: "invalid_jsonbin_record", clock };
+  }
+
+  const { liveSubIpos, needsFullSyncIpos } = selectActiveMarketIpos(dbData, clock.todayStr);
+  if (liveSubIpos.length === 0 && needsFullSyncIpos.length === 0) {
+    return {
+      ok: true,
+      skipped: true,
+      reason: "no_active_ipos_today",
+      clock
+    };
+  }
+
+  // Cap per Worker run cleanly so subrequests remain well below platform limit
+  const batch = liveSubIpos.slice(0, 10);
+  const subResults = await Promise.all(
+    batch.map(async ipo => {
+      const res = await fetchLiveSubscriptionForWorker(ipo.chittorgarhKey);
+      const changed = res.data ? mergeSubscriptionIntoIpo(ipo, res.data) : false;
+      return { id: ipo.id, name: ipo.name, fetched: Boolean(res.data), blocked: res.blocked, changed };
+    })
+  );
+
+  const updatedIds = subResults.filter(r => r.changed).map(r => r.id);
+  const blockedCount = subResults.filter(r => r.blocked).length;
+
+  let jsonbinUpdated = false;
+  if (updatedIds.length > 0 && !dryRun) {
+    const putPayload = {
+      ...(envelope.ipos ? envelope : {}),
+      ipos: dbData,
+      updatedAt: new Date().toISOString()
+    };
+    const putRes = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Master-Key": binKey
+      },
+      body: JSON.stringify(putPayload),
+      signal: AbortSignal.timeout(7000)
+    });
+    jsonbinUpdated = putRes.ok;
+  }
+
+  let githubFallback = null;
+  const token = (env.GITHUB_PAT || "").trim();
+  if ((blockedCount > 0 || needsFullSyncIpos.length > 0) && token && !dryRun) {
+    const cooldownMs = blockedCount > 0 ? 4 * 60 * 1000 : 14 * 60 * 1000;
+    githubFallback = await dispatchFastGitHubIpoSyncIfIdle(token, cooldownMs);
+  }
+
+  return {
+    ok: true,
+    skipped: false,
+    dryRun,
+    clock,
+    liveCheckedCount: batch.length,
+    updatedCount: updatedIds.length,
+    updatedIds,
+    blockedCount,
+    needsFullSyncIds: needsFullSyncIpos.map(x => x.id),
+    jsonbinUpdated,
+    githubFallback,
+    results: subResults
+  };
+}
+
 export default {
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(
+      runSmartScheduledSync(env).then(summary => {
+        console.log("SmartCron:", JSON.stringify(summary));
+      }).catch(err => {
+        console.error("SmartCron Error:", err.message);
+      })
+    );
+  },
+
   async fetch(request, env) {
     const origin = request.headers.get("Origin");
     const url = new URL(request.url);
@@ -1120,6 +1563,8 @@ export default {
         hasToken: Boolean(token),
         requiresPin: Boolean((env.ADMIN_KEY || "").trim()),
         allotmentProxy: true,
+        smartCron: true,
+        smartSchedule: "Mon-Fri 09:30-17:30 IST (5m) + 30m GitHub Sync",
         kfinAuto: true,
         purvaAuto: true,
         maashitlaV2: true,
@@ -1128,6 +1573,20 @@ export default {
         masAuto: true,
         repo: OWNER_REPO
       }, 200, origin);
+    }
+
+    // 1B. Manual test/trigger endpoint for Smart Market-Aware Sync (PIN / origin protected)
+    if ((request.method === "GET" || request.method === "POST") && path === "/cron-sync") {
+      const auth = authorizeRequest(request, env, origin, { checkPin: true });
+      if (!auth.ok) return jsonResponse({ ok: false, error: auth.error }, auth.status, origin);
+      const force = url.searchParams.get("force") === "1";
+      const dryRun = url.searchParams.get("dryRun") === "1";
+      try {
+        const result = await runSmartScheduledSync(env, { force, dryRun });
+        return jsonResponse(result, 200, origin);
+      } catch (err) {
+        return jsonResponse({ ok: false, error: err.message }, 500, origin);
+      }
     }
 
     // 2. Get active company list from a specific registrar (public origin-locked)

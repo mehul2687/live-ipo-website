@@ -353,8 +353,8 @@ async function get_Chittorgarh_details_data(key) {
                         if (parsed) dates.allotmentDate = parsed;
                     }
 
-                    // Price Band
-                    if (k === 'price band' && !issue.priceBand) {
+                    // Price Band / Fixed Issue Price
+                    if ((k === 'price band' || k === 'issue price') && !issue.priceBand) {
                         const nums = v.match(/\d+(\.\d+)?/g);
                         if (nums && nums.length >= 2) {
                             issue.priceStart = nums[0];
@@ -1112,9 +1112,12 @@ async function syncSingleIpoRecord(ipo, istTodayStr) {
             // ISSUE DETAILS & PRICE BAND AUTO-SYNC
             if (!ipo.manualIssueInfo && detailData.issue) {
                 let issueUpdated = false;
-                if (detailData.issue.priceBand && (!ipo.priceBand || ipo.priceBand === '546 to 575' || !ipo.priceBand.includes('to') || detailData.issue.priceBand !== ipo.priceBand)) {
+                if (detailData.issue.priceBand && (!ipo.priceBand || detailData.issue.priceBand !== ipo.priceBand)) {
                     ipo.priceBand = detailData.issue.priceBand;
                     if (detailData.issue.cutOff) ipo.cutOff = detailData.issue.cutOff;
+                    issueUpdated = true;
+                } else if (detailData.issue.cutOff && (!ipo.cutOff || ipo.cutOff !== detailData.issue.cutOff)) {
+                    ipo.cutOff = detailData.issue.cutOff;
                     issueUpdated = true;
                 }
                 if (detailData.issue.lotRaw && (!ipo.lotRaw || ipo.lotRaw === 26 || ipo.lotRaw <= 1 || detailData.issue.lotRaw !== ipo.lotRaw)) {

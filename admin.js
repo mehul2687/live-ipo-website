@@ -1425,7 +1425,7 @@ function parseChittorgarhHtml(html, pageUrl) {
                         if (parsed) dates.allotmentDate = parsed;
                     }
 
-                    if (k === 'price band' && !issue.priceBand) {
+                    if ((k === 'price band' || k === 'issue price') && !issue.priceBand) {
                         const nums = v.match(/\d+(\.\d+)?/g);
                         if (nums && nums.length >= 2) {
                             issue.priceStart = nums[0];
@@ -1903,18 +1903,37 @@ async function checkSyncWorkerHealth(force = false) {
             window._workerHealth = {
                 reachable: true,
                 hasToken: Boolean(j && j.hasToken),
-                requiresPin: Boolean(j && j.requiresPin)
+                requiresPin: Boolean(j && j.requiresPin),
+                smartCron: Boolean(j && j.smartCron),
+                smartSchedule: (j && j.smartSchedule) || ''
             };
             return window._workerHealth;
         }
     } catch (e) {
         console.log("Worker health probe skipped/failed:", e.message);
     }
-    window._workerHealth = { reachable: false, hasToken: false, requiresPin: false };
+    window._workerHealth = { reachable: false, hasToken: false, requiresPin: false, smartCron: false, smartSchedule: '' };
     return window._workerHealth;
 }
 
 function updateSyncTokenButtonUi(verifiedOk = null) {
+    const cronBadge = document.getElementById('smartCronBadge');
+    if (cronBadge) {
+        if (window._workerHealth && window._workerHealth.smartCron) {
+            cronBadge.innerText = '🤖 Smart Auto: 5m (Market) / 30m';
+            cronBadge.style.background = '#f0fdf4';
+            cronBadge.style.color = '#166534';
+            cronBadge.style.borderColor = '#bbf7d0';
+            cronBadge.title = window._workerHealth.smartSchedule || 'Mon–Fri 09:30–17:30 IST (Every 5m) + 30m GitHub Sync';
+        } else {
+            cronBadge.innerText = '🕒 Auto-Sync: Every 30m (GitHub)';
+            cronBadge.style.background = '#eff6ff';
+            cronBadge.style.color = '#1e40af';
+            cronBadge.style.borderColor = '#bfdbfe';
+            cronBadge.title = 'Cloudflare Worker Cron અપડેટ ન થાય ત્યાં સુધી 30m GitHub Auto-Sync ચાલુ છે';
+        }
+    }
+
     const btn = document.getElementById('btnGithubToken');
     if (!btn) return;
 

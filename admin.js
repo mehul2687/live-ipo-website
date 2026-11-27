@@ -753,15 +753,19 @@ async function editIpo(id) {
 
     // એડિટ વખતે રિઝર્વેશન પર્સન્ટેજ બોક્સમાં ભરવા માટે
     if (ipo.reservation) {
+        const parsePctVal = (pct) => {
+            const n = parseFloat(pct);
+            return !isNaN(n) ? n : '';
+        };
         ipo.reservation.forEach(r => {
             if (r.category === "QIB" && document.getElementById('res_qib')) {
-                document.getElementById('res_qib').value = parseFloat(r.percentage) || '';
+                document.getElementById('res_qib').value = parsePctVal(r.percentage);
             }
             if (r.category === "NII (HNI)" && document.getElementById('res_nii')) {
-                document.getElementById('res_nii').value = parseFloat(r.percentage) || '';
+                document.getElementById('res_nii').value = parsePctVal(r.percentage);
             }
             if (r.category === "Retail" && document.getElementById('res_retail')) {
-                document.getElementById('res_retail').value = parseFloat(r.percentage) || '';
+                document.getElementById('res_retail').value = parsePctVal(r.percentage);
             }
         });
     }

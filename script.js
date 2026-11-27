@@ -982,48 +982,73 @@ async function loadDynamicIpoDetails() {
     }
 
     // ==========================================
-    // IPO Registrar (Dynamic Sync from Manage Registrars)
+    // IPO Registrar (Dynamic Sync from IPO Data + Saved Registrars)
     // ==========================================
     const savedRegistrars = JSON.parse(localStorage.getItem('live_ipo_registrars')) || [];
+    const registrarFallbackCatalog = [
+        { key: "BIGSHARE", name: "Bigshare Services Private Limited", website: "bigshareonline.com", email: "ipo@bigshareonline.com" },
+        { key: "MUFG", name: "MUFG Intime India Private Limited", website: "in.mpms.mufg.com", email: "ipo.helpdesk@linkintime.co.in" },
+        { key: "LINKINTIME", name: "Link-Intime India Private Ltd", website: "linkintime.co.in", email: "ipo.helpdesk@linkintime.co.in" },
+        { key: "KFIN", name: "Kfin Technologies Private Limited", website: "kfintech.com", email: "einward.ris@kfintech.com" },
+        { key: "MAASHITLA", name: "Maashitla Securities Private Limited", website: "maashitla.com", email: "investor.ipo@maashitla.com" },
+        { key: "PURVA", name: "Purva Sharegistry (India) Private Limited", website: "purvashare.com", email: "newissue@purvashare.com" },
+        { key: "CAMEO", name: "Cameo Corporate Services Limited", website: "cameoindia.com", email: "investor@cameoindia.com" },
+        { key: "SKYLINE", name: "Skyline Financial Services Private Limited", website: "skylinerta.com", email: "info@skylinerta.com" },
+        { key: "MAS", name: "Mas Services Limited", website: "masserv.com", email: "ipo@masserv.com" },
+        { key: "SATELLITE", name: "Satellite Corporate Services Private Limited", website: "satellitecorporate.com", email: "service@satellitecorporate.com" },
+        { key: "INTEGRATED", name: "Integrated Registry Management Services (P) Limited", website: "integratedregistry.in", email: "corpserv@integratedindia.in" },
+        { key: "ABHIPRA", name: "Abhipra Capital Limited", website: "abhipra.com", email: "rta@abhipra.com" },
+        { key: "ACCURATE", name: "Accurate Securities & Registry Private Limited", website: "accuratesecurities.com", email: "info@accuratesecurities.com" },
+        { key: "BEETAL", name: "Beetal Financial & Computer Services (P) Limited", website: "beetal.in", email: "beetalrta@gmail.com" },
+        { key: "ALANKIT", name: "Alankit Assignments Ltd", website: "alankit.com", email: "rta@alankit.com" },
+        { key: "ANKIT", name: "Ankit Consultancy Pvt.Ltd", website: "ankitonline.com", email: "investor@ankitonline.com" },
+        { key: "MUDRA", name: "Mudra RTA Ventures Private Limited", website: "mudrarta.com", email: "info@mudrarta.com" }
+    ];
     let matchedReg = savedRegistrars.find(r => r.url === ipo.registrarUrl || r.name === ipo.regName);
+    if (!matchedReg) {
+        const regSearchStr = `${ipo.registrarId || ''} ${ipo.regName || ''} ${ipo.registrarUrl || ''} ${ipo.regWeb || ''}`.toUpperCase();
+        if (regSearchStr.includes('MPMS.MUFG') || regSearchStr.includes('MUFG')) {
+            matchedReg = savedRegistrars.find(r => (r.id || '').toUpperCase() === 'MUFG') || registrarFallbackCatalog.find(r => r.key === 'MUFG');
+        } else if (regSearchStr.includes('LINKINTIME')) {
+            matchedReg = savedRegistrars.find(r => ['LINKINTIME', 'MUFG'].includes((r.id || '').toUpperCase())) || registrarFallbackCatalog.find(r => r.key === 'MUFG');
+        } else if (regSearchStr.includes('KFIN') || regSearchStr.includes('KOSMIC') || regSearchStr.includes('KPRISM')) {
+            matchedReg = savedRegistrars.find(r => (r.id || '').toUpperCase() === 'KFIN') || registrarFallbackCatalog.find(r => r.key === 'KFIN');
+        } else if (regSearchStr.includes('MASSERV') || /\bMAS\b/.test(regSearchStr)) {
+            matchedReg = savedRegistrars.find(r => (r.id || '').toUpperCase() === 'MAS') || registrarFallbackCatalog.find(r => r.key === 'MAS');
+        } else {
+            const catHit = registrarFallbackCatalog.find(c => (c.key !== 'ANKIT' || !regSearchStr.includes('ALANKIT')) && (regSearchStr.includes(c.key) || regSearchStr.includes(c.website.toUpperCase())));
+            if (catHit) {
+                matchedReg = savedRegistrars.find(r => (r.id || '').toUpperCase() === catHit.key) || catHit;
+            }
+        }
+    }
 
-    if (matchedReg) {
-        if (document.getElementById('reg_name')) document.getElementById('reg_name').innerText = matchedReg.name || 'N/A';
-        
-        const webEl = document.getElementById('reg_web');
-        if (webEl) {
-            webEl.innerText = matchedReg.website || matchedReg.url || 'N/A';
-            webEl.href = matchedReg.url || '#';
-        }
+    const resolvedRegName = ipo.regName || (matchedReg && matchedReg.name) || 'N/A';
+    const resolvedRegWeb = ipo.regWeb || (matchedReg && matchedReg.website) || '';
+    const resolvedRegUrl = ipo.registrarUrl || (matchedReg && matchedReg.url) || (resolvedRegWeb ? `https://${resolvedRegWeb}` : '#');
+    const resolvedRegMobile = ipo.regMobile || (matchedReg && matchedReg.mobile) || 'N/A';
+    const resolvedRegEmail = ipo.regEmail || (matchedReg && matchedReg.email) || '';
 
-        if (document.getElementById('reg_mobile')) document.getElementById('reg_mobile').innerText = matchedReg.mobile || 'N/A';
+    if (document.getElementById('reg_name')) document.getElementById('reg_name').innerText = resolvedRegName;
 
-        const emailEl = document.getElementById('reg_email');
-        if (emailEl) {
-            emailEl.innerText = matchedReg.email || 'N/A';
-            emailEl.href = matchedReg.email ? `mailto:${matchedReg.email}` : '#';
-        }
+    const webEl = document.getElementById('reg_web');
+    if (webEl) {
+        webEl.innerText = resolvedRegWeb || (resolvedRegUrl !== '#' ? resolvedRegUrl : 'N/A');
+        webEl.href = resolvedRegUrl || '#';
+    }
 
-        const allotUrlEl = document.getElementById('reg_allotment_url');
-        if (allotUrlEl) {
-            allotUrlEl.href = ipo.registrarUrl || matchedReg.url || '#';
-            allotUrlEl.innerHTML = "🔍 Check Allotment";
-        }
-    } else {
-        if (document.getElementById('reg_name')) document.getElementById('reg_name').innerText = ipo.regName || "Link Intime India Private Ltd";
-        const webEl = document.getElementById('reg_web');
-        if (webEl) {
-            webEl.innerText = ipo.regWeb || "linkintime.co.in";
-            webEl.href = ipo.registrarUrl || "https://" + (ipo.regWeb || "#");
-        }
-        if (document.getElementById('reg_mobile')) document.getElementById('reg_mobile').innerText = ipo.regMobile || 'N/A';
-        if (document.getElementById('reg_email')) document.getElementById('reg_email').innerText = ipo.regEmail || "ipo@linkintime.co.in";
-        
-        const allotUrlEl = document.getElementById('reg_allotment_url');
-        if (allotUrlEl) {
-            allotUrlEl.href = ipo.registrarUrl || '#';
-            allotUrlEl.innerText = "Click to Check Allotment ↗";
-        }
+    if (document.getElementById('reg_mobile')) document.getElementById('reg_mobile').innerText = resolvedRegMobile;
+
+    const emailEl = document.getElementById('reg_email');
+    if (emailEl) {
+        emailEl.innerText = resolvedRegEmail || 'N/A';
+        emailEl.href = resolvedRegEmail ? `mailto:${resolvedRegEmail}` : '#';
+    }
+
+    const allotUrlEl = document.getElementById('reg_allotment_url');
+    if (allotUrlEl) {
+        allotUrlEl.href = resolvedRegUrl || '#';
+        allotUrlEl.innerHTML = matchedReg ? "🔍 Check Allotment" : "Click to Check Allotment ↗";
     }
 
     if (document.getElementById('reg_leads')) document.getElementById('reg_leads').innerText = ipo.leadManagers || "Kotak Mahindra Capital, Axis Capital";

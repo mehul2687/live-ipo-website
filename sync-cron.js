@@ -18,6 +18,119 @@ const httpHeaders = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 };
 
+const MASTER_REGISTRARS = [
+    { id: "BIGSHARE", name: "Bigshare Services Private Limited", website: "bigshareonline.com", url: "https://ipo.bigshareonline.com/IPO_Status.html", match: s => s.includes("BIGSHARE") },
+    { id: "MUFG", name: "MUFG Intime India Private Limited", website: "in.mpms.mufg.com", url: "https://in.mpms.mufg.com/Initial_Offer/public-issues.html", match: s => s.includes("MPMS.MUFG") || s.includes("MUFG") || s.includes("LINKINTIME") || s.includes("LINK-INTIME") || s.includes("LINK INTIME") },
+    { id: "KFIN", name: "Kfin Technologies Private Limited", website: "kfintech.com", url: "https://ipostatus.kfintech.com/", match: s => s.includes("KFIN") || s.includes("KOSMIC") || s.includes("KPRISM") || s.includes("KARVY") },
+    { id: "MAASHITLA", name: "Maashitla Securities Private Limited", website: "maashitla.com", url: "https://maashitla.com/allotment-status/public-issues", match: s => s.includes("MAASHITLA") },
+    { id: "SKYLINE", name: "Skyline Financial Services Private Limited", website: "skylinerta.com", url: "https://www.skylinerta.com/ipo.php", match: s => s.includes("SKYLINERTA") || s.includes("SKYLINE") },
+    { id: "PURVA", name: "Purva Sharegistry (India) Private Limited", website: "purvashare.com", url: "https://www.purvashare.com/investor-service/ipo-query", match: s => s.includes("PURVA") },
+    { id: "CAMEO", name: "Cameo Corporate Services Limited", website: "cameoindia.com", url: "https://ipostatus1.cameoindia.com/", match: s => s.includes("CAMEO") },
+    { id: "SATELLITE", name: "Satellite Corporate Services Private Limited", website: "satellitecorporate.com", url: "https://www.satellitecorporate.com/ipo-query.php", match: s => s.includes("SATELLITE") },
+    { id: "ABHIPRA", name: "Abhipra Capital Limited", website: "abhipra.com", url: "https://www.abhipra.com/ipo-status", match: s => s.includes("ABHIPRA") },
+    { id: "ACCURATE", name: "Accurate Securities & Registry Private Limited", website: "accuratesecurities.com", url: "https://www.accuratesecurities.com/ipo-details.php", match: s => s.includes("ACCURATE") },
+    { id: "BEETALFC", name: "Beetal Financial & Computer Services (P) Limited", website: "beetal.in", url: "https://beetal.in/investor-services/#IPO_Allotment_Status", match: s => s.includes("BEETAL") },
+    { id: "ALANKIT", name: "Alankit Assignments Ltd", website: "alankit.com", url: "https://ipo.alankit.com/", match: s => s.includes("ALANKIT") },
+    { id: "ANKIT", name: "Ankit Consultancy Pvt.Ltd", website: "ankitonline.com", url: "https://www.ankitonline.com/PublicIssue/FrmPublicIssue.aspx", match: s => /\bANKIT\b/.test(s) || s.includes("ANKITONLINE") },
+    { id: "INTEGRATED", name: "Integrated Registry Management Services (P) Limited", website: "integratedregistry.in", url: "https://www.integratedregistry.in/IRMS_V2/IPOListing.aspx", match: s => s.includes("INTEGRATED") },
+    { id: "MUDRA", name: "Mudra RTA Ventures Private Limited", website: "mudrarta.com", url: "https://mudrarta.com/ipo.php", match: s => s.includes("MUDRA") },
+    { id: "MAS", name: "Mas Services Limited", website: "masserv.com", url: "https://www.masserv.com/opt.asp", match: s => s.includes("MASSERV") || /\bMAS\b/.test(s) },
+    { id: "NSE", name: "NSE India IPO Bid Verification", website: "nseindia.in", url: "https://www.nseindia.in/invest/check-trades-bids-verify-ipo-bids", match: s => s.includes("NSEINDIA") || /\bNSE\b/.test(s) },
+    { id: "BSE", name: "BSE India IPO Status Portal", website: "bseindia.com", url: "https://www.bseindia.com/investors/appli_check", match: s => s.includes("BSEINDIA") || /\bBSE\b/.test(s) }
+];
+
+function resolveMasterRegistrar(rawName = "", rawUrl = "") {
+    const combined = `${rawName || ""} ${rawUrl || ""}`.toUpperCase();
+    if (!combined.trim()) return null;
+    for (const reg of MASTER_REGISTRARS) {
+        if (reg.match(combined)) return reg;
+    }
+    return null;
+}
+
+function cleanRegistrarDomain(rawUrl = "") {
+    try {
+        const u = new URL(/^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`);
+        return u.hostname.replace(/^www\./i, "");
+    } catch {
+        return "";
+    }
+}
+
+function extractChittorgarhRegistrar($) {
+    let rawName = "";
+    let rawUrl = "";
+    let regMobile = "";
+    let regEmail = "";
+
+    const regNameEl = $("a.registrar-name").first();
+    let regScope = null;
+    if (regNameEl.length) {
+        rawName = regNameEl.text().replace(/\s+/g, " ").trim();
+        regScope = regNameEl.parent().parent();
+    } else {
+        const regHeading = $("h2, h3, h4").filter((_, el) => /ipo\s*registrar/i.test($(el).text())).first();
+        if (regHeading.length) {
+            regScope = regHeading.parent();
+            rawName = regScope.find("a").first().text().replace(/\s+/g, " ").trim();
+        }
+    }
+
+    if (regScope && regScope.length) {
+        rawUrl = (regScope.find("a.registrar-website").first().attr("href") || "").trim();
+        if (!rawUrl) {
+            regScope.find("a[href]").each((_, a) => {
+                const href = ($(a).attr("href") || "").trim();
+                if (/^https?:\/\//i.test(href) && !href.includes("chittorgarh.com")) {
+                    rawUrl = href;
+                    return false;
+                }
+            });
+        }
+        regScope.find("ul.registrar-info li").each((_, li) => {
+            const $li = $(li);
+            const txt = $li.text().replace(/\s+/g, " ").trim();
+            if ($li.find(".fa-phone").length && !regMobile && txt && !/visit\s*website/i.test(txt)) {
+                regMobile = txt;
+            }
+            if (($li.find(".fa-envelope").length || txt.includes("@")) && !regEmail && txt.includes("@")) {
+                regEmail = txt;
+            }
+        });
+    }
+
+    if (!rawUrl) {
+        rawUrl = ($("a.registrar-website").first().attr("href") || "").trim();
+    }
+
+    if (!rawName && !rawUrl) return null;
+
+    const matched = resolveMasterRegistrar(rawName, rawUrl);
+    if (matched) {
+        return {
+            registrarId: matched.id,
+            regName: matched.name,
+            regWeb: matched.website,
+            regMobile: regMobile || "",
+            regEmail: regEmail || "",
+            registrarUrl: matched.url,
+            rawName,
+            rawUrl
+        };
+    }
+
+    return {
+        registrarId: "",
+        regName: rawName || "",
+        regWeb: cleanRegistrarDomain(rawUrl),
+        regMobile: regMobile || "",
+        regEmail: regEmail || "",
+        registrarUrl: rawUrl || "",
+        rawName,
+        rawUrl
+    };
+}
+
 function extractIdFromChittorgarh(url) {
     if (!url) return "";
     const match = url.match(/\/(\d+)\//);
@@ -687,6 +800,8 @@ async function get_Chittorgarh_details_data(key) {
             ? 'SME'
             : 'Mainboard';
 
+        const registrar = extractChittorgarhRegistrar($);
+
         return {
             name: detectedName || null,
             type: detectedType,
@@ -695,7 +810,8 @@ async function get_Chittorgarh_details_data(key) {
             fin,
             customLots,
             valuation: Object.keys(val).length > 0 ? val : null,
-            reservation
+            reservation,
+            registrar
         };
     } catch (err) {
         console.error("Chittorgarh Detail Scraping Error:", err.message);
@@ -1098,6 +1214,38 @@ async function syncSingleIpoRecord(ipo, istTodayStr) {
             } else if (ipo.manualReservation) {
                 console.log(`  🔒 Reservation Quota manually locked for ${ipo.name} (Kept custom data)`);
             }
+
+            // Update IPO Registrar details without overwriting manually configured registrar URLs
+            if (detailData.registrar) {
+                const chReg = detailData.registrar;
+                const existingUrl = (ipo.registrarUrl || '').trim();
+                const existingMatched = existingUrl ? resolveMasterRegistrar('', existingUrl) : null;
+                let regUpdated = false;
+
+                if (!existingUrl && chReg.registrarUrl) {
+                    ipo.registrarUrl = chReg.registrarUrl;
+                    regUpdated = true;
+                }
+
+                // Backfill metadata when URL came from empty field or matches the same registrar
+                const sameOrUnsetRegistrar = !existingMatched || !chReg.registrarId || existingMatched.id === chReg.registrarId;
+                if (sameOrUnsetRegistrar) {
+                    if (!ipo.registrarId && chReg.registrarId) { ipo.registrarId = chReg.registrarId; regUpdated = true; }
+                    if (!ipo.regName && chReg.regName) { ipo.regName = chReg.regName; regUpdated = true; }
+                    if (!ipo.regWeb && chReg.regWeb) { ipo.regWeb = chReg.regWeb; regUpdated = true; }
+                    if (!ipo.regMobile && chReg.regMobile) { ipo.regMobile = chReg.regMobile; regUpdated = true; }
+                    if (!ipo.regEmail && chReg.regEmail) { ipo.regEmail = chReg.regEmail; regUpdated = true; }
+                } else if (existingMatched) {
+                    if (!ipo.registrarId && existingMatched.id) { ipo.registrarId = existingMatched.id; regUpdated = true; }
+                    if (!ipo.regName && existingMatched.name) { ipo.regName = existingMatched.name; regUpdated = true; }
+                    if (!ipo.regWeb && existingMatched.website) { ipo.regWeb = existingMatched.website; regUpdated = true; }
+                }
+
+                if (regUpdated) {
+                    updated = true;
+                    console.log(`  ✓ Auto-Matched Registrar for ${ipo.name}: ${ipo.regName || ipo.registrarId} (${ipo.registrarUrl})`);
+                }
+            }
         }
     }
 
@@ -1290,6 +1438,8 @@ export {
     syncAllIposFromChittorgarh,
     get_Chittorgarh_details_data,
     get_Chittorgarh_subscription_data,
+    resolveMasterRegistrar,
+    extractChittorgarhRegistrar,
     getDetailUrl,
     getSubscriptionUrl,
     parseSingleDate,

@@ -173,6 +173,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const listPriceNseRaw = document.getElementById('adm_listingPriceNse')?.value.trim() || '';
             const listPriceBseRaw = document.getElementById('adm_listingPriceBse')?.value.trim() || '';
 
+            const savedRegUrl = document.getElementById('adm_allotmentLink').value.trim() || document.getElementById('adm_registrarSelect').value || '';
+            const matchedReg = findRegistrarOptionMatch(savedRegUrl, existingIpo.regName || '', existingIpo.regWeb || '');
+            const existingRegMatch = findRegistrarOptionMatch(existingIpo.registrarUrl || '', existingIpo.regName || '', existingIpo.regWeb || '');
+            const isSameRegistrar = !existingRegMatch || !matchedReg || (existingRegMatch.id && matchedReg.id ? existingRegMatch.id === matchedReg.id : existingRegMatch.name === matchedReg.name);
+
+            const matchedCanonicalId = matchedReg ? (matchedReg.id || detectCanonicalRegistrarId(`${matchedReg.name || ''} ${matchedReg.website || ''} ${matchedReg.url || ''}`)) : detectCanonicalRegistrarId(savedRegUrl);
+
             const ipoData = {
                 id: ipoId,
                 name: document.getElementById('adm_name').value,
@@ -207,7 +214,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 chittorgarhKey: document.getElementById('adm_chittorgarhKey')?.value.trim() || '',
                 
                 isAllotmentOut: document.getElementById('adm_isAllotmentOut').checked,
-                registrarUrl: document.getElementById('adm_allotmentLink').value || document.getElementById('adm_registrarSelect').value || '',
+                registrarUrl: savedRegUrl,
+                registrarId: matchedCanonicalId || (isSameRegistrar ? (existingIpo.registrarId || '') : ''),
+                regName: (matchedReg && matchedReg.name) || (isSameRegistrar ? (existingIpo.regName || '') : ''),
+                regWeb: (matchedReg && matchedReg.website) || cleanRegistrarHost(savedRegUrl) || (isSameRegistrar ? (existingIpo.regWeb || '') : ''),
+                regMobile: (isSameRegistrar && existingIpo.regMobile) || (matchedReg && matchedReg.mobile) || '',
+                regEmail: (isSameRegistrar && existingIpo.regEmail) || (matchedReg && matchedReg.email) || '',
                 valuation: {
                     eps: document.getElementById('val_eps')?.value.trim() || existingIpo.valuation?.eps || '-',
                     pe: document.getElementById('val_pe')?.value.trim() || existingIpo.valuation?.pe || '-',
@@ -690,6 +702,7 @@ async function editIpo(id) {
     
     document.getElementById('adm_isAllotmentOut').checked = ipo.isAllotmentOut || false;
     document.getElementById('adm_allotmentLink').value = ipo.registrarUrl || '';
+    syncRegistrarDropdownSelection(ipo.registrarUrl || '', ipo.regName || '', ipo.regWeb || '');
 
     if (ipo.priceBand) {
         const parts = ipo.priceBand.split('to');
@@ -891,6 +904,101 @@ function toggleNewRegistrarBox() {
 }
 
 // પેજ લોડ થાય ત્યારે અને એડિટ ફોર્મ ખૂલે ત્યારે ડ્રોપડાઉન અપડેટ કરવા માટેનું ફંક્શન
+function cleanRegistrarHost(rawUrl = '') {
+    try {
+        const u = new URL(/^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`);
+        return u.hostname.replace(/^www\./i, '').toLowerCase();
+    } catch {
+        return '';
+    }
+}
+
+function detectCanonicalRegistrarId(text = '') {
+    const combined = String(text || '').toUpperCase();
+    if (!combined.trim()) return '';
+    if (combined.includes('BIGSHARE')) return 'BIGSHARE';
+    if (combined.includes('MPMS.MUFG') || combined.includes('MUFG')) return 'MUFG';
+    if (combined.includes('LINKINTIME') || combined.includes('LINK-INTIME') || combined.includes('LINK INTIME')) return 'LINKINTIME';
+    if (combined.includes('KFIN') || combined.includes('KOSMIC') || combined.includes('KPRISM') || combined.includes('KARVY')) return 'KFIN';
+    if (combined.includes('MAASHITLA')) return 'MAASHITLA';
+    if (combined.includes('SKYLINERTA') || combined.includes('SKYLINE')) return 'SKYLINE';
+    if (combined.includes('PURVA')) return 'PURVA';
+    if (combined.includes('CAMEO')) return 'CAMEO';
+    if (combined.includes('SATELLITE')) return 'SATELLITE';
+    if (combined.includes('ABHIPRA')) return 'ABHIPRA';
+    if (combined.includes('ACCURATE')) return 'ACCURATE';
+    if (combined.includes('BEETAL')) return 'BEETALFC';
+    if (combined.includes('ALANKIT')) return 'ALANKIT';
+    if (/\bANKIT\b/.test(combined) || combined.includes('ANKITONLINE')) return 'ANKIT';
+    if (combined.includes('INTEGRATED')) return 'INTEGRATED';
+    if (combined.includes('MUDRA')) return 'MUDRA';
+    if (combined.includes('MASSERV') || /\bMAS\b/.test(combined)) return 'MAS';
+    if (combined.includes('NSEINDIA') || /\bNSE\b/.test(combined)) return 'NSE';
+    if (combined.includes('BSEINDIA') || /\bBSE\b/.test(combined)) return 'BSE';
+    return '';
+}
+
+function findRegistrarOptionMatch(registrarUrl = '', regName = '', regWeb = '', registrarsList = getSavedRegistrars()) {
+    if (!Array.isArray(registrarsList) || registrarsList.length === 0) return null;
+
+    const normUrl = (registrarUrl || '').trim().replace(/\/+$/, '').toLowerCase();
+    if (normUrl) {
+        const exact = registrarsList.find(r => (r.url || '').trim().replace(/\/+$/, '').toLowerCase() === normUrl);
+        if (exact) return exact;
+    }
+
+    const canonicalId = detectCanonicalRegistrarId(`${regName || ''} ${registrarUrl || ''} ${regWeb || ''}`);
+    if (canonicalId) {
+        const byId = registrarsList.find(r => (r.id || '').toUpperCase() === canonicalId);
+        if (byId) return byId;
+        const byKeyword = registrarsList.find(r => detectCanonicalRegistrarId(`${r.id || ''} ${r.name || ''} ${r.website || ''} ${r.url || ''}`) === canonicalId);
+        if (byKeyword) return byKeyword;
+        // Fallback between MUFG & LINKINTIME if only one exists in saved list
+        if (canonicalId === 'LINKINTIME' || canonicalId === 'MUFG') {
+            const partnerId = canonicalId === 'LINKINTIME' ? 'MUFG' : 'LINKINTIME';
+            const partner = registrarsList.find(r => (r.id || '').toUpperCase() === partnerId || detectCanonicalRegistrarId(`${r.name || ''} ${r.website || ''} ${r.url || ''}`) === partnerId);
+            if (partner) return partner;
+        }
+    }
+
+    const host = cleanRegistrarHost(registrarUrl || regWeb);
+    if (host) {
+        const byHost = registrarsList.find(r => {
+            const rHost = cleanRegistrarHost(r.url || r.website);
+            return rHost && (host === rHost || host.endsWith('.' + rHost) || rHost.endsWith('.' + host));
+        });
+        if (byHost) return byHost;
+    }
+
+    return null;
+}
+
+function syncRegistrarDropdownSelection(registrarUrl = '', regName = '', regWeb = '') {
+    const selectEl = document.getElementById('adm_registrarSelect');
+    const linkInput = document.getElementById('adm_allotmentLink');
+    if (!selectEl) return;
+
+    if (selectEl.options.length <= 1) {
+        loadRegistrarDropdown();
+    }
+
+    const registrars = getSavedRegistrars();
+    const matched = findRegistrarOptionMatch(registrarUrl, regName, regWeb, registrars);
+    if (matched && matched.url) {
+        const targetVal = matched.url;
+        const hasOption = Array.from(selectEl.options).some(opt => opt.value === targetVal);
+        if (!hasOption) {
+            loadRegistrarDropdown();
+        }
+        selectEl.value = targetVal;
+        if (linkInput && !linkInput.value.trim()) {
+            linkInput.value = targetVal;
+        }
+    } else {
+        selectEl.value = '';
+    }
+}
+
 function loadRegistrarDropdown() {
     const selectEl = document.getElementById('adm_registrarSelect');
     if (!selectEl) return;
@@ -1651,6 +1759,55 @@ function parseChittorgarhHtml(html, pageUrl) {
             ];
         }
 
+        // Parse IPO Registrar block (card containing a.registrar-name / h2 "IPO Registrar")
+        let registrar = null;
+        const regNameEl = doc.querySelector('a.registrar-name');
+        let rawRegName = regNameEl ? regNameEl.textContent.replace(/\s+/g, ' ').trim() : '';
+        let regScope = regNameEl ? regNameEl.parentElement?.parentElement : null;
+        if (!regScope) {
+            const headings = Array.from(doc.querySelectorAll('h2, h3, h4'));
+            const regH = headings.find(h => /ipo\s*registrar/i.test(h.textContent || ''));
+            if (regH) {
+                regScope = regH.parentElement;
+                if (!rawRegName) rawRegName = regScope?.querySelector('a')?.textContent.replace(/\s+/g, ' ').trim() || '';
+            }
+        }
+        let rawRegUrl = regScope?.querySelector('a.registrar-website')?.getAttribute('href')?.trim() || '';
+        let regMobile = '';
+        let regEmail = '';
+        if (regScope) {
+            regScope.querySelectorAll('ul.registrar-info li').forEach(li => {
+                const txt = (li.textContent || '').replace(/\s+/g, ' ').trim();
+                if (li.querySelector('.fa-phone') && !regMobile && txt && !/visit\s*website/i.test(txt)) {
+                    regMobile = txt;
+                }
+                if ((li.querySelector('.fa-envelope') || txt.includes('@')) && !regEmail && txt.includes('@')) {
+                    regEmail = txt;
+                }
+            });
+        }
+        if (!rawRegUrl) {
+            rawRegUrl = doc.querySelector('a.registrar-website')?.getAttribute('href')?.trim() || '';
+        }
+        if (rawRegName || rawRegUrl) {
+            const matchedMaster = findRegistrarOptionMatch(rawRegUrl, rawRegName, '');
+            registrar = matchedMaster ? {
+                registrarId: matchedMaster.id || detectCanonicalRegistrarId(`${matchedMaster.name} ${matchedMaster.url}`),
+                regName: matchedMaster.name,
+                regWeb: matchedMaster.website || cleanRegistrarHost(matchedMaster.url),
+                regMobile,
+                regEmail,
+                registrarUrl: matchedMaster.url
+            } : {
+                registrarId: '',
+                regName: rawRegName,
+                regWeb: cleanRegistrarHost(rawRegUrl),
+                regMobile,
+                regEmail,
+                registrarUrl: rawRegUrl
+            };
+        }
+
         return {
             name,
             type,
@@ -1659,7 +1816,8 @@ function parseChittorgarhHtml(html, pageUrl) {
             fin,
             customLots,
             valuation: Object.keys(valuation).length > 0 ? valuation : null,
-            reservation
+            reservation,
+            registrar
         };
     } catch (err) {
         console.error("DOMParser Chittorgarh Error:", err);
@@ -2139,6 +2297,7 @@ window.fetchAndAutoFillFromChittorgarh = async function() {
         }
 
         // ૨. લોકલહોસ્ટ પર લોકલ બેકએન્ડ ચાલુ હોય તો તેનો ઉપયોગ કરો, નહીંતર Cloud Sync પહેલા ટોકન ચકાસો
+        const currentAllotmentLink = document.getElementById('adm_allotmentLink')?.value.trim() || '';
         const localData = await tryLocalBackendChittorgarh(rawVal);
         let populatedIpo = null;
 
@@ -2159,6 +2318,23 @@ window.fetchAndAutoFillFromChittorgarh = async function() {
                     existing[f] = d[f];
                 }
             }
+            if (d.registrar) {
+                const matchedLocalReg = findRegistrarOptionMatch(d.registrar.registrarUrl, d.registrar.regName, d.registrar.regWeb);
+                const resolvedUrl = (matchedLocalReg && matchedLocalReg.url) || d.registrar.registrarUrl || '';
+                if (!currentAllotmentLink) {
+                    existing.registrarUrl = resolvedUrl;
+                } else {
+                    existing.registrarUrl = currentAllotmentLink;
+                }
+                const sameAsExistingUrl = !currentAllotmentLink || !matchedLocalReg || findRegistrarOptionMatch(currentAllotmentLink)?.id === (matchedLocalReg?.id || d.registrar.registrarId);
+                if (sameAsExistingUrl) {
+                    existing.registrarId = (matchedLocalReg && matchedLocalReg.id) || d.registrar.registrarId || '';
+                    existing.regName = (matchedLocalReg && matchedLocalReg.name) || d.registrar.regName || '';
+                    existing.regWeb = (matchedLocalReg && matchedLocalReg.website) || d.registrar.regWeb || '';
+                    if (d.registrar.regMobile) existing.regMobile = d.registrar.regMobile;
+                    if (d.registrar.regEmail) existing.regEmail = d.registrar.regEmail;
+                }
+            }
             dbData[ipoId] = existing;
             await saveAdminDataToCloud(dbData);
             populatedIpo = existing;
@@ -2173,6 +2349,7 @@ window.fetchAndAutoFillFromChittorgarh = async function() {
             existing.name = companyName || existing.name || 'New IPO';
             existing.chittorgarhKey = rawVal;
             existing.type = document.getElementById('adm_type')?.value || existing.type || 'Mainboard';
+            existing.registrarUrl = currentAllotmentLink;
             dbData[ipoId] = existing;
             await saveAdminDataToCloud(dbData);
 
@@ -2198,7 +2375,7 @@ window.fetchAndAutoFillFromChittorgarh = async function() {
 
         if (hasCoreData) {
             setStatus('✅ Chittorgarh પરથી તમામ ડેટા સફળતાપૂર્વક ફોર્મમાં ભરાઈ ગયો!', '#166534');
-            alert(`🎉 Chittorgarh પરથી તમામ વિગતો સફળતાપૂર્વક ફોર્મમાં ભરાઈ ગઈ છે!\n\n✓ Name: ${populatedIpo.name}\n✓ Open Date: ${formatDateReadable(populatedIpo.openDate)}\n✓ Close Date: ${formatDateReadable(populatedIpo.closeDate)}\n✓ Price Band: ${populatedIpo.priceBand || '₹-'}\n✓ Lot Size: ${populatedIpo.lotSize || '-'}\n\nહવે તમે ફોર્મ ચકાસીને "Save & Publish" કરી શકો છો.`);
+            alert(`🎉 Chittorgarh પરથી તમામ વિગતો સફળતાપૂર્વક ફોર્મમાં ભરાઈ ગઈ છે!\n\n✓ Name: ${populatedIpo.name}\n✓ Open Date: ${formatDateReadable(populatedIpo.openDate)}\n✓ Close Date: ${formatDateReadable(populatedIpo.closeDate)}\n✓ Price Band: ${populatedIpo.priceBand || '₹-'}\n✓ Lot Size: ${populatedIpo.lotSize || '-'}\n✓ Registrar: ${populatedIpo.regName || populatedIpo.registrarUrl || '-'}\n\nહવે તમે ફોર્મ ચકાસીને "Save & Publish" કરી શકો છો.`);
         } else {
             setStatus('⚠️ Sync પૂર્ણ થયું, પણ Chittorgarh પર હજુ તારીખ/પ્રાઈસ (TBE) ઉપલબ્ધ નથી અથવા URL ખોટી છે.', '#b45309');
             alert('⚠️ Cloud Sync સફળતાપૂર્વક પૂર્ણ થયું, પરંતુ આ IPO ની Chittorgarh લિંક પર હજુ તારીખો અને પ્રાઈસ બેન્ડ અપલોડ થયા નથી (અથવા URL ચકાસો).');
@@ -2284,7 +2461,7 @@ window.syncSingleIpo = async function(ipoId) {
 
         if (hasCoreData) {
             setBadge('✅ Synced Successfully!', '#dcfce7', '#166534');
-            alert(`🎉 IPO "${updatedIpo.name}" નો તમામ ડેટા Chittorgarh પરથી સફળતાપૂર્વક અપડેટ થઈ ગયો છે!\n\n✓ Open Date: ${formatDateReadable(updatedIpo.openDate)}\n✓ Close Date: ${formatDateReadable(updatedIpo.closeDate)}\n✓ Price Band: ${updatedIpo.priceBand || '₹-'}\n✓ Lot Size: ${updatedIpo.lotSize || '-'}\n✓ Financials & Valuations Synced!`);
+            alert(`🎉 IPO "${updatedIpo.name}" નો તમામ ડેટા Chittorgarh પરથી સફળતાપૂર્વક અપડેટ થઈ ગયો છે!\n\n✓ Open Date: ${formatDateReadable(updatedIpo.openDate)}\n✓ Close Date: ${formatDateReadable(updatedIpo.closeDate)}\n✓ Price Band: ${updatedIpo.priceBand || '₹-'}\n✓ Lot Size: ${updatedIpo.lotSize || '-'}\n✓ Registrar: ${updatedIpo.regName || updatedIpo.registrarUrl || '-'}\n✓ Financials & Valuations Synced!`);
         } else {
             setBadge('⚠️ Sync Done (Dates Pending on Source)', '#fef3c7', '#92400e');
             alert(`⚠️ IPO "${ipo.name}" માટે Cloud Sync પૂર્ણ થયું, પરંતુ Chittorgarh પેજ પર હજુ તારીખો કે પ્રાઈસ બેન્ડ જાહેર થયા નથી (અથવા URL ચકાસો).`);

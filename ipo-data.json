@@ -4787,9 +4787,64 @@
   "ATI446": {
     "id": "ATI446",
     "name": "Airpro Technology India IPO Details",
-    "chittorgarhKey": "https://www.chittorgarh.com/ipo/airpro-technology-ipo/3161/",
+    "logo": "ATI446",
     "type": "SME",
+    "about": "",
+    "priceBand": "",
+    "cutOff": 0,
+    "lotRaw": 1200,
+    "lotSize": "1200 Shares",
+    "faceValue": "₹10 per share",
+    "empDiscount": "Nil",
+    "totalSize": "36,00,000 shares (agg. up to ₹35.64 Cr)",
+    "freshIssue": "27,40,000 shares (agg. up to ₹27.13 Cr)",
+    "ofs": "6,80,000 shares of ₹10 (agg. up to ₹6.73 Cr)",
+    "listingAt": "NSE SME",
+    "bseCode": "",
+    "nseCode": "",
+    "isinCode": "",
+    "mcScId": "",
+    "listingPriceNse": null,
+    "listingPriceBse": null,
+    "openDate": "2026-11-27",
+    "closeDate": "2026-12-01",
+    "allotmentDate": "2026-12-02",
+    "listingDate": "2026-12-04",
+    "gmp": "",
+    "estPrice": "",
+    "bookProfit": "",
+    "chittorgarhKey": "https://www.chittorgarh.com/ipo/airpro-technology-ipo/3161/",
+    "isAllotmentOut": false,
     "registrarUrl": "https://in.mpms.mufg.com/Initial_Offer/public-issues.html",
+    "registrarId": "MUFG",
+    "regName": "MUFG Intime India Private Limited",
+    "regWeb": "in.mpms.mufg.com",
+    "regMobile": "022-49186000",
+    "regEmail": "airprotechnology.smeipo@in.mpms.mufg.com",
+    "valuation": {
+      "eps": "5.09",
+      "pe": "19.45",
+      "ronw": "47.13%",
+      "nav": "13.47",
+      "ebitdaMargin": "24.06%",
+      "patMargin": "15.56%"
+    },
+    "reservation": [
+      {
+        "category": "QIB",
+        "percentage": "50%"
+      },
+      {
+        "category": "NII (HNI)",
+        "percentage": "50.04%",
+        "shares": "17,11,200"
+      },
+      {
+        "category": "Retail",
+        "percentage": "49.96%",
+        "shares": "17,08,800"
+      }
+    ],
     "subShares": [
       {
         "cat": "QIB",
@@ -4827,17 +4882,23 @@
         "app": 0
       }
     ],
-    "openDate": "2026-11-27",
-    "closeDate": "2026-12-01",
-    "allotmentDate": "2026-12-02",
-    "listingDate": "2026-12-04",
-    "lotRaw": 1200,
-    "lotSize": "1200 Shares",
-    "faceValue": "₹10 per share",
-    "totalSize": "36,00,000 shares (agg. up to ₹35.64 Cr)",
-    "freshIssue": "27,40,000 shares (agg. up to ₹27.13 Cr)",
-    "ofs": "6,80,000 shares of ₹10 (agg. up to ₹6.73 Cr)",
-    "listingAt": "NSE SME",
+    "subApps": [
+      {
+        "cat": "B-NII(₹10L+)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "S-NII(₹2-10L)",
+        "off": 0,
+        "app": 0
+      },
+      {
+        "cat": "Retail",
+        "off": 0,
+        "app": 0
+      }
+    ],
     "customLots": [
       {
         "app": "Retail Min",
@@ -4882,34 +4943,13 @@
         "prf": "3.18"
       }
     },
-    "valuation": {
-      "ronw": "47.13%",
-      "patMargin": "15.56%",
-      "ebitdaMargin": "24.06%",
-      "nav": "13.47",
-      "eps": "5.09",
-      "pe": "19.45"
-    },
-    "reservation": [
-      {
-        "category": "QIB",
-        "percentage": "50%"
-      },
-      {
-        "category": "NII (HNI)",
-        "percentage": "50.04%",
-        "shares": "17,11,200"
-      },
-      {
-        "category": "Retail",
-        "percentage": "49.96%",
-        "shares": "17,08,800"
-      }
-    ],
-    "registrarId": "MUFG",
-    "regName": "MUFG Intime India Private Limited",
-    "regWeb": "in.mpms.mufg.com",
-    "regMobile": "022-49186000",
-    "regEmail": "airprotechnology.smeipo@in.mpms.mufg.com"
+    "manualDates": false,
+    "manualIssueInfo": false,
+    "manualLots": false,
+    "manualFin": false,
+    "manualValuation": false,
+    "manualSub": false,
+    "manualListingInfo": false,
+    "manualLockAll": false
   }
 }

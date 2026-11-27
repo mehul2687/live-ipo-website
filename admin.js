@@ -230,11 +230,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 },
                 
                 // રિઝર્વેશન પર્સન્ટેજ ડેટા સેવ કરવા માટે
-                reservation: [
-                    { category: "QIB", percentage: (document.getElementById('res_qib')?.value || '50') + "%", ...(existingIpo?.reservation?.[0]?.shares ? { shares: existingIpo.reservation[0].shares } : {}) },
-                    { category: "NII (HNI)", percentage: (document.getElementById('res_nii')?.value || '15') + "%", ...(existingIpo?.reservation?.[1]?.shares ? { shares: existingIpo.reservation[1].shares } : {}) },
-                    { category: "Retail", percentage: (document.getElementById('res_retail')?.value || '35') + "%", ...(existingIpo?.reservation?.[2]?.shares ? { shares: existingIpo.reservation[2].shares } : {}) }
-                ],
+                reservation: (() => {
+                    const qRaw = document.getElementById('res_qib')?.value.trim() || '';
+                    const nRaw = document.getElementById('res_nii')?.value.trim() || '';
+                    const rRaw = document.getElementById('res_retail')?.value.trim() || '';
+                    const hasRes = Boolean(qRaw || nRaw || rRaw || (Array.isArray(existingIpo?.reservation) && existingIpo.reservation.length > 0));
+                    const qPct = qRaw || (hasRes ? '0' : '50');
+                    const nPct = nRaw || (hasRes ? '0' : '15');
+                    const rPct = rRaw || (hasRes ? '0' : '35');
+                    return [
+                        { category: "QIB", percentage: qPct + "%", ...(parseFloat(qPct) > 0 && existingIpo?.reservation?.[0]?.shares ? { shares: existingIpo.reservation[0].shares } : {}) },
+                        { category: "NII (HNI)", percentage: nPct + "%", ...(parseFloat(nPct) > 0 && existingIpo?.reservation?.[1]?.shares ? { shares: existingIpo.reservation[1].shares } : {}) },
+                        { category: "Retail", percentage: rPct + "%", ...(parseFloat(rPct) > 0 && existingIpo?.reservation?.[2]?.shares ? { shares: existingIpo.reservation[2].shares } : {}) }
+                    ];
+                })(),
                 
                 // સબસ્ક્રિપ્શન શેર ડેટા સેવ કરવા માટે
                 subShares: [
@@ -1757,9 +1766,9 @@ function parseChittorgarhHtml(html, pageUrl) {
         let reservation = null;
         if (resQib?.pct || resNii?.pct || resRetail?.pct) {
             reservation = [
-                { category: "QIB", percentage: resQib?.pct || "50%", ...(resQib?.shares ? { shares: resQib.shares } : {}) },
-                { category: "NII (HNI)", percentage: resNii?.pct || "15%", ...(resNii?.shares ? { shares: resNii.shares } : {}) },
-                { category: "Retail", percentage: resRetail?.pct || "35%", ...(resRetail?.shares ? { shares: resRetail.shares } : {}) }
+                { category: "QIB", percentage: resQib?.pct || "0%", ...(resQib?.shares ? { shares: resQib.shares } : {}) },
+                { category: "NII (HNI)", percentage: resNii?.pct || "0%", ...(resNii?.shares ? { shares: resNii.shares } : {}) },
+                { category: "Retail", percentage: resRetail?.pct || "0%", ...(resRetail?.shares ? { shares: resRetail.shares } : {}) }
             ];
         }
 

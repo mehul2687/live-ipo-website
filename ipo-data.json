@@ -4832,7 +4832,7 @@
     "reservation": [
       {
         "category": "QIB",
-        "percentage": "50%"
+        "percentage": "0%"
       },
       {
         "category": "NII (HNI)",

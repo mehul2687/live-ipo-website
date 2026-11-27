@@ -800,7 +800,7 @@ async function loadDynamicIpoDetails() {
         reservationData.forEach(row => {
             let pct = parseFloat(row.percentage) || 0;
             let calculatedShares = Math.round((baseShares * pct) / 100);
-            let formattedShares = (row.shares && row.shares !== '-' && row.shares !== '0')
+            let formattedShares = (pct > 0 && row.shares && row.shares !== '-' && row.shares !== '0')
                 ? row.shares
                 : (calculatedShares > 0 ? calculatedShares.toLocaleString('en-IN') : '0');
 

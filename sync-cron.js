@@ -784,9 +784,9 @@ async function get_Chittorgarh_details_data(key) {
         let reservation = null;
         if (qibObj?.pct || niiObj?.pct || retailObj?.pct) {
             reservation = [
-                { category: "QIB", percentage: qibObj?.pct || "50%", ...(qibObj?.shares ? { shares: qibObj.shares } : {}) },
-                { category: "NII (HNI)", percentage: niiObj?.pct || "15%", ...(niiObj?.shares ? { shares: niiObj.shares } : {}) },
-                { category: "Retail", percentage: retailObj?.pct || "35%", ...(retailObj?.shares ? { shares: retailObj.shares } : {}) }
+                { category: "QIB", percentage: qibObj?.pct || "0%", ...(qibObj?.shares ? { shares: qibObj.shares } : {}) },
+                { category: "NII (HNI)", percentage: niiObj?.pct || "0%", ...(niiObj?.shares ? { shares: niiObj.shares } : {}) },
+                { category: "Retail", percentage: retailObj?.pct || "0%", ...(retailObj?.shares ? { shares: retailObj.shares } : {}) }
             ];
         }
 

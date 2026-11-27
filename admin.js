@@ -540,11 +540,11 @@ async function loadAdminDashboard() {
                         <span class="${statusObj.class}">${statusObj.text}</span>
                     </td>
                     <td style="text-align: center;">
-                        <div class="action-btns" style="justify-content: center; gap: 4px;">
-                            <button type="button" onclick="quickSaveFromDashboard('${ipo.id}')" class="btn-action-edit" style="background: #166534; color: #fff;" title="Save GMP & Allotment">💾 Save</button>
-                            <button type="button" onclick="editIpo('${ipo.id}')" class="btn-action-edit" title="Full Edit">✏️ Edit</button>
-                            <button type="button" onclick="syncSingleIpo('${ipo.id}')" class="btn-action-edit" style="background: #0284c7; color: #fff;" title="Auto-Sync data from Chittorgarh">⚡ Sync</button>
-                            <button type="button" onclick="deleteIpo('${ipo.id}')" class="btn-action-del" title="Delete">🗑️</button>
+                        <div class="action-btns">
+                            <button type="button" onclick="quickSaveFromDashboard('${ipo.id}')" class="btn-action-edit btn-action-icon" style="background: #166534; color: #fff;" title="Save GMP & Allotment" aria-label="Save GMP & Allotment">💾</button>
+                            <button type="button" onclick="editIpo('${ipo.id}')" class="btn-action-edit btn-action-icon" title="Edit IPO Details" aria-label="Edit IPO Details">✏️</button>
+                            <button type="button" onclick="syncSingleIpo('${ipo.id}')" class="btn-action-edit btn-action-icon" style="background: #0284c7; color: #fff;" title="Auto-Sync Data from Chittorgarh" aria-label="Auto-Sync Data">⚡</button>
+                            <button type="button" onclick="deleteIpo('${ipo.id}')" class="btn-action-del btn-action-icon" title="Delete IPO" aria-label="Delete IPO">🗑️</button>
                         </div>
                     </td>
                 </tr>
@@ -2453,7 +2453,8 @@ window.syncSingleIpo = async function(ipoId) {
 
     const rowBtns = document.querySelectorAll(`button[onclick*="syncSingleIpo('${ipoId}')"]`);
     rowBtns.forEach(b => {
-        b.innerHTML = '🔄 Syncing...';
+        b.innerHTML = '<span class="spin-anim" style="display:inline-block;">🔄</span>';
+        b.title = 'Syncing live data...';
         b.disabled = true;
     });
 
@@ -2476,7 +2477,7 @@ window.syncSingleIpo = async function(ipoId) {
                 setBadge(`${msg} — ${ipo.name}`);
                 const secMatch = msg.match(/\((\d+s)\)/);
                 if (secMatch) {
-                    rowBtns.forEach(b => b.innerHTML = `🔄 (${secMatch[1]})`);
+                    rowBtns.forEach(b => { b.title = `Syncing (${secMatch[1]})...`; });
                 }
             }
         });
@@ -2504,7 +2505,8 @@ window.syncSingleIpo = async function(ipoId) {
         alert(`❌ Sync કરવામાં ક્ષતિ આવી:\n${err.message}`);
     } finally {
         rowBtns.forEach(b => {
-            b.innerHTML = '⚡ Sync';
+            b.innerHTML = '⚡';
+            b.title = 'Auto-Sync Data from Chittorgarh';
             b.disabled = false;
         });
         setTimeout(() => { if (badge) badge.style.display = 'none'; }, 6000);

@@ -175,11 +175,12 @@ body {
 .admin-table tbody tr.row-neutral:hover {
     background-color: #f8fafc !important;
 }
-.action-btns { display: flex; gap: 4px; justify-content: center; }
+.action-btns { display: flex; gap: 5px; justify-content: center; align-items: center; }
 .btn-action-edit { background: #e0f2fe; color: #0284c7; border: none; padding: 4px 7px; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 11px; white-space: nowrap; transition: all 0.15s; }
 .btn-action-edit:hover { opacity: 0.9; transform: translateY(-1px); }
 .btn-action-del { background: #fee2e2; color: #dc2626; border: none; padding: 4px 7px; border-radius: 4px; cursor: pointer; font-weight: 700; font-size: 11px; white-space: nowrap; transition: all 0.15s; }
 .btn-action-del:hover { background: #fecaca; transform: translateY(-1px); }
+.btn-action-icon { width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; line-height: 1; border-radius: 6px; }
 
 /* Pagination Controls Styling */
 .pagination-controls {

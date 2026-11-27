@@ -3661,7 +3661,7 @@
     "bseCode": "",
     "nseCode": "WATRANA",
     "isinCode": "INE11NS01011",
-    "mcScId": "",
+    "mcScId": "WRL",
     "listingPriceNse": null,
     "listingPriceBse": null,
     "openDate": "2026-11-19",
@@ -3836,7 +3836,7 @@
     "estPrice": "",
     "bookProfit": "",
     "chittorgarhKey": "https://www.chittorgarh.com/ipo/mahanadi-coalfields-ipo/3247/",
-    "isAllotmentOut": false,
+    "isAllotmentOut": true,
     "registrarUrl": "https://ipostatus.kfintech.com/",
     "valuation": {
       "eps": "14.50",

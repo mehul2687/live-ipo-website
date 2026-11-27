@@ -3640,7 +3640,12 @@
     "manualValuation": false,
     "manualSub": false,
     "manualListingInfo": false,
-    "manualLockAll": false
+    "manualLockAll": false,
+    "registrarId": "MUFG",
+    "regName": "MUFG Intime India Private Limited",
+    "regWeb": "in.mpms.mufg.com",
+    "regMobile": "022-49186000",
+    "regEmail": "crystalcrop.ipo@in.mpms.mufg.com"
   },
   "WRD524": {
     "id": "WRD524",
@@ -3662,7 +3667,7 @@
     "nseCode": "WATRANA",
     "isinCode": "INE11NS01011",
     "mcScId": "WRL",
-    "listingPriceNse": null,
+    "listingPriceNse": 243,
     "listingPriceBse": null,
     "openDate": "2026-11-19",
     "closeDate": "2026-11-23",
@@ -3804,7 +3809,12 @@
     "manualValuation": false,
     "manualSub": false,
     "manualListingInfo": false,
-    "manualLockAll": false
+    "manualLockAll": false,
+    "registrarId": "MAASHITLA",
+    "regName": "Maashitla Securities Private Limited",
+    "regWeb": "maashitla.com",
+    "regMobile": "011-45121795",
+    "regEmail": "ipo@maashitla.com"
   },
   "MCD464": {
     "id": "MCD464",
@@ -3818,16 +3828,16 @@
     "lotSize": "110 Shares",
     "faceValue": "₹2 per share",
     "empDiscount": "₹6.00",
-    "totalSize": "66,18,36,300 shares (agg. up to ₹8,981.12 Cr)",
+    "totalSize": "66,18,36,300 shares (agg. up to ₹8,997.52 Cr)",
     "freshIssue": "N/A",
-    "ofs": "66,18,36,300 shares of ₹2 (agg. up to ₹8,981.12 Cr)",
+    "ofs": "66,18,36,300 shares of ₹2 (agg. up to ₹8,997.52 Cr)",
     "listingAt": "BSE, NSE",
     "bseCode": "545032",
     "nseCode": "MAHACOAL",
     "isinCode": "INE03K401026",
     "mcScId": "MCL10",
-    "listingPriceNse": null,
-    "listingPriceBse": null,
+    "listingPriceNse": 134,
+    "listingPriceBse": 133.15,
     "openDate": "2026-11-19",
     "closeDate": "2026-11-23",
     "allotmentDate": "2026-11-25",
@@ -3968,7 +3978,12 @@
     "manualValuation": false,
     "manualSub": false,
     "manualListingInfo": false,
-    "manualLockAll": false
+    "manualLockAll": false,
+    "registrarId": "KFIN",
+    "regName": "Kfin Technologies Private Limited",
+    "regWeb": "kfintech.com",
+    "regMobile": "040-79615565",
+    "regEmail": "mahanadi.ipo@kfintech.com"
   },
   "SSG668": {
     "id": "SSG668",
@@ -4036,22 +4051,22 @@
       {
         "cat": "NII",
         "off": 3100000,
-        "app": 2573000
+        "app": 2995000
       },
       {
         "cat": "B-NII(₹10L+)",
         "off": 2067000,
-        "app": 2096000
+        "app": 2286000
       },
       {
         "cat": "S-NII(₹2-10L)",
         "off": 1033000,
-        "app": 477000
+        "app": 709000
       },
       {
         "cat": "Retail",
         "off": 3100000,
-        "app": 5254000
+        "app": 7300000
       },
       {
         "cat": "Employee",
@@ -4132,7 +4147,12 @@
     "manualValuation": false,
     "manualSub": false,
     "manualListingInfo": false,
-    "manualLockAll": false
+    "manualLockAll": false,
+    "registrarId": "MAS",
+    "regName": "Mas Services Limited",
+    "regWeb": "masserv.com",
+    "regMobile": "011-2638728182",
+    "regEmail": "ipo@masserv.com"
   },
   "AJP633": {
     "id": "AJP633",
@@ -4165,7 +4185,7 @@
     "bookProfit": "",
     "chittorgarhKey": "https://www.chittorgarh.com/ipo/a-j-packaging-ipo/2978/",
     "isAllotmentOut": false,
-    "registrarUrl": "",
+    "registrarUrl": "https://in.mpms.mufg.com/Initial_Offer/public-issues.html",
     "valuation": {
       "eps": "13.28",
       "pe": "13.55",
@@ -4296,7 +4316,12 @@
     "manualValuation": false,
     "manualSub": false,
     "manualListingInfo": false,
-    "manualLockAll": false
+    "manualLockAll": false,
+    "registrarId": "MUFG",
+    "regName": "MUFG Intime India Private Limited",
+    "regWeb": "in.mpms.mufg.com",
+    "regMobile": "022-49186000",
+    "regEmail": "ajpackaging.smeipo@in.mpms.mufg.com"
   },
   "FFH959": {
     "id": "FFH959",
@@ -4329,7 +4354,7 @@
     "bookProfit": "",
     "chittorgarhKey": "https://www.chittorgarh.com/ipo/foodlink-fb-ipo/2493/",
     "isAllotmentOut": false,
-    "registrarUrl": "",
+    "registrarUrl": "https://in.mpms.mufg.com/Initial_Offer/public-issues.html",
     "valuation": {
       "eps": "-ve",
       "pe": "-ve",
@@ -4359,27 +4384,27 @@
       {
         "cat": "QIB",
         "off": 5666321,
-        "app": 5666310
+        "app": 5667402
       },
       {
         "cat": "NII",
         "off": 2833161,
-        "app": 1174914
+        "app": 2097342
       },
       {
         "cat": "B-NII(₹10L+)",
         "off": 1888774,
-        "app": 645918
+        "app": 1151358
       },
       {
         "cat": "S-NII(₹2-10L)",
         "off": 944387,
-        "app": 528996
+        "app": 945984
       },
       {
         "cat": "Retail",
         "off": 1888774,
-        "app": 4794972
+        "app": 7727070
       },
       {
         "cat": "Employee",
@@ -4460,7 +4485,12 @@
     "manualValuation": false,
     "manualSub": false,
     "manualListingInfo": false,
-    "manualLockAll": false
+    "manualLockAll": false,
+    "registrarId": "MUFG",
+    "regName": "MUFG Intime India Private Limited",
+    "regWeb": "in.mpms.mufg.com",
+    "regMobile": "022-49186000",
+    "regEmail": "foodlink.ipo@in.mpms.mufg.com"
   },
   "MRD855": {
     "id": "MRD855",
@@ -4493,7 +4523,7 @@
     "bookProfit": "",
     "chittorgarhKey": "https://www.chittorgarh.com/ipo/matangi-rubber-ipo/3136/",
     "isAllotmentOut": false,
-    "registrarUrl": "",
+    "registrarUrl": "https://ipo.bigshareonline.com/IPO_Status.html",
     "valuation": {
       "eps": "8.97",
       "pe": "19.18",
@@ -4621,7 +4651,12 @@
     "manualValuation": false,
     "manualSub": false,
     "manualListingInfo": false,
-    "manualLockAll": false
+    "manualLockAll": false,
+    "registrarId": "BIGSHARE",
+    "regName": "Bigshare Services Private Limited",
+    "regWeb": "bigshareonline.com",
+    "regMobile": "8657578989/8069219065/8069219060",
+    "regEmail": "ipo@bigshareonline.com"
   },
   "ME(788": {
     "id": "ME(788",
@@ -4654,7 +4689,7 @@
     "bookProfit": "",
     "chittorgarhKey": "https://www.chittorgarh.com/ipo/monomark-engineering-ipo/2972/",
     "isAllotmentOut": false,
-    "registrarUrl": "",
+    "registrarUrl": "https://ipo.bigshareonline.com/IPO_Status.html",
     "valuation": {
       "eps": "1.26",
       "pe": "51.59",
@@ -4769,10 +4804,10 @@
       },
       "jun26": {
         "yr": "30 Jun 2026",
-        "ast": "349.30",
-        "rev": "142.82",
+        "ast": "-",
+        "rev": "-",
         "exp": "-",
-        "prf": "3.02"
+        "prf": "-"
       }
     },
     "manualDates": false,
@@ -4782,7 +4817,12 @@
     "manualValuation": false,
     "manualSub": false,
     "manualListingInfo": false,
-    "manualLockAll": false
+    "manualLockAll": false,
+    "registrarId": "BIGSHARE",
+    "regName": "Bigshare Services Private Limited",
+    "regWeb": "bigshareonline.com",
+    "regMobile": "8657578989/8069219065/8069219060",
+    "regEmail": "ipo@bigshareonline.com"
   },
   "ATI446": {
     "id": "ATI446",
